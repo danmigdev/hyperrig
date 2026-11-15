@@ -6,6 +6,8 @@
   "firmware_version": null,
   "image_sha256": null,
   "capabilities": {"identity": true, "read": false, "write": false, "panel": false},
+  "command_capabilities": {},
+  "command_validation": null,
   "panel": {"switch_count": 3, "switch_pins": null, "led_mapping": null, "knob_mapping": null},
   "usb": {"class": "CDC-ACM", "vendor_id": 13908, "product_id": 20821, "baud_rate": 115200},
   "ble": {

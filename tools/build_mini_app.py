@@ -23,6 +23,16 @@ CONVERTER_SHA = "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f25518
 FW_SOURCE = ROOT / "analysis/firmware/m571_g_app/app.bin"
 FW_SHA = "4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e"
 LICENSES = ("LICENSE.md", "NOTICE.md", "THIRD_PARTY_LICENSES.md")
+SCOPED_COMMANDS = {
+    "FXP": r"FXP (?:0|[1-9]\d*) (?:0|[1-9]\d*) -?(?:0|[1-9]\d*)",
+    "FXE": r"FXE (?:0|[1-9]\d*) [01]",
+    "PLOAD": r"PLOAD (?:[0-9]|[12][0-9]|3[01])",
+    "PSAVE": r"PSAVE (?:[0-9]|[12][0-9]|3[01]) [^\r\n\x00-\x1f\x7f]+",
+    "PDEL": r"PDEL (?:[0-9]|[12][0-9]|3[01])",
+    "SNAP": r"SNAP [0-3]",
+    "SNAPSAVE": r"SNAPSAVE [0-3]",
+}
+PERSISTENT_COMMANDS = {"PSAVE", "PDEL", "SNAPSAVE"}
 
 
 def sha(data: bytes) -> str:
@@ -40,6 +50,88 @@ def checked(path: Path, expected: str) -> bytes:
     return data
 
 
+def local_evidence(reference: dict, label: str) -> bytes:
+    if not isinstance(reference, dict) or set(reference) != {"path", "sha256"}:
+        raise ValueError(label + " needs exact path/sha256 fields")
+    if not isinstance(reference["path"], str) or not re.fullmatch(r"[a-f0-9]{64}", str(reference["sha256"])):
+        raise ValueError(label + " needs a local path and SHA-256")
+    path = (ROOT / reference["path"]).resolve()
+    if not path.is_relative_to(ROOT) or not path.is_file():
+        raise ValueError(label + " must be a file inside the workspace")
+    data = checked(path, reference["sha256"])
+    if not data:
+        raise ValueError(label + " is empty")
+    return data
+
+
+def command_grants(value: dict) -> dict:
+    """Closed grammar and exact requests: a checked value grants no range."""
+    if not isinstance(value, dict) or any(c not in SCOPED_COMMANDS for c in value):
+        raise ValueError("unsupported scoped command capability")
+    result = {}
+    for command, requests in value.items():
+        if (not isinstance(requests, list) or not requests or len(requests) > 256
+                or any(not isinstance(line, str) for line in requests)
+                or len(set(requests)) != len(requests)):
+            raise ValueError("scoped commands need distinct nonempty exact request lists")
+        for line in requests:
+            if line != line.strip() or not re.fullmatch(SCOPED_COMMANDS[command], line, flags=re.ASCII):
+                raise ValueError("invalid scoped request: " + repr(line))
+            if command == "PSAVE" and len(line.split(" ", 2)[2].encode("utf-16-le")) // 2 > 23:
+                raise ValueError("PSAVE names are limited to 23 UTF-16 units")
+            # M4.83+ USB line capacity, excluding LF, as in the original editor.
+            if len(line.encode("utf-8")) > 190:
+                raise ValueError("scoped request exceeds USB line capacity")
+        result[command] = sorted(requests)
+    return dict(sorted(result.items()))
+
+
+def load_command_validation(spec: dict, caps: dict) -> tuple[dict, dict | None]:
+    grants = command_grants(spec.get("command_capabilities", {}))
+    proof = spec.get("command_validation")
+    if not grants:
+        if proof is not None:
+            raise ValueError("command evidence without requested capabilities")
+        return {}, None
+    if caps.get("write"):
+        raise ValueError("choose scoped commands or the legacy full-write profile, not both")
+    if spec.get("hardware_verified") is not True or caps.get("read") is not True:
+        raise ValueError("scoped commands require hardware evidence and read capability")
+    evidence = json.loads(local_evidence(proof, "command validation"))
+    if (not isinstance(evidence, dict) or evidence.get("schema") != 1
+            or evidence.get("kind") != "mini-app-command-validation"
+            or evidence.get("target") != "tank-mini"
+            or evidence.get("firmware_version") != spec["firmware_version"]
+            or evidence.get("image_sha256") != spec["image_sha256"]
+            or evidence.get("hardware_executed") is not True
+            or evidence.get("transport") != "usb-cdc"
+            or evidence.get("editor_source_sha256") != SOURCE_SHA):
+        raise ValueError("command evidence does not match this image/editor/transport")
+    verified = command_grants(evidence.get("verified_requests", {}))
+    if verified != grants:
+        raise ValueError("command evidence must attest exactly the requested subset")
+    # The report is a reviewed assertion, not a PONG hash attestation or a
+    # generated hardware result. Bind it to the actual retained trace/backup.
+    local_evidence(evidence.get("trace"), "command trace")
+    local_evidence(evidence.get("backup"), "pre-test state backup")
+    if evidence.get("restoration_verified") is not True:
+        raise ValueError("command validation needs a verified restoration")
+    observations = evidence.get("observations")
+    wanted = {line for requests in grants.values() for line in requests}
+    if (not isinstance(observations, list) or len(observations) != len(wanted)
+            or any(not isinstance(o, dict) for o in observations)
+            or any(not isinstance(o.get("request"), str) for o in observations)
+            or {o.get("request") for o in observations} != wanted):
+        raise ValueError("each exact request needs its own observation")
+    for observation in observations:
+        command = observation["request"].split(" ")[0]
+        if observation.get("ack_verified") is not True or observation.get("readback_verified") is not True:
+            raise ValueError("command observation needs ACK and readback verification")
+        if command in PERSISTENT_COMMANDS and observation.get("persistence_readback_verified") is not True:
+            raise ValueError("persistent command needs reload/delete readback verification")
+    return grants, copy.deepcopy(proof)
+
+
 def load_profile(manifest: Path | None = None) -> dict:
     profile = json.loads((ROOT / "app/mini/board-profile.json").read_text("utf-8"))
     if manifest is None:
@@ -55,10 +147,13 @@ def load_profile(manifest: Path | None = None) -> dict:
         raise ValueError("image must be inside the workspace")
     checked(path, spec["image_sha256"])
     caps = spec.get("capabilities", {})
+    if not isinstance(caps, dict) or set(caps) - {"identity", "read", "write", "panel"}:
+        raise ValueError("unknown capability field")
     if any(type(value) is not bool for value in caps.values()):
         raise ValueError("capabilities must be booleans")
     if caps.get("panel"):
         raise ValueError("three-switch panel mapping is not implemented/validated yet")
+    grants, command_validation = load_command_validation(spec, caps)
     if caps.get("write"):
         proof = spec.get("write_validation") or {}
         proof_path = (ROOT / proof.get("path", "")).resolve()
@@ -72,7 +167,8 @@ def load_profile(manifest: Path | None = None) -> dict:
             raise ValueError("write evidence does not validate this image and editor contract")
     profile.update(firmware_version=version, image_sha256=spec["image_sha256"],
                    hardware_verified=spec.get("hardware_verified") is True,
-                   write_validation=copy.deepcopy(spec.get("write_validation")))
+                   write_validation=copy.deepcopy(spec.get("write_validation")),
+                   command_capabilities=grants, command_validation=command_validation)
     profile["capabilities"].update(read=caps.get("read", False), write=caps.get("write", False))
     return profile
 
@@ -105,10 +201,34 @@ def derive_html(source: str, profile: dict) -> tuple[str, list[dict]]:
             'const BLE_KEYS = "hyperrig.mini.blekeys";', "separate MINI Bluetooth credentials")
     replace('new BroadcastChannel("tankg-port")', 'new BroadcastChannel("hyperrig-mini-port")', "separate MINI tab ownership")
     replace('  cmd(line, until, timeout = 1500) {',
-            '  cmd(line, until, timeout = 1500) {\n    if (!DEMO) { const gate = HyperRigMini.commandPolicy(line); if (!gate.allowed) {\n      Log.ev("mini_command_blocked", { command: String(line).split(" ")[0], reason: gate.reason });\n      return Promise.resolve(["ERR MINI_APP " + gate.reason]);\n    } }', "command capabilities before queue or write")
+            '  cmd(line, until, timeout = 1500) {\n    if (!DEMO) { const gate = HyperRigMini.commandPolicy(line, this.tr === SerialTransport ? "usb-cdc" : "ble-nus"); if (!gate.allowed) {\n      Log.ev("mini_command_blocked", { command: String(line).split(" ")[0], reason: gate.reason });\n      return Promise.resolve(["ERR MINI_APP " + gate.reason]);\n    } }', "command capabilities before queue or write")
     replace('  S.connected = true; S.connAt = Date.now(); autoRe = null; ctlReleased = false; Tabs.busy = false; S.firstUse = false;',
-            '  const miniIdentity = HyperRigMini.acceptPong(pong);\n  if (!miniIdentity.ok) { toast(miniIdentity.reason, "err"); await Pedal.disconnect(); return new Error(miniIdentity.reason); }\n  S.connected = true; S.connAt = Date.now(); autoRe = null; ctlReleased = false; Tabs.busy = false; S.firstUse = false;', "verify MINI before first query or mutation")
+            '  const miniIdentity = HyperRigMini.acceptPong(pong, Pedal.tr === SerialTransport ? "usb-cdc" : "ble-nus");\n  if (!miniIdentity.ok) { toast(miniIdentity.reason, "err"); await Pedal.disconnect(); return new Error(miniIdentity.reason); }\n  S.connected = true; S.connAt = Date.now(); autoRe = null; ctlReleased = false; Tabs.busy = false; S.firstUse = false;', "verify MINI before first query or mutation")
     replace('function onDisconnected(e) {', 'function onDisconnected(e) {\n  HyperRigMini.resetIdentity();', "clear session capability on disconnect")
+    replace('  Log.act("preset_save", { n, name, replace: !!existing });',
+            '  if (!DEMO) {\n'
+            '    const required = [`PSAVE ${n} ${name}`, "SNAPSAVE 0"];\n'
+            '    if (S.snap >= 0 && (ED.p.size || ED.on || ED.aeq)) required.push(`SNAPSAVE ${S.snap}`);\n'
+            '    const gate = HyperRigMini.preflight(required, Pedal.tr === SerialTransport ? "usb-cdc" : "ble-nus");\n'
+            '    if (!gate.allowed) { toast("Preset save unavailable: " + gate.reason, "err"); return; }\n'
+            '  }\n'
+            '  Log.act("preset_save", { n, name, replace: !!existing });', "preflight preset and automatic scene saves")
+    replace('  saveRun = true; let go = false;',
+            '  if (!DEMO) {\n'
+            '    if (how === "all" && !HyperRigMini.fullWriteEnabled()) { toast("Saving all scenes is not validated for this limited MINI profile.", "err"); return; }\n'
+            '    if (how !== "all") {\n'
+            '      const required = how === "one" ? [`SNAPSAVE ${k0}`] : [`PSAVE ${curPreset} ${presetName()}`, "SNAPSAVE 0"];\n'
+            '      const gate = HyperRigMini.preflight(required, Pedal.tr === SerialTransport ? "usb-cdc" : "ble-nus");\n'
+            '      if (!gate.allowed) { toast("Save unavailable: " + gate.reason, "err"); return; }\n'
+            '    }\n'
+            '  }\n'
+            '  saveRun = true; let go = false;', "preflight save bar and exclude unqualified multi-scene writes")
+    # Export can traverse scenes, mute audio and reload presets. It is not a
+    # harmless backup operation in a partially qualified command profile.
+    replace('async function pioExport(all) {',
+            'async function pioExport(all) {\n'
+            '  if (!DEMO && !HyperRigMini.fullWriteEnabled()) { toast("Full preset export changes scenes and is not validated for this limited MINI profile.", "err"); return; }',
+            "no partial preset export in a limited profile")
     replace('  const board = DEMO ? `${pedalName()} demo` : `${pedalName()} ${S.board || "v2"}`, fw = S.fwName || "HyperRig";',
             '  const board = DEMO ? `${pedalName()} demo` : pedalName(), fw = S.fwName || "HyperRig";', "no invented MINI revision")
     replace('const fmSecOf = (f, pedal) => (FM_FS[pedal] || FM_FS["tank-g"])[f];',
@@ -248,6 +368,10 @@ def build(output: Path, manifest: Path | None = None, report: Path | None = None
               "implementation_files": {relative(p): sha(p.read_bytes()) for p in [Path(__file__), *sorted((ROOT / "app/mini").glob("*"))] if p.is_file()},
               "stock_mini_protocol_adapter": False, "firmware_hardware_verified": profile["hardware_verified"],
               "profile": profile, "patches": patches, "call_sites": calls,
+              "scoped_mutations": {"supported_commands": sorted(SCOPED_COMMANDS),
+                                   "scope": "exact request strings, no wildcard/prefix/range expansion",
+                                   "hardware_validation_required": True, "enabled_by_default": False,
+                                   "snapshot_context": "SNAP/SNAPSAVE and FXP/FXE act on current firmware state; wire grants are not a board-state lock"},
               "command_names": sorted({c["command"] for c in calls if c["command"]}),
               "dynamic_call_site_count": sum(c["dynamic"] for c in calls),
               "inventory_scope": "All textual Pedal.cmd call sites; unresolved JS expressions are retained, not inferred as resolved commands.",

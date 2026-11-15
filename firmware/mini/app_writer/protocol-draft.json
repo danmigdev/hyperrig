@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "kind": "mini-app-writer-protocol-proposal",
+  "protocol": "HYW1",
+  "version": 1,
+  "implementation_status": "design_only_receive_contract_unqualified",
+  "executable_artifacts": [],
+  "transport_implemented": false,
+  "physical_app_range": [16384, 532480],
+  "nor_capacity": 1048576,
+  "jedec_hex": "eb6014",
+  "sector_bytes": 4096,
+  "page_bytes": 256,
+  "ram_slots": [29491200, 29523968],
+  "slot_bytes": 32768,
+  "crc": "CRC-32/ISO-HDLC (reflected polynomial 0xEDB88320, init/final XOR 0xFFFFFFFF)",
+  "byte_order": "big-endian CDB and reply integers, raw page bytes unchanged",
+  "cdb_bytes": 16,
+  "unused_cdb_bytes": 255,
+  "reply": {
+    "bytes": 16,
+    "fields": [
+      [0, 2, "opcode echo"],
+      [2, 1, "sticky error; zero means no recorded error"],
+      [3, 1, "state"],
+      [4, 4, "current sector token; zero before arm"],
+      [8, 4, "last consumed operation sequence"],
+      [12, 4, "operation-specific value, normally computed CRC32"]
+    ],
+    "identity_exception": "FC78: echo@0, HYW1@2, version1@6, flags0@7, slotBE32@8, span32768BE32@12"
+  },
+  "commands": [
+    {"opcode": "fc78", "name": "identity", "direction": "in", "transfer_bytes": 16, "fields": [], "effect": "Private RAM only; entry and identity perform no MMIO."},
+    {"opcode": "fc79", "name": "initialize", "direction": "in", "transfer_bytes": 16, "fields": [], "effect": "Explicit reader-derived SPI setup, exact JEDEC and status checks; no WREN or status-register writes. Raw SR1/SR2 must be retained in an audit record before implementation is approved."},
+    {"opcode": "fc7a", "name": "arm_sector", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_address"], [6, 4, "expected_preimage_crc32"], [10, 4, "expected_target_crc32"]], "effect": "Read all 4096 bytes and compare preimage CRC before issuing a fresh nonzero token and sequence1. No NVM mutation."},
+    {"opcode": "fc7b", "name": "erase_sector", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "sector_address"]], "effect": "One explicit 4KiB erase of the armed sector after a second preimage check; consume authorization before WREN. Read back every erased byte."},
+    {"opcode": "fb7c", "name": "stage_page", "direction": "out", "transfer_bytes": 260, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "page_address"], [14, 2, "page_bytes_exactly_256"]], "effect": "Receive256 raw page bytes plus CRC32BE into private RAM, validate complete reception and checksum, then retain staged data. No WREN. Query FC7E after OUT; no IN answer in the same transaction."},
+    {"opcode": "fc7d", "name": "program_staged_page", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "page_address"]], "effect": "Consume staged page and sequence before WREN; require aligned unused page in the erased armed sector, revalidate RAM CRC and erased preimage, program once, wait bounded WIP, check status and compare all256 readback bytes."},
+    {"opcode": "fc7e", "name": "status", "direction": "in", "transfer_bytes": 16, "fields": [], "effect": "Return retained RAM status; never clears an error or repeats an operation."},
+    {"opcode": "fd7f", "name": "readback", "direction": "in", "transfer_bytes": "n16 in [1,512]", "fields": [[2, 4, "physical_address"], [6, 2, "n16"]], "effect": "Raw bounded read wholly within the application range. No other physical or CPU address space is exposed."},
+    {"opcode": "fc80", "name": "finish_sector", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "sector_address"]], "effect": "Require all16 pages verified, read4096 bytes, match target CRC, invalidate the token and retain final result. No automatic next-sector arm."}
+  ],
+  "nor_commands_read_only": ["ff ff", "9f", "03", "05", "35"],
+  "nor_commands_mutating_proposed": ["06", "20", "02"],
+  "nor_commands_forbidden": ["01", "31", "50", "60", "c7", "d8", "52"],
+  "status_guards": {"sr1_wip": 1, "sr1_wel": 2, "sr1_protection_mask": 124, "sr2_cmp_mask": 64, "writes_to_status_registers": false},
+  "sequence_rules": [
+    "One active sector at a time; token and sequence must not wrap or be reused during a session.",
+    "Every accepted erase/stage/program/finish consumes exactly current_sequence+1 before its first external callback or SPI action.",
+    "Duplicate, stale, out-of-order or cross-sector commands fail closed; no retry or deduplication that can hide a repeated mutation.",
+    "A transport failure after authorization leaves completion ambiguous; only retained status and bounded readback may be requested.",
+    "On any error, invalidate staged data and mutation authorization. There is no command to clear a sticky failure.",
+    "Tokens are sequencing checks, not authentication or cryptographic nonces; a newly loaded plugin is a new session."
+  ],
+  "unresolved_before_runtime_implementation": [
+    "ROM receive return/partial-transfer/error and buffer-lifetime semantics on this MINI.",
+    "Detailed retained audit-record schema including raw status bytes, operation counters, transfer return and guard checks.",
+    "Bounded poll counts tied to a reviewed erase/program timing budget; no unbounded WIP wait.",
+    "Malformed OUT framing/refusal policy without fallback into the ROM flash commands.",
+    "Host and target qualification evidence binding this exact writer, candidate image and unit backup."
+  ]
+}

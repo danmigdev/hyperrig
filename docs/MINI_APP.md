@@ -27,13 +27,58 @@ identità `tankg_fw`, `tankb_fw` e `TANK MINI_009` vengono rifiutate prima delle
 query iniziali e delle modifiche. Il nome Bluetooth o il VID USB da soli non
 identificano un port MINI valido.
 
-Questa consegna è l'editor web derivato. L'APK già esistente
+L'APK già esistente
 `build/hyperrig/HyperRig-local-android.apk` rimane la variante G/B: non è stato
-ricompilato né dichiarato compatibile con MINI da questo lavoro. Il nuovo
-frontend conserva il codice del bridge Capacitor e del trasporto BLE originali;
-potrà essere incluso nella variante Android quando il port e la sua identità
-saranno verificati. Nessuna installazione o connessione fisica è stata eseguita
-per sviluppare questa app.
+modificato. Ora esiste anche la variante separata
+[`HyperRig-MINI-local-android.apk`](../build/hyperrig-mini-integrated/android/HyperRig-MINI-local-android.apk),
+derivata con il manifest della candidata integrata. Conserva Capacitor, BLE,
+bridge file/share e licenze originali. Nessuna installazione sul telefono o
+connessione fisica è stata eseguita per sviluppare questa app.
+
+## APK MINI locale
+
+```powershell
+python -X utf8 tools/build_mini_android.py --check-only
+python -X utf8 tools/build_mini_android.py
+python -X utf8 -m unittest tests.test_mini_android -v
+```
+
+Il builder usa per default
+`build/hyperrig-mini-integrated/firmware-manifest.json`; accetta anche
+`--firmware-manifest` e `--output`. La candidata associata alla consegna
+attuale è `f8835a7fd45b1b324d66c457434c7943d70525ed5eb98b514aaac1095031f068`.
+L'APK prodotto ha SHA-256
+`194431db62554d0d286de9bb1e2b27b863f8593efbf16193192ab5565b4597cc`;
+hash di input, toolchain, asset, log e controlli sono in
+[`android-report.json`](../build/hyperrig-mini-integrated/android/android-report.json).
+Le ricompilazioni possono cambiare l'hash dell'APK: usare il report della
+build effettiva.
+
+`assets/public/index.html` nell'APK UltraRig originale è **byte-identico** al
+frontend web fissato. Viene quindi usata la stessa derivazione MINI, senza
+sostituire un frontend Android diverso. Gli otto DEX del pacchetto HyperRig
+locale già rebrandizzato e cinque asset Capacitor/Cordova/converter vengono
+conservati byte per byte. Apktool 3.0.3 e uber-apk-signer 1.3.0 sono verificati
+contro gli hash locali fissati; il manifest finale viene decodificato di nuovo.
+I sei test offline verificano provenienza, gate BLE, conservazione dei bridge,
+label, certificato e comportamento del piano senza build.
+
+Il pacchetto usa il nome visualizzato **HyperRig MINI**, namespace
+`com.hyperrig.app` e la chiave locale HyperRig esistente; firma v2/v3 e
+allineamento sono verificati. Un'eventuale installazione sostituirebbe quindi
+l'app HyperRig G/B con lo stesso namespace, non le installerebbe affiancate.
+Il builder non avvia adb, installazioni, server o trasporti.
+
+Il trasporto Android originale è il plugin nativo Capacitor **BluetoothLe**;
+gli altri componenti sono App e `HyperRigNative` per file/condivisione.
+Non è presente un plugin seriale USB nativo e non ne è stato aggiunto uno.
+USB CDC/Web Serial appartiene al percorso desktop. Il profilo dell'APK
+consente query dopo PONG MINI corretto, con scritture e pannello disabilitati;
+le eventuali prove USB scoped non autorizzano BLE. Il pairing originale può
+salvare bond indipendentemente dal gate dei comandi, quindi "query consentite"
+non significa assenza di ogni scrittura persistente del trasporto. Avvio
+Android, pairing, NUS e funzionamento del firmware restano da verificare sul
+dispositivo reale.
 
 ## Provenienza e trasformazioni
 
@@ -170,13 +215,120 @@ prova hardware**: servono proprio a validare la nuova build. Il PONG non
 trasporta SHA-256: questo è un vincolo della configurazione distribuita e
 della procedura di test, non un'attestazione crittografica del pedale.
 
-`write=true` richiede invece `hardware_verified=true` e un `write_validation`
+Il vecchio profilo completo `write=true` richiede `hardware_verified=true` e un `write_validation`
 con `path`/`sha256` di un report locale che abbia `target=tank-mini`, lo stesso
 `image_sha256` e `all_required_editor_mutations_verified=true`. Nessun report
-di questo tipo è stato prodotto qui. `panel=true` viene sempre rifiutato
+di questo tipo è stato prodotto qui. Per qualificare il primo preset è ora
+disponibile il profilo limitato descritto sotto: non richiede di qualificare
+prima upload NAM/IR o tutte le altre funzioni. `panel=true` viene sempre rifiutato
 finché non sarà implementata la vera mappa MINI. Questo stato non nasconde
 le funzioni UltraRig: distingue ciò che l'interfaccia conserva da ciò che
 è già eseguibile sul dispositivo.
+
+## Scritture qualificate per richieste esatte
+
+Il manifest può mantenere `write=false` e aggiungere `command_capabilities`.
+Ogni chiave è un comando originale e ogni valore è una lista di richieste
+complete: qualificare `FXP 1 0 50` non autorizza un altro valore, indice o ID;
+`PSAVE 31 Scratch` non autorizza un altro slot o nome. Non esistono wildcard,
+prefissi, intervalli o abilitazioni implicite. Il profilo distribuito resta
+`command_capabilities={}`, senza prove hardware o scritture abilitate.
+
+| Comando supportato | Ambito | Evidenza necessaria per la richiesta specifica |
+|---|---|---|
+| `FXP id indice valore` | Parametro live di un blocco esistente | ACK col valore effettivo, FXS e ripristino |
+| `FXE id 0/1` | Bypass/attivazione di un blocco | ACK, FXS e ripristino; facoltativo per la prima prova |
+| `PLOAD slot` | Caricamento, modifica ciò che suona | ACK, stato riletto, ritorno allo stato precedente |
+| `PSAVE slot nome` | Salvataggio preset e selezione dello slot | ACK, PLIST, PLOAD e stato riletto |
+| `PDEL slot` | Eliminazione dello slot temporaneo | ACK e PLIST coerente senza lo slot |
+| `SNAP 0..3` | Selezione scena | ACK, SNAPS/FXS, ripristino della scena precedente |
+| `SNAPSAVE 0..3` | Salvataggio della scena nel preset corrente | ACK con preset atteso, ricaricamento e stato riletto |
+
+Gli ID del blocco e il preset corrente non sono proprietà immutabili. La
+lista di richieste limita il protocollo trasmesso; non blocca cambiamenti di
+scena dal pannello e non attesta automaticamente lo stesso parametro in un
+altro tipo di effetto. La prova deve registrare e verificare anche quel
+contesto. Non vengono abilitate operazioni in base al solo nome del comando
+o all'identità USB/PONG.
+
+Per esempio, **dopo le prove reali**, un manifest potrà richiedere:
+
+```json
+{
+  "command_capabilities": {
+    "FXP": ["FXP 1 0 50", "FXP 1 0 51"],
+    "PLOAD": ["PLOAD 0", "PLOAD 31"],
+    "PSAVE": ["PSAVE 31 Scratch"],
+    "PDEL": ["PDEL 31"],
+    "SNAP": ["SNAP 0"],
+    "SNAPSAVE": ["SNAPSAVE 0"]
+  },
+  "command_validation": {"path": "research/prova-reale-specifica.json", "sha256": "HASH_REALE_DEL_REPORT"}
+}
+```
+
+È un frammento illustrativo, non un report valido né una build abilitata.
+Le liste devono corrispondere **esattamente** a `verified_requests` del report.
+Il builder verifica `hardware_verified=true`, `read=true`, `write=false` e:
+
+- `schema=1`, `kind=mini-app-command-validation`, `target=tank-mini`, versione
+  e hash dell'immagine identici al manifest;
+- `editor_source_sha256` uguale al frontend originale fissato,
+  `hardware_executed=true`, `transport=usb-cdc`;
+- riferimenti `trace` e `backup`, ciascuno con `path` e `sha256` di file locali
+  non vuoti conservati; l'hash del report stesso è controllato separatamente;
+- `restoration_verified=true` e un'osservazione per ogni richiesta esatta,
+  con `request`, `ack_verified=true`, `readback_verified=true`;
+- per PSAVE/PDEL/SNAPSAVE, anche `persistence_readback_verified=true`, attestato
+  dopo ricaricamento o verifica dell'eliminazione, non dal solo ACK.
+
+Questi campi sono asserzioni di una prova revisionata. Il builder controlla
+vincoli e integrità dei file, non trasforma un log simulato in una misura
+hardware. I test usano fixture temporanee esplicitamente sintetiche; nessuna
+di esse è pubblicata come prova reale. Non è ancora consentito usare questo
+schema per BLE: le sue prove di trasporto devono essere aggiunte separatamente.
+Il gate controlla il trasporto sia quando accetta PONG sia prima di ciascun
+comando; BLE, trasporto sconosciuto e cambiamento di trasporto non ereditano
+i permessi USB. Le query documentate restano disponibili dopo l'identità.
+
+Il gate si applica nella coda originale prima della scrittura. Pannello,
+caricamento capture/NAM, IR, globali e comandi non elencati restano negati.
+L'app mostra le operazioni limitate abilitate dal profilo. Il preflight di
+`savePreset` richiede anche `SNAPSAVE 0` per la creazione automatica della
+scena A e, se necessario, SNAPSAVE della scena corrente. Il Save della barra
+controlla analogamente tutti i comandi previsti prima di iniziare. Il flusso
+"All scenes" e l'export completo, che possono usare TUNER, attraversare scene
+e ricaricare preset, rimangono esclusi dal profilo limitato. Il codice e la
+demo originali restano disponibili. Il preflight evita un rifiuto locale
+prevedibile dopo PSAVE, non rende atomici i cambiamenti sul dispositivo.
+
+### Primo ciclo minimo per app, persistenza e ripristino
+
+Prima della prova conservare un backup revisionato del firmware/dati del
+port e lo stato del preset/scena di partenza. Una lettura PLIST/FXS da sola
+non è un backup di tutte le scene e delle risorse. Scegliere un preset
+salvato senza modifiche live pendenti e con un parametro semplice già
+identificato; uno slot temporaneo deve risultare libero in una PLIST completa.
+
+1. Registrare identità, FXT, FXS, SNAPS, PLIST, PSTAT e riferimenti capture/IR.
+   Provare PLOAD del preset di partenza e SNAP della scena da ripristinare,
+   verificando che lo stato rimanga quello atteso.
+2. Eseguire FXP col valore di prova e rileggere FXS; provare anche il valore
+   originale, poi riapplicare quello di prova. Ogni richiesta deve avere
+   ACK e stato coerente, senza cambiamenti inattesi agli altri blocchi.
+3. Usare il vero salvataggio dell'app verso lo slot temporaneo, includendo i
+   suoi SNAPSAVE necessari. Rileggere PLIST/SNAPS, cambiare solo in RAM il
+   parametro e ricaricare con PLOAD/SNAP: deve tornare il valore salvato.
+   Questo esercita il ricaricamento, non prova ancora persistenza dopo power cycle.
+4. Tornare al preset/scena iniziali e verificare l'intero stato acquisito;
+   eliminare soltanto lo slot temporaneo con PDEL e verificare PLIST. Un
+   errore o timeout non è una prova di ripristino e non autorizza retry ciechi.
+
+Per questo ciclo bastano FXP, PLOAD, PSAVE, SNAP, SNAPSAVE e PDEL con gli
+argomenti effettivamente provati. Non servono FXA/FXR, import, IRBEGIN,
+LDBEGIN, CSAVE, GSAVE o comandi di aggiornamento. Il ripristino è logico:
+non annulla usura o sequenze della memoria NOR. Il report può abilitare
+queste sole richieste senza impostare `all_required_editor_mutations_verified`.
 
 ## Verifiche offline
 
@@ -184,12 +336,18 @@ le funzioni UltraRig: distingue ciò che l'interfaccia conserva da ciò che
 python -X utf8 -m unittest tests.test_mini_app_protocol -v
 ```
 
-I 13 test verificano rifiuto stock/G/B, binding della versione, confini tra
+I 19 test verificano rifiuto stock/G/B, binding della versione, confini tra
 identity/read/write/panel, reset dell'identità, niente comandi concatenati,
 posizione dei gate prima dell'I/O, sintassi degli script completi, derive
 su sorgente cambiato, hash descrittori e copie immutate delle licenze. Un test
 esegue anche la coda `Pedal` originale con un trasporto fittizio: sulla linea
 arrivano soltanto `PING` e `FXT`; save e pannello non raggiungono `write()`.
+I test del profilo limitato controllano variazioni di parametri/slot/nome,
+prove mancanti o alterate, hash trace/backup, readback persistente e ripristino.
+La funzione originale `savePreset` viene inoltre eseguita con un pedale finto:
+senza SNAPSAVE non invia PSAVE; con i grant esatti invia `PSAVE 31 Scratch`,
+`SNAPS` e `SNAPSAVE 0`. La CLI CDC ha altri 14 test in
+[`MINI_APP_PROTOCOL_PROBE.md`](MINI_APP_PROTOCOL_PROBE.md).
 La pagina completa è stata anche renderizzata in Edge headless da file locale
 con `#demo` e rete bloccata: il DOM mostra `TANK MINI demo` e l'avviso offline.
 Lo screenshot è `build/mini-app-browser-check/demo.png`. È una verifica

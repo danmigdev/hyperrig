@@ -204,7 +204,7 @@ class WindowsRomTransport:
         import os
         if os.name != "nt" or c.sizeof(c.c_void_p) != 8:
             raise OSError("this reviewed SPTD layout requires 64-bit Windows Python")
-        if profile not in ("ram-probe", "ram-engine", "ram-codec", "nor-reader"):
+        if profile not in ("ram-probe", "ram-engine", "ram-codec", "ram-codec-board", "nor-reader"):
             raise ValueError("unknown transport profile")
         if slot not in RAM_SLOTS or not re.fullmatch(r"\\\\\.\\PhysicalDrive\d+", path, re.I):
             raise ValueError("select an explicit PhysicalDrive and known plugin slot")
@@ -255,6 +255,9 @@ class WindowsRomTransport:
         elif self.profile == "ram-codec":
             from probe_mini_codec import validate_codec_request
             validator = validate_codec_request
+        elif self.profile == "ram-codec-board":
+            from tools.probe_mini_codec_board import validate_codec_board_request
+            validator = validate_codec_board_request
         else:
             validator = validate_ram_request if self.profile == "ram-probe" else validate_nor_request
         validator(cdb, data_out, read_length, slot=self.slot)

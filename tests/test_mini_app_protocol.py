@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 from tools.build_mini_app import (ROOT, SOURCE, SOURCE_SHA, build, call_sites, checked,
-                                  derive_html, descriptor_evidence, load_profile)
+                                  command_grants, derive_html, descriptor_evidence, load_profile)
 
 
 def node(code, value):
@@ -26,9 +26,11 @@ vm.runInContext(fs.readFileSync('app/mini/mini-profile.js','utf8'),context);
 const mini = context.HyperRigMini;
 let results = [];
 for (const action of v.actions) {
-  if (action.pong !== undefined) results.push(mini.acceptPong(action.pong));
+  const transport = action.transport === undefined ? 'usb-cdc' : action.transport;
+  if (action.pong !== undefined) results.push(mini.acceptPong(action.pong, transport));
   else if (action.reset) { mini.resetIdentity(); results.push(null); }
-  else results.push(mini.commandPolicy(action.command));
+  else if (action.preflight) results.push(mini.preflight(action.preflight, transport));
+  else results.push(mini.commandPolicy(action.command, transport));
 }
 process.stdout.write(JSON.stringify(results));
 """
@@ -110,7 +112,7 @@ const transport={isOpen:()=>true,write:text=>{
   queueMicrotask(()=>context.Pedal.onLine(text==='PING\n'?'PONG tankm_fw M5.71 rel ble Nov 12 2026 16:05:32':'FXT end'));
   return Promise.resolve();
 }};
-context=vm.createContext({HYPERRIG_MINI_BUILD:input.profile,DEMO:false,S:{},
+context=vm.createContext({HYPERRIG_MINI_BUILD:input.profile,DEMO:false,S:{},SerialTransport:transport,
  pickTransport:()=>transport,Log:{ev:()=>{},cmd:()=>{}},
  gdSent:()=>null,gdDone:()=>{},strayLines:()=>[],setAlert:()=>{},blePairLine:()=>false,
  noAnswer:()=>{},performance,setTimeout,clearTimeout});
@@ -192,6 +194,170 @@ vm.runInContext(input.html.slice(start,end)+'\nglobalThis.Pedal=Pedal;',context)
             manifest.write_text(json.dumps(spec), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "pinned source changed"):
                 load_profile(manifest)
+
+    def scoped_profile(self):
+        p = self.read_profile()
+        p.update(hardware_verified=True, command_validation={"path": "offline-test-fixture", "sha256": "b" * 64},
+                 command_capabilities={"FXP": ["FXP 1 0 50", "FXP 1 0 51"], "FXE": ["FXE 1 0", "FXE 1 1"],
+                                       "PLOAD": ["PLOAD 31"], "PSAVE": ["PSAVE 31 Scratch"], "PDEL": ["PDEL 31"],
+                                       "SNAP": ["SNAP 0"], "SNAPSAVE": ["SNAPSAVE 0"]})
+        return p
+
+    def test_scoped_profile_allows_only_exact_reviewed_requests(self):
+        p = self.scoped_profile()
+        allowed = [line for lines in p["command_capabilities"].values() for line in lines]
+        forbidden = ["FXP 1 0 52", "FXP 2 0 50", "FXP 1 1 50", "FXE 2 0", "PLOAD 30", "PSAVE 30 Scratch",
+                     "PSAVE 31 Other", "PSAVE 31 Scratch ", "PDEL 30", "SNAP 1", "SNAPSAVE 1", "FXA P delay",
+                     "LDBEGIN 4892", "LDEND 1234", "IRBEGIN 256 0 48000", "CSAVE 0 name", "GSAVE", "UBOOT",
+                     "FSDO a", "LEDCFG mode=1", "FXP 1 0 50\nPSAVE 31 Scratch"]
+        start = {"pong": "PONG tankm_fw M5.71 rel ble Nov 12 2026 16:05:32"}
+        result = self.policy([start]+[{"command": c} for c in allowed+forbidden], p)
+        self.assertTrue(result[0]["ok"] and result[0]["write"])
+        self.assertEqual(result[0]["write_scope"], "exact-requests")
+        self.assertEqual([r["allowed"] for r in result[1:]], [True]*len(allowed)+[False]*len(forbidden))
+        self.assertTrue(all(r["capability"] == "command" for r in result[1:1+len(allowed)]))
+        self.assertFalse(p["capabilities"]["write"])
+        self.assertFalse(self.policy([{ "command": allowed[0]}], p)[0]["allowed"])
+        self.assertFalse(self.policy([start,{"reset":True},{"command":allowed[0]}], p)[2]["allowed"])
+        for field in ("hardware_verified", "command_validation"):
+            limited = copy.deepcopy(p); limited[field] = None
+            self.assertFalse(self.policy([start,{"command":allowed[0]}], limited)[1]["allowed"])
+        # The runtime also has a closed command-name set; a hand-built profile
+        # cannot smuggle an upload/panel command through the scoped path.
+        p["command_capabilities"]["LDBEGIN"] = ["LDBEGIN 4892"]
+        p["command_capabilities"]["FSDO"] = ["FSDO a"]
+        self.assertEqual([r["allowed"] for r in self.policy([start,{"command":"LDBEGIN 4892"},
+                                                            {"command":"FSDO a"}], p)[1:]], [False,False])
+
+    def test_scoped_command_grammar_does_not_expand_to_slots_values_or_prefixes(self):
+        good = self.scoped_profile()["command_capabilities"]
+        self.assertEqual(set(command_grants(good)), set(good))
+        invalid = [{"FXP": ["FXP 1 0 50", "FXP 1 0 50"]}, {"FXP": []}, {"FXP": "FXP 1 0 50"},
+                   {"FXP": ["FXP 1 0 *"]}, {"FXE": ["FXE 1 2"]}, {"PLOAD": ["PLOAD 32"]},
+                   {"PSAVE": ["PSAVE 31 "]}, {"PSAVE": ["PSAVE 31 " + "😀"*12]},
+                   {"PSAVE": ["PSAVE 31 name\tother"]}, {"SNAP": ["SNAP 4"]},
+                   {"SNAPSAVE": ["SNAPSAVE 0\nGSAVE"]}, {"LDBEGIN": ["LDBEGIN 8"]},
+                   {"FSA": ["FSA 0"]}, {"*": ["*"]}, {"PDEL": [True]}]
+        for value in invalid:
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                command_grants(value)
+
+    def test_scoped_manifest_binds_each_request_to_trace_backup_and_image(self):
+        with tempfile.TemporaryDirectory(prefix="mini-app-scoped-", dir=ROOT / "build") as temp:
+            dest = Path(temp).resolve(); self.assertTrue(dest.is_relative_to((ROOT / "build").resolve()))
+            def artifact(name, data):
+                path = dest/name; path.write_bytes(data)
+                return {"path":path.relative_to(ROOT).as_posix(), "sha256":hashlib.sha256(data).hexdigest()}
+            image = artifact("fixture.bin", b"OFFLINE TEST ONLY; not firmware")
+            trace = artifact("fixture-trace.jsonl", b'{"offline_test_fixture":true}\n')
+            backup = artifact("fixture-backup.json", b'{"offline_test_fixture":true,"state":"before"}')
+            grants = self.scoped_profile()["command_capabilities"]
+            evidence = {"schema":1, "kind":"mini-app-command-validation", "target":"tank-mini",
+                        "firmware_version":"tankm_fw M5.71 rel ble", "image_sha256":image["sha256"],
+                        "editor_source_sha256":SOURCE_SHA, "hardware_executed":True, "transport":"usb-cdc",
+                        "verified_requests":grants, "trace":trace, "backup":backup, "restoration_verified":True,
+                        "observations":[{"request":line,"ack_verified":True,"readback_verified":True,
+                                         "persistence_readback_verified":True} for lines in grants.values() for line in lines]}
+            spec = {"target":"tank-mini", "architecture":"standalone-ultrarig-port",
+                    "firmware_version":evidence["firmware_version"], "image_path":image["path"], "image_sha256":image["sha256"],
+                    "hardware_verified":True, "capabilities":{"read":True,"write":False,"panel":False},
+                    "command_capabilities":grants}
+            def load(test_spec=None, test_evidence=None):
+                s = copy.deepcopy(test_spec or spec); e = copy.deepcopy(test_evidence or evidence)
+                s["command_validation"] = artifact("fixture-proof.json", json.dumps(e).encode())
+                manifest = dest/"manifest.json"; manifest.write_text(json.dumps(s), encoding="utf-8")
+                return load_profile(manifest)
+            result = load()
+            self.assertEqual(result["command_capabilities"], command_grants(grants))
+            self.assertFalse(result["capabilities"]["write"] or result["capabilities"]["panel"])
+            modifications = [("target","tank-g"), ("firmware_version","tankm_fw M5.70 rel ble"),
+                             ("image_sha256","0"*64), ("editor_source_sha256","0"*64),
+                             ("hardware_executed",False), ("transport","simulation"), ("restoration_verified",False),
+                             ("verified_requests",{"FXP":["FXP 1 0 99"]}), ("observations",[]),
+                             ("trace",{**trace,"sha256":"0"*64}), ("backup",{**backup,"sha256":"0"*64})]
+            for key, value in modifications:
+                e = copy.deepcopy(evidence); e[key] = value
+                with self.subTest(key=key), self.assertRaises(ValueError): load(test_evidence=e)
+            for flag in ("ack_verified", "readback_verified", "persistence_readback_verified"):
+                e = copy.deepcopy(evidence)
+                next(o for o in e["observations"] if o["request"].startswith("PSAVE"))[flag] = False
+                with self.subTest(flag=flag), self.assertRaises(ValueError): load(test_evidence=e)
+            e = copy.deepcopy(evidence); e["observations"][1] = e["observations"][0]
+            with self.assertRaises(ValueError): load(test_evidence=e)
+            for flag in ("hardware_verified", "read", "write", "panel"):
+                s = copy.deepcopy(spec)
+                if flag == "hardware_verified": s[flag] = False
+                else: s["capabilities"][flag] = flag in ("write","panel")
+                with self.subTest(flag=flag), self.assertRaises(ValueError): load(test_spec=s)
+
+    def test_original_save_preflights_scene_capability_before_any_mutation(self):
+        code = r"""
+const fs=require('fs'),vm=require('vm'),v=JSON.parse(fs.readFileSync(0,'utf8'));
+const wires=[],toasts=[],state={preset:0,saved:false,snap:false},serial={};
+const context=vm.createContext({HYPERRIG_MINI_BUILD:v.profile,DEMO:false,PH:false,curPreset:0,SerialTransport:serial,
+ S:{snap:-1,snaps:[0,0,0,0],pendName:''},ED:{ep:0,seq:0,p:new Map(),on:false,aeq:false},
+ Log:{act:()=>{},ev:()=>{}},toast:(...a)=>toasts.push(a),renderPresets:()=>{},
+ readPlist:async()=>({ok:true,list:[]}),presetName:()=> 'Scratch',SLOT:i=>'ABCD'[i%4],
+ aeqSettle:async()=>{},evSince:async()=>null,edFresh:async()=>{},edMoved:()=>false,
+ evMoves:()=>false,edClearUpTo:()=>{},loadPresets:()=>{},loadSnaps:async()=>{},
+ reply:(lines,p)=>lines.find(l=>l.startsWith(p))||'',plist:[],plistHave:false,
+ Pedal:{tr:serial,cmd:async line=>{
+  const gate=context.HyperRigMini.commandPolicy(line,'usb-cdc');
+  if(!gate.allowed)return ['ERR MINI_APP '+gate.reason];
+  wires.push(line);
+  if(line==='PSAVE 31 Scratch'){state.preset=31;state.saved=true;return ['PSAVE ok 31'];}
+  if(line==='SNAPS')return ['SNAPS 0000 current=-1'];
+  if(line==='SNAPSAVE 0'){state.snap=true;return ['SNAPSAVE ok 0 preset=31'];}
+  throw Error('unplanned request '+line);
+ }}});
+vm.runInContext(fs.readFileSync('app/mini/mini-profile.js','utf8'),context);
+context.HyperRigMini.acceptPong('PONG tankm_fw M5.71 rel ble Nov 12 2026 16:05:32','usb-cdc');
+const start=v.html.indexOf('async function sceneAOnSave('),end=v.html.indexOf('/*PRESET-IO-BEGIN*/',start);
+if(start<0||end<0)throw Error('original save anchors missing');
+vm.runInContext(v.html.slice(start,end),context);
+(async()=>{await context.savePreset(31,null);process.stdout.write(JSON.stringify({wires,toasts,state}));})()
+ .catch(e=>{process.stderr.write(String(e));process.exitCode=1});
+"""
+        p = self.scoped_profile(); p["command_capabilities"].pop("SNAPSAVE")
+        blocked = node(code, {"html":self.html,"profile":p})
+        self.assertFalse(blocked["state"]["saved"])
+        self.assertEqual(blocked["wires"], [])
+        self.assertIn("Preset save unavailable", blocked["toasts"][0][0])
+        allowed = node(code, {"html":self.html,"profile":self.scoped_profile()})
+        self.assertEqual(allowed["wires"], ["PSAVE 31 Scratch","SNAPS","SNAPSAVE 0"])
+        self.assertTrue(allowed["state"]["saved"] and allowed["state"]["snap"])
+        self.assertEqual(allowed["state"]["preset"], 31)
+
+    def test_limited_profile_cannot_start_partial_all_scene_save_or_export(self):
+        p = self.scoped_profile()
+        result = self.policy([{"pong":"PONG tankm_fw M5.71 rel ble Nov 12 2026 16:05:32"},
+                              {"preflight":["PSAVE 31 Scratch","SNAPSAVE 0"]},
+                              {"preflight":["PSAVE 31 Scratch","SNAPSAVE 1"]}], p)
+        self.assertTrue(result[1]["allowed"])
+        self.assertFalse(result[2]["allowed"])
+        self.assertEqual(result[2]["command"], "SNAPSAVE 1")
+        save_flow = self.html[self.html.index("async function saveFlow()"):]
+        self.assertLess(save_flow.index('how === "all" && !HyperRigMini.fullWriteEnabled()'),
+                        save_flow.index("saveRun = true"))
+        export = self.html[self.html.index("async function pioExport(all)"):]
+        self.assertLess(export.index("!HyperRigMini.fullWriteEnabled()"), export.index("await"))
+
+    def test_usb_scoped_proof_does_not_authorize_ble_or_a_changed_transport(self):
+        p = self.scoped_profile()
+        pong = "PONG tankm_fw M5.71 rel ble Nov 12 2026 16:05:32"
+        for transport in ("ble-nus", "native-usb-unqualified", None):
+            result = self.policy([{"pong":pong,"transport":transport},
+                                  {"command":"FXP 1 0 50","transport":transport},
+                                  {"command":"FXP 1 0 50","transport":"usb-cdc"},
+                                  {"command":"FXS","transport":transport}], p)
+            with self.subTest(transport=transport):
+                self.assertTrue(result[0]["ok"])
+                self.assertFalse(result[0]["write"])
+                self.assertEqual([r["allowed"] for r in result[1:]], [False,False,True])
+        result = self.policy([{"pong":pong,"transport":"usb-cdc"},
+                              {"command":"FXP 1 0 50","transport":"ble-nus"},
+                              {"command":"FXP 1 0 50","transport":"usb-cdc"}], p)
+        self.assertEqual([r["allowed"] for r in result[1:]], [False,True])
 
 
 if __name__ == "__main__":

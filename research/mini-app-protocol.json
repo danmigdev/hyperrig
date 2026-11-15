@@ -7,10 +7,10 @@
   "source_converter_sha256": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183",
   "full_original_editor_preserved": true,
   "implementation_files": {
-    "tools/build_mini_app.py": "8f8cc9bd746040072d96a155f3d0c3c5cb48ed723479ef1ab1b74179b5234625",
-    "app/mini/board-profile.json": "d3259a3f5f847e6b89b2654995a721eb14411690e8e82ad512a6f0590f5e5f51",
-    "app/mini/mini-profile.js": "ba452ba12a6308d1f4e22f4a34589427c05983a2bab669eb9a88a4b16c194d4a",
-    "app/mini/mini-ui.js": "02c5eeb7c7b2919a50d872d7dec182ee0ed5050591e358e29bb2787e58f9005e"
+    "tools/build_mini_app.py": "47ed0183fc9dbc9fc5a561733d4fc943d4e99d4815c90fac7783d954a3703831",
+    "app/mini/board-profile.json": "81f7f7582f9a0f13e8b85dffb95a66d75784a1c5a0c40ee0043c052c93aac393",
+    "app/mini/mini-profile.js": "c9a6f31e46154598f22df942e1db432b2a7164c9acfe05523e8c704d5cc9fd55",
+    "app/mini/mini-ui.js": "42b815af820f0fe411aed1d194c2a8476a91abddf0bbff40d7180f60f42c18fc"
   },
   "stock_mini_protocol_adapter": false,
   "firmware_hardware_verified": false,
@@ -27,6 +27,8 @@
       "write": false,
       "panel": false
     },
+    "command_capabilities": {},
+    "command_validation": null,
     "panel": {
       "switch_count": 3,
       "switch_pins": null,
@@ -97,17 +99,32 @@
     {
       "name": "command capabilities before queue or write",
       "before_sha256": "84a12d294296bc10012ba085a770ba848adc2f0b1a152ade32c7fac03e9d04de",
-      "after_sha256": "6754cd06b16e6e66b27a3c1397ac63ddde48fced360f07596262d94f5617587a"
+      "after_sha256": "072fc06db821dce7aa38b2623e3e29fddc25c1febb63997be3fab0d081dc0b87"
     },
     {
       "name": "verify MINI before first query or mutation",
       "before_sha256": "2f038283015e706484336c185961a255fa5653d730af74ced37db34b8a2032fd",
-      "after_sha256": "dbfe668ac7f135958764ae7797aa540dfe1ea2fd185e455643610ba316ad30d7"
+      "after_sha256": "b9b98e0433450e63a465823218a8e6b00bf72ae829e81378894e1765210aa78f"
     },
     {
       "name": "clear session capability on disconnect",
       "before_sha256": "5a17ed5f60ed566fcbc1cd7ef5f1988b6bfa4822e70deca7d96d6d6f5e2f7009",
       "after_sha256": "e2285365371022c1802ce4790991c6f554a2d8097838f1b65a343d20e5d76d28"
+    },
+    {
+      "name": "preflight preset and automatic scene saves",
+      "before_sha256": "70fea03fac221ef09bb887c44e80940f392c528a980ab925551d720cef4cbc21",
+      "after_sha256": "745b3a5db7be63b9bc2b9426d0cf70e52ae1b2a49ecf7b4ed371a0b7e81a54c2"
+    },
+    {
+      "name": "preflight save bar and exclude unqualified multi-scene writes",
+      "before_sha256": "a3e9caa04589a0f35f21ec237eeda75dd81869340c71e53be786d4ec25b033f5",
+      "after_sha256": "571f4e9e8537b6f8fa16f0f4e8b0f5b8aafa1ee3b3070c01d7428f8ea2a389f7"
+    },
+    {
+      "name": "no partial preset export in a limited profile",
+      "before_sha256": "ce52c0e92de66d01a4c7a0430ed1010f4c5606ba607261ba3aa610bd0185f430",
+      "after_sha256": "f43594e9678bf368ec2fccfb7df3f5653beeb433095d5b2fc5c8e40d374284b1"
     },
     {
       "name": "no invented MINI revision",
@@ -1506,6 +1523,21 @@
       "dynamic": false
     }
   ],
+  "scoped_mutations": {
+    "supported_commands": [
+      "FXE",
+      "FXP",
+      "PDEL",
+      "PLOAD",
+      "PSAVE",
+      "SNAP",
+      "SNAPSAVE"
+    ],
+    "scope": "exact request strings, no wildcard/prefix/range expansion",
+    "hardware_validation_required": true,
+    "enabled_by_default": false,
+    "snapshot_context": "SNAP/SNAPSAVE and FXP/FXE act on current firmware state; wire grants are not a board-state lock"
+  },
   "command_names": [
     "AMP",
     "AMPEQ",
@@ -1687,9 +1719,9 @@
     "build/hyperrig-mini/NOTICE.md": "02849a92a5a2ee4ced154650b52fcf316954fad41311cf55e9402567159b6ed8",
     "build/hyperrig-mini/THIRD_PARTY_LICENSES.md": "50a9a2228e6225bc038b8d50f094be5698c4bbec563b4d2309c4fbec3447fcd8",
     "build/hyperrig-mini/web/index.html": "4090b0510aefb6a32faf548b37ea94f8092d7361860de6cc18ded567d1c978bc",
-    "build/hyperrig-mini/web/mini-profile.js": "ba452ba12a6308d1f4e22f4a34589427c05983a2bab669eb9a88a4b16c194d4a",
-    "build/hyperrig-mini/web/mini-ui.js": "02c5eeb7c7b2919a50d872d7dec182ee0ed5050591e358e29bb2787e58f9005e",
+    "build/hyperrig-mini/web/mini-profile.js": "c9a6f31e46154598f22df942e1db432b2a7164c9acfe05523e8c704d5cc9fd55",
+    "build/hyperrig-mini/web/mini-ui.js": "42b815af820f0fe411aed1d194c2a8476a91abddf0bbff40d7180f60f42c18fc",
     "build/hyperrig-mini/web/nam2chip.js": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183",
-    "build/hyperrig-mini/web/tankmini.html": "4af4f197853f3cb0014545464144dac44a171583755b422a22e5c80cc7fff5c5"
+    "build/hyperrig-mini/web/tankmini.html": "02b57222e6b5e463e441d6256e49dcbd776776d103a413d2ef7e852cb3fa86f4"
   }
 }

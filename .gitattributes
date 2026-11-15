@@ -1,1 +1,7 @@
 * text=auto eol=lf
+# Preserve the exact bytes of reports already identified by SHA-256.
+research/mini-app-protocol.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+research/mini-boot-contract.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+research/mini-codec-availability.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+research/mini-entry-recovery.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+research/mini-usbkey-rpi3.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

@@ -1,0 +1,879 @@
+{
+  "project": "HyperRig",
+  "type": "HYC2 staged board/codec ROM diagnostic",
+  "build_tag": 1906373303,
+  "source_sha256": {
+    "firmware/mini/rom_codec_board/entry.c": "aa7af7292488a58a96d9e6077171734b69dc586731509cb8557bfb9c5ba0ffa8",
+    "firmware/mini/rom_codec_board/rom_codec.c": "6b28953a579b79b33e0089732d7e11c756af5eb18339b67678e2d7ef4de50a05",
+    "firmware/mini/codec/hyperrig_mini_codec.c": "059e130d4f965a0a878d91ec8884fb11be5a4edb8b510857816fa1b151f96229",
+    "firmware/mini/codec_probe/read16.c": "7876ad18608b3a0e130b2c6f1a9765649a2d1b936c068ea47f1483c61d84e381",
+    "firmware/mini/platform/hyperrig_mini_platform.c": "8d09e9b032cf1ad4a71fc8733f286298741eb0db39c38e7d02745441d5c69814",
+    "firmware/mini/boot/runtime.c": "a0fe564e1785238960f4810bb1684066bfd4d33f5337d98d74803b702c066973",
+    "firmware/mini/rom_stack/rom_stack_pi32v2.S": "3d5f0733f39eea37a8a9c4648b7cddd5145dda0444c02910862b2069ae6a7f10",
+    "firmware/mini/codec/spin_pi32v2.S": "8dfea293fd17338544bd7c39b6e6535c2ba4eb63eeb4fcc4ed523b1564fb6d22",
+    "firmware/mini/rom_codec_board/rom_codec.h": "f9f9578270afaf904d13e0b6106122a4040b7fa2f04c220ef348d98533148cc6",
+    "firmware/mini/rom_codec_board/host_test.c": "ad7ede1a7ade3ce2783cb36c605bda1721044915e64c8cee56d2f68842518ff8",
+    "firmware/mini/rom_codec_board/codec.ld": "c5a19c01ef5f79d0726cef05e0e5c5b1f4e58e00bee7fc6c1c6bffcab77cfd33",
+    "firmware/mini/platform/hyperrig_mini_platform.h": "43dda9d017d83764306d5b33f073722c798d10642e442e3f4933592fa0aaa7f8",
+    "firmware/mini/codec/hyperrig_mini_codec.h": "d91a4d5e0f909254c970d2a8e57773b36dc9d8a15a8ba88c2e36415824b914d7",
+    "firmware/mini/codec_probe/read16.h": "9ae2d1e8707e3bbf940af782cb025ede19342654c75c571ea7492da13202c355",
+    "firmware/mini/rom_stack/rom_stack.h": "5416bbfb993be1c8751e851a9af5b442a0a46f244d269460a5a4551b54bd562c",
+    "tools/verify_mini_rom_stack.py": "3a8a72d3937f28163091305ba05e69145a00f868f15016cc66d6ca4683ecf268",
+    "tools/build_mini_rom_codec.py": "cc6c7958f143d9e22c2bf9ba2b8b901d685776d068a623f9b4ad106796ee5b2c",
+    "tools/build_mini_rom_codec_board.py": "078d105d0188c7f922be7023b93ba4dad41225478dfa5fe9b2dd529cec282290"
+  },
+  "host": {
+    "host_cases": 134,
+    "gate_cases": 24610,
+    "saved_record_cases": [
+      {
+        "record_valid": true,
+        "phase": 0,
+        "sequence": 1,
+        "register": 65535,
+        "status": 0,
+        "gate": 0,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 0,
+        "restoration_flags": 0,
+        "stack_observed_bytes": 0,
+        "record_sha256": "ae3f324aa85339fad149a0d48178990f2ea13602f8cb3c8671fbe0805e377fcc",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": 0,
+        "gate": 0,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": true,
+        "value": 4951,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "74e601ac582f68fc2ce8adcadf7758f541716640c4b31d46a211d520495e8bf1",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -2,
+        "gate": 0,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "4fe1775b15309557c2a99241bf92d95daad5046fff2b5bccd65526b2990e2e37",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -2,
+        "gate": 0,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "d1eb30d2a374e70cb52fd720e05522974f513b29452b4dc428e87911386b219d",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -2,
+        "gate": 0,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "f06c9fdc3f13879abc128b011acd36d59857b8e46a400ac8d59058930895df77",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -2,
+        "gate": 0,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "77364d136a95e82a61f93fe6be57d7a65022d46a60e023b20b3b3622781f4221",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -8,
+        "gate": 6,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "88597dfd2e0947f74cadc2bde1333f978b29044e8aeb49811b6972b38e9ef72d",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -6,
+        "gate": 0,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 7,
+        "restoration_flags": 1,
+        "stack_observed_bytes": 0,
+        "record_sha256": "18eeb42913c41591fd9bac595b5359a52647dd1a84162eb203bc379c11640238",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -6,
+        "gate": 6,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 90,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 7,
+        "restoration_flags": 1,
+        "stack_observed_bytes": 0,
+        "record_sha256": "5101e638fb144f0a2dc47957b74bbe32a4eeb97ef533891c6a43c26bed6fac9f",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -8,
+        "gate": 6,
+        "nominal_active_hz": 192000000,
+        "iterations_per_unit": 48,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 0,
+        "restoration_flags": 0,
+        "stack_observed_bytes": 0,
+        "record_sha256": "6b5877d443399bdafd59e5177582c9496b991cf55d017184764e2f4a9f116f9d",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 0,
+        "sequence": 1,
+        "register": 65535,
+        "status": -3,
+        "gate": 2,
+        "nominal_active_hz": 0,
+        "iterations_per_unit": 0,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 0,
+        "restoration_flags": 0,
+        "stack_observed_bytes": 0,
+        "record_sha256": "454f670ac2881f1b8c21dc81b33a2c88ca0bac6ee08786cd67961e815a91d29b",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": -3,
+        "gate": 2,
+        "nominal_active_hz": 0,
+        "iterations_per_unit": 0,
+        "read_successful": false,
+        "value": null,
+        "setup_flags": 0,
+        "restoration_flags": 0,
+        "stack_observed_bytes": 0,
+        "record_sha256": "819dbbd379129fcbdebeab982ba274360fda2f8bc1b023a555fb1ae34373975b",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": 0,
+        "gate": 0,
+        "nominal_active_hz": 24000000,
+        "iterations_per_unit": 6,
+        "read_successful": true,
+        "value": 4951,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "637c160ddb9907fab40ed76e24a897849c34ebf236cd48d77e1ede8f442fddef",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": 0,
+        "gate": 0,
+        "nominal_active_hz": 24000000,
+        "iterations_per_unit": 3,
+        "read_successful": true,
+        "value": 4951,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "3227637e68bdba67ebbf498f363b36e4cc4961dd1345bd4a5de1dabd9ebedac3",
+        "calibrated_timing": false
+      },
+      {
+        "record_valid": true,
+        "phase": 1,
+        "sequence": 2,
+        "register": 88,
+        "status": 0,
+        "gate": 0,
+        "nominal_active_hz": 360000000,
+        "iterations_per_unit": 45,
+        "read_successful": true,
+        "value": 4951,
+        "setup_flags": 7,
+        "restoration_flags": 3,
+        "stack_observed_bytes": 0,
+        "record_sha256": "d2908b5eb7b336b115e6a7e6da54c52405de46e621738035aa5d390486549eec",
+        "calibrated_timing": false
+      }
+    ],
+    "record_validation": {
+      "record_valid": true,
+      "phase": 1,
+      "sequence": 2,
+      "register": 89,
+      "status": 0,
+      "gate": 0,
+      "nominal_active_hz": 360000000,
+      "iterations_per_unit": 90,
+      "read_successful": true,
+      "value": 4951,
+      "setup_flags": 7,
+      "restoration_flags": 3,
+      "stack_observed_bytes": 0,
+      "record_sha256": "f8e7dee91ff47b5e1117a842a85ce8b322276554eb0b901ede61b8694592c569",
+      "calibrated_timing": false
+    },
+    "negative_record_cases": 29,
+    "asan": true,
+    "ubsan": true,
+    "real_MMIO": false
+  },
+  "artifacts": [
+    {
+      "base": 29491200,
+      "span": 32768,
+      "entry": 29491200,
+      "payload_bytes": 5856,
+      "bss_bytes": 4808,
+      "memory_bytes": 10664,
+      "slot_free_bytes": 22104,
+      "record_address": 29501352,
+      "record_bytes": 512,
+      "private_stack_bottom": 29497224,
+      "private_stack_top": 29501320,
+      "private_stack_bytes": 4096,
+      "state_bytes": 136,
+      "elf_sha256": "2347b54ffac431709fa06a0a696a0604eb3f3173ea98a643c58d03c19ec2f87e",
+      "payload_sha256": "af5733c22f4bd5b36a2ac51692972b4da9913b0fa973dd43160109a0ef84b612",
+      "linked_codec_functions": [
+        "hyperrig_mini_codec_bus_init",
+        "hyperrig_mini_codec_probe_register_allowed",
+        "hyperrig_mini_codec_read16",
+        "hyperrig_mini_codec_spin_pi32v2"
+      ],
+      "forbidden_codec_symbols_absent": true,
+      "stack_bridge": {
+        "bytes": 24,
+        "sha256": "734692b077b79e871803df538fd684cfe2957db23356417714b300c651e9fba1",
+        "instructions": [
+          {
+            "offset": 0,
+            "length": 2,
+            "id": "push.rets_rl",
+            "text": "[--sp] = {rets, r4}",
+            "hex": "7404"
+          },
+          {
+            "offset": 2,
+            "length": 4,
+            "id": "mov.r_sr",
+            "text": "r4 = sp",
+            "hex": "64e0004e"
+          },
+          {
+            "offset": 6,
+            "length": 2,
+            "id": "mov.rr",
+            "text": "r3 = r0",
+            "hex": "0316"
+          },
+          {
+            "offset": 8,
+            "length": 4,
+            "id": "mov.sr_r",
+            "text": "sp = r2",
+            "hex": "64e0802e"
+          },
+          {
+            "offset": 12,
+            "length": 2,
+            "id": "mov.rr",
+            "text": "r0 = r1",
+            "hex": "1016"
+          },
+          {
+            "offset": 14,
+            "length": 2,
+            "id": "call.r",
+            "text": "call r3",
+            "hex": "c300"
+          },
+          {
+            "offset": 16,
+            "length": 4,
+            "id": "mov.sr_r",
+            "text": "sp = r4",
+            "hex": "64e0804e"
+          },
+          {
+            "offset": 20,
+            "length": 2,
+            "id": "pop.rets_rl",
+            "text": "{rets, r4} = [sp++]",
+            "hex": "3404"
+          },
+          {
+            "offset": 22,
+            "length": 2,
+            "id": "rts",
+            "text": "rts",
+            "hex": "8000"
+          }
+        ],
+        "incoming_stack_bytes": 8,
+        "inherited_interrupt_stack_qualified": false
+      },
+      "file": "build/mini-rom-codec-board/hyperrig-rom-codec-board-01c20000.bin",
+      "elf": "build/mini-rom-codec-board/hyperrig-rom-codec-board-01c20000.elf",
+      "assembly": "build/mini-rom-codec-board/hyperrig-rom-codec-board-01c20000.asm",
+      "stack": {
+        "core_bound_bytes": 576,
+        "private_stack_bytes": 4096,
+        "margin_bytes": 3520,
+        "callback_edges_are_explicit": true,
+        "interrupt_stack_included": false,
+        "functions": {
+          "write_word": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": []
+          },
+          "memcpy": {
+            "frame_bytes": 8,
+            "bound_bytes": 8,
+            "calls": []
+          },
+          "copy_words": {
+            "frame_bytes": 20,
+            "bound_bytes": 20,
+            "calls": []
+          },
+          "read_word": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": []
+          },
+          "sample_bus": {
+            "frame_bytes": 4,
+            "bound_bytes": 4,
+            "calls": [
+              "read_word"
+            ]
+          },
+          "sample": {
+            "frame_bytes": 8,
+            "bound_bytes": 12,
+            "calls": [
+              "sample_bus"
+            ]
+          },
+          "gpio": {
+            "frame_bytes": 28,
+            "bound_bytes": 28,
+            "calls": [
+              "read_word",
+              "write_word"
+            ]
+          },
+          "hyperrig_mini_codec_spin_pi32v2": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": []
+          },
+          "spin": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": [
+              "hyperrig_mini_codec_spin_pi32v2"
+            ]
+          },
+          "delay_bus": {
+            "frame_bytes": 16,
+            "bound_bytes": 16,
+            "calls": [
+              "read_word",
+              "spin"
+            ]
+          },
+          "start": {
+            "frame_bytes": 16,
+            "bound_bytes": 44,
+            "calls": [
+              "delay_bus",
+              "gpio"
+            ]
+          },
+          "hyperrig_mini_codec_read16": {
+            "frame_bytes": 80,
+            "bound_bytes": 124,
+            "calls": [
+              "delay_bus",
+              "gpio",
+              "sample",
+              "sample_bus",
+              "start"
+            ]
+          },
+          "hyperrig_mini_clock_decode": {
+            "frame_bytes": 44,
+            "bound_bytes": 44,
+            "calls": []
+          },
+          "hyperrig_rom_codec_clock_gate": {
+            "frame_bytes": 56,
+            "bound_bytes": 100,
+            "calls": [
+              "hyperrig_mini_clock_decode"
+            ]
+          },
+          "valid_bus": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": []
+          },
+          "hyperrig_mini_codec_bus_init": {
+            "frame_bytes": 20,
+            "bound_bytes": 48,
+            "calls": [
+              "gpio",
+              "valid_bus"
+            ]
+          },
+          "snapshot_read": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": [
+              "read_word"
+            ]
+          },
+          "hyperrig_mini_clock_read_snapshot": {
+            "frame_bytes": 12,
+            "bound_bytes": 12,
+            "calls": [
+              "snapshot_read"
+            ]
+          },
+          "core": {
+            "frame_bytes": 452,
+            "bound_bytes": 576,
+            "calls": [
+              "copy_words",
+              "hyperrig_mini_clock_read_snapshot",
+              "hyperrig_mini_codec_bus_init",
+              "hyperrig_mini_codec_read16",
+              "hyperrig_rom_codec_clock_gate",
+              "memcpy",
+              "read_word",
+              "spin",
+              "write_word"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "base": 29523968,
+      "span": 32768,
+      "entry": 29523968,
+      "payload_bytes": 5856,
+      "bss_bytes": 4808,
+      "memory_bytes": 10664,
+      "slot_free_bytes": 22104,
+      "record_address": 29534120,
+      "record_bytes": 512,
+      "private_stack_bottom": 29529992,
+      "private_stack_top": 29534088,
+      "private_stack_bytes": 4096,
+      "state_bytes": 136,
+      "elf_sha256": "fddd3c1dfe1bb0f528e29d854a2c58337d75810ed2ef058a23a32515ae05eae5",
+      "payload_sha256": "78d13729e82c1e0c312baa4cdd1dc227b9db66626128d123e75a765f41de9113",
+      "linked_codec_functions": [
+        "hyperrig_mini_codec_bus_init",
+        "hyperrig_mini_codec_probe_register_allowed",
+        "hyperrig_mini_codec_read16",
+        "hyperrig_mini_codec_spin_pi32v2"
+      ],
+      "forbidden_codec_symbols_absent": true,
+      "stack_bridge": {
+        "bytes": 24,
+        "sha256": "734692b077b79e871803df538fd684cfe2957db23356417714b300c651e9fba1",
+        "instructions": [
+          {
+            "offset": 0,
+            "length": 2,
+            "id": "push.rets_rl",
+            "text": "[--sp] = {rets, r4}",
+            "hex": "7404"
+          },
+          {
+            "offset": 2,
+            "length": 4,
+            "id": "mov.r_sr",
+            "text": "r4 = sp",
+            "hex": "64e0004e"
+          },
+          {
+            "offset": 6,
+            "length": 2,
+            "id": "mov.rr",
+            "text": "r3 = r0",
+            "hex": "0316"
+          },
+          {
+            "offset": 8,
+            "length": 4,
+            "id": "mov.sr_r",
+            "text": "sp = r2",
+            "hex": "64e0802e"
+          },
+          {
+            "offset": 12,
+            "length": 2,
+            "id": "mov.rr",
+            "text": "r0 = r1",
+            "hex": "1016"
+          },
+          {
+            "offset": 14,
+            "length": 2,
+            "id": "call.r",
+            "text": "call r3",
+            "hex": "c300"
+          },
+          {
+            "offset": 16,
+            "length": 4,
+            "id": "mov.sr_r",
+            "text": "sp = r4",
+            "hex": "64e0804e"
+          },
+          {
+            "offset": 20,
+            "length": 2,
+            "id": "pop.rets_rl",
+            "text": "{rets, r4} = [sp++]",
+            "hex": "3404"
+          },
+          {
+            "offset": 22,
+            "length": 2,
+            "id": "rts",
+            "text": "rts",
+            "hex": "8000"
+          }
+        ],
+        "incoming_stack_bytes": 8,
+        "inherited_interrupt_stack_qualified": false
+      },
+      "file": "build/mini-rom-codec-board/hyperrig-rom-codec-board-01c28000.bin",
+      "elf": "build/mini-rom-codec-board/hyperrig-rom-codec-board-01c28000.elf",
+      "assembly": "build/mini-rom-codec-board/hyperrig-rom-codec-board-01c28000.asm",
+      "stack": {
+        "core_bound_bytes": 576,
+        "private_stack_bytes": 4096,
+        "margin_bytes": 3520,
+        "callback_edges_are_explicit": true,
+        "interrupt_stack_included": false,
+        "functions": {
+          "write_word": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": []
+          },
+          "memcpy": {
+            "frame_bytes": 8,
+            "bound_bytes": 8,
+            "calls": []
+          },
+          "copy_words": {
+            "frame_bytes": 20,
+            "bound_bytes": 20,
+            "calls": []
+          },
+          "read_word": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": []
+          },
+          "sample_bus": {
+            "frame_bytes": 4,
+            "bound_bytes": 4,
+            "calls": [
+              "read_word"
+            ]
+          },
+          "sample": {
+            "frame_bytes": 8,
+            "bound_bytes": 12,
+            "calls": [
+              "sample_bus"
+            ]
+          },
+          "gpio": {
+            "frame_bytes": 28,
+            "bound_bytes": 28,
+            "calls": [
+              "read_word",
+              "write_word"
+            ]
+          },
+          "hyperrig_mini_codec_spin_pi32v2": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": []
+          },
+          "spin": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": [
+              "hyperrig_mini_codec_spin_pi32v2"
+            ]
+          },
+          "delay_bus": {
+            "frame_bytes": 16,
+            "bound_bytes": 16,
+            "calls": [
+              "read_word",
+              "spin"
+            ]
+          },
+          "start": {
+            "frame_bytes": 16,
+            "bound_bytes": 44,
+            "calls": [
+              "delay_bus",
+              "gpio"
+            ]
+          },
+          "hyperrig_mini_codec_read16": {
+            "frame_bytes": 80,
+            "bound_bytes": 124,
+            "calls": [
+              "delay_bus",
+              "gpio",
+              "sample",
+              "sample_bus",
+              "start"
+            ]
+          },
+          "hyperrig_mini_clock_decode": {
+            "frame_bytes": 44,
+            "bound_bytes": 44,
+            "calls": []
+          },
+          "hyperrig_rom_codec_clock_gate": {
+            "frame_bytes": 56,
+            "bound_bytes": 100,
+            "calls": [
+              "hyperrig_mini_clock_decode"
+            ]
+          },
+          "valid_bus": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": []
+          },
+          "hyperrig_mini_codec_bus_init": {
+            "frame_bytes": 20,
+            "bound_bytes": 48,
+            "calls": [
+              "gpio",
+              "valid_bus"
+            ]
+          },
+          "snapshot_read": {
+            "frame_bytes": 0,
+            "bound_bytes": 0,
+            "calls": [
+              "read_word"
+            ]
+          },
+          "hyperrig_mini_clock_read_snapshot": {
+            "frame_bytes": 12,
+            "bound_bytes": 12,
+            "calls": [
+              "snapshot_read"
+            ]
+          },
+          "core": {
+            "frame_bytes": 452,
+            "bound_bytes": 576,
+            "calls": [
+              "copy_words",
+              "hyperrig_mini_clock_read_snapshot",
+              "hyperrig_mini_codec_bus_init",
+              "hyperrig_mini_codec_read16",
+              "hyperrig_rom_codec_clock_gate",
+              "memcpy",
+              "read_word",
+              "spin",
+              "write_word"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "negative_ELF_cases": 12,
+  "protocol": {
+    "snapshot": "FC68",
+    "read_register": "FC69",
+    "read_record": "FD6A",
+    "magic": "HYC2",
+    "version": 2,
+    "record_bytes": 512,
+    "schema": "firmware/mini/rom_codec_board/rom_codec.h",
+    "read_arguments": "registerBE16 then snapshotSequenceBE16",
+    "padding": "unused CDB bytes FF",
+    "one_read_per_snapshot": true,
+    "register_allowlist": [
+      1,
+      3,
+      28,
+      29,
+      43,
+      44,
+      49,
+      50,
+      88,
+      89
+    ]
+  },
+  "effects": {
+    "entry_MMIO": false,
+    "FC68_writes": false,
+    "FC69_GPIO": [
+      "PA1",
+      "PA2",
+      "PA9",
+      "PC5"
+    ],
+    "codec_data_writes": false,
+    "codec_reset": false,
+    "clock_writes": false,
+    "NOR_access": false,
+    "PC5_role_known": false,
+    "settle_spin_iterations": 100000,
+    "settle_microseconds": null
+  },
+  "clock_gate": {
+    "main_selectors": [
+      4,
+      7
+    ],
+    "test_selector": 0,
+    "osc_selector": 0,
+    "external_crystal_nominal_hz": 24000000,
+    "PLL_sources": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "primary_control0_mask": "0xcc00007f",
+    "primary_control0_value": "0x44000003",
+    "primary_N": 38,
+    "secondary_control0_mask": "0x0fc007ff",
+    "secondary_control0_value": "0x0940022b",
+    "secondary_output_enable_mask": "0x07000000",
+    "minimum_hz": 8000000,
+    "maximum_hz": 480000000,
+    "secondary_N_bound_before_uint32_decoder": "N+2 <= 120*(9-source)",
+    "formula": "units * floor(active_nominal_hz / (SFCbit0 ? 8000000 : 4000000))",
+    "source_header_url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/clock_hw.h",
+    "source_header_sha256": "ae1ea1b672b3855f6b0e2378d9ee1583e1b87614ed617db3d41f001681f855ae"
+  },
+  "hardware_execution_verified": false,
+  "codec_identity_verified": false,
+  "calibrated_timing": false,
+  "firmware_installation_package": false,
+  "limits": [
+    "Main RC, RTC, test sources and unrecognized PLL references remain snapshot-only.",
+    "Clock snapshots are reads, not a hardware-atomic measurement or proof of analog PLL lock.",
+    "The complete first twelve snapshot words must be stable around the operation; each delay additionally checks CLK_CON0 and SFCbit0.",
+    "PC5 stock setup is observed; it is not proven to control codec power. It is also periodically toggled by stock UI.",
+    "The stock RTOS delay(10) before codec replay is not reconstructed as elapsed time; only the 100000-iteration counted settle is reproduced.",
+    "Raw bus spin counts follow stock arithmetic but RAM execution/callback overhead/IRQ activity differ from stock; physical edge timing remains unmeasured.",
+    "This manifest attests only offline builds and mocks, never board boot, audio, flash or hardware readiness."
+  ]
+}

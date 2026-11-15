@@ -19,7 +19,7 @@
   "preset_backup_acquired": true,
   "complete_flash_backup_acquired": true,
   "firmware_write_performed": false,
-  "limitation": "ROM primitive and synthetic three-layer A2L engine probes, two identical complete NOR reads matching stock009, and four returns to stock with unchanged presets are verified. Original 23-layer capture, application boot, real audio and recovery from corrupted flash remain unverified.",
+  "limitation": "ROM primitive and synthetic three-layer A2L engine probes, two identical complete NOR reads matching stock009, and five returns to stock with unchanged presets are verified. Original 23-layer capture, application boot, real audio and recovery from corrupted flash remain unverified.",
   "usb_mini_identified": true,
   "preset_backup": {
     "bytes": 1942,
@@ -35,7 +35,7 @@
   },
   "latest_readonly_check": {
     "date": "2026-11-15",
-    "transport": "USB-MIDI after codec register diagnostic and RAM reset",
+    "transport": "USB-MIDI after HYC2 clock snapshot and RAM reset",
     "identity_confirmed_again": true,
     "midi_inputs": [
       "USB-Midi 0"
@@ -59,7 +59,7 @@
     "return_to_stock_verified": true,
     "presets_unchanged": true,
     "firmware_write_performed": false,
-    "verified_stock_returns": 4
+    "verified_stock_returns": 5
   },
   "complete_flash_backup": {
     "bytes": 1048576,
@@ -94,5 +94,13 @@
     "first_address_NACK": true,
     "gpio_restored": true,
     "no_codec_data_or_clock_writes": true
+  },
+  "codec_board_diagnostic": {
+    "evidence": "research/mini-codec-board-hardware.json",
+    "payload_executed": true,
+    "stable_clock_snapshot_obtained": true,
+    "accepted_clock_configuration": false,
+    "GPIO_touched": false,
+    "codec_transaction_attempted": false
   }
 }

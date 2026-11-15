@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "status": "offline_checks_passed_hardware_unverified",
+  "device_access": false,
+  "GPIO_executed": false,
+  "NVM_access": false,
+  "ARM_target_compilation": false,
+  "Raspberry_Pi_3_build_and_run_verified": false,
+  "Raspberry_Pi_3_GPIO_tested": false,
+  "MINI_USB_KEY_recovery_verified": false,
+  "sources": {
+    "m_bootloader_SPEC": {
+      "path": "upstream/m-bootloader/docs/SPEC.md",
+      "commit": "3ac7651a019fa44daba061b05654278496477b64",
+      "sha256": "d86ae060b1db368a8aba421e21903b3b9c7517943bcf2667ee170a5a96a2863c",
+      "section": "4.3",
+      "url": "https://github.com/jvitkauskas/m-bootloader/blob/3ac7651a019fa44daba061b05654278496477b64/docs/SPEC.md",
+      "hardware_evidence_scope": "Pico plus SMK-37 Pro only; no Pi3 or MINI proof"
+    },
+    "protocol": "https://kagaimiq.github.io/jielie/isp/usb/usb-key.html",
+    "gpio_v2": "https://www.kernel.org/doc/html/latest/userspace-api/gpio/chardev.html",
+    "open_drain_emulation": "https://docs.kernel.org/driver-api/gpio/driver.html#gpio-electrical-configuration",
+    "Raspberry_Pi_pinout": "https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#pin-layout",
+    "Raspberry_Pi_GPIO_whitepaper": "https://pip-assets.raspberrypi.com/categories/685-app-notes-guides-whitepapers/documents/RP-006553-WP-2-A%20history%20of%20GPIO%20usage%20on%20Raspberry%20Pi%20devices,%20and%20current%20best%20practices.pdf"
+  },
+  "source_files": {
+    "tools/usbkey_rpi3/test_usbkey.c": "946eaa5ede96f2b0f080bd916bc55d37174f98ebb893c8ec501d9cfc3b1a4a5e",
+    "tools/usbkey_rpi3/usbkey.c": "dbbba3c0250822fb06116beaf48124dbd7888c79af5d0367556800c68268e1fc",
+    "tools/usbkey_rpi3/verify.py": "ed874c8e95b98a93c9bf35353a2372b350c79b450622b2a055692c505132cb89"
+  },
+  "host_validation": {
+    "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "machine": "x86_64-linux-gnu",
+    "asan_ubsan": {
+      "result": "PASS",
+      "cases": 158,
+      "GPIO_access": false,
+      "status_name": "ack_candidate"
+    },
+    "strict_compilation": "-Wall -Wextra -Werror",
+    "CLI_cases": 9,
+    "default_fake_device_path_succeeded": true,
+    "existing_log_preserved": true,
+    "binary_sha256": "8ad9dd7bac8cb9366447982e198351c9423de9db2b54175088fd108bba72b109",
+    "simulation_log_sha256": "d63a297aa39066e4fc0d2065f80f7bf361f6a22830ed09fd406aec94ecb6b63d"
+  },
+  "host_timing_fake_lines": {
+    "window_ms": 100,
+    "frames": 201,
+    "max_wait_lateness_ns": 129736,
+    "half_hold_ns": {
+      "min": 10044,
+      "max": 139736
+    },
+    "max_software_operation_ns": 10428,
+    "log": "build/mini-usbkey-rpi3/timing-only.json",
+    "log_sha256": "a6855c395d2daf4c3b862159876f61f14efdf2f7742e2a58774463a318a213db",
+    "actual_GPIO_ioctl_or_edge_measurement": false
+  },
+  "protocol": {
+    "word": "0x16EF",
+    "order": "MSB-first",
+    "clock": "D+ rising",
+    "data": "D-",
+    "minimum_requested_half_ns": 10000,
+    "minimum_frame_gap_ns": 150000,
+    "maximum_requested_runtime_ms": 60000,
+    "default_requested_runtime_ms": 20000,
+    "ACK_policy_not_ROM_spec": {
+      "minimum_low_ns": 500000,
+      "maximum_low_ns": 3000000,
+      "maximum_sample_gap_ns": 100000
+    },
+    "ACK_requires": [
+      "both released lines seen HIGH",
+      "at least one complete frame sent",
+      "both LOW while both outputs released",
+      "finite low pulse ends",
+      "no excessive gap between ACK samples"
+    ]
+  },
+  "wiring_experimental": {
+    "DP": {
+      "BCM": 17,
+      "physical_header": 11
+    },
+    "DM": {
+      "BCM": 27,
+      "physical_header": 13
+    },
+    "ground_physical_header": 6,
+    "pullup_supply_physical_header": 1,
+    "pullups_ohms_each": 2200,
+    "pullup_supply_volts": 3.3,
+    "VBUS_connected": false,
+    "PC_USB_simultaneously_connected": false,
+    "target_power": "own battery",
+    "Pi_power": "own supply"
+  },
+  "open_gates": [
+    "Compile and validate GPIO v2 support on the actual Pi3/kernel",
+    "Confirm actual GPIO ioctl latency and electrical waveforms on that Pi3",
+    "Verify MINI cold-boot USB_KEY window, battery power and connector path",
+    "Confirm candidate ACK by subsequent independent WL82 ROM USB enumeration",
+    "Demonstrate recovery with stock intact before relying on it for a replacement app"
+  ]
+}

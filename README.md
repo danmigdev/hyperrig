@@ -61,6 +61,11 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
 - Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
   APK Android `com.hyperrig.app`, ricostruito e firmato localmente. Sono in
   `build/hyperrig/`: **queste copie G/B non sono il port MINI**.
+- Prima candidata integrale MINI da **516.096 byte**, con applicazione UltraRig G,
+  19 patch e shim audio C da 2.068 byte. Struttura, CRC e confronto inverso
+  con l'originale verificati; nessun codice applicativo stock MINI usato.
+  L'editor MINI è associato all'hash dell'immagine. Avvio e audio sul pedale
+  restano da provare: `build/hyperrig-mini-integrated/` non è ancora installabile.
 
 I sorgenti C originali del DSP UltraRig **non sono stati trovati**: il repository,
 la sua cronologia e i fork pubblici controllati non li contengono. La
@@ -70,6 +75,8 @@ originale. Il dettaglio delle ricerche è in [source-audit.json](research/source
 ## Dove leggere
 
 - [Reverse engineering e risultati verificati](docs/REVERSE_ENGINEERING.md).
+- [Copie locali, stato dei sorgenti e percorsi di modifica](docs/LOCAL_SOURCES.md).
+- [Build integrata MINI e piano di sostituzione](docs/MINI_INTEGRATED_PORT.md).
 - [Porting TANK MINI: profilo, differenze e lavoro restante](docs/PORTING_TANK_MINI.md).
 - [C nativo ricostruito e verifiche numeriche](docs/NATIVE_RECONSTRUCTION.md).
 - [Percorso audio del MINI e confronto con il G](docs/TANK_MINI_AUDIO.md).

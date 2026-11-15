@@ -231,7 +231,42 @@
     "return_to_stock_verified": true,
     "corrupt_application_recovery_verified": false,
     "evidence": "research/mini-hardware-rom.json",
-    "verified_stock_returns": 2
+    "verified_stock_returns": 5
+  },
+  "integral_application_candidate": {
+    "architecture": "standalone-ultrarig-port",
+    "evidence": "research/mini-integrated-port.json",
+    "firmware_manifest": "build/hyperrig-mini-integrated/firmware-manifest.json",
+    "image_sha256": "f8835a7fd45b1b324d66c457434c7943d70525ed5eb98b514aaac1095031f068",
+    "image_bytes": 516096,
+    "original_G_application_bytes": 485772,
+    "stock_MINI_application_bytes_used": 0,
+    "board_patch_groups": [
+      "panel",
+      "boot",
+      "audio"
+    ],
+    "total_patches": 19,
+    "appended_code_bytes": 2068,
+    "crc_and_inverse_provenance_verified": true,
+    "actual_MINI_boot_verified": false,
+    "flashable": false
+  },
+  "adapted_application": {
+    "runtime_identity": "tankm_fw M5.71 rel ble",
+    "web_editor": "build/hyperrig-mini-integrated/app/web/tankmini.html",
+    "evidence": "research/mini-app-protocol.json",
+    "desired_USB_CDC_VID_PID": "3654:5155",
+    "desired_BLE_protocol": "original UltraRig NUS",
+    "stock_MINI_protocol_bridge": false,
+    "hardware_read_or_write_verified": false
+  },
+  "codec_ROM_observation": {
+    "evidence": "research/mini-codec-hardware.json",
+    "payload_executed": true,
+    "first_address_NACK": true,
+    "codec_value_obtained": false,
+    "gpio_restored": true
   },
   "clock_analysis": {
     "evidence": "research/mini-clock.json",
@@ -240,5 +275,13 @@
     "nominal_fast_family_hz": 48076.92307692308,
     "physical_rate_measured": false,
     "osr64_candidate_applied": false
+  },
+  "codec_board_ROM_observation": {
+    "evidence": "research/mini-codec-board-hardware.json",
+    "payload_executed": true,
+    "stable_clock_snapshot_obtained": true,
+    "accepted_clock_configuration": false,
+    "GPIO_touched": false,
+    "codec_transaction_attempted": false
   }
 }

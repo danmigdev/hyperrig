@@ -1,0 +1,336 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "TANK MINI_009",
+  "date": "2026-11-15",
+  "audit_hardware_access": false,
+  "frozen_audio_shim_v1": {
+    "manifest_sha256": "67b34b8e77dfe7a40dcab8b4499eb741ab70b73de5fa2cc82007311b4f98b2b0",
+    "payload_sha256": "a63d80c1444372a06d5d5d870ccc9abeedd08b6a54144a3a75af1b4fbe6c486a",
+    "modified": false,
+    "known_omission": "MINI PC5 DIE/high/output/HD/HD0 setup is not replayed."
+  },
+  "HYC1": {
+    "run": "analysis/hardware/mini-codec-run.json",
+    "run_sha256": "daf77072cede699f4397c711c7227f9136511fbebcafe687e3d7dfb1c89fb165",
+    "payload_sha256": "084ca247eeb53c5ab165dec62059ca0a0022ab7719c9975a5efd3db97da184fa",
+    "record_sha256": "9736667745a0c7b8ad5628f694a0dd8df0979b151b9e4b09d6f710dc76381ca8",
+    "first_register": 88,
+    "status": -2,
+    "acknowledged": 0,
+    "received": 0,
+    "samples": 1,
+    "delay_calls": 35,
+    "observed_stack_bytes": 256,
+    "stack_guards_ok": true,
+    "GPIO_restored": true,
+    "stock_return_verified": true,
+    "presets_unchanged": true,
+    "identified_codec": null,
+    "record_crc32_verified_offline": true
+  },
+  "address_check": {
+    "stock_instruction": "0x02006dd6 r0=54; call 0x02006c6a",
+    "preimage_hex": "4836bfea47ff",
+    "raw_address_byte": 54,
+    "seven_bit_address": 27,
+    "bits_msb_first": "00110110",
+    "address_transform": null,
+    "ACK": "Release SDA/PA1, raise SCL/PA2, sample SDA with SCL high; low means ACK.",
+    "normalized_trace_events": 57,
+    "normalized_trace_sha256": "07059f8581420830b4431cb832f02c72dccd55d1ef2ca3af195d7847fd5309f1",
+    "stock_interpreted_instructions": 813,
+    "HYC1_interpreted_instructions": 457,
+    "method": "StockBusMachine from actual MINI opcodes versus independently decoded executed HYC1 START and first-byte path. GPIO and delay callbacks are substituted; sample=1 is supplied. Duplicate same-level OUT writes are removed. Stock clock4MHz/mode0 makes iteration counts equal to units. Target interpretation terminates at the sample path entry; a supplied sample event is appended after checking the separate sample helper.",
+    "compiled_HYC1_START": "0x01c2081c..0x01c208a2",
+    "compiled_HYC1_byte_entry": "0x01c209fa",
+    "difference_before_ACK": "Only a redundant stock OUT(SCL,0) while SCL is already low.",
+    "difference_after_ACK": "Stock takes SDA output-low; read16 keeps it released and attempts STOP on NACK.",
+    "electrical_or_wall_time_emulation": false,
+    "compiled_HYC1_sample_path_entry": "0x01c20972"
+  },
+  "timing": {
+    "stock_formula": "units * floor(nominal_sys_hz / (SFCbit0 ? 8000000 : 4000000))",
+    "stock_360MHz_scale_SFC_on": 45,
+    "stock_360MHz_scale_SFC_off": 90,
+    "HYC1_scale": 1024,
+    "measured_SCL": null,
+    "slower_is_not_timing_qualification": true,
+    "MCLK_required_for_I2C_established": false
+  },
+  "PC5": {
+    "gpio": 37,
+    "base": "0x50080",
+    "mask": "0x20",
+    "init": "0x02005bce",
+    "only_direct_init_caller": "0x020060d2",
+    "call_chain": [
+      "0x020071fe",
+      "0x020067f2",
+      "0x020060d0",
+      "0x02005bce"
+    ],
+    "ordered_operations": [
+      [
+        "0x5008c",
+        "DIE",
+        "OR 0x20"
+      ],
+      [
+        "0x50080",
+        "OUT",
+        "OR 0x20"
+      ],
+      [
+        "0x50088",
+        "DIR",
+        "AND ~0x20"
+      ],
+      [
+        "0x5009c",
+        "HD",
+        "AND ~0x20"
+      ],
+      [
+        "0x50098",
+        "HD0",
+        "AND ~0x20"
+      ]
+    ],
+    "unchanged": [
+      "PU",
+      "PD",
+      "DIEH"
+    ],
+    "other_gpio_in_same_routine": [],
+    "non_GPIO_MMIO_in_same_routine": [],
+    "runtime_writer": "0x0200af46: arg0 high, other low; other OUT bits preserved",
+    "runtime_callers": [
+      "0x0200b6da",
+      "0x0200bf78"
+    ],
+    "runtime_periodic_thresholds": [
+      [
+        13,
+        26
+      ],
+      [
+        25,
+        51
+      ]
+    ],
+    "runtime_inactivity_threshold": 18001,
+    "physical_role": null,
+    "indicator_is_only_inference": true,
+    "NOR_SPI0_bus_pin": false,
+    "NOR_bus_port": "0x500c0 PORTD",
+    "poweroff_storage_command_found_in_PC5_routines": false,
+    "external_power_wiring_proven_absent": false
+  },
+  "stock_pre_codec": {
+    "PA9_low_call": "0x02007218",
+    "settle_iterations": 100000,
+    "RTOS_delay_call": "0x02007182 delay(10), unit not established here",
+    "codec_table_call": "0x02007188",
+    "ALNK_open_call_after_table": "0x020071e6",
+    "PA9_high_after_audio_call": "0x0200723e",
+    "inherited_MCLK_state_measured": false,
+    "neighbor_setup": [
+      "PC9/ADC8",
+      "PC0/ADC6",
+      "PA10/PA0/PA3 inputs",
+      "PB7 input",
+      "PC10/SPI1"
+    ]
+  },
+  "main_clock": {
+    "field": "CLK_CON0[8:6]",
+    "active_SDK_enum": {
+      "0": "RC",
+      "4": "BTOSC",
+      "5": "reserved",
+      "6": "RTOSC_L",
+      "7": "PLL"
+    },
+    "test_field": "CLK_CON0[3:2], normal main input=0",
+    "boot_select_calls": [
+      "0x01c04582 OR 0xc0",
+      "0x01c045b6 OR 0x100"
+    ],
+    "source_header_sha256": "ae1ea1b672b3855f6b0e2378d9ee1583e1b87614ed617db3d41f001681f855ae",
+    "nominal_is_not_measurement": true
+  },
+  "sources": [
+    "https://www.nuvoton.com/export/resource-files/DS_NAU88L21_DataSheet_EN_Rev2.7.pdf",
+    "https://www.nuvoton.com/export/resource-files/en-us--DS_NAU88L21_DataSheet_EN_Rev3.1.pdf",
+    "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/clock_hw.h"
+  ],
+  "next_diagnostic": {
+    "manifest": "research/mini-rom-codec-board.json",
+    "protocol": "HYC2 FC68 snapshot-only; FC69 explicit one-shot board/read; FD6A record512",
+    "PC5_fix_for_NACK_claimed": false,
+    "HYC1_modified": false,
+    "hardware_execution_attested_here": false
+  },
+  "limits": [
+    "No physical codec identity, voltage, wiring, MCLK or I2C edge timing has been measured.",
+    "PC5 direct callers and immediate helpers were audited; generic sleep/whole-port restore and indirect callbacks were not exhaustively excluded.",
+    "The chip-specific datasheet is documentary evidence for a compatible candidate, not physical chip identification.",
+    "This audit does not validate audio, mute, 48kHz, application boot or firmware installation."
+  ],
+  "fragments": {
+    "gpio_bank_resolver": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x2004f6e",
+      "end_exclusive": "0x2004f86",
+      "offset": 20334,
+      "bytes": 24,
+      "sha256": "55d366f446a5b68ce7c61add8901236b370ffae19ca05304083d47710a60c1cf",
+      "preimage_hex": "0116103fb1ec90c090a400a2c1ff58fe0302d8ec02018000"
+    },
+    "gpio_output": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x2004f86",
+      "end_exclusive": "0x2005036",
+      "offset": 20358,
+      "bytes": 176,
+      "sha256": "f72cbba9559b6688b655ea2125af8b9fc44031b90c50cf8f4dab92e581de2a0e",
+      "preimage_hex": "75041416031693f907284120bfea7cff30164116418c550483f80d204820412080ffa2c0bfff603a412080ff98c0bfff4016518c550493f90620411700e170300017518c5504619070f831fe600064e0001612a2c1ffd8d6c0011218c0eb0120b2a4c5ff3456c101521820002000b20040e8fdff63e10f304521c8e150332000044534e8010064e80003048264e8030364e80b0320004020a84064e00006d8ec1a20fa3fd8ec1b208242200061005504"
+    },
+    "gpio_digital": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x2005b16",
+      "end_exclusive": "0x2005bce",
+      "offset": 23318,
+      "bytes": 184,
+      "sha256": "66e02dce8d7270a938ada1ef213bd5e2fa6f88f320927edaf88ba1a48c4ee41d",
+      "preimage_hex": "75041416021692f90228619f550482f803204016718d550492f91c2000e17020001700fc48024121c8e11050c0ff9b80000080ffbcb4bfff24eaff5051e1ff50901950190117c0ff9b80000080ffe6b4bfff5504bfea00fa70f82dfe600064e0001613a2c1ffd8d6c0011318c0eb0130a3a4c5ff3456c101531820002000b30040e8fdff62e10f204521c8e15022200034e8001064e80f0264e80c0220004020b84064e00006d8ec1a20fa3fd8ec1b208242200061005504"
+    },
+    "pc5_init": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x2005bce",
+      "end_exclusive": "0x2005c62",
+      "offset": 23502,
+      "bytes": 148,
+      "sha256": "216b7f3a3e475bafaecd0e2eccddad0655f4aa8275cd841b38ae991e42c4b733",
+      "preimage_hex": "760448254121518048254121bfead4f9600064e0000601a2c0ffd8d6c0010118c0eb011020002000c1ff3456c1011a82b20040e8fdff2000c3ff98000500c1ef2030200044209c4264e00056d8ec0a65fe3fd8ec0b65864220006100600064e0005655a20518c0eb015020002000b20040e8fdff2000c0ef203020009c4264e00016d8ec0a21fa3fd8ec0b218242200061005604"
+    },
+    "board_inputs": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x20060d0",
+      "end_exclusive": "0x20060e0",
+      "offset": 24784,
+      "bytes": 16,
+      "sha256": "e3e90cc0819a88c018a24ca1b8ddfc5bb95f9f8fcd6d8d21b5d890f7faaac6b3",
+      "preimage_hex": "1004bfea7cfdbfea79ff619d718e0004"
+    },
+    "board_prefix": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x20067f2",
+      "end_exclusive": "0x2006818",
+      "offset": 26610,
+      "bytes": 38,
+      "sha256": "665fc66cdc4425ca7003d1b50293d409bb799e7ade01c05c78bcba3776b7bb60",
+      "preimage_hex": "7b04e294bfea32f3bfea1cf4c0ff2c32c101084280434020bfea60f9bfea5ffc4020bfea5bf9"
+    },
+    "audio_order": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x200717c",
+      "end_exclusive": "0x2007244",
+      "offset": 29052,
+      "bytes": 200,
+      "sha256": "4bd4ffed26e0cd452a2607be3a1c5076d69374ec4869f5b09c1ca98670378085",
+      "preimage_hex": "7504e29d402a80ff3ece0300bfea30fec4ff56bac1014027422145214116bfea4fe6484030e902404020c840c0ff28b2c10143f000028d40c0ff50bac101c1ff56ac00008160c0ff58bac1018022c0ffd0fc030280214420c0ff243fc0014120423e842080ff2ad80300519ac0ff55bac101593f8940c0ff49bac1018d40028355041004bfea27edbfea2cedbfea3fedbfead1edbfeaeffa40294120bfeab5eec0ff6079feff04820000c021f05d5188c0ff6079feff04820000c021f05d40294121bfeaa2ee0004"
+    },
+    "pc5_writer": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x200af46",
+      "end_exclusive": "0x200af5c",
+      "offset": 44870,
+      "bytes": 22,
+      "sha256": "bfa10a70c5f49660cd1a99de841535567de9d18c5223bfb01dbc705a84f0cccc",
+      "preimage_hex": "c1ff80000500126073e1202032250041321692608000"
+    },
+    "pc5_periodic_caller": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x200bf28",
+      "end_exclusive": "0x200bf7c",
+      "offset": 48936,
+      "bytes": 84,
+      "sha256": "6ae5fbdf06431a386db548a60756124d3c9263c2cb673f23fc1d37f82204d5fc",
+      "preimage_hex": "50eee2001044d8ee500c00f80c02b043bfeaf8f7804b584cc021011781f9103452ee5ca00494bfeaedf7004240210490584cc021011781f9076652ee5ca00487d84c01f9f31b0483d84c01f9ef334020bfeae5f7"
+    },
+    "pc5_inactivity_caller": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x200b6ca",
+      "end_exclusive": "0x200b6e2",
+      "offset": 46794,
+      "bytes": 24,
+      "sha256": "c79e1cf8c46068178cdc9ed12216769ec487e1a4b5dd922808211bc45587b5fb",
+      "preimage_hex": "811742e05146402182e9161040204620bfea34fcbfeaf6d1"
+    },
+    "codec_address": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x2006dce",
+      "end_exclusive": "0x2006dec",
+      "offset": 28110,
+      "bytes": 30,
+      "sha256": "e6562b7e17fc17df36df064361b3fb8ae4ac8c15a2751bdafd593226acc446df",
+      "preimage_hex": "74040416bfeaf3fd4836bfea47ff004641244016419d30e8040051885404"
+    },
+    "codec_byte": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x2006c6a",
+      "end_exclusive": "0x2006d3a",
+      "offset": 27754,
+      "bytes": 208,
+      "sha256": "6818d95a377cc89bedb049e192c090a0483cd00f1d83bca97463242841c83214",
+      "preimage_hex": "7c040a16402241204520bfea87f148e08000c7ff00020400c9ff00127a00c6ff00093d00c4ff24e3c1014be0fdff4ce0faff0481c52105f83a10c8e182051aea00604021412040214121bfea67f160d6716031ea010090164162f4e11100b01b04820000c021f05d40224121bfea56f160d6716031ea010090164162f4e11100c01b04820000c021f05d40224120bfea45f160d6716031ea010090164162f4e11100b01b04820000c021f05de783bfea38ff5c0476041416061645200481c52104ed0450d8ee6005419bf05950165604"
+    },
+    "codec_ACK": {
+      "file": "analysis/tank-mini/app_area.dec.bin",
+      "cpu_start": "0x2006b8c",
+      "end_exclusive": "0x2006c6a",
+      "offset": 27532,
+      "bytes": 222,
+      "sha256": "2be5ef4978b96cb32884fa819bf02464a45edf7385a9404b53bb2d29f99676ef",
+      "preimage_hex": "760440214121bfea89f840224120bfeaf4f1c6ff00020400606030ea0110c0ff00127a00c0ff00093d00c5ff24e3c1015162f4e11100113d101b04820000c021f05d40224121bfead8f1606030ea0110c0ff00127a00c0ff00093d005162f4e11100113d101b04820000c021f05d40214421bfea61ff00414420606030ea0110c0ff00127a00c0ff00093d005162f4e11100113d101b04820000c021f05d40224120bfeaaaf1606030ea0110c0ff00127a00c0ff00093d005162f4e11100113d101b04820000c021f05d40214120bfea25f840214120bfea90f140165604"
+    },
+    "NOR_SPI0_pins": {
+      "file": "build/mini-handover/stock-uboot.bin",
+      "cpu_start": "0x1c02d32",
+      "end_exclusive": "0x1c02db4",
+      "offset": 3378,
+      "bytes": 130,
+      "sha256": "febcff8e53157e7e1246e9d65c3485cce5eaea148978baca8a981d5d2e1b2887",
+      "preimage_hex": "7804e29fc8ff6064c001d0ec8823b1e18c27d0ec8512c0ff00020400432060f08e0b836040ea2800b2e11c248261c2ff1c100500c1ef0220d0ec8932c0ef202032e1a420c2ef302007ef102081f80b0802ef0220c2ef042000ef0420c2ef082000ef08200487f93f31ec0110c0ef080002ef022000ef800c00ef01004021bfea79ff"
+    },
+    "main_PLL": {
+      "file": "build/mini-handover/stock-uboot.bin",
+      "cpu_start": "0x1c042fc",
+      "end_exclusive": "0x1c04398",
+      "offset": 8956,
+      "bytes": 156,
+      "sha256": "6ef5c06a916263500577075f00d877f1bdf79a47d245ff8826f00b8a00eb4809",
+      "preimage_hex": "50ecf00113e198b980f8090631e8010045ea00f04024711650ecf101149ff4e11067f0e16007141e7016b4e80040c0ff80841e00f4e1106061a2f938c4ff000240014119b160c1ff00389c1cf4e11010f93ec4ff0030503f411970f17e04b161412190e80007412016bac4ff80841e0060e0001690e800046116306070e140061019b060306070e14004303eb06000ef0130402abfea71f000ef0230"
+    },
+    "secondary_PLL": {
+      "file": "build/mini-handover/stock-uboot.bin",
+      "cpu_start": "0x1c043ba",
+      "end_exclusive": "0x1c044a6",
+      "offset": 9146,
+      "bytes": 236,
+      "sha256": "236c227462cb62cdc9c1f74cc8850cf5b5ed4879eeb72b9e7a991a190c90603e",
+      "preimage_hex": "d0ecf471c0ff4860c0010e40d0ecf811c0ff80841e0036ec0360e4e1066006e1de40b4e0604a50ee4461f4e170700548c4ff40420f00f4e11014211b91a1048161a1c2ef0130c2ef0230326274a2dc38c4a2a2e11441b262c2ef8030326272e1402f3229b262326272e140283236b262326272e140273238b262326272e14026323bb262c2ef803ec2ff40420f0021db3463f4e1100000e1fe0fc1aca0e15016b063306370e1e00c40e1400db063c3ef003cc3ef403bc3ef803a306370e140093034b063306370e140083036b06303ef803703ef003703ef803602ef0130402abfeaecef02ef023050eee000"
+    },
+    "main_selector": {
+      "file": "build/mini-handover/stock-uboot.bin",
+      "cpu_start": "0x1c04572",
+      "end_exclusive": "0x1c045ba",
+      "offset": 9586,
+      "bytes": 72,
+      "sha256": "cc137b2148d8a75f38f91af3445ebe7c5f1521ad28ea38e8796257849f6e4c76",
+      "preimage_hex": "50eefc11503a31e800001016bfea7aef01efc0b0d0ecb00050ee901070e1400b71e1fc10a0e10818d0ecb100d0ecb00050ee801070e1e00e71e1f810a0e10c14d0ecb10001ef80bf"
+    }
+  }
+}

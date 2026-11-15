@@ -1,0 +1,484 @@
+{
+  "project": "HyperRig",
+  "release": "alpha11",
+  "originals": [
+    {
+      "path": "artifacts/alpha11/UltraRig-alpha11-android.apk",
+      "bytes": 5293085,
+      "sha256": "cbf63092505bc77d8aa402f97374c9d8229f0794ba9cf1acc8d3489325a51717",
+      "compared_with_pinned_original": true,
+      "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-android.apk",
+      "kind": "original release package"
+    },
+    {
+      "path": "artifacts/alpha11/UltraRig-alpha11-v1-win.zip",
+      "bytes": 13839799,
+      "sha256": "7c5875342679c4a1c08edf2ba27231007acf3b7f031f2c4741b9f861bc1a0395",
+      "compared_with_pinned_original": true,
+      "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-v1-win.zip",
+      "kind": "original release package"
+    },
+    {
+      "path": "artifacts/alpha11/UltraRig-alpha11-v2-win.zip",
+      "bytes": 13839411,
+      "sha256": "26f2f075ebc39e362284d9a6b3a557b46eaf3b262cdaee69c2f5c869933b1ec2",
+      "compared_with_pinned_original": true,
+      "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-v2-win.zip",
+      "kind": "original release package"
+    },
+    {
+      "path": "artifacts/alpha11/v1/UltraRig-alpha11-v1-win/m571_tbv1_app.bin",
+      "bytes": 487424,
+      "sha256": "61bb430370d840f7f119b85aa1a7db9a38f0c5f3ff63fd356252baa27ffee061",
+      "compared_with_pinned_original": true,
+      "kind": "original firmware image"
+    },
+    {
+      "path": "artifacts/alpha11/v1/UltraRig-alpha11-v1-win/m571_v1_app.bin",
+      "bytes": 487424,
+      "sha256": "5a6af30735fca9190835c9307770323f5a0cad50ae9d94223d639fb065dc4188",
+      "compared_with_pinned_original": true,
+      "kind": "original firmware image"
+    },
+    {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_g_app.bin",
+      "bytes": 487424,
+      "sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+      "compared_with_pinned_original": true,
+      "kind": "original firmware image"
+    },
+    {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_tb_app.bin",
+      "bytes": 487424,
+      "sha256": "5e75acc31483aa8b55fc9db78e1a99651e673ce6ccdb4ee3975533852ed0808c",
+      "compared_with_pinned_original": true,
+      "kind": "original firmware image"
+    }
+  ],
+  "recovered": [
+    {
+      "path": "recovered/ultrarig-original/web/index.html",
+      "bytes": 800,
+      "sha256": "ef69f8515fa69d8424420194a1160de31d683cf35366921507276d4707d5f57a",
+      "compared_with_pinned_original": false,
+      "status": "original shipped HTML/JavaScript and licences"
+    },
+    {
+      "path": "recovered/ultrarig-original/web/tankg.html",
+      "bytes": 1358828,
+      "sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+      "compared_with_pinned_original": false,
+      "status": "original shipped HTML/JavaScript and licences"
+    },
+    {
+      "path": "recovered/ultrarig-original/web/nam2chip.js",
+      "bytes": 28991,
+      "sha256": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183",
+      "compared_with_pinned_original": false,
+      "status": "original shipped HTML/JavaScript and licences"
+    },
+    {
+      "path": "recovered/ultrarig-original/LICENSE.md",
+      "bytes": 4749,
+      "sha256": "fbf763e6b656372647ea3950abc3d35feabe2148e697dc4215e1f92387e37a4c",
+      "compared_with_pinned_original": false,
+      "status": "original shipped HTML/JavaScript and licences"
+    },
+    {
+      "path": "recovered/ultrarig-original/NOTICE.md",
+      "bytes": 6905,
+      "sha256": "02849a92a5a2ee4ced154650b52fcf316954fad41311cf55e9402567159b6ed8",
+      "compared_with_pinned_original": false,
+      "status": "original shipped HTML/JavaScript and licences"
+    },
+    {
+      "path": "recovered/ultrarig-original/THIRD_PARTY_LICENSES.md",
+      "bytes": 70407,
+      "sha256": "50a9a2228e6225bc038b8d50f094be5698c4bbec563b4d2309c4fbec3447fcd8",
+      "compared_with_pinned_original": false,
+      "status": "original shipped HTML/JavaScript and licences"
+    },
+    {
+      "path": "recovered/android/assets/public/index.html",
+      "bytes": 1358828,
+      "sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+      "compared_with_pinned_original": false,
+      "status": "original APK assets"
+    },
+    {
+      "path": "recovered/android/assets/public/nam2chip.js",
+      "bytes": 28991,
+      "sha256": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183",
+      "compared_with_pinned_original": false,
+      "status": "original APK assets"
+    },
+    {
+      "path": "recovered/android/assets/capacitor.config.json",
+      "bytes": 463,
+      "sha256": "48c9a435e749909d2bdb3f51331278a93809760b854fcf8558ae9d266f30e9af",
+      "compared_with_pinned_original": false,
+      "status": "original APK assets"
+    },
+    {
+      "path": "recovered/android/assets/capacitor.plugins.json",
+      "bytes": 220,
+      "sha256": "ed4e0f6bfaf902d5192a8caff8b8f4365230e8da62b009085abc53d11c2b6d44",
+      "compared_with_pinned_original": false,
+      "status": "original APK assets"
+    },
+    {
+      "path": "recovered/installer/jltech.cipher.marshal",
+      "bytes": 1913,
+      "sha256": "d46e04138e75e8b18488e48808eb0559d5a84eac7c21de3228989ccaba05022c",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.crc.marshal",
+      "bytes": 396,
+      "sha256": "825fe7afd661eecddd13cf819f2c2a5a8914ecc53cd475bfe8fd54d68f6429fc",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.marshal",
+      "bytes": 99,
+      "sha256": "932007be825abe10b60aab50e375d8319a3120b0e8b0bdc3e8ec68ee1013e967",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.uboot.marshal",
+      "bytes": 23630,
+      "sha256": "4d3150b94fcfdcc824c8b055553db6b1ca547b74923729a5e824f2bed9b07cc4",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyi_rth__tkinter.marshal",
+      "bytes": 1079,
+      "sha256": "ef125b66d008103fd91702adf2f94aed5e8d5ea551be6bc315e8a7dc6e1e75bb",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyi_rth_inspect.marshal",
+      "bytes": 2706,
+      "sha256": "d365a63a3ecebe9d64b1c2095db413a80f503fb03a245ed199d719aca431aeb2",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyiboot01_bootstrap.marshal",
+      "bytes": 1819,
+      "sha256": "f1a8b134bc610e54386706070efb04c3bf6aad26dca0de4e3904c4763428e24b",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.common.marshal",
+      "bytes": 1225,
+      "sha256": "18a3de4ba5152c293a2f901866a10dfc2c3431bad34a50f85d5a834bcccfc077",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.marshal",
+      "bytes": 425,
+      "sha256": "de1582a185e234674664b699d294585bee680551a18d13e7e9b80981bfd1760e",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.win32port.marshal",
+      "bytes": 5094,
+      "sha256": "6e9204f216cb4726bc03a28414a566c206fbc73ef94950ddb5e838ec1759dc7c",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/tankg_install.marshal",
+      "bytes": 784787,
+      "sha256": "3ce94472c774cfa573cd1c51a7ce1ca54620a8ef1d201b9a450975619fcb268b",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/ultrarig_installer_gui.marshal",
+      "bytes": 189210,
+      "sha256": "dc15784f715ba66ca06f4bf5e76e5991c8b912771e5b20be576ee3e9747b27a6",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.cipher.dis.txt",
+      "bytes": 9881,
+      "sha256": "98c1a03b7e7ca1111022533ffc1f017bdf07cc027ef03d582dc4e61aa756ba11",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.crc.dis.txt",
+      "bytes": 1569,
+      "sha256": "a22027b9a986dcb79e4a00842d10ab6fa08d06397b52b85968de33ee72313f10",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.dis.txt",
+      "bytes": 95,
+      "sha256": "eefcaf98f6ae763195cba4c3e19ba3d0dc4d7969ff40eca05072853ecfce0462",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.uboot.dis.txt",
+      "bytes": 87888,
+      "sha256": "6eca3ec9eb66913b932fa7cdf2b44e6ecc7950750b85080e78b8b2f966af19e2",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyi_rth__tkinter.dis.txt",
+      "bytes": 4401,
+      "sha256": "54e74f10975291fde52101a0e3f19f2d9b3de108e847362b84ce11f2637f5b2a",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyi_rth_inspect.dis.txt",
+      "bytes": 12484,
+      "sha256": "b71da748353b0738a3cd8a632cb91366d1c9833ad82839e4f354bbc92a68d4e4",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyiboot01_bootstrap.dis.txt",
+      "bytes": 8333,
+      "sha256": "4be57e1463b7f5debe41aeb9216401d04bee5dc2046d0576a58d214b45afeb46",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.common.dis.txt",
+      "bytes": 4839,
+      "sha256": "c7a0d9df08eea7ed32fa8e932e7e3e2359db34797ec1f4feb38829fa86c73d03",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.dis.txt",
+      "bytes": 1894,
+      "sha256": "649f36880f6368428ade9448700657395a09a3a65e751de5f5fa5833c4daba30",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.win32port.dis.txt",
+      "bytes": 23146,
+      "sha256": "e19289ad6f7e532ee9e060bff9004fac434cbc2cf72cd4bd8501e5a5e1d67662",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/tankg_install.dis.txt",
+      "bytes": 3293483,
+      "sha256": "1a2a94103d3d0ee80deefd6820c2d602d41b9e20a6e101855b94a6100bbc170c",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/ultrarig_installer_gui.dis.txt",
+      "bytes": 587837,
+      "sha256": "085cfe49feece03dbeb5260bd436fde6b2b4a9e36fe724d06a7141c690d17bc7",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.cipher.constants.json",
+      "bytes": 1764,
+      "sha256": "a5ddd07e102ff20eb098b8b0237160c6b76f321ddfc7317f6530cd8edc01c130",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.constants.json",
+      "bytes": 152,
+      "sha256": "a3c15666150407571f46a342eeb7f84db9560d6165b2e42a593a633b26f3823f",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.crc.constants.json",
+      "bytes": 472,
+      "sha256": "60124e92b51f3be92217dc7004dafa2fa4bea06f635ce18c9ec55f9d6e7ce9cf",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/jltech.uboot.constants.json",
+      "bytes": 24063,
+      "sha256": "45f20584566d186166689170b2eea7d91773b59676f2c63ee786dc6ed58b6da8",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyi_rth__tkinter.constants.json",
+      "bytes": 712,
+      "sha256": "80b0e71e2401a0e5e300be2511beb0b19f588d8973f39145dac62ed67a686681",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyi_rth_inspect.constants.json",
+      "bytes": 1461,
+      "sha256": "8196daa54b9c6a30791604eb1835c5880e7762df46da524b56f9d392bf616555",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/pyiboot01_bootstrap.constants.json",
+      "bytes": 874,
+      "sha256": "c6f2404afde0be12829e5fb3cd4973d78b627c76c1832cf21dcb0e9e425fcd44",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.common.constants.json",
+      "bytes": 1600,
+      "sha256": "6b90fd462dd9054fcc0605c55cb4e0285967751e57cb210c3cb1611785b6da4d",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.constants.json",
+      "bytes": 406,
+      "sha256": "35a9aaeec288d3eddbe8e1da1e4ca519572e417604626d975ef03e81a0155c05",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/scsiio.win32port.constants.json",
+      "bytes": 3906,
+      "sha256": "639c1e12aebae7c1b82156ba7cb91c20eaeee085844c1b189006272b76ce936e",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/tankg_install.constants.json",
+      "bytes": 594023,
+      "sha256": "64830ea5e0abc40b05327220564c0bc98d69af3e888155660d2b324621a27e55",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/installer/ultrarig_installer_gui.constants.json",
+      "bytes": 162323,
+      "sha256": "834ff76169b73de761305fb2ed375998bdc693076336b5d7712555231f284600",
+      "compared_with_pinned_original": false,
+      "status": "Python bytecode/disassembly, not original Python source"
+    },
+    {
+      "path": "recovered/ghidra/tank-g-v1/decompiled.c",
+      "bytes": 191829,
+      "sha256": "480887f43e49791a34f3610e4c16417ed0bd4fbdb2bcb2c93b8ea8a54e7c2a9a",
+      "compared_with_pinned_original": false,
+      "status": "inferred decompiler output, not a compilable firmware project"
+    },
+    {
+      "path": "recovered/ghidra/tank-g-v2/decompiled.c",
+      "bytes": 191829,
+      "sha256": "0af59861b9ce576c75decde58d79608efec705bac3a08501ab839c5eef13db5c",
+      "compared_with_pinned_original": false,
+      "status": "inferred decompiler output, not a compilable firmware project"
+    },
+    {
+      "path": "recovered/ghidra/tank-b-v1/decompiled.c",
+      "bytes": 191829,
+      "sha256": "62e4847915de1430b7e6d4ed0d901c7626695249e02ee7502cd1e3470eff4262",
+      "compared_with_pinned_original": false,
+      "status": "inferred decompiler output, not a compilable firmware project"
+    },
+    {
+      "path": "recovered/ghidra/tank-b-v2/decompiled.c",
+      "bytes": 186880,
+      "sha256": "0737f305b0c609a532094e6348174de5c3e1e92c9d7998dc84c2eb8d0e1243fd",
+      "compared_with_pinned_original": false,
+      "status": "inferred decompiler output, not a compilable firmware project"
+    },
+    {
+      "path": "recovered/ghidra/tank-g-v1/functions.tsv",
+      "bytes": 6537,
+      "sha256": "1f09c224c0ffee5a0299be4df643a6b8a3ba2d6aabfefbf8e9f917de932a7da6",
+      "compared_with_pinned_original": false,
+      "status": "inferred decompiler output, not a compilable firmware project"
+    },
+    {
+      "path": "recovered/ghidra/tank-g-v2/functions.tsv",
+      "bytes": 6537,
+      "sha256": "1f09c224c0ffee5a0299be4df643a6b8a3ba2d6aabfefbf8e9f917de932a7da6",
+      "compared_with_pinned_original": false,
+      "status": "inferred decompiler output, not a compilable firmware project"
+    },
+    {
+      "path": "recovered/ghidra/tank-b-v1/functions.tsv",
+      "bytes": 6537,
+      "sha256": "59b1659e3684c491df406022568ba14c0cb86db524545a45abc320d1fa38cf01",
+      "compared_with_pinned_original": false,
+      "status": "inferred decompiler output, not a compilable firmware project"
+    },
+    {
+      "path": "recovered/ghidra/tank-b-v2/functions.tsv",
+      "bytes": 6412,
+      "sha256": "72bccc2d5b7c912b2bce9d1e77940f05cf4c36fc55d957ff1e1014b509f74ae9",
+      "compared_with_pinned_original": false,
+      "status": "inferred decompiler output, not a compilable firmware project"
+    }
+  ],
+  "originals_modified": false,
+  "network_access_performed": false,
+  "complete_original_firmware_C_sources_recovered": false,
+  "complete_original_installer_Python_sources_recovered": false,
+  "editable_components": [
+    {
+      "component": "MINI integral firmware port",
+      "paths": [
+        "firmware/mini/audio_port",
+        "tools/audit_mini_panel_port.py",
+        "tools/audit_mini_boot_contract.py",
+        "tools/audit_mini_ultrarig_port.py"
+      ],
+      "build": "python -B -X utf8 firmware/mini/audio_port/verify.py; python -B -X utf8 tools/build_mini_ultrarig.py",
+      "status": "Original binary application with explicit invertible patches and compiled board shim"
+    },
+    {
+      "component": "Native A2 DSP reconstruction",
+      "paths": [
+        "firmware/src",
+        "firmware/include"
+      ],
+      "build": "python tools/build_native.py",
+      "status": "Compilable reconstructed three-channel int32 path; other firmware remains binary"
+    },
+    {
+      "component": "MINI editor",
+      "paths": [
+        "app/mini",
+        "tools/build_mini_app.py"
+      ],
+      "build": "python tools/build_mini_app.py",
+      "status": "Full shipped original editor with explicit MINI source overlays"
+    },
+    {
+      "component": "G/B Windows packages and Android copy",
+      "paths": [
+        "hyperrig/branding.py",
+        "tools/rebrand.py"
+      ],
+      "build": "python tools/rebrand.py --android",
+      "status": "Rebuilt binary/source packages; these are distinct from MINI hardware support"
+    }
+  ],
+  "provenance_and_licences": "docs/PROVENIENZA.md",
+  "scope": "Verified local copies and explicit edit routes; not proof of complete reverse engineering or MINI boot."
+}

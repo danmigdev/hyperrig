@@ -57,3 +57,24 @@ NACK nelle quattro posizioni, ripristino fallito e rientro durante l'operazione.
 Il decoder indipendente delle transizioni sul bus prova tutti i 65.536 valori
 di ritorno e 221 errori. Questi controlli non sostituiscono una prova elettrica
 né qualificano il percorso audio a 48 kHz.
+
+## Seconda prova: HYC2 e clock della ROM
+
+Il 15 novembre 2026 è stato eseguito anche il diagnostico HYC2 separato:
+5.856 byte caricati e riletti, build tag `0x71A0F2B7`. La prima snapshot
+dei 17 registri è stabile e il record di 512 byte supera la validazione.
+Lo stack privato mostra 472 byte modificati e guard integre.
+
+La configurazione `CLK_CON0=0x1C1`, `CLK_CON2=0x80`,
+`PLL_CON0=0x0940022B`, `PLL_CON1=0x3F5030EE` non soddisfa il controllo
+del riferimento PLL basato sul boot dell'applicazione. HYC2 restituisce
+`gate=4`, `status=-3`; non è stato inviato alcun comando `FC69`.
+Non ci sono state operazioni GPIO né transazioni codec. Questi valori
+sono registri osservati, non una misura della frequenza.
+
+Il ritorno a MINI_009 e l'uguaglianza dei preset sono verificati per la
+quinta volta. Il [resoconto fisico HYC2](../research/mini-codec-board-hardware.json)
+conserva record, pin dei sorgenti e log; il
+[manifest offline](../research/mini-rom-codec-board.json) resta separato.
+La prova chiarisce il contesto ROM ma non risolve il NACK HYC1 né qualifica
+audio, identità codec o avvio della candidata integrale.

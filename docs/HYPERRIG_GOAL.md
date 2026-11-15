@@ -52,3 +52,13 @@ uno strumento di diagnosi e accesso al firmware originale durante lo sviluppo.
 Il lavoro procede con agenti in parallelo. Il risultato viene dichiarato
 completo soltanto dopo le verifiche sul pedale e sull'app, indicando anche
 le eventuali limitazioni residue del reverse engineering.
+
+## Raspberry Pi dell'utente
+
+Il Raspberry Pi 3 disponibile ha già un sistema installato e viene usato
+come MIDI hub. L'utente richiede di preservare questa installazione.
+L'eventuale strumento USB_KEY resta separato: nessuna reinstallazione,
+modifica dei servizi MIDI o della configurazione di avvio. Prima del suo
+uso si verificano compatibilità e disponibilità dei GPIO senza richiedere
+le linee né modificare il sistema. Accesso e cablaggio del Pi non risultano
+ancora verificati.

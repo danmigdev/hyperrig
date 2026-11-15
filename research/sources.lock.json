@@ -86,6 +86,16 @@
         "path": "cpu/wl82/liba/cpu.a",
         "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/cpu/wl82/liba/cpu.a",
         "sha256": "00cea21d3c8d99487821f2c2b203f2c5a04b2cc8421bc05e9b875a0d70e42c62"
+      },
+      {
+        "path": "include_lib/driver/cpu/wl82/clock_hw.h",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/clock_hw.h",
+        "sha256": "ae1ea1b672b3855f6b0e2378d9ee1583e1b87614ed617db3d41f001681f855ae"
+      },
+      {
+        "path": "include_lib/system/boot.h",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/system/boot.h",
+        "sha256": "916e78a034b1bef599274f8faa936d75edd5e31caaa0d9e7c11be70433f157bf"
       }
     ]
   },

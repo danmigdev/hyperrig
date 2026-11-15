@@ -1,0 +1,354 @@
+{
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "integrated offline candidate",
+  "architecture": "standalone-ultrarig-port",
+  "goal": "docs/HYPERRIG_GOAL.md",
+  "composition": {
+    "sha256": "f8835a7fd45b1b324d66c457434c7943d70525ed5eb98b514aaac1095031f068",
+    "bytes": 516096,
+    "physical_range": [
+      16384,
+      532480
+    ],
+    "cpu_entry": 33554720,
+    "app_bytes": 487840,
+    "app_sha256": "185792e5059f5dbf4ae362c4c5f98d651c9ce55e07ddc73f90a3308ad5cb8d0c",
+    "cfg_tool_bytes": 383,
+    "cfg_tool_area_offset": 488128,
+    "head_end": 488511,
+    "encoding_end": 488512,
+    "directory": [
+      {
+        "name": "app_area_head",
+        "header_offset": 0,
+        "offset": 33554720,
+        "size": 488511,
+        "flags": 131,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 12184
+      },
+      {
+        "name": "app.bin",
+        "header_offset": 32,
+        "offset": 288,
+        "size": 487840,
+        "flags": 130,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 7309
+      },
+      {
+        "name": "cfg_tool.bin",
+        "header_offset": 64,
+        "offset": 488128,
+        "size": 383,
+        "flags": 130,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 11893
+      },
+      {
+        "name": "VM",
+        "header_offset": 96,
+        "offset": 532480,
+        "size": 245760,
+        "flags": 18,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "PRCT",
+        "header_offset": 128,
+        "offset": 0,
+        "size": 532480,
+        "flags": 146,
+        "reserved": 130,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "BTIF",
+        "header_offset": 160,
+        "offset": 778240,
+        "size": 4096,
+        "flags": 146,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "USR",
+        "header_offset": 192,
+        "offset": 782336,
+        "size": 262144,
+        "flags": 146,
+        "reserved": 129,
+        "index": 1,
+        "data_crc": 65535
+      }
+    ],
+    "patches": [
+      {
+        "name": "authentication_brand",
+        "cpu_address": 33775946,
+        "area_offset": 221514,
+        "physical_address": 237898,
+        "bytes": 14,
+        "before_hex": "556c747261526967206175746800",
+        "after_hex": "4879706572526967206175746800",
+        "rationale": "Same-sized user-visible brand; authentication algorithm is retained."
+      },
+      {
+        "name": "ble_name_format",
+        "cpu_address": 33792291,
+        "area_offset": 237859,
+        "physical_address": 254243,
+        "bytes": 18,
+        "before_hex": "556c74726152696720253032582530325800",
+        "after_hex": "487970657252696720253032582530325800",
+        "rationale": "Same-sized advertising-name format; unique suffix is retained."
+      },
+      {
+        "name": "runtime_version",
+        "cpu_address": 33777550,
+        "area_offset": 223118,
+        "physical_address": 239502,
+        "bytes": 23,
+        "before_hex": "74616e6b675f6677204d352e37312072656c20626c6500",
+        "after_hex": "74616e6b6d5f6677204d352e37312072656c20626c6500",
+        "rationale": "MINI app handshake is ^PONG tankm_fw\\b; version fields are retained."
+      },
+      {
+        "name": "runtime_build_identity",
+        "cpu_address": 33779944,
+        "area_offset": 225512,
+        "physical_address": 241896,
+        "bytes": 44,
+        "before_hex": "74616e6b675f6677204d352e37312072656c20626c65204e6f7620313220323032362031363a30343a313100",
+        "after_hex": "74616e6b6d5f6677204d352e37312072656c20626c65204e6f7620313220323032362031363a30343a313100",
+        "rationale": "Same-sized board prefix; original build/version metadata is retained."
+      },
+      {
+        "name": "usb_product_utf16",
+        "cpu_address": 33792612,
+        "area_offset": 238180,
+        "physical_address": 254564,
+        "bytes": 32,
+        "before_hex": "2003540061006e006b002d004700200055006c00740072006100520069006700",
+        "after_hex": "2003540061006e006b002d004d00200048007900700065007200520069006700",
+        "rationale": "Length-32 USB string descriptor, including its original type/length."
+      },
+      {
+        "name": "mini_vm_geometry",
+        "cpu_address": 33687166,
+        "area_offset": 132734,
+        "physical_address": 149118,
+        "bytes": 8,
+        "before_hex": "20e9800b60e0800b",
+        "after_hex": "20e9800c60e0800c",
+        "rationale": "Change G's VM-size clamp from 64 KiB to MINI's 16 KiB: two 8 KiB banks, no VM migration."
+      },
+      {
+        "name": "mini_panel_serial_writer_disabled",
+        "cpu_address": 33642584,
+        "area_offset": 88152,
+        "physical_address": 104536,
+        "bytes": 12,
+        "before_hex": "7704c3ff80f1c101d0ec3818",
+        "after_hex": "c1ff08f2c101906080000000",
+        "rationale": "Replace entry by RAM-cache store and normal return; no PA0..3 access. LED driver is pending."
+      },
+      {
+        "name": "mini_panel_input_banks",
+        "cpu_address": 33777104,
+        "area_offset": 222672,
+        "physical_address": 239056,
+        "bytes": 12,
+        "before_hex": "c0010500c0010500c0010500",
+        "after_hex": "000005000000050000000500",
+        "rationale": "First three physical inputs use port A; inaccessible G slots 3/4 are retained in the file."
+      },
+      {
+        "name": "mini_panel_input_bits",
+        "cpu_address": 33774064,
+        "area_offset": 219632,
+        "physical_address": 236016,
+        "bytes": 3,
+        "before_hex": "060708",
+        "after_hex": "0a0003",
+        "rationale": "MINI stock scan order PA10, PA0, PA3; active low. Physical label order is unmeasured."
+      },
+      {
+        "name": "mini_panel_init_three",
+        "cpu_address": 33642908,
+        "area_offset": 88476,
+        "physical_address": 104860,
+        "bytes": 4,
+        "before_hex": "80f8e20b",
+        "after_hex": "80f8e207",
+        "rationale": "Limit the same loop to three physical MINI switches; retain branch/register fields."
+      },
+      {
+        "name": "mini_panel_poll_three",
+        "cpu_address": 33643216,
+        "area_offset": 88784,
+        "physical_address": 105168,
+        "bytes": 4,
+        "before_hex": "84f8cb0b",
+        "after_hex": "84f8cb07",
+        "rationale": "Limit the same loop to three physical MINI switches; retain branch/register fields."
+      },
+      {
+        "name": "mini_panel_irq_three",
+        "cpu_address": 33921720,
+        "area_offset": 367288,
+        "physical_address": 383672,
+        "bytes": 4,
+        "before_hex": "84f8c10b",
+        "after_hex": "84f8c107",
+        "rationale": "Limit the same loop to three physical MINI switches; retain branch/register fields."
+      },
+      {
+        "name": "mini_panel_logical_default",
+        "cpu_address": 34036084,
+        "area_offset": 481652,
+        "physical_address": 498036,
+        "bytes": 4,
+        "before_hex": "04030100",
+        "after_hex": "00010203",
+        "rationale": "Logical A/B/C map to physical scan indices 0/1/2; D maps to an inactive, valid state slot 3."
+      },
+      {
+        "name": "mini_panel_restore_fixed_map",
+        "cpu_address": 33570610,
+        "area_offset": 16178,
+        "physical_address": 32562,
+        "bytes": 4,
+        "before_hex": "d8ee0021",
+        "after_hex": "12160000",
+        "rationale": "Configuration restore uses its index as mapping value; a persisted G permutation cannot replace MINI wiring."
+      },
+      {
+        "name": "mini_panel_skip_G_analog_init",
+        "cpu_address": 33642946,
+        "area_offset": 88514,
+        "physical_address": 104898,
+        "bytes": 4,
+        "before_hex": "bfeabaf5",
+        "after_hex": "c0ea1b00",
+        "rationale": "Skip G PB1/PC6..8 initialization and initial ADC samples; preserve prior RAM initialization and following epilogue."
+      },
+      {
+        "name": "mini_panel_G_analog_scan_disabled",
+        "cpu_address": 33643008,
+        "area_offset": 88576,
+        "physical_address": 104960,
+        "bytes": 2,
+        "before_hex": "4121",
+        "after_hex": "4120",
+        "rationale": "Keep state+832 zero: gates panel ADC/mux block and CE8E -> CDE0 initialization path. Knobs/expression pending."
+      },
+      {
+        "name": "mini_absent_boot_extensions",
+        "cpu_address": 33555548,
+        "area_offset": 1116,
+        "physical_address": 17500,
+        "bytes": 28,
+        "before_hex": "01e15040c0ff74fdc7014228618101e15840c0ff7cfdc7014224519a",
+        "after_hex": "c0ff74fdc70141208160816181620000000000000000000000000000",
+        "rationale": "MINI has no SDRAM or secondary application. Initialize G's private SDRAM_CFG_INFO/EX_APP_INFO to zero instead of copying unspecified incoming boot-context bytes+80..91. Preserve core boot info and mailbox."
+      },
+      {
+        "name": "mini_codec_pre_and_post_trampoline",
+        "cpu_address": 33575844,
+        "area_offset": 21412,
+        "physical_address": 37796,
+        "bytes": 34,
+        "before_hex": "482041214621bfeaf5fa48214121bfeaf1fa48254121bfeaedfa40294120bfeae9fa",
+        "after_hex": "462183ea318ca045048c740483ea278c3404905f8000000000000000000000000000",
+        "rationale": "Retain r6=1; codec-pre failure skips IRQ/ALNK setup. Local post trampoline restores RETS/r4 and skips success flags on failure."
+      },
+      {
+        "name": "mini_codec_post_call",
+        "cpu_address": 33575966,
+        "area_offset": 21534,
+        "physical_address": 37918,
+        "bytes": 4,
+        "before_hex": "bfeab9fe",
+        "after_hex": "bfeac6ff",
+        "rationale": "Call the local post trampoline, which invokes original G channel-start through the C binding then MINI PA9 sequence."
+      }
+    ],
+    "appended_code": {
+      "cpu_address": 34040492,
+      "bytes": 2068,
+      "sha256": "a63d80c1444372a06d5d5d870ccc9abeedd08b6a54144a3a75af1b4fbe6c486a"
+    },
+    "original_application_recovered_exactly_by_reversing_patches": true,
+    "original_application_bytes_retained": 485772,
+    "stock_mini_application_bytes_used": 0,
+    "stock_mini_partition_headers_used": true,
+    "bootloader_included": false,
+    "user_partition_data_included": false,
+    "removed_partition": "OTP",
+    "otp_absence_runtime_compatibility_proven": false,
+    "crc_and_layout_valid": true,
+    "board_port_complete": false,
+    "boot_verified_on_mini": false,
+    "flashable": false
+  },
+  "patch_groups": {
+    "panel": [
+      "mini_panel_serial_writer_disabled",
+      "mini_panel_input_banks",
+      "mini_panel_input_bits",
+      "mini_panel_init_three",
+      "mini_panel_poll_three",
+      "mini_panel_irq_three",
+      "mini_panel_logical_default",
+      "mini_panel_restore_fixed_map",
+      "mini_panel_skip_G_analog_init",
+      "mini_panel_G_analog_scan_disabled"
+    ],
+    "boot": [
+      "mini_absent_boot_extensions"
+    ],
+    "audio": [
+      "mini_codec_pre_and_post_trampoline",
+      "mini_codec_post_call"
+    ]
+  },
+  "source_sha256": {
+    "tools/build_mini_ultrarig.py": "f4e59c48723ebc3eec76d21a8d405f3b9b95f780d2c16f14c3d79ccfa67c7a4d",
+    "tools/audit_mini_ultrarig_port.py": "16ff2d1677d1df444a9bd764c233707ff06acf1c348cd41d04a700539311fc6f",
+    "tools/audit_mini_panel_port.py": "34ccce518ac9e0e05dcc55d74578596ac8e03ad8eb83084e9f67db9c44ef1d19",
+    "tools/audit_mini_boot_contract.py": "4819d1dae16f3f19793c2b2c0baec5d2fe372a779f35a749b50cfea8834d54b2",
+    "tools/build_mini_app.py": "47ed0183fc9dbc9fc5a561733d4fc943d4e99d4815c90fac7783d954a3703831",
+    "app/mini/board-profile.json": "81f7f7582f9a0f13e8b85dffb95a66d75784a1c5a0c40ee0043c052c93aac393",
+    "app/mini/mini-profile.js": "c9a6f31e46154598f22df942e1db432b2a7164c9acfe05523e8c704d5cc9fd55",
+    "app/mini/mini-ui.js": "42b815af820f0fe411aed1d194c2a8476a91abddf0bbff40d7180f60f42c18fc"
+  },
+  "audio_manifest": "build/mini-audio-port/manifest.json",
+  "audio_manifest_sha256": "67b34b8e77dfe7a40dcab8b4499eb741ab70b73de5fa2cc82007311b4f98b2b0",
+  "editor_report": "build/hyperrig-mini-integrated/editor-report.json",
+  "firmware_manifest": "build/hyperrig-mini-integrated/firmware-manifest.json",
+  "firmware_manifest_sha256": "c84a6e3437de3206e5b5c3ce0a1396e40647994010b723a6e54799dbad9cbe22",
+  "editor": "build/hyperrig-mini-integrated/app/web/tankmini.html",
+  "editor_sha256": "71a8f31c4dbe7a4082304bc36924429a457cd58656166e5f8eaf2ec21daa3f5d",
+  "read_capability_enabled_for_target_identity": true,
+  "write_capability_enabled": false,
+  "boot_verified_on_mini": false,
+  "audio_verified_on_mini": false,
+  "flashable": false,
+  "device_access_performed": false,
+  "remaining_gates": [
+    "Full application has not booted on the physical MINI.",
+    "Codec preconditions, nominal 48kHz timing and analog audio remain to be qualified.",
+    "Independent recovery from a valid-image hang has not been demonstrated.",
+    "Preset read/write through the adapted application has not been demonstrated.",
+    "Physical LED and knob mapping remains incomplete."
+  ]
+}
