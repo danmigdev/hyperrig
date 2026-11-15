@@ -28,10 +28,13 @@ class NativeProgram:
         "dot_i16": (0x01C12608, 0x01C126F4),
         "dot_i32": (0x01C126F4, 0x01C127DE),
         "head3": (0x01C130B4, 0x01C1318E),
+        "rechannel3": (0x01C1453C, 0x01C145FE),
+        "conv_bias": (0x02032586, 0x02032618),
+        "head_bias": (0x020327DE, 0x0203280C),
     }
 
     def __init__(self, name):
-        self.start, end = self.REGIONS[name]
+        self.start, self.end = self.REGIONS[name]
         image = ROOT / "analysis/firmware/m571_g_app/app.bin"
         raw = image.read_bytes()
         original = ROOT / "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_g_app.bin"
@@ -44,8 +47,11 @@ class NativeProgram:
         from hyperrig.jieli import unpack_app
         if unpack_app(original.read_bytes())[2]["app.bin"] != raw:
             raise ValueError("decoded application differs from pinned firmware")
-        offset = 0x02056780 - 0x02000120 + self.start - 0x01C00000
-        self.raw = raw[offset:offset + end - self.start]
+        if self.start >= 0x02000120:
+            offset = self.start - 0x02000120
+        else:
+            offset = 0x02056780 - 0x02000120 + self.start - 0x01C00000
+        self.raw = raw[offset:offset + self.end - self.start]
         instructions = table.load()
         self.code = {}
         cursor = 0

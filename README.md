@@ -3,7 +3,7 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato: tre componenti DSP nativi ricostruiti e compilabili; porting del MINI
+**Stato: quattro routine DSP native e caricatore A2L ricostruiti e compilabili; porting del MINI
 in corso. Non è ancora un firmware completo installabile sul MINI.** Il nome HyperRig è quello
 scelto per questo progetto indipendente.
 
@@ -21,9 +21,11 @@ scelto per questo progetto indipendente.
   CLI di identificazione e backup dei preset via MIDI, limitata alle letture.
 - Modello A2-Lite in virgola mobile con rendering WAV offline, confrontato
   con il convertitore originale; non riproduce ancora il DSP intero del pedale.
-- Due routine dot e la testa A2-Lite a tre canali ricostruite dai byte del G:
-  **1.660 confronti con le istruzioni originali interpretate**, build C con UBSan
-  e oggetto pi32v2 prodotto dalla toolchain JieLi.
+- Due routine dot, ingresso mono/tre canali e testa A2-Lite ricostruiti dai
+  byte del G. Caricatore C con CRC, riordino dei pesi e conversione dei bias:
+  **7.089 confronti con le istruzioni originali interpretate**, build con
+  UBSan/ASan e oggetto pi32v2 prodotto dalla toolchain JieLi. I layer centrali
+  della rete restano da ricostruire.
 - Percorso audio ALNK0 ricostruito per G e MINI: pin, buffer, IRQ e blocchi
   da 64 frame; differenza tra 44,1 kHz stock MINI e 48 kHz UltraRig identificata.
 - Identità del pedale letto via BLE: `TANK MINI_009`. Backup totale e prova
@@ -152,8 +154,9 @@ nuovo. Il comando segnala eventuale clipping. Per il confronto automatico con
 il JavaScript originale serve Node.js; i test indicano esplicitamente gli skip
 quando mancano Node o gli artefatti.
 
-Validazione locale: **37 test superati, nessuno saltato**, più **1.660 confronti
-nativi** con UBSan. Comprendono CRC e
+Validazione locale: **40 test superati, nessuno saltato**, più **7.089 confronti
+nativi**, 112 controlli del layout A2L, 4.905 input non validi rifiutati e
+6.942 casi con buffer di dimensione esatta sotto ASan/UBSan. Comprendono CRC e
 hash dei campioni, vettori MIDI catturati, trasporto simulato, casi DSP con
 risultato analitico e confronto delle 49 misure di calibrazione su tre segnali.
 Le prove audio e di avvio del nuovo codice sul pedale restano da eseguire.

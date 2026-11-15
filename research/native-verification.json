@@ -1,6 +1,6 @@
 {
   "sample": "UltraRig alpha11 M5.71 TANK-G v2",
-  "comparisons": 1660,
+  "comparisons": 7089,
   "native_functions": [
     {
       "weights_bits": 16,
@@ -22,14 +22,68 @@
       "original_function_sha256": "d9419c8dfdb610b6ad0a6a4519b6bc4f8caf5dcaa8b0fab798c8dcc12bfd3153",
       "cases": 402,
       "outputs_and_state_sha256": "e102d4605e192ac0c11e1e18cec7afd17cd8e64fa4f2d677d78aa0c41d61e28c"
+    },
+    {
+      "name": "rechannel3",
+      "cpu_address": "0x01c1453c",
+      "original_function_sha256": "08bf1784a8ff784606882cb21085038c7ae8ade1200b83bccb1d9355d95cb2bc",
+      "cases": 367,
+      "outputs_and_state_sha256": "b2012233aa5d6fac7feebf279506822f09af270487dce5f77192698e5d26d4f2"
+    },
+    {
+      "name": "head_bias",
+      "cpu_address": "0x020327de",
+      "cpu_end_exclusive": "0x0203280c",
+      "scope": "parser fragment, shifts 0..31",
+      "original_fragment_sha256": "071e97f1ddb6ef6ba78f5ea4f8e0a2265b2a8f260538435f4ac86e0a281807ef",
+      "cases": 1146,
+      "outputs_sha256": "f4418f3e822cabdb61900316056a8f54784333341aff4127418bf567cae5890f"
+    },
+    {
+      "name": "conv_bias",
+      "cpu_address": "0x02032586",
+      "cpu_end_exclusive": "0x02032618",
+      "scope": "parser fragment, shifts 0..31",
+      "original_fragment_sha256": "cbed76ad32743e04935a19998345fb9792d5ff2e2de0d11a1e3b0066e058f857",
+      "cases": 1146,
+      "outputs_sha256": "c45be085a23513fc44dedc60608bf51efdbacf6de7de51296455b305b2c1d04e"
     }
   ],
+  "a2l_loader": {
+    "fixtures": 14,
+    "layout_checks": 112,
+    "loaded_bias_instruction_comparisons": 2760,
+    "loaded_head_instruction_comparisons": 5,
+    "invalid_inputs_rejected": 4905,
+    "loaded_rechannel_instruction_comparisons": 5,
+    "outputs_sha256": "1fa1eee369b5604fc0cf06d0b370c2ce08ed2146bd6e9e0702bb99528f8a81c8",
+    "embedded_capture_sha256": "86f5ea91f8069180e30612bcaad5820b14a94dd6c2552290ca09253082238c47",
+    "host_abi": {
+      "pointer_bytes": 8,
+      "model_bytes": 104,
+      "layer_bytes": 80,
+      "embedded_arena_bytes": 7049
+    },
+    "full_original_parser_emulated": false
+  },
   "host_undefined_behavior_sanitizer": true,
-  "pi32v2_object_sha256": "17f314d8ff0c22d18c0cf3b0fea21d4beb62ae917efc52dcd71995f7e578432e",
+  "a2l_memory_checks": {
+    "cases": 6942,
+    "address_sanitizer": true,
+    "undefined_behavior_sanitizer": true,
+    "harness_sha256": "3b943aa9d364554d2268c3690573bfd6b05558181e1e6740a99c7b32ab32c640"
+  },
+  "pi32v2_object_sha256": "69b10e596d8d6bee22722b5641581785229ed86f28a0287b9f136834520d58d7",
   "elf_machine": 241,
   "reconstruction_source_sha256": {
+    "firmware/include/hyperrig/hyperrig_a2l.h": "6c2fef773c496426f5598b3f133be7d890b7721529e609102adaf3b389cfe91f",
+    "firmware/include/hyperrig/hyperrig_dot.h": "dd474df20cf521feb069034a9ff7f8c8cd731a0264cf77720cf47aaa570cc61f",
+    "firmware/include/hyperrig/hyperrig_head.h": "e883b4461334dd1dd49a6614e4376467c46910fc06ececfc6271fff80a0b3832",
+    "firmware/include/hyperrig/hyperrig_rechannel.h": "93630a80c1b4066d118d9cceaa75760db8298b42d63da93a0f346a6c6faf80b3",
+    "firmware/src/hyperrig_a2l.c": "59b4b441d9a3cbcba49d01c4effac36d93100f950ac44c3ef12886e043f1292d",
     "firmware/src/hyperrig_dot.c": "85b059a579a4f86ca90290b682ee25a834f60a0934e8fab45b9667548765cfc8",
-    "firmware/src/hyperrig_head.c": "95cdd2a45e589ed99e3d87346afa7d5a74cc9e8d447fbb3f0659e723883c4299"
+    "firmware/src/hyperrig_head.c": "95cdd2a45e589ed99e3d87346afa7d5a74cc9e8d447fbb3f0659e723883c4299",
+    "firmware/src/hyperrig_rechannel.c": "e93f8d76d5d9e4c50a4427f71049467819f9c9c4a31e6b0af4430d5260e981ac"
   },
   "hardware_execution_verified": false,
   "limitation": "restricted CPU interpreter; not full DSP or pedal execution"

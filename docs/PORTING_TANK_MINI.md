@@ -16,8 +16,11 @@ non di etichettare un'immagine G/B come compatibile.
 6. Header del SDK AC79 per studiare GPIO, registri ADC e DAC.
 7. Modello A2-Lite in Float64 eseguibile sul PC e confrontato con il convertitore
    originale. È un riferimento numerico, non il runtime intero del firmware.
-8. Tre routine native del G ricostruite in C e compilate pi32v2: due dot e
-   testa a tre canali, con 1.660 confronti contro le istruzioni interpretate.
+8. Quattro routine native del G ricostruite in C e compilate pi32v2: due dot,
+   ingresso mono/tre canali e testa, più caricatore A2L con conversione dei
+   bias. 7.089 confronti contro le istruzioni interpretate; memoria del
+   caricatore verificata con ASan/UBSan. Il parser completo originale non è
+   emulato e i layer centrali della rete restano da ricostruire.
 9. Percorso audio ALNK0 del MINI, tabella di configurazione, IRQ, callback,
    buffer e task ricostruiti. Vedere [TANK_MINI_AUDIO.md](TANK_MINI_AUDIO.md).
 10. Identificazione BLE riuscita: l'esemplare risponde `TANK MINI_009`.
@@ -52,7 +55,7 @@ non inventa valori per questi campi.
 | Audio | ALNK0, PA4–PA8 e DMA ricostruiti; clock/codec da adattare da 44,1 a 48 kHz, mute da confermare |
 | Linker e memoria | Area applicativa/VM diversa; sezioni RAM vanno dimensionate sul target |
 | Storage | BTIF del MINI occupa l'area chiamata OTP nelle immagini G/B |
-| DSP | Tre routine intere compilabili e confrontate; parser nativo, layer, attivazioni, IR ed effetti da completare |
+| DSP | Caricatore A2L, bias, ingresso e testa compilabili e confrontati; layer, attivazioni, IR ed effetti da completare |
 | Clock e prestazioni | 396 MHz nei metadati UltraRig non certifica il MINI |
 | Installazione | Identità, flash ID, backup totale e recupero del singolo esemplare da validare |
 

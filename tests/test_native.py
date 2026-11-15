@@ -15,7 +15,32 @@ class NativeInstructionTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / "tools"))
         from dot_machine import DotProgram
         from head_machine import HeadProgram
+        from bias_machine import BiasProgram
+        from rechannel_machine import RechannelProgram
         cls.dot16, cls.dot32, cls.head = DotProgram(16), DotProgram(32), HeadProgram()
+        cls.bias64, cls.bias32 = BiasProgram("head"), BiasProgram("conv")
+        cls.rechannel = RechannelProgram()
+
+    def test_rechannel_expansion_rounding_and_ring(self):
+        dry, history, position = self.rechannel.execute([-3, -1, 1, 3], [1, 2, -1], [0] * 399, 68, 1)
+        self.assertEqual(dry, [-3, -1, 1, 3])
+        self.assertEqual(position, 3)
+        self.assertEqual(history[68 * 3:69 * 3], [-1, -3, 2])
+        self.assertEqual(history[:9], [0, -1, 1, 1, 1, 0, 2, 3, -1])
+        self.assertEqual(history[69 * 3:72 * 3], history[:9])
+
+    def test_parser_bias_rounding_differs_from_dot(self):
+        values = [-3, -1, 0, 1, 3]
+        for program in (self.bias64, self.bias32):
+            self.assertEqual([program.execute(x, 1) for x in values], [-1, 0, 0, 1, 2])
+        self.assertEqual(self.dot16.execute(values, [1], 5, shift=1), [-2, -1, 0, 1, 2])
+
+    def test_parser_bias_wrap_and_saturation(self):
+        self.assertEqual(self.bias64.execute((1 << 63) - 1, 1), -(1 << 62))
+        self.assertEqual(self.bias32.execute((1 << 63) - 1, 1), -(1 << 31))
+        self.assertEqual(self.bias32.execute(1 << 32, 0), (1 << 31) - 1)
+        self.assertEqual(self.bias32.execute(-(1 << 32), 0), -(1 << 31))
+        self.assertEqual(self.bias64.execute(-1, 31), 0)
 
     def test_dot_signed_halfway_rounding(self):
         for program in (self.dot16, self.dot32):

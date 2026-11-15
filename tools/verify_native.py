@@ -8,6 +8,7 @@ import struct
 
 from dot_machine import DotProgram, ROOT
 from head_machine import HeadProgram
+from rechannel_machine import RechannelProgram
 
 
 class HeadState(ctypes.Structure):
@@ -16,6 +17,63 @@ class HeadState(ctypes.Structure):
                 ("weights", ctypes.POINTER(ctypes.c_int16)),
                 ("kernel_frames", ctypes.c_uint32), ("shift", ctypes.c_int),
                 ("bias", ctypes.c_int64)]
+
+
+class RechannelState(ctypes.Structure):
+    _fields_ = [("history", ctypes.POINTER(ctypes.c_int32)),
+                ("ring_frames", ctypes.c_uint32), ("position", ctypes.c_uint32),
+                ("weights", ctypes.POINTER(ctypes.c_int16)), ("shift", ctypes.c_uint)]
+
+
+def verify_rechannel(library, rng):
+    program = RechannelProgram()
+    function = library.hyperrig_rechannel3_process
+    function.argtypes = [ctypes.POINTER(RechannelState), ctypes.POINTER(ctypes.c_int32),
+                         ctypes.POINTER(ctypes.c_int32), ctypes.c_uint32]
+    function.restype = ctypes.c_int
+    cases = []
+    digest = hashlib.sha256()
+    for shift in range(1, 32):
+        cases.append(([-(1 << 31), -3, -1, 0, 1, 3, (1 << 31) - 1],
+                      [-32768, -1, 32767], [0] * 399, 68, shift))
+    for _ in range(256):
+        ring, samples = rng.choice((64, 69, 128, 256)), rng.choice((1, 7, 31, 64))
+        history = [rng.randrange(-(1 << 31), 1 << 31) for _ in range(ring * 3)]
+        history += history[:192]
+        values = [rng.randrange(-(1 << 31), 1 << 31) for _ in range(samples)]
+        weights = [rng.randrange(-32768, 32768) for _ in range(3)]
+        cases.append((values, weights, history, rng.choice((0, 63, ring - 1)), rng.randrange(1, 32)))
+
+    def compare(values, weights, history, position, shift):
+        expected, expected_history, expected_position = program.execute(values, weights, history, position, shift)
+        inputs, weights_array = (ctypes.c_int32 * len(values))(*values), (ctypes.c_int16 * 3)(*weights)
+        storage = (ctypes.c_int32 * (len(history) + 2))(0x5A5A5A5A, *history, 0x5A5A5A5A)
+        history_ptr = ctypes.cast(ctypes.byref(storage, 4), ctypes.POINTER(ctypes.c_int32))
+        dry = (ctypes.c_int32 * (len(values) + 2))(*([0x5A5A5A5A] * (len(values) + 2)))
+        dry_ptr = ctypes.cast(ctypes.byref(dry, 4), ctypes.POINTER(ctypes.c_int32))
+        state = RechannelState(history_ptr, len(history) // 3 - 64, position, weights_array, shift)
+        if (function(ctypes.byref(state), inputs, dry_ptr, len(values)) != 0 or
+                list(dry)[1:-1] != expected or list(storage)[1:-1] != expected_history or state.position != expected_position):
+            raise AssertionError(f"rechannel mismatch at shift={shift}, position={position}")
+        if not dry[0] == dry[-1] == storage[0] == storage[-1] == 0x5A5A5A5A:
+            raise AssertionError("rechannel wrote outside a buffer")
+        digest.update(struct.pack("<" + "i" * len(storage), *storage))
+        digest.update(struct.pack("<I", state.position))
+        return expected_history, expected_position
+
+    for case in cases:
+        compare(*case)
+    for _ in range(16):
+        history, position = [0] * 399, 0
+        weights = [rng.randrange(-32768, 32768) for _ in range(3)]
+        for samples in (1, 63, 64, 31, 64):
+            values = [rng.randrange(-(1 << 31), 1 << 31) for _ in range(samples)]
+            history, position = compare(values, weights, history, position, 15)
+    count = len(cases) + 80
+    print(f"rechannel3: {count} original-instruction comparisons passed", flush=True)
+    return {"name": "rechannel3", "cpu_address": f"0x{program.start:08x}",
+            "original_function_sha256": hashlib.sha256(program.raw).hexdigest(),
+            "cases": count, "outputs_and_state_sha256": digest.hexdigest()}
 
 
 def verify_head(library, rng):
@@ -136,18 +194,30 @@ def main():
     head_result = verify_head(library, rng)
     results.append(head_result)
     total += head_result["cases"]
+    rechannel_result = verify_rechannel(library, rng)
+    results.append(rechannel_result)
+    total += rechannel_result["cases"]
+    from verify_a2l_native import verify as verify_a2l
+    bias_results, loader_result = verify_a2l(library, HeadState, RechannelState)
+    results.extend(bias_results)
+    total += sum(item["cases"] for item in bias_results)
+    total += loader_result["loaded_bias_instruction_comparisons"] + loader_result["loaded_head_instruction_comparisons"]
+    total += loader_result["loaded_rechannel_instruction_comparisons"]
     target = (ROOT / "build/native/hyperrig_dsp.pi32v2.o").read_bytes()
     if target[:5] != b"\x7fELF\x01" or target[5] != 1:
         raise ValueError("target object is not little-endian ELF32")
     if int.from_bytes(target[18:20], "little") != 0xF1:
         raise ValueError("target object does not use the JieLi pi32v2 ELF machine ID")
     report = {"sample": "UltraRig alpha11 M5.71 TANK-G v2", "comparisons": total,
-              "native_functions": results, "host_undefined_behavior_sanitizer": True,
+              "native_functions": results, "a2l_loader": loader_result,
+              "host_undefined_behavior_sanitizer": True,
+              "a2l_memory_checks": json.loads((ROOT / "analysis/native/a2l-sanitizers.json").read_text()),
               "pi32v2_object_sha256": hashlib.sha256(target).hexdigest(),
               "elf_machine": int.from_bytes(target[18:20], "little"),
               "reconstruction_source_sha256": {
                   str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
-                  for path in sorted((ROOT / "firmware/src").glob("*.c"))},
+                  for path in sorted([*(ROOT / "firmware/src").glob("*.c"),
+                                      *(ROOT / "firmware/include/hyperrig").glob("*.h")])},
               "hardware_execution_verified": False,
               "limitation": "restricted CPU interpreter; not full DSP or pedal execution"}
     path = ROOT / "analysis/native/verification.json"

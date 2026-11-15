@@ -11,7 +11,8 @@ def status(root: Path) -> dict:
         "confirmed_offline": ["AC791N/pi32v2", "SFC decoding and JLFS CRCs", "factory memory map",
                               "USB-MIDI framing", "preset record format", "A2L1 capture format",
                               "A2-Lite float reference compared with original converter",
-                              "three recovered native DSP helpers, 1660 instruction-level comparisons",
+                              "four recovered native DSP helpers and A2L loader/bias conversion, "
+                              f"{profile['native_dsp']['instruction_level_comparisons']} instruction-level comparisons",
                               "pi32v2 relocatable object compiled with JieLi toolchain",
                               "ALNK0 audio path, DMA buffers and 64-frame processing",
                               "Mini nominal 44100 Hz versus UltraRig G 48000 Hz"],
@@ -20,7 +21,7 @@ def status(root: Path) -> dict:
         "audio": profile["audio"],
         "gpio_candidates": profile["gpio_candidates"],
         "remaining": [
-            "Complete native A2-Lite parser/scaling/layers, IR and effects around the three recovered helpers.",
+            "Complete native A2-Lite dilated layers, activations, residuals, IR and effects around the recovered loader/input/head.",
             "Validate Mini ALNK/codec clock setup at 48000 Hz, sample packing and analog mute.",
             "Confirm physical footswitch identity/polarity and LED pins.",
             "Build a Mini-specific application and allocator/storage layout; never reuse the G/B image.",

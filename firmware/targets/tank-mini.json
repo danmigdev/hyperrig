@@ -90,10 +90,14 @@
     "reconstructed": [
       "dot_i16",
       "dot_i32",
-      "head3"
+      "rechannel3",
+      "head3",
+      "a2l_loader",
+      "conv_bias",
+      "head_bias"
     ],
     "compiled_target": "ELF32-pi32v2 relocatable object",
-    "instruction_level_comparisons": 1660,
+    "instruction_level_comparisons": 7089,
     "hardware_execution_verified": false,
     "evidence": "research/native-verification.json"
   },
