@@ -204,7 +204,7 @@ class WindowsRomTransport:
         import os
         if os.name != "nt" or c.sizeof(c.c_void_p) != 8:
             raise OSError("this reviewed SPTD layout requires 64-bit Windows Python")
-        if profile not in ("ram-probe", "nor-reader"):
+        if profile not in ("ram-probe", "ram-engine", "nor-reader"):
             raise ValueError("unknown transport profile")
         if slot not in RAM_SLOTS or not re.fullmatch(r"\\\\\.\\PhysicalDrive\d+", path, re.I):
             raise ValueError("select an explicit PhysicalDrive and known plugin slot")
@@ -249,7 +249,11 @@ class WindowsRomTransport:
             raise
 
     def exchange(self, cdb: bytes, data_out: bytes | None = None, read_length: int = 0) -> bytes:
-        validator = validate_ram_request if self.profile == "ram-probe" else validate_nor_request
+        if self.profile == "ram-engine":
+            from probe_mini_engine import validate_engine_request
+            validator = validate_engine_request
+        else:
+            validator = validate_ram_request if self.profile == "ram-probe" else validate_nor_request
         validator(cdb, data_out, read_length, slot=self.slot)
         if self._handle is None:
             raise OSError("ROM transport is closed")
@@ -787,7 +791,7 @@ def main() -> None:
     result = report()
     if args.ram_image:
         result["offline_upload_plan"] = offline_upload_plan(args.ram_image.read_bytes(), args.slot)
-    args.report.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    args.report.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8", newline="\n")
     print("MINI_009 USB recovery command confirmed from stock instructions; no command sent.")
     print("ROM ABI/slots remain reference evidence; no hardware boot or complete backup claimed.")
     print(f"Offline report: {args.report}")

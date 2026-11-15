@@ -1,0 +1,267 @@
+{
+  "project": "HyperRig",
+  "date": "2026-11-15",
+  "kind": "physical-observation-not-host-simulation",
+  "identity": "TANK MINI_009",
+  "firmware_write_performed": false,
+  "model_scope": "Synthetic three-layer A2L fixture; not the original 23-layer capture",
+  "manifest": "research/mini-rom-engine.json",
+  "manifest_sha256_at_execution": "48ffd76478c4726431e14c7737dea53b7e17d9e46cd734226b69a247803390eb",
+  "artifact": {
+    "base": 29491200,
+    "span": 32768,
+    "entry": 29491200,
+    "payload_bytes": 8560,
+    "bss_bytes": 16328,
+    "memory_bytes": 24888,
+    "slot_free_bytes": 7880,
+    "record_address": 29515960,
+    "record_bytes": 128,
+    "private_stack_bottom": 29511832,
+    "private_stack_top": 29515928,
+    "private_stack_bytes": 4096,
+    "state_bytes": 12040,
+    "elf_sha256": "8f66f62dfb894a2cbd1b041a69f9fea4b853785639b697af77b752e633e69878",
+    "payload_sha256": "4fbc20660d3d2bea014266ce1310c2fc4e3870d69a11c4f048d0307a5bf20988",
+    "file": "build/mini-rom-engine/hyperrig-rom-engine-01c20000.bin",
+    "elf": "build/mini-rom-engine/hyperrig-rom-engine-01c20000.elf",
+    "assembly": "build/mini-rom-engine/hyperrig-rom-engine-01c20000.asm",
+    "core_direct_call_stack_bound_bytes": 1288
+  },
+  "source_sha256_at_execution": {
+    "firmware/mini/rom_engine/engine.ld": "b5bf9c4f64dc7ed52e9bf60bc298b36a50a06f6565b53e645a48047463a17eba",
+    "firmware/mini/rom_engine/entry.c": "74603684cc3aea908b315be2210f8555630d70b511681e8de98a6528a1f77a04",
+    "firmware/mini/rom_engine/host_test.c": "f0d4d73e7c56677874a58b6c502f8e976b6df9de007fe2fb630d2d3295a6de0f",
+    "firmware/mini/rom_engine/rom_engine.c": "c986b6a463795e150115a1567c01aa44be6742c1a1ec9a10f1170430b000c663",
+    "firmware/mini/rom_engine/rom_engine.h": "3bbc7f7f632a1d1f342d7e6bb38c90e10b456fd09ccd3c46b369340f180b144e",
+    "firmware/mini/rom_engine/test_builder.py": "4c708a349ab9472ec31b22415a83d2f5b71f36519d601021b9a3bda141b9876d",
+    "firmware/src/hyperrig_dot.c": "85b059a579a4f86ca90290b682ee25a834f60a0934e8fab45b9667548765cfc8",
+    "firmware/src/hyperrig_head.c": "95cdd2a45e589ed99e3d87346afa7d5a74cc9e8d447fbb3f0659e723883c4299",
+    "firmware/src/hyperrig_rechannel.c": "e93f8d76d5d9e4c50a4427f71049467819f9c9c4a31e6b0af4430d5260e981ac",
+    "firmware/src/hyperrig_a2l.c": "59b4b441d9a3cbcba49d01c4effac36d93100f950ac44c3ef12886e043f1292d",
+    "firmware/src/hyperrig_layer.c": "79990431b92ba3676048be46298c00c83b9349d73a3fec53b4b4cfcbc501f956",
+    "firmware/src/hyperrig_engine.c": "2c3d552f8892e9c8a67c0b2a5f798672dc747d85ebe7f2fb6ce279607b3d227a",
+    "firmware/include/hyperrig/hyperrig_a2l.h": "1a5f1e331bada2ac03f6fa5d70dd2d3bfd78c2573741c87b79d11370a9e2e864",
+    "firmware/include/hyperrig/hyperrig_dot.h": "dd474df20cf521feb069034a9ff7f8c8cd731a0264cf77720cf47aaa570cc61f",
+    "firmware/include/hyperrig/hyperrig_engine.h": "bda425a55a8ce1595baf58178be64e6010952a51e76b5ac75286b20240a0f8c9",
+    "firmware/include/hyperrig/hyperrig_head.h": "e883b4461334dd1dd49a6614e4376467c46910fc06ececfc6271fff80a0b3832",
+    "firmware/include/hyperrig/hyperrig_layer.h": "0643142b8c4b470945252bc925130e0d0da4c90511fe439c53a1915c98a8642c",
+    "firmware/include/hyperrig/hyperrig_rechannel.h": "93630a80c1b4066d118d9cceaa75760db8298b42d63da93a0f346a6c6faf80b3",
+    "firmware/mini/rom_stack/rom_stack_pi32v2.S": "3d5f0733f39eea37a8a9c4648b7cddd5145dda0444c02910862b2069ae6a7f10",
+    "firmware/mini/rom_stack/rom_stack.h": "5416bbfb993be1c8751e851a9af5b442a0a46f244d269460a5a4551b54bd562c",
+    "tools/verify_mini_rom_stack.py": "3a8a72d3937f28163091305ba05e69145a00f868f15016cc66d6ca4683ecf268",
+    "firmware/mini/boot/runtime.c": "a0fe564e1785238960f4810bb1684066bfd4d33f5337d98d74803b702c066973",
+    "tools/build_mini_rom_engine.py": "bb3b473b4b5d307ca858a1f6816bc9ab3dc508500b2a5017ee3d931455572220",
+    "tools/verify_engine_native.py": "0c9c5330d1ec855fcefc55ce66c77019d6fd388ad98d5dfe62aa8e71e78eb3eb",
+    "tools/verify_a2l_native.py": "318be882ce059dc9b8c16a5e9ed2a13f52f82351ae3d34f7a584244b29ea13a2",
+    "tools/layer_machine.py": "f3a6ca0248f01f8700788e1c661aa5d916eb97742fbe1dcc6a5fa0574f3d3543",
+    "tools/rechannel_machine.py": "eb20e1d93c6a8d850b784036936cea440de83b388ab80e94d7e395c001164b93",
+    "tools/head_machine.py": "ea516176d54946c304d295c4abf1bddc808107ff9228b0d9c919657c63a87a0b",
+    "tools/bias_machine.py": "e43b1d5b5d7740546fb2888cc8e840fdafbf822c9a71fecfae6b2f94aa2a6c44",
+    "tools/dot_machine.py": "2e8f5023ef02d98bd1d34ca19d4a87b35897671604ae67d442ca6b2be6ad14da"
+  },
+  "client_sources_sha256_at_execution": {
+    "tools/probe_mini_recovery.py": "bc926c6abe7a8d39f80bdb4f1cfe7a0bf4eda4169c548a8fcb2101f3b8c9e8ec",
+    "tools/probe_mini_engine.py": "1791714d894d4d613dc09b46b8f9f894e062562cf319787250b88b4c25178cda"
+  },
+  "usb_inquiry": {
+    "vendor": "WL82",
+    "product": "UBOOT1.00",
+    "raw_hex": "0080020220000000574c38322020202055424f4f54312e303020202020202020312e3030"
+  },
+  "engine_session": {
+    "slot": 29491200,
+    "image_sha256": "4fbc20660d3d2bea014266ce1310c2fc4e3870d69a11c4f048d0307a5bf20988",
+    "rom_readback_sha256": "4fbc20660d3d2bea014266ce1310c2fc4e3870d69a11c4f048d0307a5bf20988",
+    "rom_wire_sha256": "843f897bfcacf82b970a5edb2bd46b0686cf62c3dac48c3f91436fd568ac1cf1",
+    "rom_readback_transform": "jl_crc_cipher keyffffffff, restart per FD07 command",
+    "image_bytes": 8560,
+    "readback_verified": true,
+    "jump_sent": true,
+    "flash_write_commands_sent": false,
+    "jump_answer_hex": "fb080000000000000000000000000000",
+    "engine_answer_hex": "fc62000000e648594531000000000001",
+    "engine_frames": 230,
+    "engine_status": 0,
+    "engine_protocol_version": 1,
+    "model_scope": "synthetic three-layer fixture, not original 23-layer A2 capture",
+    "spi_initialized": false
+  },
+  "engine_record": {
+    "verified": true,
+    "runs": 2,
+    "frames": 230,
+    "record_sha256": "1d07743a7e0f6f6e9f9926b619df40e34a9d0a677a09c5cf4f1de80295a95f69",
+    "private_stack_observed_bytes": 1288,
+    "record_hex": "48594531010000000000c201008000000200000000000000e60000000600000003000000938d9531f6b70e148b9e2da1938d95317f030000af23000078030000a8230000b860c20180000000ce84ec620f827efb0010000008050000010000008b9e2da10e000000e600000001000000000000000100000016c90473444f4e45",
+    "hardware_execution_verified": true,
+    "model": "synthetic three-layer A2L fixture",
+    "original_23_layer_capture": false,
+    "audio_or_flash_peripheral_actions": false
+  },
+  "golden": {
+    "fixture_seed": 1213809969,
+    "fixture_bytes": 728,
+    "fixture_sha256": "1642b8b8d661aae568bcfb0c8fa3b729c780ba24a9853c867499faa0cbc4a9ce",
+    "fixture_crc32": 4219372047,
+    "layers": 3,
+    "channels": 3,
+    "kernel_dilation": [
+      [
+        1,
+        1
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        15,
+        7
+      ]
+    ],
+    "receptive_field": 117,
+    "input_algorithm": "u32(index*1664525+1013904223), xor >>13, mask29 minus2^28; sample0=0",
+    "input_sha256": "e986d721f2e0b838c3adca6007fd0c1c2ed7a3c3abeae3af24029f39520d18c5",
+    "block_sizes": [
+      1,
+      63,
+      64,
+      7,
+      31,
+      64
+    ],
+    "frames": 230,
+    "block_results": [
+      {
+        "frames": 1,
+        "output": 655221287,
+        "sum": 3708544543,
+        "history": 1345682677
+      },
+      {
+        "frames": 64,
+        "output": 2780718698,
+        "sum": 1457544280,
+        "history": 2843282592
+      },
+      {
+        "frames": 128,
+        "output": 1212532720,
+        "sum": 2234887713,
+        "history": 2203587072
+      },
+      {
+        "frames": 135,
+        "output": 3335378446,
+        "sum": 3260419086,
+        "history": 2683958918
+      },
+      {
+        "frames": 166,
+        "output": 2520693388,
+        "sum": 3428295929,
+        "history": 2632891304
+      },
+      {
+        "frames": 230,
+        "output": 831884691,
+        "sum": 336508918,
+        "history": 2704121483
+      }
+    ],
+    "replay_block_size": 17,
+    "replay_blocks": 14,
+    "replay_output_crc": 831884691,
+    "replay_history_crc": 2704121483,
+    "output_sha256": "d924649ae996ae55c211deb9e0f2bad55bc8e85912d4c657d3cce090ebea19dc",
+    "signal_kernel_invocations": 100,
+    "source": "interpreted original G instructions; scheduler/context setup reconstructed",
+    "original_kernel_sha256": {
+      "0x01c14282": "b31bbba6f8cea2383263f8b4acaf76eafeb8fb152d1005249a6f05f5087f15ac",
+      "0x01c1349c": "a1cb7be7862203181ccdd6046d8e0fef8f7287e3b242704afa73e3bac1a16b21",
+      "0x01c13d16": "b9889d533734a8f6e7f062ade1c211180f8b7b74944b4b28856b052717366e5f",
+      "0x01c1453c": "08bf1784a8ff784606882cb21085038c7ae8ade1200b83bccb1d9355d95cb2bc",
+      "0x01c130b4": "d9419c8dfdb610b6ad0a6a4519b6bc4f8caf5dcaa8b0fab798c8dcc12bfd3153",
+      "0x02032586": "cbed76ad32743e04935a19998345fb9792d5ff2e2de0d11a1e3b0066e058f857",
+      "0x020327de": "071e97f1ddb6ef6ba78f5ea4f8e0a2265b2a8f260538435f4ac86e0a281807ef"
+    },
+    "original_A2_capture": false
+  },
+  "first_attempt": {
+    "phase": "restart_observed_hub",
+    "error_type": "CalledProcessError",
+    "jump_attempts": 0,
+    "root_cause_established": false,
+    "detail": "Inline PowerShell hub-restart helper exited 1; stderr was not preserved. No RAM upload/jump occurred."
+  },
+  "resume": {
+    "hub_restart_verified": true,
+    "method": "Guarded PowerShell -File helper for the observed hub",
+    "reset_request": {
+      "slot": 29523968,
+      "image_sha256": "cf3526d914eef007649f88f1f22e085a908359b9ad0e9f4743427b4757c0540f",
+      "rom_readback_sha256": "cf3526d914eef007649f88f1f22e085a908359b9ad0e9f4743427b4757c0540f",
+      "rom_wire_sha256": "5cf504a164ce1714635a957b1bf705bae013cd1b4b1c959ae5068dbef3913c26",
+      "rom_readback_transform": "jl_crc_cipher keyffffffff, restart per FD07 command",
+      "image_bytes": 26,
+      "readback_verified": true,
+      "jump_sent": true,
+      "flash_write_commands_sent": false,
+      "reset_artifact": {
+        "kind": "mini-ram-reset",
+        "slot": 29523968,
+        "entry": 29523968,
+        "image_bytes": 26,
+        "image_sha256": "cf3526d914eef007649f88f1f22e085a908359b9ad0e9f4743427b4757c0540f",
+        "elf_sha256": "d80e117b75fd306eab0acab4311660a14502bffeaa7f95469ca5325987972bba",
+        "no_flash_writes": true,
+        "elf_layout_verified": true
+      },
+      "reset_completion_verified": false,
+      "normal_mini_usb_identity_required": true,
+      "automatic_retry": false,
+      "spi_initialized": false,
+      "jump_outcome": "post_submit_transport_error",
+      "error_type": "RomCommandError",
+      "error": "[Errno 121] SCSI command failed; no automatic retry",
+      "transport_details": {
+        "scsi_status": 0,
+        "data_transfer_length": 16,
+        "bytes_returned": 0,
+        "sense_info_length": 32,
+        "sense_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  },
+  "return_to_stock": {
+    "identity": "TANK MINI_009",
+    "bytes": 1942,
+    "sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+    "equal_reads": 2,
+    "verified_utc": "2026-11-15T18:23:40.593349+00:00",
+    "presets_unchanged": true,
+    "return_to_stock_verified": true,
+    "firmware_write_performed": false
+  },
+  "evidence_sha256": {
+    "analysis/hardware/mini-engine-run.json": "03cdfef3dacd0d827975ed2c36fbdc396bcd7cd2e9e0e402cee969eb2206ce68",
+    "analysis/hardware/mini-engine-resume-run.json": "8aa335a2e125f8ac2e1870fa842f73b1330d43a480194ab0b4dd2f7aa493c71b",
+    "analysis/hardware/mini-engine-stock-return.json": "a1d5120fb91d4726c062c55726419bd8ad78c7587de90583cf607f334492941c",
+    "analysis/hardware/mini-engine-resume-record.bin": "1d07743a7e0f6f6e9f9926b619df40e34a9d0a677a09c5cf4f1de80295a95f69",
+    "analysis/hardware/mini-engine-resume-trace.jsonl": "89d1291dfec1d6c65d13e5891913f920f84119c21799b5a3efc832b4806756c3",
+    "analysis/hardware/engine-hub-restart.log": "023e39fcb0c3ea97b279ad8964cffdd9e99bc48d95be85620f8b1aacf3cf9688",
+    "analysis/hardware/restart-engine-hub.ps1": "435d822c8caf8dbb05ca2fd41186abf426831c213dddb84fc4b5e168d5a271fc",
+    "analysis/hardware/run_mini_engine.py": "38c211ec31698914f7c8c7823b6fd06ee22c03f9fae540319381e97c724a02d9",
+    "analysis/hardware/run_mini_engine_resume.py": "b77320faed235d0498c6291557106841f50b661959877d540366f9f9cc0a49ea",
+    "analysis/hardware/run_mini_engine_resume.ps1": "7eeb9276adc9297e533e3d08536226df1079fd4f47d6722e9cce461787723ecb",
+    "analysis/hardware/mini-engine-client-pins.json": "3cc0fb3e4bdf0ba23bfd867ce3fefa08cfaf869c2f3084b1249def3b3c122cac"
+  },
+  "limits": [
+    "No real audio, clocks, GPIO, SPI or flash operations in the HYE1 payload.",
+    "Golden kernels are original instructions interpreted on the host; scheduling is reconstructed.",
+    "Observed stack use 1288 bytes is not a worst-case bound for interrupts or ROM callers.",
+    "Reset transport error 121 was resolved by independent USB/MIDI and preset verification.",
+    "Application flash boot, full capture and app control remain unverified."
+  ]
+}

@@ -106,8 +106,10 @@
     "a2l_supported_profile": "three channels, 32-bit activations, bounded fast-path shifts",
     "original_scheduler_emulated": false,
     "primitive_vectors_on_device_verified": true,
-    "hardware_execution_scope": "8 primitive vectors passed on MINI; full A2 capture engine not yet executed on target",
-    "primitive_hardware_evidence": "research/mini-hardware-rom.json"
+    "hardware_execution_scope": "8 primitive vectors and synthetic three-layer A2L engine passed on MINI; original 23-layer capture unverified",
+    "primitive_hardware_evidence": "research/mini-hardware-rom.json",
+    "synthetic_engine_on_device_verified": true,
+    "synthetic_engine_hardware_evidence": "research/mini-engine-hardware.json"
   },
   "device_observation": {
     "identity": "TANK MINI_009",
@@ -125,7 +127,8 @@
     "stock_return_verified": true,
     "presets_unchanged_after_ram_probe": true,
     "complete_flash_backup_bytes": 1048576,
-    "complete_flash_backup_sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180"
+    "complete_flash_backup_sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180",
+    "synthetic_engine_executed": true
   },
   "boot": {
     "status": "RAM ROM probe physically verified; application startup remains offline",
@@ -146,7 +149,8 @@
       "research/mini-image.json",
       "research/mini-package.json",
       "research/mini-handover.json",
-      "research/mini-hardware-rom.json"
+      "research/mini-hardware-rom.json",
+      "research/mini-engine-hardware.json"
     ],
     "host_dsp_audio_selftest": {
       "passed": true,
@@ -162,7 +166,7 @@
       "mmio_called": false,
       "buffers": "private RAM; no DMA peripheral"
     },
-    "target_c_scope": "ROM RAM primitive probe only; application ELF not booted",
+    "target_c_scope": "ROM primitive and synthetic A2L engine probes; standalone application not booted",
     "application_target_c_executed": false
   },
   "audio_driver": {

@@ -1,0 +1,131 @@
+{
+  "project": "HyperRig",
+  "type": "pi32v2 normal-call private-stack bridge",
+  "api": "int hyperrig_mini_rom_run_on_stack(int (*fn)(void *), void *arg, void *top)",
+  "object": "build/mini-rom-stack/rom_stack.o",
+  "object_sha256": "ea3e42fc5ad1cb0750c462bd675ad7f94baaebb45e15c0d490fa275fcb9799b1",
+  "code_bytes": 24,
+  "code_sha256": "734692b077b79e871803df538fd684cfe2957db23356417714b300c651e9fba1",
+  "instructions": [
+    {
+      "offset": 0,
+      "length": 2,
+      "id": "push.rets_rl",
+      "text": "[--sp] = {rets, r4}",
+      "hex": "7404"
+    },
+    {
+      "offset": 2,
+      "length": 4,
+      "id": "mov.r_sr",
+      "text": "r4 = sp",
+      "hex": "64e0004e"
+    },
+    {
+      "offset": 6,
+      "length": 2,
+      "id": "mov.rr",
+      "text": "r3 = r0",
+      "hex": "0316"
+    },
+    {
+      "offset": 8,
+      "length": 4,
+      "id": "mov.sr_r",
+      "text": "sp = r2",
+      "hex": "64e0802e"
+    },
+    {
+      "offset": 12,
+      "length": 2,
+      "id": "mov.rr",
+      "text": "r0 = r1",
+      "hex": "1016"
+    },
+    {
+      "offset": 14,
+      "length": 2,
+      "id": "call.r",
+      "text": "call r3",
+      "hex": "c300"
+    },
+    {
+      "offset": 16,
+      "length": 4,
+      "id": "mov.sr_r",
+      "text": "sp = r4",
+      "hex": "64e0804e"
+    },
+    {
+      "offset": 20,
+      "length": 2,
+      "id": "pop.rets_rl",
+      "text": "{rets, r4} = [sp++]",
+      "hex": "3404"
+    },
+    {
+      "offset": 22,
+      "length": 2,
+      "id": "rts",
+      "text": "rts",
+      "hex": "8000"
+    }
+  ],
+  "incoming_stack_bytes": 8,
+  "own_callback_stack_bytes": 4096,
+  "static_fixture_guard_bytes": 32,
+  "static_fixture_layouts": [
+    {
+      "elf": "build/mini-rom-stack/audit-01c20000.elf",
+      "sha256": "6da663216e6d739af30188dbf0b347ac2ece63698100f7d2477e8f3bde247307",
+      "slot": 29491200,
+      "code_end": 29491224,
+      "guard": 29519840,
+      "stack_bottom": 29519872,
+      "stack_top": 29523968
+    },
+    {
+      "elf": "build/mini-rom-stack/audit-01c28000.elf",
+      "sha256": "5da4fad0f667569e04974a4b26fde6f5b2e8372309da68faded168d698b4ca74",
+      "slot": 29523968,
+      "code_end": 29523992,
+      "guard": 29552608,
+      "stack_bottom": 29552640,
+      "stack_top": 29556736
+    }
+  ],
+  "instruction_simulation": {
+    "passed": true,
+    "cases": 240,
+    "rejections": 5,
+    "callback_is_assumed_abi_model": true,
+    "hardware_emulation": false
+  },
+  "compiler_dynamic_frame_evidence": {
+    "source": "build/mini-rom-stack/abi_frame.c",
+    "source_sha256": "569827bc2da22c566c8943583f26e14ffbcb01fdedaae33625c4810d07d9d62e",
+    "disassembly_sha256": "4a8fb81fa7a4f195a208f58a7b62e0fadb4a51a5afec9bebbc2e64c3cc7d8328"
+  },
+  "additional_ram_proven_free_while_returning_to_rom": [],
+  "hardware_execution_verified": false,
+  "source_sha256": {
+    "firmware/mini/rom_stack/rom_stack_pi32v2.S": "3d5f0733f39eea37a8a9c4648b7cddd5145dda0444c02910862b2069ae6a7f10",
+    "firmware/mini/rom_stack/rom_stack.h": "5416bbfb993be1c8751e851a9af5b442a0a46f244d269460a5a4551b54bd562c",
+    "tools/verify_mini_rom_stack.py": "3a8a72d3937f28163091305ba05e69145a00f868f15016cc66d6ca4683ecf268",
+    "upstream/pi32v2-isa/docs/ABI.md": "f0b96bdeb850f1a0bf939b7940d0413e05d116111ed12e78d2170676d9fa9038",
+    "upstream/pi32v2-isa/docs/ISA.md": "61cbf6cfc697064134534222b7c27f92ab4ad20185e90b86df4cd0aaab884c6e",
+    "upstream/pi32v2-isa/tools/hwtest/runner.S": "466637b7ea681b6df9d03553b8986694f0bd1c5ee1c0ffbf6eb30d9748f45fa3",
+    "upstream/m-bootloader/docs/SPEC.md": "d86ae060b1db368a8aba421e21903b3b9c7517943bcf2667ee170a5a96a2863c"
+  },
+  "limits": [
+    "Callback must obey the normal C ABI and return normally; no ROM callback while on private stack.",
+    "Arithmetic condition flags and caller-clobbered r1..r3 are not preserved across the callback.",
+    "The assembly does not check pointers, overlap, bounds, recursion or stack overflow.",
+    "4096 bytes is a reservation, not a proof of the complete DSP call-chain worst-case depth.",
+    "No explicit SSP/USP/ICFG, interrupt-enable, clock, MMIO or cache instruction is emitted.",
+    "SP may alias SSP or USP in the inherited mode. The simulation checks either alias; hardware mode semantics are not established.",
+    "Interrupt nesting and hidden CPU state are not simulated; inherited IRQ stack consumption remains unmeasured.",
+    "Audit ELF files are not ROM plug-ins and must not be sent to the device.",
+    "m-bootloader SPEC 2.1 and 13 do not establish exact ROM-owned RAM bounds. Larger stage/app RAM contracts require a different lifecycle."
+  ]
+}

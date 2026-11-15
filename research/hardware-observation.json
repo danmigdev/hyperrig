@@ -19,7 +19,7 @@
   "preset_backup_acquired": true,
   "complete_flash_backup_acquired": true,
   "firmware_write_performed": false,
-  "limitation": "RAM probe, primitive DSP, two identical complete NOR reads matching stock009, and two returns to stock with unchanged presets are verified. Full A2 capture execution, application boot, audio and recovery from corrupted flash remain unverified.",
+  "limitation": "ROM primitive and synthetic three-layer A2L engine probes, two identical complete NOR reads matching stock009, and three returns to stock with unchanged presets are verified. Original 23-layer capture, application boot, real audio and recovery from corrupted flash remain unverified.",
   "usb_mini_identified": true,
   "preset_backup": {
     "bytes": 1942,
@@ -35,7 +35,7 @@
   },
   "latest_readonly_check": {
     "date": "2026-11-15",
-    "transport": "USB-MIDI after full NOR acquisition and RAM reset",
+    "transport": "USB-MIDI after synthetic A2L engine RAM execution and RAM reset",
     "identity_confirmed_again": true,
     "midi_inputs": [
       "USB-Midi 0"
@@ -59,7 +59,7 @@
     "return_to_stock_verified": true,
     "presets_unchanged": true,
     "firmware_write_performed": false,
-    "verified_stock_returns": 2
+    "verified_stock_returns": 3
   },
   "complete_flash_backup": {
     "bytes": 1048576,
@@ -76,5 +76,15 @@
     "raw_package_extent_identical_to_stock": true,
     "all_decoded_firmware_crcs_valid": true,
     "evidence": "research/mini-hardware-rom.json"
+  },
+  "synthetic_engine": {
+    "evidence": "research/mini-engine-hardware.json",
+    "frames": 230,
+    "layers": 3,
+    "replay_frames": 230,
+    "private_stack_observed_bytes": 1288,
+    "hardware_execution_verified": true,
+    "original_capture": false,
+    "real_audio": false
   }
 }

@@ -7,6 +7,10 @@ firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 porting del MINI in corso. Non è ancora un firmware completo installabile sul MINI.** Il nome HyperRig è quello
 scelto per questo progetto indipendente.
 
+L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
+UltraRig completa adattata al MINI, in sostituzione dello stock, e copie
+locali di firmware e app con strumenti di reverse engineering e modifica.
+
 ## Risultati disponibili
 
 - UltraRig alpha 11 / M5.71: quattro immagini G/B, v1/v2, scaricate da GitHub,
@@ -44,8 +48,11 @@ scelto per questo progetto indipendente.
 - **Primo codice HyperRig eseguito sul MINI in RAM:** 8 casi delle primitive
   DSP superati, con CRC uguali ai kernel originali interpretati. Il probe ROM
   ha restituito un record verificato; motore A2 completo e audio restano da provare.
+- **Motore A2L sintetico eseguito sul MINI in RAM:** tre layer, 230 frame,
+  sei blocchi e ripetizione dopo reset con CRC corretti; stack privato e arena
+  integri. È una prova distinta dalla capture originale a 23 layer e dall'audio.
 - Identità `TANK MINI_009` confermata via BLE e USB. Ritorno dalla ROM al
-  firmware stock verificato due volte, con preset invariati. **Backup completo
+  firmware stock verificato tre volte, con preset invariati. **Backup completo
   della NOR: due copie da 1 MiB identiche**, CRC validi e firmware corrispondente
   allo stock 009. Nessuna scrittura flash effettuata; recupero da un'applicazione
   corrotta ancora da verificare.
@@ -69,6 +76,9 @@ originale. Il dettaglio delle ricerche è in [source-audit.json](research/source
 - [Driver audio MINI e conversione dei campioni](docs/MINI_AUDIO_DRIVER.md).
 - [Startup, linker e programmi diagnostici MINI](docs/MINI_BOOT.md).
 - [Prima esecuzione fisica del probe ROM HyperRig](docs/MINI_ROM_PROBE.md).
+- [Motore A2L sintetico verificato sul MINI in RAM](docs/MINI_ROM_ENGINE.md).
+- [Port dell'applicazione UltraRig completa](docs/MINI_ULTRARIG_PORT.md).
+- [Editor HyperRig per il target MINI](docs/MINI_APP.md).
 - [Protocollo ROM, verifica RAM e ritorno allo stock](docs/MINI_RECOVERY.md).
 - [Lettura completa della NOR e verifica del backup](docs/MINI_FLASH_BACKUP.md).
 - [Handover stock e varianti XIP](docs/MINI_HANDOVER.md).
