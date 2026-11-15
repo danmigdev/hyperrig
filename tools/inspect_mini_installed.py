@@ -95,7 +95,119 @@ def expected_stateful_commands(preimage, candidate, order):
     return result
 
 
-def inspect_history(journal, trace, preimage, candidate, order):
+def inspect_echo_recoveries(journal, trace, candidate, recovery):
+    """Independently reconcile v3's sole extra retry: frozen-RAM FD87 IN."""
+    faults = [index for index, row in enumerate(trace)
+              if row['state'] == 'error' and row['cdb'].startswith('fd87')]
+    if not faults:
+        require(recovery is None or recovery['summary'].get('echo_reissues', 0) == 0,
+                'echo recovery summary has no corresponding transport error')
+        return []
+    require(recovery is not None and recovery.get('v3_source_pinned') is True,
+            'FD87 errors require pinned v3 recovery evidence')
+    summary, policy, events = recovery['summary'], recovery['policy'], recovery['events']
+    require(summary.get('version') == 3 and not summary['failed']
+            and summary['echo_reissues'] == len(faults)
+            and 1 <= summary['recovery_attempts'] <= summary['max_recoveries'] <= 8,
+            'v3 echo recovery version/count/budget differs')
+    require(policy['enabled'] and policy['only_Windows_error'] == 31
+            and policy['FD87_requires_same_staged_page_and_exact_audit_except_echoed_and_record_CRC']
+            and policy['FD87_reissue_requires_exact_candidate_page_bytes']
+            and not policy['mutation_retries_allowed'] and not policy['OUT_retries_allowed']
+            and not policy['jump_or_reset_retries_allowed'] and not policy['backend_fallback_allowed'],
+            'v3 recovery policy is not the reviewed bounded RAM-echo policy')
+    groups = []
+    for item in events:
+        require(item['event'] not in ('readonly_recovery_terminal', 'readonly_recovery_not_permitted'),
+                'successful run contains a terminal recovery event')
+        if item['event'] == 'readonly_recovery_begin': groups.append([])
+        require(groups, 'recovery event precedes its begin witness')
+        groups[-1].append(item)
+    require(len(groups) == summary['recovery_attempts'], 'recovery event/summary count differs')
+    echoes = [group for group in groups if group[0]['cdb'].startswith('fd87')]
+    require(len(echoes) == len(faults), 'FD87 errors and recovery witnesses differ')
+    names = ['begin', 'close_intent', 'reopen_intent', 'identity_intent', 'identity_reply',
+             'audit_intent', 'audit_reply', 'reissue_intent', 'reissue_reply']
+    results, keys = [], set()
+    for fault_index, group in zip(faults, echoes):
+        require([item['event'] for item in group] == ['readonly_recovery_' + name for name in names],
+                'FD87 recovery event order differs')
+        begin, identity, audit_event, reissue, reply = (group[i] for i in (0,4,6,7,8))
+        cdb = bytes.fromhex(trace[fault_index]['cdb'])
+        token, sequence, address = struct.unpack_from('>III', cdb, 2)
+        require(len(cdb) == 16 and cdb[14:] == b'\xff\xff'
+                and APP_START <= address <= APP_END - 256 and address % 256 == 0,
+                'FD87 recovery address/CDB differs')
+        page = candidate[address - APP_START:address - APP_START + 256]
+        require(begin['cdb'] == reissue['cdb'] == cdb.hex() and begin['read_length'] == reissue['read_length'] == 256
+                and begin['win32_error'] == 31 and begin['mutation_audit'] is False
+                and begin['mutation_retries_allowed'] is False,
+                'FD87 recovery witness describes another operation')
+        expected = begin['expected_state']
+        material = json.dumps({'cdb': cdb.hex(), 'length': 256, 'expected': expected,
+                               'mutation_audit': False}, sort_keys=True, separators=(',', ':')).encode()
+        require(begin['witness_sha256'] == sha(material) and begin['witness_sha256'] not in keys,
+                'FD87 recovery witness hash differs or was used twice')
+        keys.add(begin['witness_sha256'])
+        prior_raw, fresh_raw = bytes.fromhex(begin['prior_audit_hex']), bytes.fromhex(audit_event['raw_hex'])
+        old = validate_audit_record(prior_raw, base=recovery['slot'], build_tag=recovery['build_tag'], expected_mutations_enabled=True)
+        fresh = validate_audit_record(fresh_raw, base=recovery['slot'], build_tag=recovery['build_tag'], expected_mutations_enabled=True)
+        require(old['error'] == 0 and old['phase'] == 4 and old['staged'] == 1 and old['echoed'] == 0
+                and old['raw_receive_return'] == 260 and old['jedec'] == 0xEB6014
+                and old['rx_guards_ok'] == old['stack_guards_ok'] == 1 and old['stack_observed_bytes'] > 0
+                and not old['sr1'] & 0x7F and not old['sr2'] & 0x40
+                and (old['token'], old['sequence'], old['page']) == (token, sequence, address)
+                and old['page_crc32'] == old['last_crc32'] == crc(page)
+                and all(old.get(name) == value for name, value in expected.items()),
+                'FD87 prior audit is not the exact staged candidate witness')
+        require(fresh['echoed'] in (0,1) and prior_raw[:104] == fresh_raw[:104]
+                and prior_raw[108:120] == fresh_raw[108:120] and prior_raw[124:] == fresh_raw[124:]
+                and sha(fresh_raw) == audit_event['sha256'],
+                'FD87 fresh audit changed beyond echoed and envelope CRC')
+        identity_raw = b'\xfc\x78HYW1\1\1' + struct.pack('>II', recovery['slot'], 32768)
+        require(bytes.fromhex(identity['raw_hex']) == identity_raw
+                and reissue['read_only'] is True and reissue['no_NOR_access'] is True
+                and reissue['prior_echoed'] == 0 and reissue['fresh_echoed'] == fresh['echoed']
+                and reissue['stack_observed_bytes_unchanged'] == old['stack_observed_bytes']
+                and begin['candidate_page_sha256'] == reissue['candidate_page_sha256'] == reply['sha256'] == sha(page)
+                and reply['bytes'] == 256 and reply['echo_already_emitted'] == bool(fresh['echoed'])
+                and reply['subsequent_installer_status_and_audit_still_required'] is True,
+                'FD87 recovery identity/page/stack evidence differs')
+        require(fault_index >= 2 and trace[fault_index-2]['state'] == 'after'
+                and trace[fault_index-2]['cdb'] == 'fd88' + 'ff' * 14
+                and bytes.fromhex(trace[fault_index-2]['response_hex']) == prior_raw,
+                'failed FD87 lacks its immediately preceding validated audit')
+        following = trace[fault_index+1:fault_index+7]
+        require(len(following) == 6 and [row['state'] for row in following] == ['before','after'] * 3
+                and [row['cdb'] for row in following[::2]] == ['fc78' + 'ff' * 14, 'fd88' + 'ff' * 14, cdb.hex()]
+                and bytes.fromhex(following[1]['response_hex']) == identity_raw
+                and bytes.fromhex(following[3]['response_hex']) == fresh_raw
+                and following[5]['response_bytes'] == 256 and following[5]['response_sha256'] == sha(page),
+                'FD87 transport recovery is not identity/audit/one exact echo reissue')
+        intents = [index for index, row in enumerate(journal)
+                   if row['event'] == 'command_intent' and row['cdb_hex'] == cdb.hex()]
+        require(len(intents) == 1, 'FD87 recovery created multiple installer command intents')
+        index = intents[0]
+        require(journal[index+1]['event'] == 'command_reply' and journal[index+1]['opcode'] == 'fd87'
+                and journal[index+1]['sha256'] == sha(page), 'FD87 installer reply differs')
+        later = journal[index+2:]
+        audit_index = next((n for n, row in enumerate(later) if row['event'] == 'audit_raw'), None)
+        require(audit_index is not None and all(row.get('opcode') not in ('fc7b','fc7d','fb7c','fc80')
+                for row in later[:audit_index]), 'mutation preceded reconciled echo audit')
+        echoed_raw = bytearray(prior_raw)
+        struct.pack_into('<I', echoed_raw, 104, 1)
+        struct.pack_into('<I', echoed_raw, 120, crc(echoed_raw[:120]))
+        require(bytes.fromhex(later[audit_index]['record_hex']) == bytes(echoed_raw),
+                'post-reissue installer audit did not confirm echoed1 with unchanged state')
+        results.append({'address': address, 'token': token, 'sequence': sequence,
+                        'prior_audit_sha256': sha(prior_raw), 'fresh_audit_sha256': sha(fresh_raw),
+                        'already_echoed': bool(fresh['echoed']), 'candidate_page_sha256': sha(page)})
+    require(sum(item['already_echoed'] for item in results) == summary['echo_already_emitted'],
+            'v3 already-emitted echo count differs')
+    return results
+
+
+def inspect_history(journal, trace, preimage, candidate, order, *, recovery=None):
     require(len(order) == len(set(order)) and order == sorted(a for a in order if a != APP_START)
             + ([APP_START] if APP_START in order else []), 'sector order differs or repeats')
     pairs, pending = [], None
@@ -134,7 +246,7 @@ def inspect_history(journal, trace, preimage, candidate, order):
                 and before['cdb'] == after['cdb'] and before['stage'] == after['stage'], 'trace command pairing differs')
         op = int(before['cdb'][:4], 16)
         if after['state'] == 'error':
-            require(op in (0xFD7F, 0xFC7E, 0xFD88)
+            require(op in (0xFD7F, 0xFC7E, 0xFD88, 0xFD87)
                     and after['native_transfer']['win32_error'] == 31,
                     'trace contains a mutation/OUT/jump failure or unreviewed error')
             errors.append(after)
@@ -149,11 +261,13 @@ def inspect_history(journal, trace, preimage, candidate, order):
         require(row['cdb'] == intent['cdb_hex'] and row['response_sha256'] == reply['sha256'],
                 'transport and installer command evidence disagree')
     require(APP_START not in order or pages[-1] == APP_START, 'header page was not programmed last')
+    echo_proofs = inspect_echo_recoveries(journal, trace, candidate, recovery)
     return {'erase_commands': len(order), 'program_commands': len(pages),
             'expected_WREN_count': len(order) + len(pages), 'program_order': pages,
             'header_sector_last': APP_START not in order or order[-1] == APP_START,
             'header_page_last': APP_START not in order or pages[-1] == APP_START,
             'read_query_errors': len(errors), 'stateful_transport_commands': len(observed),
+            'verified_RAM_echo_recoveries': echo_proofs,
             'automatic_mutation_retries_observed': False}
 
 
@@ -183,7 +297,14 @@ def inspect_bundle(run_path):
     journal_path, trace_path = Path(prefix + '-journal.jsonl'), Path(prefix + '-trace.jsonl')
     journal = [json.loads(x) for x in journal_path.read_text().splitlines()]
     trace = [json.loads(x) for x in trace_path.read_text().splitlines()]
-    history = inspect_history(journal, trace, before, candidate, order)
+    recovery_path = Path(prefix + '-read-recovery.jsonl')
+    recovery = None
+    if run.get('read_recovery_final', {}).get('version') == 3:
+        recovery = {'summary': run['read_recovery_final'], 'policy': run['read_recovery_policy'],
+                    'events': [json.loads(x) for x in recovery_path.read_text().splitlines()] if recovery_path.exists() else [],
+                    'slot': run['installation']['slot'], 'build_tag': run['installation']['build_tag'],
+                    'v3_source_pinned': 'tools/recover_mini_read_v3.py' in run['source_pins']}
+    history = inspect_history(journal, trace, before, candidate, order, recovery=recovery)
     audit_rows = [x for x in journal if x['event'] == 'audit_raw']
     require(audit_rows, 'raw target audits missing')
     counters = (0, 0, 0); last = None
@@ -213,6 +334,7 @@ def inspect_bundle(run_path):
     require(len(full_preimage) == 1 and full_preimage[0]['sha256'] == sha(before[APP_START:APP_END]),
             'complete preimage verification evidence differs')
     inputs = (run_path, plan_path, stock_path, before_path, candidate_path, after_path, journal_path, trace_path)
+    if recovery_path.exists(): inputs += (recovery_path,)
     return {'schema': 1, 'kind': 'independent-offline-installed-MINI-verification',
             'verified': True, 'inputs': {str(p.relative_to(ROOT)).replace('\\', '/'): sha(p.read_bytes()) for p in inputs},
             'images': images, 'history': history, 'target_audits_checked': len(audit_rows),

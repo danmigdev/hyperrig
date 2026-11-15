@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "bounded-read-recovery-v3",
+  "protocol": "HYW1",
+  "offline_only": true,
+  "device_access_performed": false,
+  "hardware_executed": false,
+  "firmware_sources_changed": false,
+  "API": {
+    "module": "tools.recover_mini_read_v3",
+    "class": "ReadOnlyStateRecoveryTransport",
+    "constructor": "same as v2; transport, log, reopen_factory, max_recoveries=8",
+    "extra_summary": [
+      "echo_reissues",
+      "echo_already_emitted",
+      "echo_requires_known_candidate_page"
+    ]
+  },
+  "extension": {
+    "only_new_recoverable_opcode": "FD87",
+    "submitted_Win32_error": 31,
+    "transfer_bytes": 256,
+    "requires_preflighted_bound_installer": true,
+    "requires_immediately_preceding_validated_stage_audit": true,
+    "candidate_page_exact_comparison": true,
+    "candidate_page_crc32_comparison": true,
+    "same_CDB_reissue_once": true,
+    "fresh_identity": "FC78 gate1 same slot/backend/path",
+    "fresh_audit": "FD88 validates CRC, identity, guards, expected state and whole unchanged record except echoed/recordCRC",
+    "allowed_record_word_offsets": [
+      104,
+      120
+    ],
+    "allowed_echoed_values": [
+      0,
+      1
+    ],
+    "stack_watermark_change_allowed": false,
+    "session_state_not_modified_by_wrapper": true,
+    "normal_installer_followup_audit_required": true,
+    "max_recoveries_total_shared_with_v2": 8,
+    "nested_recovery": false,
+    "mutation_OUT_ARM_FINISH_jump_reset_retry": false
+  },
+  "writer_evidence": {
+    "source_path": "firmware/mini/app_writer/writer.c",
+    "FD87_branch_sha256": "5204a9217fde70fd9a634ac1d0240ce2bbafd3312f68fbdf6842562a48ec66ae",
+    "operational_derivation_matches_frozen_core": true,
+    "operational_manifest_path": "research/mini-app-writer-operational.json",
+    "operational_manifest_sha256": "214cbfc3c14d4bc2eff83a9e88ae8b9f9232c211c685e81af9059b182f05031c",
+    "gate": 1,
+    "ELF_A_send_call": "0x01C207F6",
+    "ELF_A_echo_store": "0x01C207FE",
+    "ELF_A_return": "0x01C2081E",
+    "private_stack_job_called_by_FD87": false,
+    "NOR_callbacks_called_by_FD87": false,
+    "target_artifacts": [
+      {
+        "file": "build/mini-app-writer-operational/hyperrig-writer-operational-01c20000.bin",
+        "payload_sha256": "09e0772b1c4f2087f6864fd16f09fa48ac5b0d2d46ab3e408e3d839447d51749",
+        "elf": "build/mini-app-writer-operational/hyperrig-writer-operational-01c20000.elf",
+        "elf_sha256": "39880f9272d2714d73bd165258288e5a63c9de305364cf8b723e59ee639835cd"
+      },
+      {
+        "file": "build/mini-app-writer-operational/hyperrig-writer-operational-01c28000.bin",
+        "payload_sha256": "ed04851e6028a3274efa87a942db9f3b48f966c1a10242c42e6ce5e75148693a",
+        "elf": "build/mini-app-writer-operational/hyperrig-writer-operational-01c28000.elf",
+        "elf_sha256": "1ca961e6a938887db4c3510aaae9b18af0a4e45a058cccb90ab83af61f39d563"
+      }
+    ]
+  },
+  "validation": {
+    "python_command": "python -B -X utf8 -m unittest tests.test_mini_read_recovery_v3 tests.test_mini_read_recovery_v2 tests.test_mini_read_recovery tests.test_mini_app_install tests.test_mini_quiet_install_runner",
+    "python_cases": 87,
+    "python_passed": true,
+    "v3_cases": 33,
+    "native_cases": 8,
+    "native_passed": true,
+    "ASan": true,
+    "UBSan": true,
+    "native_fake_NOR_only": true,
+    "native_binary_sha256": "b88d62cb0053b01255f834c0e55448e5adc6ce15846e572177e5d927fd2ba94b"
+  },
+  "limits": [
+    "No hardware commands or reset performed",
+    "No cause of Win32 31 established",
+    "Transport availability and completion of remaining sectors not guaranteed",
+    "echoed1 is target callback outcome, not proof the first host transfer succeeded",
+    "No firmware boot/audio qualification"
+  ],
+  "source_sha256": {
+    "tools/recover_mini_read_v3.py": "17d1e69602d6735a16f930a797e92e1c6f022bb3633dc544b974058cfc23a323",
+    "tests/test_mini_read_recovery_v3.py": "4c97d2e262093c7a40539f2ebe823050114dddac329f1611caf392758ca66b6f",
+    "tests/test_mini_read_recovery_v3.c": "1fc850a1b049de4b56cbfcaee4b6c5458308f18ca9692bf4a035bb37bd2598c6",
+    "docs/MINI_READ_RECOVERY_V3.md": "03a133624abe4e6c096d4fcbf34b364fa584ab6c4e00745783b5a2fa3304a3c5",
+    "tools/recover_mini_read_v2.py": "43143f57a1da597d472ad6add3afd88882a11af38c2250901e493ad39bdcf6d1",
+    "tools/recover_mini_read.py": "c54edb0a25d81d13ac68e49180811ea79e09bd7880deb6352f9c56d69345bd63",
+    "tools/install_mini_app.py": "4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f",
+    "tools/probe_mini_app_writer.py": "b1c40b821b6bd685320d627139425b5b3d3b86a1004f2d856775323912c151be",
+    "tools/build_mini_app_writer.py": "39941618458365ca9c151a33e468a8b83e531f700fd7bfb3aedb581dd61c2ec2",
+    "tools/build_mini_app_writer_operational.py": "d3fd448a5a21cfdd6ec53253a75743efef5951880c9df4b3e2ae3a91cc90892c",
+    "firmware/mini/app_writer/writer.c": "f43e42b4d0aec8b354ac7f02a1067b22d3e978bd81d4412a9471f01e18086de2",
+    "firmware/mini/app_writer/test_writer.c": "ae3f3b89f9e488d5911e6bc22dcc520ca02690573a660b71dd37a00e435f286a",
+    "build/mini-app-writer-operational/writer.c": "c115632730fd76cc877b14b58d7681242938922fea9cc1f67e5084c6c896f883",
+    "build/mini-app-writer-operational/hyperrig-writer-operational-01c20000.asm": "98e026037050f9a6ace6c2ab9f2006b91508bd37c5ebcaf3ad0a827b2d519bd9"
+  }
+}

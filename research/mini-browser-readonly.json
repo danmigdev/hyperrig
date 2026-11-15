@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "component": "isolated-readonly-browser-helper",
+  "status": "frozen-offline-preparation",
+  "source_sha256": {
+    "tools/probe_mini_browser_readonly.py": "82c76d9011a4b393e375fdcfe072c10dc17f8e275e102bd0c78529f2229a0d5a",
+    "tools/mini_browser_readonly_guard.js": "7794eb442e91c43ee3c8b4b600678630ede999bab78e8341598c75a7d8958c9a",
+    "tools/verify_mini_browser.py": "2aea89bf6619cdc7bed44e5e2a34f236f8981188d2878ba69e19d600202fe19e",
+    "tests/test_mini_browser_readonly.py": "51fcf47d186537b051bd0fdd124fbe768877d3fa555acbe3464be52dfb8139ed",
+    "tests/mini_browser_guard_test.js": "507e90ce9063f5ebea74c9f7f41c16b0c9965d7a0f188e88616b0567fbb50187",
+    "research/mini-browser.json": "94707f47fe5e93eb8ae62232d5b8c41dea101b67bdb25820b5a94f1ab43d7daf",
+    "build/mini-browser-readonly-03/report.json": "edb9c1a762fe06ddcdc7c3282aa925e530318d402998eb6ce23ea0be7593db48",
+    "build/hyperrig-mini-audio-v2/app/web/index.html": "4090b0510aefb6a32faf548b37ea94f8092d7361860de6cc18ded567d1c978bc",
+    "build/hyperrig-mini-audio-v2/app/web/mini-profile.js": "c9a6f31e46154598f22df942e1db432b2a7164c9acfe05523e8c704d5cc9fd55",
+    "build/hyperrig-mini-audio-v2/app/web/mini-ui.js": "42b815af820f0fe411aed1d194c2a8476a91abddf0bbff40d7180f60f42c18fc",
+    "build/hyperrig-mini-audio-v2/app/web/nam2chip.js": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183",
+    "build/hyperrig-mini-audio-v2/app/web/tankmini.html": "13d276d50136f9551cf657dae49fff8f0b4d83f0e75b9b831ddb85edcd92a3c4"
+  },
+  "firmware_image_sha256": "3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff",
+  "firmware_version": "tankm_fw M5.71 rel ble",
+  "default_app_directory": "build/hyperrig-mini-audio-v2/app/web",
+  "verification": {
+    "python_tests": 5,
+    "javascript_assertions": 47,
+    "result": "PASS",
+    "command": "python -B -X utf8 -m unittest tests.test_mini_browser_readonly -v",
+    "fake_serial_only": true,
+    "browser_launched_in_this_freeze": false,
+    "device_access_performed": false,
+    "review": "mini_image independent read-only source review, no blocker reported"
+  },
+  "previous_real_browser_offline_test": {
+    "report": "research/mini-browser.json",
+    "browser": "Chrome/157.0.8103.52",
+    "all_hardware_APIs_stubbed": true,
+    "WebSerial_chooser_tested": false
+  },
+  "prerequisites": [
+    "Root explicitly signals application boot and closed diagnostic serial port.",
+    "Installation/readback verified for the exact firmware image hash.",
+    "Observed USB CDC VID3654 PID5155 and an exact COM token.",
+    "Observed complete PONG line for tankm_fw M5.71 rel ble; line preserved without newline.",
+    "No concurrent ROM/USB/serial workflow, reset or second serial client.",
+    "Root supplies a finished local evidence JSON and its verified SHA256.",
+    "New output directory and isolated browser profile."
+  ],
+  "evidence_contract": {
+    "schema": 1,
+    "target": "tank-mini",
+    "transport": "usb-cdc",
+    "vid": 13908,
+    "pid": 20821,
+    "com": "actual observed COM1..COM9999",
+    "pong": "actual complete single line PONG, no fabricated date",
+    "image_sha256": "3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff",
+    "serial_port_closed": true,
+    "observed_utc": "actual UTC timestamp"
+  },
+  "live_command_template": "python -B -X utf8 tools/probe_mini_browser_readonly.py --app-dir build/hyperrig-mini-audio-v2/app/web --output build/mini-browser-live-01 --execute-readonly --evidence analysis/hardware/mini-browser-evidence.json --evidence-sha256 SHA256_EVIDENZA_REALE --timeout 45",
+  "controls": {
+    "server_bind": "127.0.0.1",
+    "personal_profile": false,
+    "port_requests_max": 1,
+    "serial_opens_max": 1,
+    "baud_rate": 115200,
+    "native_requestPort_filter": {
+      "usbVendorId": 13908,
+      "usbProductId": 20821
+    },
+    "chooser_match": "unique exact COM token, never first-device fallback",
+    "getInfo_rechecked_before_open": true,
+    "serial_getPorts_returns_empty": true,
+    "before_exact_PONG": [
+      "PING"
+    ],
+    "PING_budget": 5,
+    "query_budget": 1000,
+    "mutating_commands_permitted": false,
+    "BLE_USB_MIDI_API_access_permitted": false,
+    "automatic_reconnect": false,
+    "candidate_files_changed": false,
+    "CDP_deviceaccess_schema_checked_in_running_browser": true
+  },
+  "success_requires": [
+    "exact MINI PONG and accepted app identity",
+    "app connected and initial reads completed",
+    "non-ERR replies to PING MODEL MEM FXT FXS PLIST SNAPS",
+    "preset drawer opened and screenshot captured",
+    "no uncaught JavaScript errors or guard failure",
+    "normal app disconnect plus cleanup and stopped browser/server"
+  ],
+  "outputs": [
+    "report.json",
+    "initial.png",
+    "connected-presets.png when connected",
+    "browser-stderr.txt",
+    "isolated-profile/"
+  ],
+  "limitations": [
+    "Physical WebSerial DeviceAccess event delivery remains untested.",
+    "COM and serial closure are caller-observed evidence, not independently discovered by this helper.",
+    "Guard instruments the real editor in memory; app files remain unchanged.",
+    "A read-only UI demonstration does not qualify preset writes, live audio, BLE or later command-family grants.",
+    "Evidence digest binds the local observation file and is not cryptographic device authentication."
+  ]
+}

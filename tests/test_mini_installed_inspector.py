@@ -2,8 +2,14 @@
 import copy
 import struct
 import unittest
+from unittest.mock import patch
 
 from tools import inspect_mini_installed as inspector
+from tools import install_mini_app as installer
+from tools import recover_mini_read_v3 as recovery_v3
+from tests.test_mini_app_install import FakeOperational, fixture as installation_fixture, IMAGE
+from tests.test_mini_read_recovery import Handle, failure
+from tests.test_mini_app_writer_protocol import changed_record
 
 
 def fixture():
@@ -137,4 +143,107 @@ class InstalledInspectorTests(unittest.TestCase):
         self.assertEqual(result['program_commands'], 32)
 
 
+def recovered_echo_evidence(*, executed):
+    """Run real installer/v3 against fake NOR and independently retained wire log."""
+    plan=installation_fixture();device=FakeOperational(plan)
+    trace, events, journal = [], [], []
+    def logged_handle():
+        handle=Handle(device);original=handle.exchange
+        def exchange(cdb,data_out=None,read_length=0):
+            row={'state':'before','stage':'writer','cdb':cdb.hex()}
+            trace.append(row.copy())
+            try: raw=original(cdb,data_out=data_out,read_length=read_length)
+            except Exception as error:
+                row.update(state='error',native_transfer={'win32_error':error.errno})
+                trace.append(row);raise
+            row.update(state='after',response_bytes=len(raw),response_sha256=inspector.sha(raw))
+            if len(raw)<=128:row['response_hex']=raw.hex()
+            trace.append(row);return raw
+        handle.exchange=exchange
+        return handle
+    old=logged_handle()
+    wrapper=recovery_v3.ReadOnlyStateRecoveryTransport(old,log=events.append,reopen_factory=logged_handle)
+    session=installer.MiniAppInstallerSession(wrapper,plan,journal=journal.append,known_free_slot=True)
+    wrapper.bind_session(session)
+    try:
+        with patch('time.sleep'):
+            session.upload_and_start(IMAGE,expected_sha256=installer.sha(IMAGE))
+        session.initialize_spi();session.verify_complete_preimage()
+        fail=lambda op:failure() if op==0xFD87 and device.fields[36]==0x5000 else None
+        if executed:old.fail_after=fail
+        else:old.fail_before=fail
+        session.install_application()
+        context={'summary':wrapper.summary(),'slot':plan.slot,'build_tag':plan.build_tag,
+            'events':events,'v3_source_pinned':True,'policy':{'enabled':True,'only_Windows_error':31,
+                'FD87_requires_same_staged_page_and_exact_audit_except_echoed_and_record_CRC':True,
+                'FD87_reissue_requires_exact_candidate_page_bytes':True,
+                'mutation_retries_allowed':False,'OUT_retries_allowed':False,
+                'jump_or_reset_retries_allowed':False,'backend_fallback_allowed':False}}
+        return journal,trace,device.original,plan.candidate,list(plan.sector_order),context
+    finally:wrapper.close()
+
+
+class EchoRecoveryInspectorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.cases=[recovered_echo_evidence(executed=value) for value in (False,True)]
+
+    def test_real_fake_installer_recovers_echo_before_or_after_execution_once(self):
+        for executed,args in enumerate(self.cases):
+            journal,trace,before,candidate,order,context=args
+            result=inspector.inspect_history(journal,trace,before,candidate,order,recovery=context)
+            self.assertEqual(len(result['verified_RAM_echo_recoveries']),1)
+            self.assertEqual(result['verified_RAM_echo_recoveries'][0]['already_echoed'],bool(executed))
+            self.assertEqual((result['erase_commands'],result['program_commands']), (2,32))
+
+    def test_echo_error_needs_v3_pin_log_and_exact_policy(self):
+        journal,trace,before,candidate,order,context=self.cases[0]
+        for kind in ('missing','v2','unpinned','empty_log','policy','counter'):
+            changed=copy.deepcopy(context)
+            if kind=='missing':changed=None
+            elif kind=='v2':changed['summary']['version']=2
+            elif kind=='unpinned':changed['v3_source_pinned']=False
+            elif kind=='empty_log':changed['events']=[]
+            elif kind=='policy':changed['policy']['OUT_retries_allowed']=True
+            else:changed['summary']['echo_reissues']=2
+            with self.subTest(kind=kind),self.assertRaises(ValueError):
+                inspector.inspect_history(journal,trace,before,candidate,order,recovery=changed)
+
+    def test_changed_stack_counter_page_identity_or_reissue_proof_rejected(self):
+        journal,trace,before,candidate,order,context=self.cases[1]
+        for kind in ('stack','counter','identity','page','reissue_CDB','witness','already_count'):
+            changed=copy.deepcopy(context)
+            audit=next(x for x in changed['events'] if x['event']=='readonly_recovery_audit_reply')
+            reissue=next(x for x in changed['events'] if x['event']=='readonly_recovery_reissue_intent')
+            if kind in ('stack','counter'):
+                offset=112 if kind=='stack' else 80
+                raw=bytes.fromhex(audit['raw_hex']);value=struct.unpack_from('<I',raw,offset)[0]
+                raw=changed_record(raw,offset,value+4);audit.update(raw_hex=raw.hex(),sha256=inspector.sha(raw))
+            elif kind=='identity':
+                next(x for x in changed['events'] if x['event']=='readonly_recovery_identity_reply')['raw_hex']='00'*16
+            elif kind=='page':reissue['candidate_page_sha256']='0'*64
+            elif kind=='reissue_CDB':reissue['cdb']='fd87'+'ff'*14
+            elif kind=='witness':changed['events'][0]['witness_sha256']='0'*64
+            else:changed['summary']['echo_already_emitted']=0
+            with self.subTest(kind=kind),self.assertRaises(ValueError):
+                inspector.inspect_history(journal,trace,before,candidate,order,recovery=changed)
+
+    def test_transport_or_installer_proof_cannot_be_omitted_or_swapped(self):
+        journal,trace,before,candidate,order,context=self.cases[1]
+        for kind in ('trace_identity','trace_audit','prior_audit','extra_reissue','post_audit'):
+            changed_trace=copy.deepcopy(trace);changed_journal=copy.deepcopy(journal)
+            fault=next(i for i,x in enumerate(changed_trace) if x['state']=='error')
+            if kind=='trace_identity':changed_trace[fault+2]['response_hex']='00'*16
+            elif kind=='trace_audit':changed_trace[fault+4]['response_hex']=changed_trace[fault-2]['response_hex']
+            elif kind=='prior_audit':changed_trace[fault-2]['response_hex']='00'*128
+            elif kind=='extra_reissue':changed_trace[fault+7:fault+7]=copy.deepcopy(changed_trace[fault+5:fault+7])
+            else:
+                start=next(i for i,x in enumerate(changed_journal) if x['event']=='command_intent' and x.get('opcode')=='fd87')
+                item=next(x for x in changed_journal[start:] if x['event']=='audit_raw')
+                item['record_hex']=changed_record(bytes.fromhex(item['record_hex']),104,0).hex()
+            with self.subTest(kind=kind),self.assertRaises(ValueError):
+                inspector.inspect_history(changed_journal,changed_trace,before,candidate,order,recovery=context)
+
+
 if __name__ == '__main__': unittest.main()
+
