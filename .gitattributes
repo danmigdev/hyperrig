@@ -8,5 +8,6 @@ research/mini-usbkey-rpi3.json -text whitespace=blank-at-eol,blank-at-eof,space-
 research/mini-rom-entry-recovery.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 research/mini-entry-recovery-v2.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 research/mini-audio-port-v2.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+research/mini-windows-quiet.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 analysis/hardware/*.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 analysis/hardware/*.ps1 -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
