@@ -189,9 +189,11 @@ campione di una piccola rete calcolabile a mano, scaling dei bias, continuità
 fra blocchi e clipping del WAV.
 
 Questo verifica la struttura matematica del riferimento in virgola mobile.
-Non è una verifica bit per bit contro il firmware: shift arrotondati,
-saturazioni, overflow, precisione delle attivazioni e prestazioni pi32v2
-restano da ricostruire. Il modello non comprende IR, effetti o routing audio.
+Non è una verifica bit per bit contro il firmware. La ricostruzione nativa
+separata ora comprende due dot e una testa a tre canali, con shift, saturazioni
+e wrap; vedere [NATIVE_RECONSTRUCTION.md](NATIVE_RECONSTRUCTION.md). Layer,
+attivazioni e prestazioni dell'intero motore restano da verificare. Il modello
+Float64 non comprende IR, effetti o routing audio.
 
 ## Decompilazione e limiti
 
@@ -214,5 +216,8 @@ possibili istruzioni; non sono un grafo di flusso completamente verificato.
 
 Il punto d'ingresso e le copie RAM sono confermati dai byte. Pin, nomi delle
 funzioni e algoritmi richiedono ulteriore ricostruzione e verifiche incrociate.
+Le annotazioni dei salti pi32v2 sono state corrette per usare la lunghezza
+effettiva dell'istruzione, e tutti i listati rigenerati. Il percorso audio
+ALNK0 è documentato in [TANK_MINI_AUDIO.md](TANK_MINI_AUDIO.md).
 Non è stato installato alcun firmware, modificato alcun pedale o contattato
 il servizio di telemetria dell'installer.

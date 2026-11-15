@@ -13,7 +13,10 @@ la paternità del codice recuperato.
 | [ghidra-jieli](https://github.com/virtualabs/ghidra-jieli) | Specifica processore Ghidra | Apache-2.0; copia nella distribuzione Ghidra locale |
 | [Ghidra](https://github.com/NationalSecurityAgency/ghidra) | Decompilatore | Distribuzione 12.2 verificata con il digest GitHub |
 | [tankmini-linux](https://github.com/viniciusapl97/tankmini-linux) | Documentazione del protocollo e vettori catturati | MIT; riferimento per la nuova implementazione Python |
-| [SDK AC79 mirror](https://github.com/amitv87/fw-AC79_AIoT_SDK) | Sette file di riferimento e LICENSE | Origine ufficiale Gitee non risolvibile dalla rete locale; mirror e commit registrati |
+| [SDK AC79 mirror](https://github.com/amitv87/fw-AC79_AIoT_SDK) | Header di riferimento e LICENSE, incluso `iis.h` | Origine ufficiale Gitee non risolvibile dalla rete locale; mirror e commit registrati |
+| [Toolchain JieLi](https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz) | Clang, linker e objdump pi32v2 | Usati localmente come strumenti via WSL; archivio verificato e ignorato da Git |
+| [Apktool](https://github.com/iBotPeaches/Apktool) | Decodifica risorse/Smali e ricostruzione APK | Versione 3.0.3 verificata con digest della release |
+| [Uber APK Signer](https://github.com/patrickfav/uber-apk-signer) | Allineamento, firma e verifica APK | Versione 1.3.0 verificata con checksum pubblicato; chiave di sviluppo locale |
 
 Il codice UltraRig recuperato mantiene la PolyForm Noncommercial 1.0.0 e le
 licenze dei componenti dichiarate nel pacchetto. Il nuovo nome del repository
@@ -25,6 +28,18 @@ dal convertitore distribuito con UltraRig. Per questi file vengono conservati
 il Required Notice e la PolyForm Noncommercial 1.0.0 in
 `third_party/ultrarig/LICENSE.md`, insieme al `NOTICE.md` originale. Il riferimento
 Float64 non viene presentato come una copia esatta del DSP intero del pedale.
+
+Anche i file `firmware/src/hyperrig_dot.c`, `hyperrig_head.c` e i relativi
+header sono ricostruzioni derivate dal firmware UltraRig; mantengono lo stesso
+Required Notice e la stessa licenza. L'interprete locale esegue tre regioni
+del campione originale, senza ridistribuire il firmware. La nuova struttura
+C e i nomi delle funzioni non vengono attribuiti all'autore originale.
+
+Le copie rinominate in `build/hyperrig/` conservano integralmente LICENSE,
+NOTICE e THIRD_PARTY_LICENSES degli originali, anche come asset dell'APK.
+La firma Android è identificata come HyperRig Local Development. Gli originali
+rimangono separati per la verifica delle evidenze; vedere
+[REBRANDING.md](REBRANDING.md).
 
 Le coordinate dei repository, i commit, gli URL e gli SHA-256 sono in
 `research/sources.lock.json` e `research/input-manifest.json`.

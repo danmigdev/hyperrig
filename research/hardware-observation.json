@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-15",
+  "identity": "TANK MINI_009",
+  "transport": "Bluetooth LE vendor service",
+  "service_uuid": "0000ae40-0000-1000-8000-00805f9b34fb",
+  "write_uuid": "0000ae41-0000-1000-8000-00805f9b34fb",
+  "notify_uuid": "0000ae42-0000-1000-8000-00805f9b34fb",
+  "identity_exchange": [
+    {
+      "direction": "tx",
+      "hex": "005911000000ff"
+    },
+    {
+      "direction": "rx",
+      "hex": "0059111b000054414e4b204d494e495f30303900000000000000000000000000008c"
+    }
+  ],
+  "usb_present": false,
+  "rtmidi_exposes_ble_port": false,
+  "preset_backup_acquired": false,
+  "complete_flash_backup_acquired": false,
+  "backup_failure_stage": "notification subscription; no preset data received",
+  "backup_error": "WinError -2147023673 during start_notify",
+  "firmware_write_performed": false,
+  "limitation": "Identity string confirmed; no full-flash hash comparison, hardware revision or flash geometry verification."
+}

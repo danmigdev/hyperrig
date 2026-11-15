@@ -12,10 +12,15 @@ non di etichettare un'immagine G/B come compatibile.
 3. Protocollo USB-MIDI del MINI, distinto dal CDC testuale di UltraRig.
 4. Lettura e interpretazione dei suoi 21 preset da 92 byte.
 5. CLI per identificare il modello prima delle letture e confrontare due
-   copie della banca preset; il trasporto sul nostro esemplare è ancora da provare.
+   copie della banca preset; il backup sul nostro esemplare non è riuscito.
 6. Header del SDK AC79 per studiare GPIO, registri ADC e DAC.
 7. Modello A2-Lite in Float64 eseguibile sul PC e confrontato con il convertitore
    originale. È un riferimento numerico, non il runtime intero del firmware.
+8. Tre routine native del G ricostruite in C e compilate pi32v2: due dot e
+   testa a tre canali, con 1.660 confronti contro le istruzioni interpretate.
+9. Percorso audio ALNK0 del MINI, tabella di configurazione, IRQ, callback,
+   buffer e task ricostruiti. Vedere [TANK_MINI_AUDIO.md](TANK_MINI_AUDIO.md).
+10. Identificazione BLE riuscita: l'esemplare risponde `TANK MINI_009`.
 
 ## Tre ingressi candidati per i footswitch
 
@@ -30,6 +35,10 @@ input_1 = (porta_in << 1) & 2;   /* candidato PA0  */
 input_2 = (porta_in >> 1) & 4;   /* candidato PA3  */
 ```
 
+La funzione `0x02006096` configura anche i pin 10, 0 e 3 tramite `0x02006074`
+con argomento 1 e registra la scansione passando intervallo 10. Unità temporale
+e semantica del parametro vanno ancora verificate.
+
 Segue una macchina a stati con tre elementi e combinazioni. L'interpretazione
 come scansione dei tre footswitch è una **inferenza**. Assegnazione A/B/C,
 polarità, pull-up, LED e tempi di debounce restano da confermare. Il profilo
@@ -40,10 +49,10 @@ non inventa valori per questi campi.
 | Parte | Perché il MINI richiede lavoro specifico |
 |---|---|
 | Board support | Tre footswitch; corrispondenza fisica e LED non verificati |
-| Audio | Ingressi ADC, uscita DAC, mute, DMA e sample rate non ancora ricostruiti |
+| Audio | ALNK0, PA4–PA8 e DMA ricostruiti; clock/codec da adattare da 44,1 a 48 kHz, mute da confermare |
 | Linker e memoria | Area applicativa/VM diversa; sezioni RAM vanno dimensionate sul target |
 | Storage | BTIF del MINI occupa l'area chiamata OTP nelle immagini G/B |
-| DSP | Riferimento A2-Lite Float64 disponibile; runtime intero, saturazioni, IR ed effetti da ricostruire |
+| DSP | Tre routine intere compilabili e confrontate; parser nativo, layer, attivazioni, IR ed effetti da completare |
 | Clock e prestazioni | 396 MHz nei metadati UltraRig non certifica il MINI |
 | Installazione | Identità, flash ID, backup totale e recupero del singolo esemplare da validare |
 
@@ -52,11 +61,11 @@ ma questo non rende il firmware stock MINI capace di eseguire il motore UltraRig
 
 ## Sequenza concreta di completamento
 
-1. Identificare firmware/revisione e acquisire una lettura completa verificata
-   della flash dell'esemplare, quando sarà collegato. Il backup preset della
-   CLI non soddisfa questo requisito.
-2. Completare la mappa GPIO con letture e prove dei tasti; individuare percorso
-   audio, mute e periferiche dal disassembly e dal dispositivo.
+1. Completare l'identificazione della revisione/flash e acquisire una lettura
+   completa verificata dell'esemplare. L'identità BLE e il pacchetto ufficiale
+   scaricato non soddisfano questo requisito.
+2. Completare GPIO, tasti e mute; verificare sul dispositivo il percorso ALNK
+   ricostruito e la sequenza di clock/codec a 48 kHz.
 3. Ricostruire le funzioni DSP necessarie o implementarle con sorgenti disponibili;
    validare numericamente risultati, saturazioni e precisione delle capture.
 4. Compilare un'applicazione MINI con linker e driver dedicati. Prima un percorso
@@ -64,8 +73,11 @@ ma questo non rende il firmware stock MINI capace di eseguire il motore UltraRig
 5. Misurare underrun, latenza, RAM, clock stabile, consumi e comportamento al boot.
 6. Solo dopo questi riscontri, preparare e provare installazione e ripristino.
 
-In questa sessione il proprietario ha confermato di possedere il pedale, ma
-non era al PC. Nessuna delle verifiche hardware elencate è stata eseguita.
+L'identificazione BLE è l'unica verifica riuscita sull'esemplare. Non era
+presente un collegamento USB; RtMidi non esponeva la porta BLE. La lettura
+identità sul servizio proprietario è riuscita, mentre il tentativo successivo
+di backup preset è fallito all'abilitazione delle notifiche. Non è stato
+acquisito alcun backup completo, né installato alcun firmware.
 
 ```powershell
 python -m hyperrig port-status

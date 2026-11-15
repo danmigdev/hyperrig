@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
 import urllib.request
 import zipfile
 
@@ -81,6 +82,7 @@ def install_decompiler(reference):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--decompiler", action="store_true", help="also fetch Ghidra (~570 MB); needs a JDK")
+    parser.add_argument("--toolchain", action="store_true", help="fetch pinned JieLi Linux compiler (usable through WSL)")
     args = parser.parse_args()
     locked = json.loads((ROOT / "research" / "sources.lock.json").read_text(encoding="utf-8"))
     for name, reference in locked["repositories"].items():
@@ -96,6 +98,18 @@ def main():
     print(f"Verified {len(sdk['files'])} SDK reference files")
     if args.decompiler:
         install_decompiler(locked["ghidra"])
+    if args.toolchain:
+        reference = locked["jieli_toolchain"]
+        archive = ROOT / "tools/vendor" / reference["name"]
+        download_checked(reference["url"], archive, reference["sha256"])
+        destination = archive.parent / reference["directory"]
+        if not destination.exists():
+            with tarfile.open(archive) as packed:
+                if any(not (archive.parent / item.name).resolve().is_relative_to(destination.resolve())
+                       for item in packed.getmembers()):
+                    raise ValueError("unexpected toolchain archive path")
+                packed.extractall(archive.parent, filter="data")
+        print("JieLi pi32v2 compiler ready (Linux/WSL); no device operations performed")
 
 
 if __name__ == "__main__":

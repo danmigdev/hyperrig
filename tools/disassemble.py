@@ -15,6 +15,12 @@ sys.path.insert(0, str(ROOT / "upstream/pi32v2-isa"))
 from pi32v2isa import codec, table
 
 
+def relative_target(address, size, text):
+    """pi32v2 displacements are relative to the END of each 2/4/6-byte instruction."""
+    match = re.search(r"\b(?:goto|call) (-?\d+)$", text)
+    return (address + size + int(match[1])) & 0xFFFFFFFF if match else None
+
+
 def main():
     t = table.load()
     candidates = {}
@@ -72,9 +78,9 @@ def main():
                         insn, values, size = got
                         text = codec.format(insn, values)
                         known += 1
-                        match = re.search(r"\b(?:goto|call) (-?\d+)$", text)
-                        if match:
-                            comment = f" ; target 0x{base + offset + 2 + int(match[1]):08x}"
+                        target = relative_target(base + offset, size, text)
+                        if target is not None:
+                            comment = f" ; target 0x{target:08x}"
                         elif re.fullmatch(r"(?:r\d+|sp|ssp|reti|rets|usp) = \d+", text):
                             value = int(text.rsplit(" ", 1)[1])
                             if value >= 65536:

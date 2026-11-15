@@ -1,0 +1,119 @@
+{
+  "project": "HyperRig",
+  "originals_modified": false,
+  "mini_port_complete": false,
+  "windows": [
+    {
+      "source": "UltraRig-alpha11-v1-win.zip",
+      "source_sha256": "7c5875342679c4a1c08edf2ba27231007acf3b7f031f2c4741b9f861bc1a0395",
+      "firmware": [
+        {
+          "file": "HyperRig-alpha11-v1-win/m571_tbv1_app.bin",
+          "source_sha256": "61bb430370d840f7f119b85aa1a7db9a38f0c5f3ff63fd356252baa27ffee061",
+          "sha256": "87f6e93378c9901fb5af055769b2f24179f87d3c51c7748be8498bcb612a6fe0",
+          "replacements": {
+            "app.bin": 2
+          },
+          "crc_verified": true,
+          "mini_compatible": false
+        },
+        {
+          "file": "HyperRig-alpha11-v1-win/m571_v1_app.bin",
+          "source_sha256": "5a6af30735fca9190835c9307770323f5a0cad50ae9d94223d639fb065dc4188",
+          "sha256": "5266a3c8c0cab6f394f3457d3c991a2ab6dbed7fb046b3a3d6b18cf3394afcdb",
+          "replacements": {
+            "app.bin": 2
+          },
+          "crc_verified": true,
+          "mini_compatible": false
+        }
+      ],
+      "installer": {
+        "entries_rebuilt": [
+          "struct",
+          "pyimod01_archive",
+          "pyimod02_importers",
+          "pyimod03_ctypes",
+          "pyimod04_pywin32",
+          "pyiboot01_bootstrap",
+          "pyi_rth_inspect",
+          "pyi_rth__tkinter",
+          "ultrarig_installer_gui",
+          "PYZ.pyz"
+        ],
+        "python_version": 312,
+        "validation": "archive parsing only; installer never executed"
+      },
+      "output": "build\\hyperrig\\HyperRig-alpha11-v1-win.zip",
+      "sha256": "c093501abf0ed493be94606eecf88b4d5a07c5b87acdf8fc6b73a571dceddaf2"
+    },
+    {
+      "source": "UltraRig-alpha11-v2-win.zip",
+      "source_sha256": "26f2f075ebc39e362284d9a6b3a557b46eaf3b262cdaee69c2f5c869933b1ec2",
+      "firmware": [
+        {
+          "file": "HyperRig-alpha11-v2-win/m571_g_app.bin",
+          "source_sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+          "sha256": "8b29e26f3f741f2cee835fe9b489737e6b6ac50a57a37ecea3ad17f41a7273c5",
+          "replacements": {
+            "app.bin": 2
+          },
+          "crc_verified": true,
+          "mini_compatible": false
+        },
+        {
+          "file": "HyperRig-alpha11-v2-win/m571_tb_app.bin",
+          "source_sha256": "5e75acc31483aa8b55fc9db78e1a99651e673ce6ccdb4ee3975533852ed0808c",
+          "sha256": "eea89bc6e67c037a190ffe943b2dae8b4be4e54afa69bf5ad2e3f8974d8bafc6",
+          "replacements": {
+            "app.bin": 2
+          },
+          "crc_verified": true,
+          "mini_compatible": false
+        }
+      ],
+      "installer": {
+        "entries_rebuilt": [
+          "struct",
+          "pyimod01_archive",
+          "pyimod02_importers",
+          "pyimod03_ctypes",
+          "pyimod04_pywin32",
+          "pyiboot01_bootstrap",
+          "pyi_rth_inspect",
+          "pyi_rth__tkinter",
+          "ultrarig_installer_gui",
+          "PYZ.pyz"
+        ],
+        "python_version": 312,
+        "validation": "archive parsing only; installer never executed"
+      },
+      "output": "build\\hyperrig\\HyperRig-alpha11-v2-win.zip",
+      "sha256": "01e2ef19fa3f587b62e9e1756a80703a8d6285e6ce9576d3aeeba64320c76489"
+    }
+  ],
+  "android": {
+    "source": "UltraRig-alpha11-android.apk",
+    "source_sha256": "cbf63092505bc77d8aa402f97374c9d8229f0794ba9cf1acc8d3489325a51717",
+    "output": "build\\hyperrig\\HyperRig-local-android.apk",
+    "sha256": "ec88936a2994115f27989440ad8a9ad761abf2e30eb7a34c46307c6838c48438",
+    "package": "com.hyperrig.app",
+    "label": "HyperRig",
+    "source_files_changed": 0,
+    "signature": "local development key; signature/alignment checked",
+    "installed_on_device": false,
+    "signing_certificate_sha256": "522da03967e456170850291fd9e29bf4a4e202a619aa17e4dd9efadef8958ee1"
+  },
+  "validation": {
+    "unit_tests_passed": 37,
+    "tests_skipped": 0,
+    "web_inline_scripts_syntax_checked": 4,
+    "android_manifest_redecoded": true,
+    "android_signature_schemes_verified": [
+      "v2",
+      "v3"
+    ],
+    "product_brand_residuals": 0,
+    "runtime_installer_or_phone_tested": false
+  }
+}

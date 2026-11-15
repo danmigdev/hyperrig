@@ -3,8 +3,8 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato: analisi offline riproducibile; porting del MINI in corso. Non è ancora
-un firmware compilabile e installabile sul MINI.** Il nome HyperRig è quello
+**Stato: tre componenti DSP nativi ricostruiti e compilabili; porting del MINI
+in corso. Non è ancora un firmware completo installabile sul MINI.** Il nome HyperRig è quello
 scelto per questo progetto indipendente.
 
 ## Risultati disponibili
@@ -21,7 +21,16 @@ scelto per questo progetto indipendente.
   CLI di identificazione e backup dei preset via MIDI, limitata alle letture.
 - Modello A2-Lite in virgola mobile con rendering WAV offline, confrontato
   con il convertitore originale; non riproduce ancora il DSP intero del pedale.
-- Profilo del MINI basato sui dati estratti e prime ipotesi sui GPIO dei tasti.
+- Due routine dot e la testa A2-Lite a tre canali ricostruite dai byte del G:
+  **1.660 confronti con le istruzioni originali interpretate**, build C con UBSan
+  e oggetto pi32v2 prodotto dalla toolchain JieLi.
+- Percorso audio ALNK0 ricostruito per G e MINI: pin, buffer, IRQ e blocchi
+  da 64 frame; differenza tra 44,1 kHz stock MINI e 48 kHz UltraRig identificata.
+- Identità del pedale letto via BLE: `TANK MINI_009`. Backup totale e prova
+  del firmware HyperRig sul dispositivo ancora da eseguire.
+- Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
+  APK Android `com.hyperrig.app`, ricostruito e firmato localmente. Sono in
+  `build/hyperrig/`: **queste copie G/B non sono il port MINI**.
 
 I sorgenti C originali del DSP UltraRig **non sono stati trovati**: il repository,
 la sua cronologia e i fork pubblici controllati non li contengono. La
@@ -32,6 +41,9 @@ originale. Il dettaglio delle ricerche è in [source-audit.json](research/source
 
 - [Reverse engineering e risultati verificati](docs/REVERSE_ENGINEERING.md).
 - [Porting TANK MINI: profilo, differenze e lavoro restante](docs/PORTING_TANK_MINI.md).
+- [C nativo ricostruito e verifiche numeriche](docs/NATIVE_RECONSTRUCTION.md).
+- [Percorso audio del MINI e confronto con il G](docs/TANK_MINI_AUDIO.md).
+- [Applicazioni e firmware rinominati HyperRig](docs/REBRANDING.md).
 - [Provenienza e licenze](docs/PROVENIENZA.md).
 - [Versioni esatte degli strumenti](research/sources.lock.json).
 
@@ -45,6 +57,7 @@ python tools/bootstrap.py
 python tools/fetch_artifacts.py
 python -m hyperrig analyze
 python tools/disassemble.py
+python tools/map_audio.py
 python -m unittest discover -s tests -v
 python -m hyperrig port-status
 ```
@@ -60,6 +73,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/decompile.ps1 -Target 
 Gli altri target sono `tank-g-v1`, `tank-g-v2`, `tank-b-v1`, `tank-b-v2`.
 L'opzione ExecutionPolicy vale per quel processo e non modifica la configurazione
 Windows. Gli strumenti di analisi non eseguono gli installer dei pedali.
+
+Per compilare e verificare i componenti C su Windows serve WSL Ubuntu con
+GCC e Python 3. Il compilatore JieLi viene scaricato nella directory locale:
+
+```powershell
+python tools/bootstrap.py --toolchain
+python tools/build_native.py
+```
+
+Risultato: `build/native/hyperrig_dsp.pi32v2.o`, oggetto relocatable per il
+target, e `analysis/native/verification.json`. Non è un'immagine da flashare.
 
 ## Materiale locale recuperato
 
@@ -79,10 +103,17 @@ Queste directory restano locali e sono escluse da Git. Il repository versiona
 strumenti, test, profili e documentazione; conserva le licenze insieme ai file
 recuperati. Nessun repository remoto è stato creato.
 
-## Quando il MINI sarà collegato
+## Collegamento del MINI
 
-La CLI hardware non è stata provata su questo esemplare. Installare il supporto
-MIDI in un ambiente locale, elencare le porte e scegliere gli indici corretti:
+L'esemplare online ha risposto `TANK MINI_009` tramite il servizio BLE proprietario
+AE40, caratteristiche AE41/AE42. La prova è registrata in
+[hardware-observation.json](research/hardware-observation.json). La CLI qui sotto
+usa RtMidi: su questo Windows il pedale Bluetooth non compare fra le sue porte.
+L'identificazione BLE è stata una prova separata, non un supporto BLE già
+integrato nella CLI. Il successivo tentativo di backup preset via BLE non è
+riuscito ad attivare le notifiche e non ha prodotto un backup.
+
+Per un collegamento USB-MIDI, elencare le porte e scegliere gli indici corretti:
 
 ```powershell
 python -m venv .venv
@@ -121,7 +152,8 @@ nuovo. Il comando segnala eventuale clipping. Per il confronto automatico con
 il JavaScript originale serve Node.js; i test indicano esplicitamente gli skip
 quando mancano Node o gli artefatti.
 
-Validazione locale: **22 test superati, nessuno saltato**. Comprendono CRC e
+Validazione locale: **37 test superati, nessuno saltato**, più **1.660 confronti
+nativi** con UBSan. Comprendono CRC e
 hash dei campioni, vettori MIDI catturati, trasporto simulato, casi DSP con
 risultato analitico e confronto delle 49 misure di calibrazione su tre segnali.
-Le prove hardware restano da eseguire.
+Le prove audio e di avvio del nuovo codice sul pedale restano da eseguire.

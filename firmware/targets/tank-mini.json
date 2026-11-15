@@ -8,30 +8,102 @@
   "isa": "pi32v2",
   "flash_bytes_from_package_header": 1044480,
   "physical_flash_capacity_verified_on_device": false,
-  "application_area": [16384, 532480],
+  "application_area": [
+    16384,
+    532480
+  ],
   "cpu_entry": 33554720,
   "sfc_key_in_package": 38927,
   "regions_from_jlfs": {
-    "vm": [532480, 778240],
-    "btif": [778240, 782336],
-    "usr": [782336, 1044480],
-    "key_mac": [1044480, 1048576]
+    "vm": [
+      532480,
+      778240
+    ],
+    "btif": [
+      778240,
+      782336
+    ],
+    "usr": [
+      782336,
+      1044480
+    ],
+    "key_mac": [
+      1044480,
+      1048576
+    ]
   },
   "gpio_candidates": {
     "status": "static-inference-needs-hardware-confirmation",
     "input_register": 327684,
     "port": "A",
-    "pins": [10, 0, 3],
+    "pins": [
+      10,
+      0,
+      3
+    ],
     "scan_function_address": 33595488,
     "physical_labels_abc": null,
     "active_level": null,
-    "led_pins": null
+    "led_pins": null,
+    "init_function_address": 33579158
   },
-  "panel": {"footswitches": 3},
-  "stock_presets": {"count": 21, "record_bytes": 92, "bank_bytes": 1942},
-  "audio": {"adc_pins": null, "dac_route": null, "sample_rate": null, "dma_period": null},
+  "panel": {
+    "footswitches": 3
+  },
+  "stock_presets": {
+    "count": 21,
+    "record_bytes": 92,
+    "bank_bytes": 1942
+  },
+  "audio": {
+    "status": "static-path-reconstructed-hardware-unverified",
+    "interface": "ALNK0/I2S",
+    "controller_base": 77312,
+    "gpio_clocks": [
+      4,
+      5,
+      6
+    ],
+    "gpio_tx": 7,
+    "gpio_rx": 8,
+    "tx_channel": 0,
+    "rx_channel": 1,
+    "stock_nominal_rate": 44100,
+    "hyperrig_required_rate": 48000,
+    "stock_driver_has_48000_branch": true,
+    "dma_bytes_per_channel": 1024,
+    "block_frames": 64,
+    "codec_identity": null,
+    "codec_control_gpio_candidates": [
+      1,
+      2
+    ],
+    "mute_route": null,
+    "validated_48000_on_device": false,
+    "evidence": "research/audio-map.json"
+  },
   "clock_mhz": null,
   "validated_boot": false,
   "validated_restore": false,
-  "native_dsp_reconstructed": false
+  "native_dsp": {
+    "complete": false,
+    "reconstructed": [
+      "dot_i16",
+      "dot_i32",
+      "head3"
+    ],
+    "compiled_target": "ELF32-pi32v2 relocatable object",
+    "instruction_level_comparisons": 1660,
+    "hardware_execution_verified": false,
+    "evidence": "research/native-verification.json"
+  },
+  "device_observation": {
+    "identity": "TANK MINI_009",
+    "transport": "vendor BLE AE40/AE41/AE42",
+    "identity_reply_received": true,
+    "usb_present_during_observation": false,
+    "complete_flash_backup_acquired": false,
+    "preset_backup_acquired": false,
+    "evidence": "research/hardware-observation.json"
+  }
 }

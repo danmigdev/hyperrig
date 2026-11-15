@@ -1,0 +1,163 @@
+{
+  "evidence_kind": "pinned binary tables and call sites; hardware timing unverified",
+  "samples_sha256": {
+    "tank_g_v2_m571": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+    "tank_mini_009": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209"
+  },
+  "controller": {
+    "name_from_sdk": "JL_ALNK0",
+    "base": "0x00012e00",
+    "irq_index": 11
+  },
+  "mini": {
+    "config_address": "0x2035e90",
+    "config_sha256": "58e52aa008508a26edfc0e5dda5965e4f058b90ecd476f0e8687d25044d9c226",
+    "config_words": [
+      "0x1",
+      "0x1",
+      "0x0",
+      "0x1c1b230",
+      "0x0",
+      "0x1",
+      "0x1",
+      "0x1c1b630",
+      "0x1c03eee",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x1",
+      "0x0",
+      "0x0",
+      "0x1",
+      "0x1",
+      "0x400",
+      "0xac44"
+    ],
+    "config_calls": [
+      {
+        "site": "0x2007164",
+        "target": "0x2006f70"
+      },
+      {
+        "site": "0x2007170",
+        "target": "0x200708c"
+      },
+      {
+        "site": "0x2007086",
+        "target": "0x2006e58"
+      }
+    ],
+    "pin_table_address": "0x02035e20",
+    "pin_group_index": 1,
+    "clock_gpio_numbers": [
+      4,
+      5,
+      6
+    ],
+    "channels": [
+      {
+        "index": 0,
+        "enabled": true,
+        "direction_code": 0,
+        "buffer_address": "0x1c1b230",
+        "callback_address": "0x0",
+        "gpio_number": 7
+      },
+      {
+        "index": 1,
+        "enabled": true,
+        "direction_code": 1,
+        "buffer_address": "0x1c1b630",
+        "callback_address": "0x1c03eee",
+        "gpio_number": 8
+      },
+      {
+        "index": 2,
+        "enabled": false,
+        "direction_code": 0,
+        "buffer_address": "0x0",
+        "callback_address": "0x0",
+        "gpio_number": 9
+      },
+      {
+        "index": 3,
+        "enabled": false,
+        "direction_code": 0,
+        "buffer_address": "0x0",
+        "callback_address": "0x0",
+        "gpio_number": 10
+      }
+    ],
+    "nominal_rate_in_config": 44100,
+    "dma_bytes_per_channel": 1024,
+    "alnk_len_register_value": 128,
+    "audio_task": "0x01c03f24",
+    "process_function": "0x01c03a18",
+    "process_samples_argument": 64,
+    "dma_callback": "0x01c03eee",
+    "irq_handler": "0x01c0374a",
+    "clock_setter": "0x02006e58",
+    "has_48000_branch": true,
+    "codec_init": {
+      "function": "0x02006dec",
+      "table_address": "0x02035e35",
+      "table_sha256": "1032b05743d45148e6aecd2bdc6834ab54804d154362c545d9949a49461c415d",
+      "writes": 22,
+      "bytes_per_write": 4,
+      "bus_address_byte": "0x36",
+      "control_gpio_candidates": [
+        1,
+        2
+      ],
+      "chip_identity": null
+    }
+  },
+  "ultrarig_g": {
+    "audio_setup": "0x020051fc",
+    "driver_calls": [
+      {
+        "site": "0x2005406",
+        "target": "0x2004d36"
+      },
+      {
+        "site": "0x2005412",
+        "target": "0x2005130"
+      }
+    ],
+    "pin_table_address": "0x02035360",
+    "selected_table_row": [
+      7,
+      8,
+      9,
+      10,
+      4,
+      5,
+      6
+    ],
+    "row_order": "channel data 0..3, then three clock pins",
+    "input_channel_mask": 2,
+    "output_channel_mask": 1,
+    "width_24_mask": 3,
+    "sr_points_parameter": 128,
+    "sample_rate": 48000,
+    "sample_rate_literal_address": "0x0200514c"
+  },
+  "interpretation": [
+    "Both application paths configure ALNK0; presence of internal ADC/DAC library code does not establish the main audio route.",
+    "Mini group 1 and G group 0 select the same GPIO numbers: PA4..PA6 clocks, PA7 output, PA8 input.",
+    "Mini channels 0/1 use separate 1024-byte buffers split into 512-byte halves; the task consumes 64 frames with two 32-bit slots.",
+    "Mini nominal 44100 Hz differs from UltraRig 48000 Hz; a stock driver branch accepts 48000, but codec/PLL behavior needs measurement."
+  ],
+  "unverified": [
+    "physical codec identity",
+    "clock frequencies",
+    "analog mute and gain",
+    "48 kHz operation on this Mini",
+    "bootable HyperRig integration"
+  ]
+}
