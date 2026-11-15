@@ -1,0 +1,370 @@
+{
+  "project": "HyperRig",
+  "kind": "HYRX RAM-only receive observer",
+  "build_tag": 3845736203,
+  "source_sha256": {
+    "firmware/mini/rom_receive/entry.c": "08b8a68c8f02031bc61ab03a6a1dbd4fe310d0296944e1129c9c4c1b8476ce69",
+    "firmware/mini/rom_receive/host_test.c": "30b2ea5d58ca3497070d2834930c5028dd1e9221705fbc5ac31a5b99bb3fed02",
+    "firmware/mini/rom_receive/README.md": "65353dc67eb16cd44fa0202c941195419f50492268a3559f9a1e0e0839c61d06",
+    "firmware/mini/rom_receive/receive.ld": "ef529d7a4f1da3b3d053782d9d795d2a9b49b72cead0769875446fa261603ce0",
+    "firmware/mini/rom_receive/rom_receive.c": "f22d6a789d7553ad5687d439f15957cfe0cc007f902a98fbf86ab9fe00fcd06e",
+    "firmware/mini/rom_receive/rom_receive.h": "b172bf8cef332b160e2492efcb86f00ae965e39276f9c5925d0735a820e83b69",
+    "tools/build_mini_rom_receive.py": "d5081295beb2785904088e2b08056c746321b1ff2c4fbff44ebac13389fec6c6",
+    "tools/probe_mini_receive.py": "fe67c62cece160abd4a1db84389ad348cfea05b839ea84722c640cea6586dec7",
+    "tests/test_mini_receive_protocol.py": "8a51980bfa24f6c898b95fd8d22f9dd60bcbb47db33747726fb96c21c60be62d",
+    "tools/probe_mini_recovery.py": "1d512173776f5f87424e7870731df2871cdf1f9293636765a6371c7bb44191e8"
+  },
+  "host": {
+    "host_cases": 291,
+    "partial_lengths_checked": 260,
+    "hardware_io": false,
+    "asan": true,
+    "ubsan": true,
+    "saved_record_checks": {
+      "complete": {
+        "record_valid": true,
+        "state": 3,
+        "error": 0,
+        "sequence": 1,
+        "nonce": 305441741,
+        "length": 260,
+        "raw_return": 0,
+        "callback_entered": true,
+        "callback_returned": true,
+        "data_matches_expected": true,
+        "observed_complete_and_stable": true,
+        "canary_mask": 3,
+        "sample_count": 1,
+        "changed_bytes": 260,
+        "return_semantics_qualified": false,
+        "synchronous_completion_proven": false,
+        "rom_pointer_observations": {
+          "send": 1120146633,
+          "receive": 1120146757,
+          "handler_slot": 1120208640
+        },
+        "pointer_address_map_validated": false,
+        "record_sha256": "a6ac16d0226e0b0d1aeb307cfef7590206d596e791b04d91351681b3d82f82ea"
+      },
+      "partial": {
+        "record_valid": true,
+        "state": 3,
+        "error": 0,
+        "sequence": 1,
+        "nonce": 305441741,
+        "length": 260,
+        "raw_return": 0,
+        "callback_entered": true,
+        "callback_returned": true,
+        "data_matches_expected": false,
+        "observed_complete_and_stable": false,
+        "canary_mask": 3,
+        "sample_count": 1,
+        "changed_bytes": 259,
+        "return_semantics_qualified": false,
+        "synchronous_completion_proven": false,
+        "rom_pointer_observations": {
+          "send": 1120146633,
+          "receive": 1120146757,
+          "handler_slot": 1120208640
+        },
+        "pointer_address_map_validated": false,
+        "record_sha256": "d3ac529b8d5c1212dd4248e582f83ea8113ed32fd1b6915cf97b41b43b8f0294"
+      },
+      "late": {
+        "record_valid": true,
+        "state": 4,
+        "error": 5,
+        "sequence": 1,
+        "nonce": 305441741,
+        "length": 260,
+        "raw_return": 0,
+        "callback_entered": true,
+        "callback_returned": true,
+        "data_matches_expected": false,
+        "observed_complete_and_stable": false,
+        "canary_mask": 3,
+        "sample_count": 2,
+        "changed_bytes": 260,
+        "return_semantics_qualified": false,
+        "synchronous_completion_proven": false,
+        "rom_pointer_observations": {
+          "send": 1120146633,
+          "receive": 1120146757,
+          "handler_slot": 1120208640
+        },
+        "pointer_address_map_validated": false,
+        "record_sha256": "9462c00f45915c754e807ae3d41e5e5bf1b1eca27e3c37a58fe6dd251735ef0c"
+      }
+    }
+  },
+  "artifacts": [
+    {
+      "base": 29491200,
+      "entry": 29491200,
+      "span": 32768,
+      "payload_bytes": 2160,
+      "memory_bytes": 3304,
+      "state_bytes": 628,
+      "record_address": 29493988,
+      "record_bytes": 512,
+      "elf_sha256": "339d715b6597402d165d3e2e5bf04ebe385e7dfff7fe12f80004ea75d5462cd7",
+      "payload_sha256": "ae427be74db2b12e2170713e6600f19d3c8b8ab1f396040d48fadd687caff403",
+      "generated_stack": {
+        "function_save_bytes": {
+          "hyperrig_receive_entry": 0,
+          "send_reply": 12,
+          "guard_mask": 24,
+          "crc32": 12,
+          "reset_arena": 16,
+          "hyperrig_receive_dispatch": 44,
+          "hyperrig_receive_initialize": 20
+        },
+        "dispatch_plus_largest_helper_bytes": 68,
+        "internal_ROM_callback_stack_included": false,
+        "inherited_stack_capacity_qualified": false
+      },
+      "file": "build/mini-rom-receive/hyperrig-receive-01c20000.bin",
+      "elf": "build/mini-rom-receive/hyperrig-receive-01c20000.elf",
+      "symbols": {
+        "firmware/mini/rom_receive/entry.c": {
+          "address": 0,
+          "bytes": 0,
+          "type": 4
+        },
+        "firmware/mini/rom_receive/rom_receive.c": {
+          "address": 0,
+          "bytes": 0,
+          "type": 4
+        },
+        "crc32": {
+          "address": 29491448,
+          "bytes": 46,
+          "type": 2
+        },
+        "guard_mask": {
+          "address": 29491378,
+          "bytes": 70,
+          "type": 2
+        },
+        "reset_arena": {
+          "address": 29491494,
+          "bytes": 72,
+          "type": 2
+        },
+        "send_reply": {
+          "address": 29491210,
+          "bytes": 168,
+          "type": 2
+        },
+        "state": {
+          "address": 29493360,
+          "bytes": 628,
+          "type": 1
+        },
+        "PROBE_ADDRESS": {
+          "address": 29491200,
+          "bytes": 0,
+          "type": 0
+        },
+        "hyperrig_receive_initialize": {
+          "address": 29493238,
+          "bytes": 116,
+          "type": 2
+        },
+        "hyperrig_receive_record": {
+          "address": 29493988,
+          "bytes": 512,
+          "type": 1
+        },
+        "__bss_end": {
+          "address": 29494504,
+          "bytes": 0,
+          "type": 0
+        },
+        "__slot_start": {
+          "address": 29491200,
+          "bytes": 0,
+          "type": 0
+        },
+        "__slot_end": {
+          "address": 29523968,
+          "bytes": 0,
+          "type": 0
+        },
+        "hyperrig_receive_entry": {
+          "address": 29491200,
+          "bytes": 10,
+          "type": 2
+        },
+        "__bss_start": {
+          "address": 29493360,
+          "bytes": 0,
+          "type": 0
+        },
+        "__image_file_end": {
+          "address": 29493360,
+          "bytes": 0,
+          "type": 0
+        },
+        "hyperrig_receive_dispatch": {
+          "address": 29491566,
+          "bytes": 1672,
+          "type": 2
+        }
+      }
+    },
+    {
+      "base": 29523968,
+      "entry": 29523968,
+      "span": 32768,
+      "payload_bytes": 2160,
+      "memory_bytes": 3304,
+      "state_bytes": 628,
+      "record_address": 29526756,
+      "record_bytes": 512,
+      "elf_sha256": "f4b0f13206b10d6142ea33b3d1bbc312152a35115ec9f9624f4fc088cf6b9d39",
+      "payload_sha256": "c75586eccfcf4cdfd1aa88106d428a1a4aad610dc35f3f96236cd92314590b17",
+      "generated_stack": {
+        "function_save_bytes": {
+          "hyperrig_receive_entry": 0,
+          "send_reply": 12,
+          "guard_mask": 24,
+          "crc32": 12,
+          "reset_arena": 16,
+          "hyperrig_receive_dispatch": 44,
+          "hyperrig_receive_initialize": 20
+        },
+        "dispatch_plus_largest_helper_bytes": 68,
+        "internal_ROM_callback_stack_included": false,
+        "inherited_stack_capacity_qualified": false
+      },
+      "file": "build/mini-rom-receive/hyperrig-receive-01c28000.bin",
+      "elf": "build/mini-rom-receive/hyperrig-receive-01c28000.elf",
+      "symbols": {
+        "firmware/mini/rom_receive/entry.c": {
+          "address": 0,
+          "bytes": 0,
+          "type": 4
+        },
+        "firmware/mini/rom_receive/rom_receive.c": {
+          "address": 0,
+          "bytes": 0,
+          "type": 4
+        },
+        "crc32": {
+          "address": 29524216,
+          "bytes": 46,
+          "type": 2
+        },
+        "guard_mask": {
+          "address": 29524146,
+          "bytes": 70,
+          "type": 2
+        },
+        "reset_arena": {
+          "address": 29524262,
+          "bytes": 72,
+          "type": 2
+        },
+        "send_reply": {
+          "address": 29523978,
+          "bytes": 168,
+          "type": 2
+        },
+        "state": {
+          "address": 29526128,
+          "bytes": 628,
+          "type": 1
+        },
+        "PROBE_ADDRESS": {
+          "address": 29523968,
+          "bytes": 0,
+          "type": 0
+        },
+        "hyperrig_receive_initialize": {
+          "address": 29526006,
+          "bytes": 116,
+          "type": 2
+        },
+        "hyperrig_receive_record": {
+          "address": 29526756,
+          "bytes": 512,
+          "type": 1
+        },
+        "__bss_end": {
+          "address": 29527272,
+          "bytes": 0,
+          "type": 0
+        },
+        "__slot_start": {
+          "address": 29523968,
+          "bytes": 0,
+          "type": 0
+        },
+        "__slot_end": {
+          "address": 29556736,
+          "bytes": 0,
+          "type": 0
+        },
+        "hyperrig_receive_entry": {
+          "address": 29523968,
+          "bytes": 10,
+          "type": 2
+        },
+        "__bss_start": {
+          "address": 29526128,
+          "bytes": 0,
+          "type": 0
+        },
+        "__image_file_end": {
+          "address": 29526128,
+          "bytes": 0,
+          "type": 0
+        },
+        "hyperrig_receive_dispatch": {
+          "address": 29524334,
+          "bytes": 1672,
+          "type": 2
+        }
+      }
+    }
+  ],
+  "hardware_executed": false,
+  "hardware_mmio_available": false,
+  "NVM_commands_available": false,
+  "callback_receive_return_semantics_qualified": false,
+  "callback_synchronous_completion_proven": false,
+  "pointer_observations": {
+    "record_offsets": [
+      96,
+      100,
+      104
+    ],
+    "host_64_bit_values_truncated_to_low32": true,
+    "only_target_observations_are_ROM_pointers": true,
+    "extra_memory_read": false
+  },
+  "flashable": false,
+  "firmware_installation_package": false,
+  "stack": {
+    "private_stack": false,
+    "reason": "small bounded RAM operations; callbacks remain on incoming ROM stack",
+    "inherited_stack_capacity_qualified": false
+  },
+  "protocol": {
+    "identity": "FC82 IN16",
+    "arm": "FC83 seqBE16,lengthBE16,nonceBE32,CRC32BE,seed8,FF IN16",
+    "receive": "FB84 seqBE16,nonceBE32,lengthBE16,FF6 OUT exact length1..260",
+    "record": "FD85 FF14 IN512",
+    "automatic_retry": false,
+    "nonce_is_authentication": false
+  },
+  "limits": [
+    "A blocked receive callback cannot be preempted by this observer; host timeout is ambiguous.",
+    "Stable record samples do not prove a synchronous callback or general error semantics.",
+    "Malformed OUT commands are refused without calling receive and may leave a stalled USB phase.",
+    "Private legacy flash commands are consumed/refused; only FB06/FD07/FB08 defer to ROM.",
+    "Send return <0 is retained as a refusal; its general semantics are also not inferred."
+  ]
+}
