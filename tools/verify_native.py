@@ -203,13 +203,17 @@ def main():
     total += sum(item["cases"] for item in bias_results)
     total += loader_result["loaded_bias_instruction_comparisons"] + loader_result["loaded_head_instruction_comparisons"]
     total += loader_result["loaded_rechannel_instruction_comparisons"]
+    from verify_engine_native import verify as verify_engine
+    layer_results, engine_result = verify_engine(library, RechannelState, HeadState)
+    results.extend(layer_results)
+    total += sum(item["cases"] for item in layer_results) + engine_result["original_kernel_invocations"]
     target = (ROOT / "build/native/hyperrig_dsp.pi32v2.o").read_bytes()
     if target[:5] != b"\x7fELF\x01" or target[5] != 1:
         raise ValueError("target object is not little-endian ELF32")
     if int.from_bytes(target[18:20], "little") != 0xF1:
         raise ValueError("target object does not use the JieLi pi32v2 ELF machine ID")
     report = {"sample": "UltraRig alpha11 M5.71 TANK-G v2", "comparisons": total,
-              "native_functions": results, "a2l_loader": loader_result,
+              "native_functions": results, "a2l_loader": loader_result, "a2l_engine": engine_result,
               "host_undefined_behavior_sanitizer": True,
               "a2l_memory_checks": json.loads((ROOT / "analysis/native/a2l-sanitizers.json").read_text()),
               "pi32v2_object_sha256": hashlib.sha256(target).hexdigest(),

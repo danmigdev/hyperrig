@@ -22,7 +22,8 @@ def main():
     directory = ROOT / "build/native"
     directory.mkdir(parents=True, exist_ok=True)
     sources = ["firmware/src/hyperrig_dot.c", "firmware/src/hyperrig_head.c",
-               "firmware/src/hyperrig_a2l.c", "firmware/src/hyperrig_rechannel.c"]
+               "firmware/src/hyperrig_a2l.c", "firmware/src/hyperrig_rechannel.c",
+               "firmware/src/hyperrig_layer.c", "firmware/src/hyperrig_engine.c"]
     common = ["-std=c99", "-Wall", "-Wextra", "-Werror", "-Ifirmware/include"]
     run(["gcc", *common, "-O2", "-fPIC", "-shared", "-fsanitize=undefined",
          "-fno-sanitize-recover=all", *sources, "-o", "build/native/libhyperrig_dsp.so"])

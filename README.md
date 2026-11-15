@@ -3,8 +3,8 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato: quattro routine DSP native e caricatore A2L ricostruiti e compilabili; porting del MINI
-in corso. Non è ancora un firmware completo installabile sul MINI.** Il nome HyperRig è quello
+**Stato: motore capture A2-Lite a tre canali/int32 ricostruito e compilabile;
+porting del MINI in corso. Non è ancora un firmware completo installabile sul MINI.** Il nome HyperRig è quello
 scelto per questo progetto indipendente.
 
 ## Risultati disponibili
@@ -21,13 +21,20 @@ scelto per questo progetto indipendente.
   CLI di identificazione e backup dei preset via MIDI, limitata alle letture.
 - Modello A2-Lite in virgola mobile con rendering WAV offline, confrontato
   con il convertitore originale; non riproduce ancora il DSP intero del pedale.
-- Due routine dot, ingresso mono/tre canali e testa A2-Lite ricostruiti dai
-  byte del G. Caricatore C con CRC, riordino dei pesi e conversione dei bias:
-  **7.089 confronti con le istruzioni originali interpretate**, build con
-  UBSan/ASan e oggetto pi32v2 prodotto dalla toolchain JieLi. I layer centrali
-  della rete restano da ricostruire.
+- Motore capture C con caricatore, bias, ingresso mono/tre canali, layer
+  dilatati, attivazioni, residuali e testa finale. **7.509 confronti con le
+  istruzioni originali interpretate**, inclusi tutti i 23 layer della capture
+  A2. Profilo supportato: tre canali/int32 e shift del percorso ottimizzato.
+  Orchestrazione portabile propria; IR, effetti e frontend restano da integrare.
+  Build UBSan/ASan e oggetto pi32v2 prodotti dalla toolchain JieLi.
 - Percorso audio ALNK0 ricostruito per G e MINI: pin, buffer, IRQ e blocchi
   da 64 frame; differenza tra 44,1 kHz stock MINI e 48 kHz UltraRig identificata.
+- Driver audio MINI compilato, con conversione campioni e gestione dei mezzi
+  buffer DMA verificate sul PC. Codec/clock a 48 kHz, mute e coerenza cache
+  restano da verificare sul dispositivo.
+- Startup e linker MINI con due ELF diagnostici, controllo delle aree flash/RAM
+  e simulazione della copia dati/azzeramento BSS. Il probe DSP include la
+  capture A2 e un'autoverifica numerica; **non è stato avviato sul pedale**.
 - Identità del pedale letto via BLE: `TANK MINI_009`. Backup totale e prova
   del firmware HyperRig sul dispositivo ancora da eseguire.
 - Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
@@ -45,6 +52,9 @@ originale. Il dettaglio delle ricerche è in [source-audit.json](research/source
 - [Porting TANK MINI: profilo, differenze e lavoro restante](docs/PORTING_TANK_MINI.md).
 - [C nativo ricostruito e verifiche numeriche](docs/NATIVE_RECONSTRUCTION.md).
 - [Percorso audio del MINI e confronto con il G](docs/TANK_MINI_AUDIO.md).
+- [Driver audio MINI e conversione dei campioni](docs/MINI_AUDIO_DRIVER.md).
+- [Startup, linker e programmi diagnostici MINI](docs/MINI_BOOT.md).
+- [Validazione ELF e contenitore stock MINI](docs/MINI_IMAGE.md).
 - [Applicazioni e firmware rinominati HyperRig](docs/REBRANDING.md).
 - [Provenienza e licenze](docs/PROVENIENZA.md).
 - [Versioni esatte degli strumenti](research/sources.lock.json).
@@ -86,6 +96,17 @@ python tools/build_native.py
 
 Risultato: `build/native/hyperrig_dsp.pi32v2.o`, oggetto relocatable per il
 target, e `analysis/native/verification.json`. Non è un'immagine da flashare.
+
+Per costruire e controllare i programmi diagnostici MINI:
+
+```powershell
+python tools/verify_mini_audio.py
+python tools/build_mini_boot.py --dsp
+python tools/check_mini_image.py --elf build/mini-boot/hyperrig-mini-boot-probe.elf --elf build/mini-boot/hyperrig-mini-dsp-link-probe.elf
+```
+
+Questi comandi producono ELF e prove locali. Non generano un aggiornamento
+FWSC installabile e non inviano comandi al dispositivo.
 
 ## Materiale locale recuperato
 
@@ -154,9 +175,11 @@ nuovo. Il comando segnala eventuale clipping. Per il confronto automatico con
 il JavaScript originale serve Node.js; i test indicano esplicitamente gli skip
 quando mancano Node o gli artefatti.
 
-Validazione locale: **40 test superati, nessuno saltato**, più **7.089 confronti
+Validazione locale: **54 test superati, nessuno saltato**, più **7.509 confronti
 nativi**, 112 controlli del layout A2L, 4.905 input non validi rifiutati e
-6.942 casi con buffer di dimensione esatta sotto ASan/UBSan. Comprendono CRC e
+6.942 casi con buffer di dimensione esatta e 400 blocchi del motore sotto
+ASan/UBSan. Due flussi da 7.001 campioni verificano reset e continuità tra blocchi.
+Comprendono CRC e
 hash dei campioni, vettori MIDI catturati, trasporto simulato, casi DSP con
 risultato analitico e confronto delle 49 misure di calibrazione su tre segnali.
 Le prove audio e di avvio del nuovo codice sul pedale restano da eseguire.

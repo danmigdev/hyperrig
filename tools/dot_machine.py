@@ -31,6 +31,11 @@ class NativeProgram:
         "rechannel3": (0x01C1453C, 0x01C145FE),
         "conv_bias": (0x02032586, 0x02032618),
         "head_bias": (0x020327DE, 0x0203280C),
+        "layer6": (0x01C1318E, 0x01C1349C),
+        "layer6_shift": (0x01C1349C, 0x01C13822),
+        "layer15": (0x01C13822, 0x01C13D16),
+        "layer15_shift": (0x01C13D16, 0x01C14282),
+        "layer_generic": (0x01C14282, 0x01C1452A),
     }
 
     def __init__(self, name):

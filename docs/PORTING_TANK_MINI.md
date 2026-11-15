@@ -16,14 +16,20 @@ non di etichettare un'immagine G/B come compatibile.
 6. Header del SDK AC79 per studiare GPIO, registri ADC e DAC.
 7. Modello A2-Lite in Float64 eseguibile sul PC e confrontato con il convertitore
    originale. È un riferimento numerico, non il runtime intero del firmware.
-8. Quattro routine native del G ricostruite in C e compilate pi32v2: due dot,
-   ingresso mono/tre canali e testa, più caricatore A2L con conversione dei
-   bias. 7.089 confronti contro le istruzioni interpretate; memoria del
-   caricatore verificata con ASan/UBSan. Il parser completo originale non è
-   emulato e i layer centrali della rete restano da ricostruire.
+8. Motore capture A2-Lite a tre canali/int32 ricostruito in C e compilato
+   pi32v2: caricatore, bias, ingresso, layer dilatati, attivazioni, residuali
+   e testa. 7.509 confronti contro le istruzioni interpretate, inclusi tutti
+   i 23 layer A2. Memoria verificata con ASan/UBSan. Il parser e scheduler
+   originali non sono emulati; il coordinatore C è un'implementazione propria.
 9. Percorso audio ALNK0 del MINI, tabella di configurazione, IRQ, callback,
    buffer e task ricostruiti. Vedere [TANK_MINI_AUDIO.md](TANK_MINI_AUDIO.md).
 10. Identificazione BLE riuscita: l'esemplare risponde `TANK MINI_009`.
+11. Driver ALNK MINI e conversione Q23/QFin/QFout compilati e testati offline:
+    [MINI_AUDIO_DRIVER.md](MINI_AUDIO_DRIVER.md). Avvio DMA subordinato a
+    clock/codec, IRQ, cache e percorso analogico effettivamente pronti.
+12. Startup/linker e due ELF diagnostici con simulazione della copia RAM/BSS:
+    [MINI_BOOT.md](MINI_BOOT.md). Validatore ELF/container e dieci test contro
+    layout, segmenti e copie incoerenti: [MINI_IMAGE.md](MINI_IMAGE.md).
 
 ## Tre ingressi candidati per i footswitch
 
@@ -53,9 +59,9 @@ non inventa valori per questi campi.
 |---|---|
 | Board support | Tre footswitch; corrispondenza fisica e LED non verificati |
 | Audio | ALNK0, PA4–PA8 e DMA ricostruiti; clock/codec da adattare da 44,1 a 48 kHz, mute da confermare |
-| Linker e memoria | Area applicativa/VM diversa; sezioni RAM vanno dimensionate sul target |
+| Linker e memoria | Linker MINI e probe verificati offline; handover, budget e avvio fisico restano da provare |
 | Storage | BTIF del MINI occupa l'area chiamata OTP nelle immagini G/B |
-| DSP | Caricatore A2L, bias, ingresso e testa compilabili e confrontati; layer, attivazioni, IR ed effetti da completare |
+| DSP | Percorso capture a tre canali/int32 completo nel dominio verificato; restano frontend, altri profili, IR ed effetti |
 | Clock e prestazioni | 396 MHz nei metadati UltraRig non certifica il MINI |
 | Installazione | Identità, flash ID, backup totale e recupero del singolo esemplare da validare |
 
@@ -71,8 +77,9 @@ ma questo non rende il firmware stock MINI capace di eseguire il motore UltraRig
    ricostruito e la sequenza di clock/codec a 48 kHz.
 3. Ricostruire le funzioni DSP necessarie o implementarle con sorgenti disponibili;
    validare numericamente risultati, saturazioni e precisione delle capture.
-4. Compilare un'applicazione MINI con linker e driver dedicati. Prima un percorso
-   audio minimale, poi motore capture/IR e catena effetti.
+4. Integrare i componenti e i probe già compilati in un'applicazione MINI con
+   clock, codec, IRQ e scheduling audio verificati. Poi motore capture/IR e
+   catena effetti; gli ELF diagnostici da soli non sono firmware installabili.
 5. Misurare underrun, latenza, RAM, clock stabile, consumi e comportamento al boot.
 6. Solo dopo questi riscontri, preparare e provare installazione e ripristino.
 

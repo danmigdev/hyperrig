@@ -75,14 +75,14 @@ int32_t hyperrig_a2l_bias32(int64_t bias, unsigned shift);
  * 64 mirror frames, three channels). Errors leave state/history unchanged.
  * Model arena and history must outlive state and must not overlap it or each
  * other. Input to head3_process is the already computed sum of layer outputs;
- * this function does not implement the missing convolution/activation stack. */
+ * this function binds only the head; hyperrig_engine.h provides the layer stack. */
 int hyperrig_a2l_head3_init(hyperrig_head3 *state, const hyperrig_a2l *model,
                           int32_t *history, size_t history_words);
 
 /* Bind the input stage, clearing (ring_frames+64)*3 words. Three channels and
  * rechannel shift 1..31 required. ring_frames must hold the first layer's
  * dilation*(kernel-1) history plus a 64-frame block. Same lifetime/overlap and
- * error guarantees as head3_init. Subsequent layers remain unimplemented. */
+ * error guarantees as head3_init. hyperrig_engine.h connects subsequent layers. */
 int hyperrig_a2l_rechannel3_init(hyperrig_rechannel3 *state, const hyperrig_a2l *model,
                                int32_t *history, size_t history_words, uint32_t ring_frames);
 

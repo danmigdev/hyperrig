@@ -1,9 +1,11 @@
 # Ricostruzione nativa di UltraRig TANK-G
 
-Sono disponibili **quattro routine DSP e un caricatore A2L in C compilabile**,
-ricostruiti dal formato e dai byte di UltraRig alpha11/M5.71 TANK-G v2.
-Non sono i sorgenti originali recuperati e
-non costituiscono ancora il motore A2-Lite completo o un firmware MINI avviabile.
+È disponibile un **motore capture A2-Lite a tre canali, int32, in C compilabile**,
+con caricatore, ingresso, layer dilatati, attivazioni, residuali e testa finale.
+Ricostruisce il percorso ottimizzato osservato in UltraRig alpha11/M5.71 TANK-G
+v2, nel dominio di shift descritto sotto. Non sono i sorgenti originali e non
+costituisce il firmware completo: effetti/IR, frontend audio e driver restano
+componenti distinti. L'avvio sul MINI non è stato verificato.
 Mantengono il Required Notice e la licenza UltraRig: vedere
 [PROVENIENZA.md](PROVENIENZA.md).
 
@@ -15,6 +17,11 @@ Mantengono il Required Notice e la licenza UltraRig: vedere
 | `0x01C126F4` | fino a `0x01C127DE` | `hyperrig_dot_i32`: attivazioni e pesi int32 |
 | `0x01C130B4` | fino a `0x01C1318E` | `hyperrig_head3_process`: convoluzione finale a tre canali |
 | `0x01C1453C` | fino a `0x01C145FE` | `hyperrig_rechannel3_process`: ingresso mono/tre canali e copia dry |
+| `0x01C1318E` | fino a `0x01C1349C` | layer a 6 tap, shift residuo zero |
+| `0x01C1349C` | fino a `0x01C13822` | layer a 6 tap, shift residuo diverso da zero |
+| `0x01C13822` | fino a `0x01C13D16` | layer a 15 tap, shift residuo zero |
+| `0x01C13D16` | fino a `0x01C14282` | layer a 15 tap, shift residuo diverso da zero |
+| `0x01C14282` | fino a `0x01C1452A` | layer generico; le cinque varianti sono coperte da `hyperrig_layer3_process` |
 | `0x02032586` | fino a `0x02032618` | frammento del parser per conversione/saturazione dei bias convolutivi |
 | `0x020327DE` | fino a `0x0203280C` | frammento del parser per conversione del bias finale |
 
@@ -90,6 +97,38 @@ controlla che il ring contenga la storia dilatata del primo layer più 64 frame.
 e conserva la posizione fra le chiamate. Il ring non deve essere una potenza
 di due; le prove includono i 69 frame necessari al primo layer della capture A2.
 
+## Layer dilatati, attivazione e residui
+
+`hyperrig_layer3_process` ricostruisce l'operazione combinata dei cinque kernel
+originali. Il preparatore `0x01C12A54` passa un contesto da 200 byte: puntatori
+ai tap da 0 a 56, campione residuo a 60, bias lineari con mezzo LSB già aggiunto
+a 64/72/80, pesi convolutivi a 88, dry a 92, somma a 96, uscita a 100,
+pesi lineari a 104, arrotondamento/shift convolutivo a 108/112, bias convolutivi
+a 116/120/124, slope Q24 a 128, shift della somma a 132, shift lineare a 140,
+shift residuo a 144 e differenza mix/conv a 148. Seguono geometria e cursori
+dei buffer. Il verificatore costruisce questo contesto; non emula il wrapper.
+
+L'accumulatore convolutivo parte da mezzo LSB e include l'ingresso dry,
+prima spostato aritmeticamente della differenza fra shift mix e convolutivo.
+Dopo lo shift si usa la parola bassa a 32 bit e si aggiunge il bias con wrap:
+qui il firmware **non satura**. L'attivazione negativa usa slope Q24 e mezzo
+LSB, poi conserva di nuovo la parola bassa. Il contributo alla somma finale
+è spostato senza arrotondamento e aggiunto con wrap a 32 bit. Il passaggio
+lineare accumula a 64 bit, aggiunge il residuo riscalato e solo allora satura
+a int32. Il C usa aritmetica unsigned per preservare questi comportamenti
+senza overflow signed indefinito.
+
+Il dispatcher originale seleziona varianti diverse quando lo shift residuo è
+zero: forzare la variante con shift nel caso zero produce risultati differenti
+per valori negativi. Il verificatore rispetta questo contratto e rifiuta la
+variante sbagliata; non considera intercambiabili routine fuori dal loro dominio.
+
+Il percorso ricostruito accetta 1–15 tap, dilatazione positiva, shift conv/mix/
+lineare/somma 1–31, differenza mix-conv 0–31 e shift residuo da -31 a 31.
+La capture A2 originale rispetta tutti questi vincoli. Altri profili A2L
+accettati dal parser possono essere rifiutati dal runtime: non si introduce
+un fallback numerico non verificato.
+
 ## Stadio finale a tre canali
 
 Il preparatore originale `0x01C12CC2` costruisce un contesto da 56 byte e
@@ -108,9 +147,25 @@ chiamata, shift 1–31, kernel 1–65 frame e un ring di almeno 64 frame e almen
 quanto il kernel. Il contesto reale osservato invoca blocchi di 64 frame.
 L'API non riutilizza puntatori RAM del G e non accede a periferiche.
 Il collegamento A2L usa un ring da 64 frame e 64 frame duplicati, per 384
-parole int32. L'ingresso di questo stadio è la somma dei risultati dei layer,
-che restano da implementare: collegare direttamente l'ingresso mono alla
-testa non ricostruirebbe il motore A2-Lite.
+parole int32. L'ingresso di questo stadio è la somma dei risultati dei layer.
+
+## Motore capture completo nel dominio verificato
+
+`hyperrig_a2l3_size/init/reset/process` in `hyperrig_engine.h` collegano il
+caricatore e tutti gli stadi senza heap durante l'elaborazione. L'orchestrazione
+è nuova e portabile: non riproduce scheduler RTOS, allocatore, doppi buffer o
+frontend del G. Il modello e la sua arena restano immutabili; il runtime usa
+un'arena distinta, storia iniziale zero e blocchi da 1 a 64 campioni.
+
+L'ingresso è int32 nella frazione dichiarata dalla capture, l'uscita int32
+nella frazione d'uscita. Per A2 sono Q30 e Q31. Non comprende conversione dal
+codec, regolazioni di guadagno, resampling o IR/effetti. Il reset ripristina
+tutti i ring e i cursori; cambiare la suddivisione dei blocchi non modifica
+segnale e stato finale.
+
+Sul PC a 64 bit A2 richiede circa 115,4 KB per l'arena runtime, circa 7 KB
+per il modello caricato e 1.128 byte di contesto. Queste misure non certificano
+RAM e latenza sul pedale: ABI e budget completi del target sono da verificare.
 
 ## Compilare e confrontare
 
@@ -139,7 +194,7 @@ andranno risolti nel runtime del target. Non è un'immagine flash: manca un
 linker di applicazione con startup, IRQ, memoria e driver del MINI.
 
 La verifica confronta il C host con un interprete limitato che decodifica ed
-esegue **i byte originali delle quattro routine e di due frammenti del parser**.
+esegue **i byte originali delle nove routine e di due frammenti del parser**.
 Non emula l'intero parser originale. Prima controlla l'hash del
 firmware e che `app.bin` coincida con la sua decodifica. Non accetta istruzioni
 sconosciute; le letture di memoria non inizializzata falliscono. Il REP della
@@ -147,12 +202,23 @@ testa usa conteggi positivi; il comportamento del conteggio zero è escluso.
 La semantica REP è corroborata dal
 [resoconto hardware pi32v2-isa](https://github.com/jvitkauskas/pi32v2-isa/blob/1f09804d36ddcba36dbd84cb6242ef88f35f15b7/hw/fm1-2026-10-24-v3/README.md).
 
-Risultato locale: **7.089 confronti superati**: 629 per ciascun dot, 402 per
+Risultato locale: **7.509 confronti superati**: 629 per ciascun dot, 402 per
 la testa, 367 per l'ingresso, 1.146 per ciascun frammento dei bias e 2.770
-confronti sui bias e sui due stadi collegati alle capture caricate. Comprendono
+confronti sui bias e sui due stadi collegati alle capture caricate, 240 sui
+cinque kernel dei layer e 180 invocazioni dei kernel in due motori capture
+completi. Comprendono
 segni, pareggi, saturazione, wrap a 64 bit, stride, finestre circolari e chiamate
 consecutive. Per ingresso e testa si confrontano anche memoria e posizione.
-Dieci test separati verificano l'interprete con risultati calcolati a mano.
+Quattordici test separati verificano gli interpreti con risultati calcolati a mano
+e confrontano le varianti ottimizzate nei rispettivi domini.
+
+Per A2 (23 layer) e una rete sintetica (3 layer) si confrontano sei blocchi
+ciascuno, 230 campioni, uscita finale, somma, tutti i ring e tutti i cursori.
+L'oracolo esegue le istruzioni dei singoli kernel originali con un coordinatore
+ricostruito; non esegue il processo audio stock completo. Altre prove C su
+7.001 campioni per capture, oltre il campo ricettivo A2 di 6.347 campioni,
+verificano identità di uscita e memoria dopo reset e suddivisioni differenti.
+Queste ultime sono prove di continuità C, non confronti con firmware emulato.
 
 Il caricatore è confrontato col decoder Python derivato dal packer originale:
 14 capture, otto allineamenti ciascuna, tutti i pesi e i parametri verificati.
@@ -160,7 +226,8 @@ Si rifiutano 4.905 file con CRC/struttura errati, incluse tutte le troncature
 della capture A2 con CRC ricalcolato, e si controllano arene insufficienti e
 destinazioni intatte in caso d'errore. Un harness C separato esercita 6.942
 input con allocazioni esatte sotto AddressSanitizer e UndefinedBehaviorSanitizer,
-includendo mutazioni deterministiche del payload e dell'header.
+includendo mutazioni deterministiche del payload e dell'header, più 400 blocchi
+del motore A2 completo su otto allineamenti dell'arena.
 
 Questa verifica resta dipendente dalla semantica implementata nell'interprete.
 Non esegue l'oggetto target appena compilato su un processore reale, non misura
@@ -183,8 +250,8 @@ I nomi seguenti sono interpretazioni del codice, non simboli originali:
 | `0x01C12CC2` | preparazione del contesto della testa |
 | `0x01C12D34` | probabile wrapper del percorso di elaborazione |
 
-Restano da ricostruire convoluzioni dilatate, attivazioni,
-residuali, scaling tra layer, IR ed effetti. Il riferimento Float64 già presente
+Restano da ricostruire i percorsi fuori dal dominio verificato, frontend audio,
+IR ed effetti e l'integrazione del scheduler con la scheda MINI. Il riferimento Float64 già presente
 serve a verificare la struttura matematica, ma non sostituisce questo lavoro.
 
 ## Correzione degli indirizzi di salto

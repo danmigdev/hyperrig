@@ -1,0 +1,69 @@
+{
+  "original_mini_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+  "native_regions": {
+    "clock_family_and_rate": {
+      "cpu_start": "0x2006e36",
+      "cpu_end_exclusive": "0x2006f70",
+      "sha256": "cf6afcbefd78315871b70e5bcd08f7287f332fcbb27910991fe5b58ab6941c22"
+    },
+    "configure": {
+      "cpu_start": "0x2006f70",
+      "cpu_end_exclusive": "0x200708c",
+      "sha256": "9a67f9ec7084038d2808950d6e4a953d7fd899cee91ae157b1e90ee642df4df5"
+    },
+    "configure_channel": {
+      "cpu_start": "0x200708c",
+      "cpu_end_exclusive": "0x2007146",
+      "sha256": "d408caf03a5bc14ed13dd574ff89095995f601c529a949555a0f765f016b970d"
+    },
+    "enable": {
+      "cpu_start": "0x2007146",
+      "cpu_end_exclusive": "0x200715c",
+      "sha256": "5cf9840ab8f6d3e08433ff7d2323eeeb8a5ce0484ebc48fe602c13742894507e"
+    },
+    "codec_init": {
+      "cpu_start": "0x2006dce",
+      "cpu_end_exclusive": "0x2006e08",
+      "sha256": "f94033ea0d5b4f3aba0b15b758c2b2b2036c383dbbc22ba29a44c4b3f0458d94"
+    },
+    "irq": {
+      "cpu_start": "0x1c0374a",
+      "cpu_end_exclusive": "0x1c037dc",
+      "sha256": "9cc16e1c57a4538cb98bfbe7d00fa9061604713994f5e7909c083bc464d8d4b5"
+    }
+  },
+  "stock_rx_fragment": {
+    "address": "0x1c03a52",
+    "bytes": "546044a8cea7",
+    "sha256": "dfbb457080df72e930b827eab50b386664b4155a225f92f06f4db3bd8c139fb4",
+    "instructions": [
+      "r4 = [r5+0]",
+      "r4 = r4 << 8",
+      "r6 = r4 >>> 7"
+    ]
+  },
+  "configuration_sha256": "58e52aa008508a26edfc0e5dda5965e4f058b90ecd476f0e8687d25044d9c226",
+  "codec_table_sha256": "1032b05743d45148e6aecd2bdc6834ab54804d154362c545d9949a49461c415d",
+  "stock_rx_instruction_cases": 520,
+  "normalized_conversion_cases": 33280,
+  "dma_half_cases": 12,
+  "mmio_snapshot_cases": 256,
+  "irq_phase_cases": 32,
+  "stock_rx_output_sha256": "914943ac69cbd516bb3d9d93e1e3905247000fe6f4784e7a420d2c9eb9010b6c",
+  "codec_records_matched": 22,
+  "hardware_execution_verified": false,
+  "clock_48000_measured": false,
+  "limitation": "host shadow MMIO is not a cycle-accurate peripheral model; normalized Q/stereo routing is HyperRig policy",
+  "sanitizers": {
+    "exact_buffer_cases": 259,
+    "address_sanitizer": true,
+    "undefined_behavior_sanitizer": true
+  },
+  "pi32v2_object_sha256": "3413430b91f600a0c834996eb2d871b3a7308dfacce370003ec9e662a9ce3d17",
+  "sources_sha256": {
+    "firmware/mini/audio/hyperrig_mini_audio.c": "4d7f023877af6c8b1e0546bd33643115d3e1d08d3932b9a69fe0663232f52ad8",
+    "firmware/mini/audio/hyperrig_mini_audio.h": "2a8f5b2a51e548c117aecb3a87d9d1d205da2431eb032f83a23abcf095bd0e16",
+    "firmware/mini/audio/tests/sanitize.c": "ebc11b5038855e3ac6192a25c76a43683e915b23e2af84e32b482817bfaf6f42"
+  },
+  "verifier_sha256": "f3bc5c8d170fc1d1ae33d3d07c53b2a08c4637e7eda028456336edb01ad32f8c"
+}

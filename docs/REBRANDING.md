@@ -75,7 +75,7 @@ Il primo comando produce Windows e web; il secondo aggiunge Android. La
 directory `build/android-hyperrig` conserva Smali e risorse ricostruibili.
 Lo script non pubblica pacchetti, non esegue installer e non accede al pedale.
 
-Validazione locale: 40 test superati, compresi CRC delle quattro immagini,
+Validazione locale: 54 test superati, compresi CRC delle quattro immagini,
 integrità del bytecode Windows, checksum DEX, identità e risorse Android.
 I quattro script inline delle due pagine web controllate passano `node --check`.
 La decodifica dell'APK finale conferma `com.hyperrig.app` e la nuova icona.

@@ -1,0 +1,358 @@
+{
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "flashable": false,
+  "validator": {
+    "source": "tools/check_mini_image.py",
+    "sha256": "5c60193f1bd9f1c0ba7610af52058f1cf2de38acd321f2fc5de88dd8453ebdaf"
+  },
+  "stock": {
+    "file_format": "FWSC",
+    "sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+    "bytes": 557044,
+    "chip": "AC791N",
+    "pinned_stock_verified": true,
+    "flash_bytes_in_package": 532480,
+    "flash_sha256": "d743a9eee7035d151b1ebcd1dde1d87cbfb3f069d7e74e1efec83ca3a92ffeed",
+    "pre_application_range": [
+      0,
+      16384
+    ],
+    "pre_application_sha256": "d9f43191777656de01c7bed4f9e9ba2e34e94832c5d2ed02c3fc7ab7a6d9bd67",
+    "application": {
+      "sha256": "11ade0ace13c48d1b633669ee8beae71d98a269690f1ffb93eb2c6ce14922eda",
+      "physical_range": [
+        16384,
+        532480
+      ],
+      "cpu_range": [
+        33554432,
+        34070528
+      ],
+      "cpu_entry": 33554720,
+      "app_bytes": 511032,
+      "app_sha256": "bc46bc604d42067449cdf5b8200f8ebbafd668b722243e3db1b033289e49bdea",
+      "application_crc_and_file_crcs_valid": true,
+      "directory": [
+        {
+          "name": "app_area_head",
+          "header_offset": 0,
+          "offset": 33554720,
+          "size": 511703,
+          "flags": 131,
+          "reserved": 255,
+          "index": 0,
+          "data_crc": 26394
+        },
+        {
+          "name": "app.bin",
+          "header_offset": 32,
+          "offset": 288,
+          "size": 511032,
+          "flags": 130,
+          "reserved": 255,
+          "index": 0,
+          "data_crc": 41886
+        },
+        {
+          "name": "cfg_tool.bin",
+          "header_offset": 64,
+          "offset": 511320,
+          "size": 383,
+          "flags": 130,
+          "reserved": 255,
+          "index": 0,
+          "data_crc": 11893
+        },
+        {
+          "name": "VM",
+          "header_offset": 96,
+          "offset": 532480,
+          "size": 245760,
+          "flags": 18,
+          "reserved": 129,
+          "index": 0,
+          "data_crc": 65535
+        },
+        {
+          "name": "PRCT",
+          "header_offset": 128,
+          "offset": 0,
+          "size": 532480,
+          "flags": 146,
+          "reserved": 130,
+          "index": 0,
+          "data_crc": 65535
+        },
+        {
+          "name": "BTIF",
+          "header_offset": 160,
+          "offset": 778240,
+          "size": 4096,
+          "flags": 146,
+          "reserved": 129,
+          "index": 0,
+          "data_crc": 65535
+        },
+        {
+          "name": "USR",
+          "header_offset": 192,
+          "offset": 782336,
+          "size": 262144,
+          "flags": 146,
+          "reserved": 129,
+          "index": 1,
+          "data_crc": 65535
+        }
+      ],
+      "contains_stock_identity": true
+    },
+    "entries": [
+      {
+        "name": "flash.bin",
+        "type": 0,
+        "offset": 1044,
+        "size": 532480,
+        "raw_crc_ok": true,
+        "sha256": "d743a9eee7035d151b1ebcd1dde1d87cbfb3f069d7e74e1efec83ca3a92ffeed"
+      },
+      {
+        "name": "info.log",
+        "type": 2,
+        "offset": 533524,
+        "size": 0,
+        "raw_crc_ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "isd_config.ini",
+        "type": 52,
+        "offset": 533524,
+        "size": 3287,
+        "raw_crc_ok": false,
+        "sha256": "e5d25fbc89313ed94a6564fdbbdb1fdb1e42bc175edefc53756ad8ff4bd6bbb4"
+      },
+      {
+        "name": "ota.bin",
+        "type": 100,
+        "offset": 536820,
+        "size": 19958,
+        "raw_crc_ok": true,
+        "sha256": "9c62bbdfd55f6527a3cffe43abc16c621d0900a8ff47685240abb1ee596eb66e"
+      },
+      {
+        "name": "script.ver",
+        "type": 251,
+        "offset": 556788,
+        "size": 27,
+        "raw_crc_ok": false,
+        "sha256": "5e00b4060772373eddd87174f9bed0d07a503c724e0a90584a2dbd99d8d199f7"
+      },
+      {
+        "name": "blimit.bin",
+        "type": 161,
+        "offset": 556820,
+        "size": 144,
+        "raw_crc_ok": false,
+        "sha256": "89f7f7950d204fc40365a2df854e3a92daf5ad2a9e15da72b938685168808454"
+      },
+      {
+        "name": "tail.bin",
+        "type": 255,
+        "offset": 556980,
+        "size": 64,
+        "raw_crc_ok": true,
+        "sha256": "79d4bbc325be8b2f49492a9e8bf712e3cfe4e7c55e874dced1445ed65616843b"
+      }
+    ],
+    "ota_payload_name": "usb_hid_ota.bin",
+    "opaque_auxiliary_raw_crc_mismatches": [
+      "isd_config.ini",
+      "script.ver",
+      "blimit.bin"
+    ],
+    "complete_device_flash_backup": false,
+    "not_in_flash_payload": {
+      "VM": [
+        532480,
+        778240
+      ],
+      "BTIF": [
+        778240,
+        782336
+      ],
+      "USR": [
+        782336,
+        1044480
+      ],
+      "key_mac_candidate": [
+        1044480,
+        1048576
+      ]
+    },
+    "note": "Opaque auxiliary entries may use additional encoding; their raw CRC mismatch is not proof of corruption."
+  },
+  "candidates": [
+    {
+      "artifact": "hyperrig-mini-boot-probe.elf",
+      "file_format": "ELF32-pi32v2",
+      "sha256": "d7cd91440ae7932173d926b66807d8fcb19a287a41c76f5566348f5645dd49ac",
+      "bytes": 2292,
+      "elf_type": 2,
+      "machine": 241,
+      "entry": 33554720,
+      "elf_flags": 0,
+      "layout_valid": true,
+      "flashable": false,
+      "boot_verified_on_device": false,
+      "status": "linked-application-layout-only",
+      "load_segments": [
+        {
+          "index": 0,
+          "offset": 192,
+          "vaddr": 33554720,
+          "lma": 33554720,
+          "file_bytes": 472,
+          "memory_bytes": 472,
+          "flags": 5,
+          "region": "flash"
+        },
+        {
+          "index": 1,
+          "offset": 672,
+          "vaddr": 29360128,
+          "lma": 33555192,
+          "file_bytes": 4,
+          "memory_bytes": 4,
+          "flags": 7,
+          "region": "ram"
+        },
+        {
+          "index": 2,
+          "offset": 676,
+          "vaddr": 29360132,
+          "lma": 33555196,
+          "file_bytes": 0,
+          "memory_bytes": 80,
+          "flags": 6,
+          "region": "ram"
+        },
+        {
+          "index": 3,
+          "offset": 688,
+          "vaddr": 29871408,
+          "lma": 34066472,
+          "file_bytes": 0,
+          "memory_bytes": 12288,
+          "flags": 6,
+          "region": "ram"
+        }
+      ],
+      "linker_symbols": {
+        "__ram_start": 29360128,
+        "__ram_end": 29360132,
+        "__ram_load_start": 33555192,
+        "__ram_load_end": 33555196,
+        "__bss_start": 29360132,
+        "__bss_end": 29360160,
+        "__stack_bottom": 29871408,
+        "__stack_top": 29879600,
+        "__ssp_bottom": 29879600,
+        "__ssp_top": 29883696,
+        "__boot_reserved_start": 29883696,
+        "__boot_reserved_end": 29884416,
+        "__flash_image_end": 33555196,
+        "__noinit_start": 29360160,
+        "__noinit_end": 29360212,
+        "__ram_region_start": 29360128,
+        "__ram_region_end": 29883696
+      },
+      "file_backed_flash_bytes": 476,
+      "limit": "Linking and layout checks do not establish startup, clock, interrupts, audio or update/recovery behavior."
+    },
+    {
+      "artifact": "hyperrig-mini-dsp-link-probe.elf",
+      "file_format": "ELF32-pi32v2",
+      "sha256": "8962cda9f4fc37eb32cacaf5204cffc811a4fcd963e429a68b27bb83b4b6d317",
+      "bytes": 15872,
+      "elf_type": 2,
+      "machine": 241,
+      "entry": 33554720,
+      "elf_flags": 0,
+      "layout_valid": true,
+      "flashable": false,
+      "boot_verified_on_device": false,
+      "status": "linked-application-layout-only",
+      "load_segments": [
+        {
+          "index": 0,
+          "offset": 192,
+          "vaddr": 33554720,
+          "lma": 33554720,
+          "file_bytes": 11980,
+          "memory_bytes": 11980,
+          "flags": 5,
+          "region": "flash"
+        },
+        {
+          "index": 1,
+          "offset": 12192,
+          "vaddr": 29360128,
+          "lma": 33566700,
+          "file_bytes": 4,
+          "memory_bytes": 4,
+          "flags": 7,
+          "region": "ram"
+        },
+        {
+          "index": 2,
+          "offset": 12224,
+          "vaddr": 29360160,
+          "lma": 33566752,
+          "file_bytes": 0,
+          "memory_bytes": 216820,
+          "flags": 6,
+          "region": "ram"
+        },
+        {
+          "index": 3,
+          "offset": 12208,
+          "vaddr": 29871408,
+          "lma": 34078000,
+          "file_bytes": 0,
+          "memory_bytes": 12288,
+          "flags": 6,
+          "region": "ram"
+        }
+      ],
+      "linker_symbols": {
+        "__ram_start": 29360128,
+        "__ram_end": 29360132,
+        "__ram_load_start": 33566700,
+        "__ram_load_end": 33566704,
+        "__bss_start": 29360160,
+        "__bss_end": 29576928,
+        "__stack_bottom": 29871408,
+        "__stack_top": 29879600,
+        "__ssp_bottom": 29879600,
+        "__ssp_top": 29883696,
+        "__boot_reserved_start": 29883696,
+        "__boot_reserved_end": 29884416,
+        "__flash_image_end": 33566704,
+        "__noinit_start": 29576928,
+        "__noinit_end": 29576980,
+        "__ram_region_start": 29360128,
+        "__ram_region_end": 29883696
+      },
+      "file_backed_flash_bytes": 11984,
+      "limit": "Linking and layout checks do not establish startup, clock, interrupts, audio or update/recovery behavior."
+    }
+  ],
+  "hardware_writes": false,
+  "remaining_for_device_boot": [
+    "Validate bootloader-to-application handoff and board clock setup.",
+    "Integrate and verify IRQ/audio/DSP scheduling on the MINI.",
+    "Verify update transport and a complete unit-specific backup/recovery route.",
+    "Construct and independently validate the MINI application container and update metadata."
+  ]
+}

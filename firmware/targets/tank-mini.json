@@ -94,12 +94,17 @@
       "head3",
       "a2l_loader",
       "conv_bias",
-      "head_bias"
+      "head_bias",
+      "layer3",
+      "a2l3_engine"
     ],
     "compiled_target": "ELF32-pi32v2 relocatable object",
-    "instruction_level_comparisons": 7089,
+    "instruction_level_comparisons": 7509,
     "hardware_execution_verified": false,
-    "evidence": "research/native-verification.json"
+    "evidence": "research/native-verification.json",
+    "a2l_fast_path_complete": true,
+    "a2l_supported_profile": "three channels, 32-bit activations, bounded fast-path shifts",
+    "original_scheduler_emulated": false
   },
   "device_observation": {
     "identity": "TANK MINI_009",
@@ -109,5 +114,43 @@
     "complete_flash_backup_acquired": false,
     "preset_backup_acquired": false,
     "evidence": "research/hardware-observation.json"
+  },
+  "boot": {
+    "status": "diagnostic-ELFs-linked-startup-simulated",
+    "entry": 33554720,
+    "usable_ram_static_range": [
+      29360128,
+      29883696
+    ],
+    "reserved_boot_irq_range": [
+      29883696,
+      29884416
+    ],
+    "stock_handover_verified_on_device": false,
+    "target_c_executed": false,
+    "flashable": false,
+    "evidence": [
+      "research/mini-boot.json",
+      "research/mini-image.json"
+    ],
+    "host_dsp_audio_selftest": {
+      "passed": true,
+      "dsp_crc32": "f10b5e4c",
+      "tx_crc32": "f0a44a06",
+      "mmio_called": false
+    }
+  },
+  "audio_driver": {
+    "status": "compiled-offline-tested",
+    "sample_conversion": "HyperRig Q23 to capture QFin, QFout to 24-bit dual mono",
+    "mmio_hardware_executed": false,
+    "dma_started_on_device": false,
+    "requires": [
+      "matching board clock and codec rate",
+      "installed IRQ handler",
+      "DMA/cache coherency",
+      "validated analog/mute path"
+    ],
+    "evidence": "research/mini-audio-driver.json"
   }
 }
