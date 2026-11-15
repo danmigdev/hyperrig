@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "windows-share-zero-transport",
+  "offline_only": true,
+  "device_access_performed": false,
+  "hardware_verified": false,
+  "API": {
+    "constructor": "ExclusiveBufferedRomTransport(attestation, slot=..., profile=...)",
+    "helper": "probe_competing_data_open(transport)",
+    "helper_results": [
+      "denied32",
+      "not_enforced",
+      "inconclusive"
+    ]
+  },
+  "constructor": {
+    "desired_access": 3221225472,
+    "share_mode": 0,
+    "open_existing": 3,
+    "same_cfgmgr_attestation_helpers_as_quiet": true,
+    "same_buffered_exchange": true,
+    "shared_fallback": false,
+    "discovery_fallback": false,
+    "command_retry": false,
+    "automatic_reset": false,
+    "explicit_SCSI": [
+      "INQUIRY"
+    ]
+  },
+  "competing_open": {
+    "explicit_only": true,
+    "desired_access": 2147483648,
+    "share_mode": 3,
+    "same_interface": true,
+    "attempts": 1,
+    "explicit_IOCTL_count": 0,
+    "explicit_SCSI_count": 0,
+    "successful_handle_closed_immediately": true,
+    "sharing_denial_error": 32,
+    "other_errors_inconclusive": true
+  },
+  "conclusions": {
+    "physical_disk_share0_not_prohibited_by_CreateFile_documentation": true,
+    "FILE_SHARE_WRITE_requirement_documented_for_volume_or_floppy": true,
+    "attribute_only_handles_not_excluded_by_share_mode": true,
+    "MCN_stays_separate_attributes_only": true,
+    "CHECK_VERIFY2_uses_attributes_only_handle": true,
+    "sample_ClasspCreateClose_does_not_check_ShareAccess": true,
+    "sample_is_not_the_installed_Windows_binary": true,
+    "actual_data_open_enforcement_verified": false,
+    "polling_exclusion_proven": false,
+    "Defender_causality_proven": false
+  },
+  "primary_sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew",
+      "scope": "dwShareMode; physical disks and volumes"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_check_verify2",
+      "scope": "FILE_READ_ATTRIBUTES; media query remains possible"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_mcn_control",
+      "scope": "attributes-only dedicated file object; disable count and cleanup"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/specifying-exclusive-access-to-device-objects",
+      "scope": "device-object exclusivity is driver/INF property"
+    },
+    {
+      "url": "https://github.com/microsoft/Windows-driver-samples/blob/main/storage/class/classpnp/src/create.c",
+      "scope": "sample ClasspCreateClose allocates file context and forwards CREATE; not installed binary"
+    }
+  ],
+  "local_SDK_headers": [
+    {
+      "path": "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\um\\winnt.h",
+      "sha256": "b6516692d618a7fbc3c8af93aa3edfd607428e6a0313114d422e2d79d1f6f75c",
+      "version": "10.0.19041.0",
+      "runtime_dependency": false
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\shared\\ntddstor.h",
+      "sha256": "7df6f2e4d4e2897f85e44fd41b6323db26eb6ae70f787088e304c1f337d84038",
+      "version": "10.0.19041.0",
+      "runtime_dependency": false
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\um\\fileapi.h",
+      "sha256": "247b452643769f771164034761db7c7ded1f1f6f6ae5b51662ce50e2be3cef2f",
+      "version": "10.0.19041.0",
+      "runtime_dependency": false
+    }
+  ],
+  "tests": {
+    "command": "python -B -X utf8 -m unittest tests.test_mini_windows_exclusive tests.test_mini_windows_quiet tests.test_mini_windows_spt tests.test_mini_windows_mcn",
+    "total": 72,
+    "new_module": 27,
+    "passed": true,
+    "all_native_APIs_mocked": true,
+    "physical_sharing_test": false
+  },
+  "independent_review": "mini_boot: constructor/helper reviewed and27tests rerun PASS, no blocker",
+  "source_sha256": {
+    "tools/mini_windows_exclusive.py": "567f9a2de28d0aeeafacbe15dad53838cd8f890ac85de2f232bada1a5fe6b2c1",
+    "tests/test_mini_windows_exclusive.py": "dc5c2bcc5d6607f01a6136e2f621b831a4fb32032e6472cf30f611e2aad6ecab",
+    "docs/MINI_WINDOWS_EXCLUSIVE.md": "84616533998bbe073e56ec702eefd7a4266a80dc5b3370117e33c3e20455f3e8",
+    "tools/mini_windows_quiet.py": "c36e92fbb32cab3cd9e49b357acead6c1e2ff4ccd1198fd1f5bdcb1f0c1e6708",
+    "tools/mini_windows_spt.py": "604f55a337938ffaf7cd499e27fe39d1dcde17dbecdd16efe25be52a712acff0",
+    "tools/mini_windows_aligned.py": "7d7d9de2de67c08088a0e5e5de820603124582940c35a564918aef025af0d4d4",
+    "tools/mini_windows_mcn.py": "a30fa80b937a5b174396afb9f8769570aecd1d0e71b3f223acca6f3c0ba8fa27",
+    "tools/probe_mini_recovery.py": "401f501729e08ecb3efbd54e6d75157989deca5cd3c0c9629bcbf9b076042073",
+    "tests/test_mini_windows_quiet.py": "3e6c08e1679e9540b4e5fafe5299dc1ad3489bb5c90d511dc90b8e07f93f8490"
+  }
+}

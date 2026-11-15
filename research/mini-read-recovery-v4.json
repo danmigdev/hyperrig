@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "audited-command-recovery-v4",
+  "protocol": "HYW1",
+  "offline_only": true,
+  "device_access_performed": false,
+  "hardware_executed": false,
+  "API": {
+    "module": "tools.recover_mini_read_v4",
+    "class": "AuditedCommandRecoveryTransport",
+    "constructor": "transport, log, reopen_factory, max_recoveries=8",
+    "bind": "bind_session(frozen MiniAppInstallerSession)",
+    "new_counter": "mutation_request_reissues"
+  },
+  "policy": {
+    "new_opcodes": [
+      "FC7B",
+      "FC7D"
+    ],
+    "error_code": 31,
+    "requires_submitted_error": true,
+    "requires_pending_mutation": true,
+    "requires_validated_immediately_previous_audit": true,
+    "expected_change_before_ACK": "sequence only, exactly previous+1",
+    "requires_exact128_bytes_after_FC78_and_FD88": true,
+    "same_CDB_reissue_once": true,
+    "same_candidate_page_crc_required": true,
+    "last_CRC_may_be_erased_read_CRC": true,
+    "real_ACK_only": true,
+    "usual_core_status_and_mutation_audit_required": true,
+    "mutation_retries_allowed": true,
+    "condition": "only unchanged raw audit showing sequence unconsumed at reconciliation",
+    "completed_NOR_mutations_repeated": 0,
+    "executed_or_ambiguous_mutation_reissue": false,
+    "total_budget_shared_with_v3": 8,
+    "nested_recovery": false,
+    "OUT_ARM_FINISH_jump_reset_retry": false
+  },
+  "frozen_C_semantics": {
+    "sequence_consumed_before_run_job": true,
+    "WREN_reached_only_through_run_job": true,
+    "replayed_consumed_sequence_rejected": true,
+    "core_and_operational_derivation_unchanged": true
+  },
+  "tests": {
+    "python_command": "python -B -X utf8 -m unittest tests.test_mini_read_recovery_v4 tests.test_mini_read_recovery_v3 tests.test_mini_read_recovery_v2 tests.test_mini_read_recovery tests.test_mini_app_install tests.test_mini_quiet_install_runner",
+    "python_total": 134,
+    "v4_total": 47,
+    "python_passed": true,
+    "native_C_cases": 8,
+    "native_C_passed": true,
+    "ASan": true,
+    "UBSan": true,
+    "fake_NOR_only": true,
+    "native_binary_sha256": "2b957e60b12dad920db05252f650a35e45007ea41d823b34c379196be57255dd"
+  },
+  "independent_review": "mini_boot reviewed unchanged v4 module and reran initial46tests; final test-only additions included in47/134 PASS",
+  "limits": [
+    "No hardware I/O during this revision",
+    "No synthetic ACK or inference from completed mutation state",
+    "Audit proves observed writer state after failure; requires serialized host commands and same pinned writer",
+    "Does not establish cause of Win32 31, kernel transport behavior, flash completion, boot or audio"
+  ],
+  "source_sha256": {
+    "tools/recover_mini_read_v4.py": "63816045683c0728e746f2f54a9cb46a82da1fba1397f008c74da28774a888e1",
+    "tests/test_mini_read_recovery_v4.py": "2fa8a49f84502499d798e9cc27f0894864d032a4f37784682b5478aed4352367",
+    "tests/test_mini_read_recovery_v4.c": "27309a7ecc3b7ffd586d227eb7f69988fab8a6aa98954beeab0df7a157ac6634",
+    "docs/MINI_READ_RECOVERY_V4.md": "012e2e5a39cf5d6b4218c78c39176183e6acca434e00bee58fd4710e898f4065",
+    "tools/recover_mini_read_v3.py": "17d1e69602d6735a16f930a797e92e1c6f022bb3633dc544b974058cfc23a323",
+    "tools/recover_mini_read_v2.py": "43143f57a1da597d472ad6add3afd88882a11af38c2250901e493ad39bdcf6d1",
+    "tools/install_mini_app.py": "4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f",
+    "tools/probe_mini_app_writer.py": "b1c40b821b6bd685320d627139425b5b3d3b86a1004f2d856775323912c151be",
+    "tools/build_mini_app_writer.py": "39941618458365ca9c151a33e468a8b83e531f700fd7bfb3aedb581dd61c2ec2",
+    "firmware/mini/app_writer/writer.c": "f43e42b4d0aec8b354ac7f02a1067b22d3e978bd81d4412a9471f01e18086de2",
+    "build/mini-app-writer-operational/writer.c": "c115632730fd76cc877b14b58d7681242938922fea9cc1f67e5084c6c896f883",
+    "build/mini-app-writer-operational/hyperrig-writer-operational-01c20000.asm": "98e026037050f9a6ace6c2ab9f2006b91508bd37c5ebcaf3ad0a827b2d519bd9"
+  }
+}
