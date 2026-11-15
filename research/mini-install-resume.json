@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "new-installation-plan-from-reviewed-partial-NOR",
+  "source_sha256": {
+    "tools/resume_mini_install.py": "4d8b1241440c031e2de35cde8378d9354931aae78406db3a11c4912a1a15cebe",
+    "tests/test_resume_mini_install.py": "d89fde466816e8d7aea81c5f609dbf47524026bb2185f488b9e9a6a0a8b193c3",
+    "tools/install_mini_app.py": "4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f",
+    "tools/restore_mini_stock.py": "aca0b65237210b5cd30a9363e66d72cc22dc5f77c0cb0ef8ddceed0653f22324"
+  },
+  "evidence_sha256": {
+    "analysis/hardware/mini-first-install-run.json": "6f2fecb04ab8e23f8502a036618f9d4bbe6f6b92b9eab56aeb0a730b71855aaf",
+    "analysis/hardware/mini-partial-inspect-run.json": "bb43138f01eaef1ffc90d7c51823846cead59af5d44ca9db1c8806b40501e72e",
+    "analysis/hardware/run_mini_first_resume.py": "a3db02717f39ab12dd2566df026dd424bc73f3edc5ad7180d61c79393ca88edf",
+    "analysis/hardware/run_mini_first_boot_v2.py": "a3be44e482d19404976958600e7771921fd30a1ac289db917e47e3000402b199"
+  },
+  "failed_read": {
+    "command": "FD7F",
+    "physical_address": 22784,
+    "bytes": 256,
+    "Windows_error": 31,
+    "elapsed_ms_from_log_timestamps": 0.51,
+    "bytes_returned": 0,
+    "subsequent_explicit_audit_identical": true,
+    "read_bytes_before_and_after": 544000,
+    "target_error": 0,
+    "last_mutation_sequence": 22,
+    "confirmed_programmed_pages": 10,
+    "mutation_completion_unknown": false,
+    "automatic_retry_performed": false
+  },
+  "validated_fresh_input": {
+    "path": "artifacts/my-mini-flash/first-install/full-partial.bin",
+    "bytes": 1048576,
+    "sha256": "6072644bf91df5a5f310011835f20f534c9004399fa019ac0db2241ffeea8c87",
+    "physical_acquisition_record": "analysis/hardware/mini-partial-inspect-run.json",
+    "physical_acquisition_finished_utc": "2026-11-15T20:54:31.950244+00:00",
+    "modified_sectors_from_stock": [20480],
+    "candidate_pages_interval": [20480, 23040],
+    "erased_FF_interval": [23040, 24576],
+    "all_bytes_outside_sector_5000_equal_stock": true,
+    "independently_rechecked_on_persisted_file": true,
+    "planner_attests_hardware_origin_or_freshness": false
+  },
+  "validated_plan": {
+    "path": "build/mini-install-resume/resume-plan.json",
+    "sha256": "06d52f30f00cdedd63f4f0e9356b2dd1d6e536841370d976dcf987775d4a3601",
+    "regenerated_in_memory_equals_retained_plan": true,
+    "candidate_sha256": "3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff",
+    "expected_full_readback_sha256": "a35868ab3a4beb42454070ce46d67efaf695615a670de177343860e88d107c47",
+    "physical_write_allowlist": [16384, 532480],
+    "changed_sectors": 126,
+    "first_sector": 20480,
+    "last_sector": 16384,
+    "sector_5000_fresh_preimage_crc32_hex": "0a53df86",
+    "header_sector_last": true,
+    "header_page_last": true,
+    "old_sequence_token_or_bitmap_reused": false,
+    "full_application_preimage_compared_before_mutation": true,
+    "new_sector_erase_required": true,
+    "external_regions_required_identical_to_stock": true,
+    "independent_complete_NOR_readback_required": true
+  },
+  "tests": {
+    "command": "python -B -X utf8 -m unittest tests.test_resume_mini_install -v",
+    "passed": 10,
+    "transport": "fake NOR only",
+    "hardware_access": false
+  },
+  "automatic_resume": false,
+  "automatic_retry": false,
+  "automatic_reset": false,
+  "CLI_executes_installation": false,
+  "power_loss_atomicity_proven": false,
+  "reviewer_device_access": false,
+  "hardware_execution_result_included": false,
+  "boot_or_audio_validation_included": false,
+  "note": "This report records offline validation of the actual persisted partial input and new plan. Physical completion belongs to the separate runner evidence."
+}

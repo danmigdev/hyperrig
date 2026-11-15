@@ -1,0 +1,470 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "physical-buffered-transport-observation",
+  "started_utc": "2026-11-15T21:13:48.187808+00:00",
+  "completed_utc": "2026-11-15T21:15:58.264962+00:00",
+  "sealed_utc": "2026-11-15T21:21:00.436282+00:00",
+  "scope": "One completed gate-zero RAM observer transfer trial and independent full NOR read; no NOR mutation or application boot.",
+  "source_sha256_at_execution": {
+    "tools/mini_windows_spt.py": "604f55a337938ffaf7cd499e27fe39d1dcde17dbecdd16efe25be52a712acff0",
+    "tools/mini_windows_aligned.py": "7d7d9de2de67c08088a0e5e5de820603124582940c35a564918aef025af0d4d4",
+    "tools/probe_mini_app_writer.py": "b1c40b821b6bd685320d627139425b5b3d3b86a1004f2d856775323912c151be",
+    "tools/probe_mini_recovery.py": "401f501729e08ecb3efbd54e6d75157989deca5cd3c0c9629bcbf9b076042073",
+    "analysis/hardware/probe_mini_buffered_transport.py": "19845b1cfb05a542dd685ba778bcdefafe5aa178a5d1bfbc76b3ac2ea2b66850",
+    "analysis/hardware/probe_mini_buffered_transport.ps1": "e83ed7ecef2c8dc3a9683efd797e6993add593eab25ed4ea1d310120a7dd11cf",
+    "analysis/hardware/mini-partial-inspect2-run.json": "eac2386decdee3c397cc446653abd5db8e10572feeb506318a5f6612861ce477",
+    "artifacts/my-mini-flash/first-install/full-partial2.bin": "7fd0c32e295758fe8a3fdff40f5315cb83fa31091920c5b7f99fdd49aa05e4fc"
+  },
+  "source_pins_match_current_files": true,
+  "sealed_artifacts": {
+    "analysis/hardware/mini-buffered-transport-run.json": {
+      "sha256": "c85cd797539d751edbe75c61fb6884f13e0623c064dbdc2eca3ceb1e211b8ed9",
+      "bytes": 13090
+    },
+    "analysis/hardware/mini-buffered-transport-trace.jsonl": {
+      "sha256": "5bb14230e2fd67cfd4f41bc40a18ae784b3e9b55e205bdd59da9b7340e4a95f3",
+      "bytes": 10941204
+    },
+    "analysis/hardware/mini-buffered-transport-pins.json": {
+      "sha256": "169d86406214bb04769be3c5b411de88d3cdb47626f54847b84eb6b1392c6d53",
+      "bytes": 911
+    },
+    "analysis/hardware/mini-buffered-transport-audits.bin": {
+      "sha256": "27569091123fe371c31e4d52c5de1439fd21f831bcc161adf8cd490fcf0d3626",
+      "bytes": 259712
+    },
+    "analysis/hardware/mini-buffered-transport-process.log": {
+      "sha256": "1316e81d74c25c9d34fc9d5886de4f6a74fdb6d6bd887a98af2bbd1c4fcf6b44",
+      "bytes": 336
+    },
+    "artifacts/my-mini-flash/first-install/full-partial2.bin": {
+      "sha256": "7fd0c32e295758fe8a3fdff40f5315cb83fa31091920c5b7f99fdd49aa05e4fc",
+      "bytes": 1048576
+    },
+    "artifacts/my-mini-flash/first-install/full-after-buffered-probe.bin": {
+      "sha256": "7fd0c32e295758fe8a3fdff40f5315cb83fa31091920c5b7f99fdd49aa05e4fc",
+      "bytes": 1048576
+    },
+    "research/mini-app-writer.json": {
+      "sha256": "de8b7629eebaa39bb39dea55a4a7173f94d48250dfa7bf1347ca121cf85d0a64",
+      "bytes": 321079
+    },
+    "research/mini-flash-reader.json": {
+      "sha256": "7c12ff389310557f1e4210e559ad60a467a7faa10eedf2332a24d0500ff64e19",
+      "bytes": 5489
+    },
+    "build/mini-app-writer/hyperrig-writer-locked-01c20000.bin": {
+      "sha256": "5bb09c5380f1d0973c75b73125694c053802f76c56d660c2d7dd5e4050c88f49",
+      "bytes": 5712
+    },
+    "build/mini-app-writer/hyperrig-writer-locked-01c20000.elf": {
+      "sha256": "8eee8d7f92e2ef8eab00a30d57c4054feeb8399ce75d58b10b70cba45360fc8e",
+      "bytes": 7896
+    },
+    "build/mini-flash-reader/hyperrig-reader-01c28000.bin": {
+      "sha256": "7a492bf17d98f0f5ca5d2fb0d0da7d369937169075507676bfb51b88c9bb2b83",
+      "bytes": 2308
+    },
+    "build/mini-flash-reader/hyperrig-reader-01c28000.elf": {
+      "sha256": "c59cff25df5c3e3bfe0d85392d9aa861e1fe287dc1f7d8afcf40e5f7575acf72",
+      "bytes": 3548
+    }
+  },
+  "backend": {
+    "class": "WindowsBufferedRomTransport",
+    "ioctl_name": "IOCTL_SCSI_PASS_THROUGH",
+    "ioctl": 315396,
+    "data_buffer_offset": 88,
+    "sense_info_offset": 56,
+    "native_header_bytes": 56,
+    "timeout_seconds": 10,
+    "command_spacing_seconds": 0.005,
+    "adapter_descriptors": {
+      "retained-reader": {
+        "version": 32,
+        "size": 32,
+        "maximum_transfer_length": 65536,
+        "maximum_physical_pages": 17,
+        "alignment_mask": 0,
+        "adapter_uses_pio": false,
+        "adapter_scans_down": false,
+        "command_queueing": false,
+        "accelerated_transfer": false,
+        "bus_type": 7,
+        "bus_major_version": 1,
+        "bus_minor_version": 0,
+        "srb_type": 0,
+        "address_type": 0,
+        "raw_hex": "2000000020000000000001001100000000000000000000000700010000000000",
+        "bytes_returned": 32,
+        "query_output_sizes": [
+          8,
+          32
+        ]
+      },
+      "gate-zero": {
+        "version": 32,
+        "size": 32,
+        "maximum_transfer_length": 65536,
+        "maximum_physical_pages": 17,
+        "alignment_mask": 0,
+        "adapter_uses_pio": false,
+        "adapter_scans_down": false,
+        "command_queueing": false,
+        "accelerated_transfer": false,
+        "bus_type": 7,
+        "bus_major_version": 1,
+        "bus_minor_version": 0,
+        "srb_type": 0,
+        "address_type": 0,
+        "raw_hex": "2000000020000000000001001100000000000000000000000700010000000000",
+        "bytes_returned": 32,
+        "query_output_sizes": [
+          8,
+          32
+        ]
+      },
+      "full-reader": {
+        "version": 32,
+        "size": 32,
+        "maximum_transfer_length": 65536,
+        "maximum_physical_pages": 17,
+        "alignment_mask": 0,
+        "adapter_uses_pio": false,
+        "adapter_scans_down": false,
+        "command_queueing": false,
+        "accelerated_transfer": false,
+        "bus_type": 7,
+        "bus_major_version": 1,
+        "bus_minor_version": 0,
+        "srb_type": 0,
+        "address_type": 0,
+        "raw_hex": "2000000020000000000001001100000000000000000000000700010000000000",
+        "bytes_returned": 32,
+        "query_output_sizes": [
+          8,
+          32
+        ]
+      }
+    },
+    "inquiry": {
+      "vendor": "WL82",
+      "product": "UBOOT1.00",
+      "raw_hex": "0080020220000000574c38322020202055424f4f54312e303020202020202020312e3030"
+    }
+  },
+  "trace_validation": {
+    "rows": 20440,
+    "states": {
+      "before": 10220,
+      "after": 10220
+    },
+    "commands_with_matched_before_after": 10220,
+    "commands_by_stage": {
+      "retained-reader": 2,
+      "gate-zero": 6108,
+      "full-reader": 4110
+    },
+    "commands_by_opcode": {
+      "fb06": 17,
+      "fb08": 2,
+      "fb7c": 1,
+      "fc70": 2,
+      "fc72": 1,
+      "fc73": 2050,
+      "fc78": 1,
+      "fc79": 1,
+      "fc7a": 1,
+      "fc7e": 2025,
+      "fd07": 17,
+      "fd71": 2048,
+      "fd7f": 2024,
+      "fd87": 1,
+      "fd88": 2029
+    },
+    "in_commands": 10202,
+    "out_commands": 18,
+    "out_length_histogram": {
+      "80": 1,
+      "260": 2,
+      "512": 15
+    },
+    "in_length_histogram": {
+      "16": 4083,
+      "80": 1,
+      "128": 2029,
+      "256": 2017,
+      "260": 1,
+      "512": 2071
+    },
+    "error_events": 0,
+    "unmatched_commands": 0,
+    "automatic_retries": 0,
+    "scsi_error_statuses": 0,
+    "invalid_native_completions": 0,
+    "all_logged_native_transfers_use_buffered_ioctl": true,
+    "all_profile_allowlists_revalidated_offline": true,
+    "small_response_hex_hashes_revalidated": true,
+    "ram_readback_wire_hashes_revalidated": true,
+    "nor_read_response_hashes_revalidated_against_full_dump": true,
+    "unlogged_constructor_operations": {
+      "identified_handles": 3,
+      "inquiry_per_handle": 1,
+      "adapter_metadata_queries_per_handle": 2,
+      "basis": "Constructor source and saved descriptor/identity records; excluded from trace counts."
+    },
+    "native_duration_ns": {
+      "minimum": 186000,
+      "median": 640500,
+      "maximum": 44646100
+    },
+    "out_260_note": "One FB7C page stage; the other OUT260 is the final FB06 RAM-upload chunk of HYRN."
+  },
+  "observer": {
+    "protocol": "HYW1",
+    "version": 1,
+    "base": 29491200,
+    "build_tag": 952581649,
+    "payload_sha256": "5bb09c5380f1d0973c75b73125694c053802f76c56d660c2d7dd5e4050c88f49",
+    "elf_sha256": "8eee8d7f92e2ef8eab00a30d57c4054feeb8399ce75d58b10b70cba45360fc8e",
+    "manifest_sha256": "de8b7629eebaa39bb39dea55a4a7173f94d48250dfa7bf1347ca121cf85d0a64",
+    "payload_uploaded_and_rom_readback_matched": true,
+    "target_mutations_enabled": false,
+    "identity_hex": "fc7848595731010001c2000000008000",
+    "staging_fixture": {
+      "slot": 29491200,
+      "build_tag": 952581649,
+      "image_sha256": "5bb09c5380f1d0973c75b73125694c053802f76c56d660c2d7dd5e4050c88f49",
+      "elf_sha256": "8eee8d7f92e2ef8eab00a30d57c4054feeb8399ce75d58b10b70cba45360fc8e",
+      "manifest_sha256": "de8b7629eebaa39bb39dea55a4a7173f94d48250dfa7bf1347ca121cf85d0a64",
+      "plan_sha256": "22212e9d668ca0d02da94bbbe8242e85ccbba26957dce47325b7a3afaaaea20f",
+      "candidate_sha256": "639f58864e2b7c29c4312545fe94b345b2f8c8c21eb72eceb0932712bd608f70",
+      "backup_sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180",
+      "sector_address": 16384,
+      "sector_bytes": 4096,
+      "page_address": 16384,
+      "page_bytes": 256,
+      "preimage_sha256": "4facb7fb3c4e27905813c502d057856d87588f4cfcbc87a9e1d3f5418a95f132",
+      "preimage_crc32": 1343972482,
+      "target_sector_sha256": "def117de30544e6ba99a871a7b51c0131c4737f3d075b38fd5accad51046544f",
+      "target_sector_crc32": 2850727580,
+      "page_sha256": "ceea7b6187186d432b03fc374074b39a572a3761d7be5f8b7d1ee51c66cbd733",
+      "page_crc32": 2850167665,
+      "NVM_commands_available": false
+    },
+    "first_sector": {
+      "sector_address": 16384,
+      "bytes": 4096,
+      "sha256": "4facb7fb3c4e27905813c502d057856d87588f4cfcbc87a9e1d3f5418a95f132",
+      "matches_backup_byte_for_byte": true,
+      "read_bytes": 4096
+    },
+    "staging_and_echo": {
+      "observation_passed": true,
+      "echo_sha256": "ceea7b6187186d432b03fc374074b39a572a3761d7be5f8b7d1ee51c66cbd733",
+      "echo_bytes": 256,
+      "echo_matches_candidate_byte_for_byte": true,
+      "token": 1,
+      "sequence": 2,
+      "staging_sequence_consumed": true,
+      "target_sector_remains_armed": true,
+      "audit": {
+        "version": 1,
+        "base": 29491200,
+        "build_tag": 952581649,
+        "phase": 4,
+        "error": 0,
+        "token": 1,
+        "sequence": 2,
+        "sector": 16384,
+        "page": 16384,
+        "preimage_crc32": 1343972482,
+        "target_crc32": 2850727580,
+        "page_crc32": 2850167665,
+        "last_crc32": 2850167665,
+        "jedec": 15425556,
+        "sr1": 0,
+        "sr2": 2,
+        "wren_attempts": 0,
+        "erase_attempts": 0,
+        "program_attempts": 0,
+        "read_bytes": 8192,
+        "status_polls": 0,
+        "raw_receive_return": 260,
+        "rx_guards_ok": 1,
+        "page_bitmap": 0,
+        "staged": 1,
+        "echoed": 1,
+        "stack_guards_ok": 1,
+        "stack_observed_bytes": 52,
+        "mutations_enabled": 0,
+        "record_sha256": "d6f7171b7815764aa3df3dd88454e0e5f58a9dc0b136fd1d8c5babd11b671a1d",
+        "hardware_readiness_asserted": false
+      },
+      "wren_attempts": 0,
+      "erase_attempts": 0,
+      "program_attempts": 0,
+      "automatic_retry": false,
+      "NVM_commands_available": false,
+      "operational_writer_qualified": false
+    },
+    "audit_records": {
+      "count": 2029,
+      "record_bytes": 128,
+      "stream_bytes": 259712,
+      "stream_sha256": "27569091123fe371c31e4d52c5de1439fd21f831bcc161adf8cd490fcf0d3626",
+      "all_crc_and_framing_valid": true,
+      "all_version_base_build_tag_matched": true,
+      "all_mutation_gates_zero": true,
+      "all_error_codes_zero": true,
+      "all_wren_erase_program_counters_zero": true,
+      "all_rx_stack_guards_intact": true,
+      "all_wip_poll_counters_zero": true,
+      "all_page_bitmaps_zero": true,
+      "read_counter_monotonic": true,
+      "phase_counts": {
+        "0": 1,
+        "1": 9,
+        "2": 1,
+        "4": 2018
+      },
+      "first": {
+        "version": 1,
+        "base": 29491200,
+        "build_tag": 952581649,
+        "phase": 0,
+        "error": 0,
+        "token": 0,
+        "sequence": 0,
+        "sector": 0,
+        "page": 0,
+        "preimage_crc32": 0,
+        "target_crc32": 0,
+        "page_crc32": 0,
+        "last_crc32": 0,
+        "jedec": 0,
+        "sr1": 0,
+        "sr2": 0,
+        "wren_attempts": 0,
+        "erase_attempts": 0,
+        "program_attempts": 0,
+        "read_bytes": 0,
+        "status_polls": 0,
+        "raw_receive_return": -2147483648,
+        "rx_guards_ok": 1,
+        "page_bitmap": 0,
+        "staged": 0,
+        "echoed": 0,
+        "stack_guards_ok": 1,
+        "stack_observed_bytes": 0,
+        "mutations_enabled": 0,
+        "record_sha256": "22a818bcf1fbd5a334cb59b992d109550f1f3b9e452242645f7be7567b50f9de",
+        "hardware_readiness_asserted": false
+      },
+      "last": {
+        "version": 1,
+        "base": 29491200,
+        "build_tag": 952581649,
+        "phase": 4,
+        "error": 0,
+        "token": 1,
+        "sequence": 2,
+        "sector": 16384,
+        "page": 16384,
+        "preimage_crc32": 1343972482,
+        "target_crc32": 2850727580,
+        "page_crc32": 2850167665,
+        "last_crc32": 4272465953,
+        "jedec": 15425556,
+        "sr1": 0,
+        "sr2": 2,
+        "wren_attempts": 0,
+        "erase_attempts": 0,
+        "program_attempts": 0,
+        "read_bytes": 524288,
+        "status_polls": 0,
+        "raw_receive_return": 260,
+        "rx_guards_ok": 1,
+        "page_bitmap": 0,
+        "staged": 1,
+        "echoed": 1,
+        "stack_guards_ok": 1,
+        "stack_observed_bytes": 112,
+        "mutations_enabled": 0,
+        "record_sha256": "c52829e6d4817e4933ea18cbbab171fbe0a540cce4017befbc9c9b470a8e28bd",
+        "hardware_readiness_asserted": false
+      }
+    },
+    "application_page_reads": {
+      "start": 16384,
+      "end_exclusive": 532480,
+      "page_bytes": 256,
+      "page_count": 2016,
+      "bytes": 516096,
+      "sha256": "2997a66ae84c9dc153dfc39fa7559869638ebaa38009c40133dac59741bec444",
+      "all_expected_addresses_once_in_order": true,
+      "each_response_matches_preexisting_partial_dump": true,
+      "each_followed_by_status_and_crc_valid_audit": true
+    },
+    "observer_read_counter": 524288,
+    "read_counter_components": {
+      "preimage_reads": 4096,
+      "arm_internal_preimage_read": 4096,
+      "application_page_reads": 516096
+    }
+  },
+  "independent_full_nor_read": {
+    "protocol": "HYRN",
+    "base": 29523968,
+    "payload_sha256": "7a492bf17d98f0f5ca5d2fb0d0da7d369937169075507676bfb51b88c9bb2b83",
+    "elf_sha256": "c59cff25df5c3e3bfe0d85392d9aa861e1fe287dc1f7d8afcf40e5f7575acf72",
+    "payload_uploaded_and_rom_readback_matched": true,
+    "identity_hex": "fc704859524e010301c2800000008000",
+    "jedec": "eb6014",
+    "capacity_bytes": 1048576,
+    "read_chunks": 2048,
+    "chunk_bytes": 512,
+    "every_read_followed_by_status_and_expected_counter": true,
+    "full_bytes": 1048576,
+    "sha256": "7fd0c32e295758fe8a3fdff40f5315cb83fa31091920c5b7f99fdd49aa05e4fc",
+    "before_path": "artifacts/my-mini-flash/first-install/full-partial2.bin",
+    "after_path": "artifacts/my-mini-flash/first-install/full-after-buffered-probe.bin",
+    "all_bytes_unchanged": true,
+    "application_bytes_sha256": "2997a66ae84c9dc153dfc39fa7559869638ebaa38009c40133dac59741bec444",
+    "outside_application_sha256": {
+      "00000000_00004000": "d9f43191777656de01c7bed4f9e9ba2e34e94832c5d2ed02c3fc7ab7a6d9bd67",
+      "00082000_00100000": "aa0dbd1c5686fd8de57ae2baba3b21b0741ba72555000b70e91b127c3c4e9695"
+    }
+  },
+  "final_lifecycle": {
+    "known_live_slot": 29523968,
+    "known_live_protocol": "HYRN",
+    "jump_outcome_unknown": false,
+    "resets_sent": 0,
+    "jumps_sent": 2,
+    "jump_targets_in_order": [
+      29491200,
+      29523968
+    ],
+    "stock_application_restarted": false
+  },
+  "qualification": {
+    "buffered_transfer_trial_passed_on_this_unit": true,
+    "nor_writes_in_trial": false,
+    "operational_erase_program_tested_in_this_trial": false,
+    "complete_hyperrig_installation_proven": false,
+    "application_boot_proven": false,
+    "windows_error31_root_cause_proven": false,
+    "future_error_free_operation_guaranteed": false,
+    "aligned_direct_hardware_tested": false,
+    "global_hardware_profile_modified": false
+  },
+  "limitations": [
+    "Single completed run on this MINI and Windows USB/storage stack; no universal reliability conclusion.",
+    "Retained NOR contains a partial previous installation, not a boot-qualified HyperRig application.",
+    "The old gate-zero staging fixture is preserved and does not replace the current candidate image.",
+    "Erase/program sequences, mutation retries and application boot are outside this no-write trial."
+  ]
+}
