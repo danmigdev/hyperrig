@@ -174,9 +174,10 @@ class FamilyEvidenceTests(unittest.TestCase):
     def test_combine_representative_trials_without_requiring_all_values(self):
         e,p=self.report('save');e=self.schema_fixture(e,p)
         f,q=self.report('live','FXE');f=self.schema_fixture(f,q)
-        profile=self.load([e,f],sorted(app.FAMILY_COMMANDS))
+        legacy_families=sorted(mutation.SUPPORTED_FAMILIES)
+        profile=self.load([e,f],legacy_families)
         qual=profile['family_qualification']['usb-cdc']
-        self.assertEqual(qual['enabled_families'],sorted(app.FAMILY_COMMANDS))
+        self.assertEqual(qual['enabled_families'],legacy_families)
         self.assertFalse(qual['every_value_physically_tested'] or profile['capabilities']['write'])
         self.assertEqual(qual['physically_exercised_requests']['PSAVE'],['PSAVE 31 HyperRig_Test'])
         result=node(POLICY,{'profile':profile,'actions':seed()+[{'command':'PSAVE 12 A different preset'}, {'command':'FXP 7 0 -12'}]})

@@ -31,9 +31,10 @@ SCOPED_COMMANDS = {
     "PDEL": r"PDEL (?:[0-9]|[12][0-9]|3[01])",
     "SNAP": r"SNAP [0-3]",
     "SNAPSAVE": r"SNAPSAVE [0-3]",
+    "GAIN": r"GAIN -?(?:0|[1-9]\d*) -?(?:0|[1-9]\d*)",
 }
 PERSISTENT_COMMANDS = {"PSAVE", "PDEL", "SNAPSAVE"}
-FAMILY_COMMANDS = {"FXP", "FXE", "PLOAD", "PSAVE", "SNAP", "SNAPSAVE"}
+FAMILY_COMMANDS = {"FXP", "FXE", "PLOAD", "PSAVE", "SNAP", "SNAPSAVE", "GAIN"}
 FAMILY_TRANSPORTS = {"usb-cdc", "ble-nus"}
 PROTOCOL_BINDING = {"dialect": "ultrarig-ascii-v1", "editor_sha256": SOURCE_SHA,
                     "original_firmware_sha256": FW_SHA}
@@ -83,6 +84,8 @@ def command_grants(value: dict) -> dict:
                 raise ValueError("invalid scoped request: " + repr(line))
             if command == "PSAVE" and len(line.split(" ", 2)[2].encode("utf-16-le")) // 2 > 23:
                 raise ValueError("PSAVE names are limited to 23 UTF-16 units")
+            if command == "GAIN" and any(not -30 <= int(v) <= 12 for v in line.split()[1:]):
+                raise ValueError("GAIN exceeds the original -30..12 dB range")
             # M4.83+ USB line capacity, excluding LF, as in the original editor.
             if len(line.encode("utf-8")) > 190:
                 raise ValueError("scoped request exceeds USB line capacity")
@@ -261,9 +264,14 @@ def load_family_validation(spec: dict, caps: dict) -> tuple[dict, dict, dict]:
         exercised, qualified = {}, set()
         for proof in proofs:
             evidence = json.loads(local_evidence(proof, "family validation"))
+            retained_first = (isinstance(evidence, dict)
+                              and evidence.get("kind") == "mini-app-first-preset-validation"
+                              and evidence.get("evidence_model") == "representative-first-preset-v1")
+            restored_trial = (isinstance(evidence, dict)
+                              and evidence.get("kind") == "mini-app-command-validation"
+                              and evidence.get("evidence_model") == "representative-families-v1")
             if (not isinstance(evidence, dict) or evidence.get("schema") != 1
-                    or evidence.get("kind") != "mini-app-command-validation"
-                    or evidence.get("evidence_model") != "representative-families-v1"
+                    or not (retained_first or restored_trial)
                     or evidence.get("target") != "tank-mini"
                     or evidence.get("firmware_version") != spec["firmware_version"]
                     or evidence.get("image_sha256") != spec["image_sha256"]
@@ -271,7 +279,8 @@ def load_family_validation(spec: dict, caps: dict) -> tuple[dict, dict, dict]:
                     or evidence.get("transport") != transport
                     or evidence.get("editor_source_sha256") != SOURCE_SHA
                     or evidence.get("protocol_binding") != PROTOCOL_BINDING
-                    or evidence.get("restoration_verified") is not True
+                    or restored_trial and evidence.get("restoration_verified") is not True
+                    or retained_first and (transport != "usb-cdc" or evidence.get("restoration_verified") is not False)
                     or evidence.get("every_value_physically_tested") is not False
                     or evidence.get("simulated_requests") != {}):
                 raise ValueError("representative evidence does not match image/protocol/transport/restoration")
@@ -282,7 +291,8 @@ def load_family_validation(spec: dict, caps: dict) -> tuple[dict, dict, dict]:
             actual = command_grants(evidence.get("physically_exercised_requests", {}))
             if not actual or set(actual) - set(supported):
                 raise ValueError("representative report has no exercised supported family")
-            sessions = representative_trace(local_evidence(evidence.get("trace"), "family trace"), evidence)
+            raw_trace = local_evidence(evidence.get("trace"), "family trace")
+            sessions = representative_trace(raw_trace, evidence)
             backup = json.loads(local_evidence(evidence.get("backup"), "family state backup"))
             if (not isinstance(backup, dict) or backup.get("kind") != "mini-app-live-state-backup"
                     or backup.get("image_sha256") != spec["image_sha256"]
@@ -292,6 +302,12 @@ def load_family_validation(spec: dict, caps: dict) -> tuple[dict, dict, dict]:
             observations = evidence.get("representative_observations")
             if not isinstance(observations, list) or any(not isinstance(o, dict) for o in observations):
                 raise ValueError("representative observations are missing")
+            if retained_first:
+                from tools.probe_mini_app_first_preset import validate_first_preset_evidence
+                try:
+                    validate_first_preset_evidence(evidence, backup, raw_trace)
+                except (RuntimeError, KeyError, TypeError) as exc:
+                    raise ValueError("retained first-preset proof failed raw-trace replay: " + str(exc)) from exc
             for command, requests in actual.items():
                 for request in requests:
                     found = [o for o in observations if o.get("request") == request
@@ -304,7 +320,7 @@ def load_family_validation(spec: dict, caps: dict) -> tuple[dict, dict, dict]:
                         raise ValueError("exercised request lacks ACK/readback and a matching complete trace")
                     exercised.setdefault(command, set()).add(request)
                 qualified.add(command)
-            if {"PSAVE", "SNAPSAVE"} & set(actual):
+            if not retained_first and {"PSAVE", "SNAPSAVE"} & set(actual):
                 trial = evidence.get("trial", {})
                 if (not isinstance(trial, dict) or trial.get("roundtrip_passed") is not True
                         or trial.get("persistence_readback_verified") is not True

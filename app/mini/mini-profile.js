@@ -13,11 +13,11 @@
   const query = new Set(("PING STAT MEM MODEL FXT FXS FXMIX FXXO AMPEQ PLIST SNAPS SNAPNAME CLIST ILIST " +
     "LVL GEQ HPF SPILL GLIDE SPUR LIM PSTAT STW BLE TUNE LIFE CRASH CLKSTATE GAIN BPM PCOLOR").split(" "));
   const panelCommands = new Set(["FSA", "FSMODE", "FSPRESS", "FSDO", "FSLED", "LEDCFG"]);
-  const scopedCommands = new Set(["FXP", "FXE", "PLOAD", "PSAVE", "PDEL", "SNAP", "SNAPSAVE"]);
-  const familyCommands = new Set(["FXP", "FXE", "PLOAD", "PSAVE", "SNAP", "SNAPSAVE"]);
+  const scopedCommands = new Set(["FXP", "FXE", "PLOAD", "PSAVE", "PDEL", "SNAP", "SNAPSAVE", "GAIN"]);
+  const familyCommands = new Set(["FXP", "FXE", "PLOAD", "PSAVE", "SNAP", "SNAPSAVE", "GAIN"]);
   const familyTransports = new Set(["usb-cdc", "ble-nus"]);
   let identified = false, identifiedTransport = null;
-  const emptyState = () => ({types: null, blocks: null, presets: null, current: null, snaps: null});
+  const emptyState = () => ({types: null, blocks: null, presets: null, current: null, snaps: null, gain: null});
   let observed = emptyState();
   const integer = (n, lo = -2147483648, hi = 2147483647) => Number.isInteger(n) && n >= lo && n <= hi;
   const familyWriteEnabled = transport => profile.capabilities.read === true && profile.hardware_verified === true &&
@@ -113,6 +113,7 @@
     if (["FXS", "FXP", "FXE", "PLOAD", "SNAP"].includes(command)) observed.blocks = null;
     if (["PLIST", "PSAVE", "PLOAD"].includes(command)) { observed.presets = null; observed.current = null; }
     if (["SNAPS", "SNAP", "SNAPSAVE", "PLOAD", "PSAVE"].includes(command)) observed.snaps = null;
+    if (["GAIN", "LVL", "PLOAD", "SNAP"].includes(command)) observed.gain = null;
   }
   function observeReply(request, lines, timedOut = false, transport = null) {
     if (!identified || transport !== identifiedTransport || !familyWriteEnabled(transport)) return;
@@ -120,10 +121,23 @@
     if (timedOut || !Array.isArray(lines) || lines.some(l => typeof l !== "string" || l.startsWith("ERR"))) { invalidate(command); return; }
     try {
       if (request === "FXT") observed.types = parseTypes(lines);
+      else if (command === "GAIN") {
+        const m = lines.length === 1 && /^GAIN in=(-?\d+) out=(-?\d+) dB$/.exec(lines[0]);
+        need(m && integer(+m[1], -30, 12) && integer(+m[2], -30, 12));
+        if (request !== "GAIN") {
+          const q = /^GAIN (-?(?:0|[1-9]\d*)) (-?(?:0|[1-9]\d*))$/.exec(request);
+          need(q && +q[1] === +m[1] && +q[2] === +m[2]);
+        }
+        observed.gain = [+m[1], +m[2]];
+      } else if (request === "LVL") {
+        const m = lines.length === 1 && /^LVL .*\bg=(-?\d+)\/(-?\d+)(?: |$)/.exec(lines[0]);
+        need(m && integer(+m[1], -30, 12) && integer(+m[2], -30, 12));
+        observed.gain = [+m[1], +m[2]];
+      }
       else if (request === "FXS") observed.blocks = parseBlocks(lines);
       else if (request === "PLIST") {
         const next = parsePresets(lines);
-        if (observed.current !== null && observed.current !== next.current) { observed.blocks = null; observed.snaps = null; }
+        if (observed.current !== null && observed.current !== next.current) { observed.blocks = null; observed.snaps = null; observed.gain = null; }
         Object.assign(observed, next);
       } else if (request === "SNAPS") observed.snaps = parseSnaps(lines);
       else if (command === "PSAVE") {
@@ -132,10 +146,10 @@
         observed.presets[q[1]] = q[2]; observed.current = +q[1];
       } else if (command === "PLOAD") {
         const q = /^PLOAD (\d+)$/.exec(request), m = lines.length === 1 && /^PLOAD ok (\d+) '/.exec(lines[0]);
-        need(q && m && q[1] === m[1]); observed.current = +q[1]; observed.blocks = null; observed.snaps = null;
+        need(q && m && q[1] === m[1]); observed.current = +q[1]; observed.blocks = null; observed.snaps = null; observed.gain = null;
       } else if (command === "SNAP") {
         const q = /^SNAP ([0-3])$/.exec(request), m = lines.length === 1 && /^SNAP ok ([0-3]) missing=\d+ ms=\d+/.exec(lines[0]);
-        need(q && m && q[1] === m[1]); observed.blocks = null; observed.snaps = null;
+        need(q && m && q[1] === m[1]); observed.blocks = null; observed.snaps = null; observed.gain = null;
       } else if (command === "SNAPSAVE") {
         const q = /^SNAPSAVE ([0-3])$/.exec(request), m = lines.length === 1 && /^SNAPSAVE ok ([0-3]) preset=(-?\d+)$/.exec(lines[0]);
         need(q && m && q[1] === m[1] && +m[2] === observed.current && observed.snaps);
@@ -145,7 +159,9 @@
     } catch (_) { invalidate(command); }
   }
   function familyPolicy(value, state) {
-    let m = /^FXP (0|[1-9]\d*) ([0-6]) (-?(?:0|[1-9]\d*))$/.exec(value);
+    let m = /^GAIN (-?(?:0|[1-9]\d*)) (-?(?:0|[1-9]\d*))$/.exec(value);
+    if (m) return !!state.gain && integer(+m[1], -30, 12) && integer(+m[2], -30, 12);
+    m = /^FXP (0|[1-9]\d*) ([0-6]) (-?(?:0|[1-9]\d*))$/.exec(value);
     if (m) {
       const block = state.blocks && state.blocks[m[1]], type = block && state.types && state.types[block.type], param = type && type.params[m[2]];
       return !!param && integer(+m[3], param.min, param.max);

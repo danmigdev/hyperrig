@@ -5,7 +5,7 @@
   const p = HyperRigMini.profile;
   const demo = location.hash === "#demo";
   const commandNames = {FXP: "parametri effetti", FXE: "bypass effetti", PLOAD: "caricamento preset",
-    PSAVE: "salvataggio preset", PDEL: "eliminazione preset", SNAP: "selezione scene", SNAPSAVE: "salvataggio scene"};
+    PSAVE: "salvataggio preset", PDEL: "eliminazione preset", SNAP: "selezione scene", SNAPSAVE: "salvataggio scene", GAIN: "livelli ingresso e uscita"};
   const scoped = Object.keys(p.command_capabilities || {}).map(c => commandNames[c]).filter(Boolean);
   const families = Object.entries(p.family_capabilities || {}).filter(([tr]) => HyperRigMini.familyWriteEnabled(tr))
     .map(([tr, commands]) => (tr === "usb-cdc" ? "USB" : "Bluetooth") + ": " + commands.map(c => commandNames[c]).filter(Boolean).join(", "));
