@@ -1,7 +1,8 @@
 """Compose the complete original UltraRig G application for MINI, offline.
 
 Every original-byte change is enumerated and invertible. The appended board
-shim is compiled separately. This tool also derives the MINI editor against
+shim is compiled separately, followed by the mandatory entry recovery guard.
+This tool also derives the MINI editor against
 the exact image hash; it never connects to or writes a device.
 """
 from __future__ import annotations
@@ -19,6 +20,8 @@ from tools.audit_mini_boot_contract import boot_patches
 from tools.build_mini_app import build as build_editor
 from firmware.mini.audio_port.patches import audio_patches, verify_control_flow
 from firmware.mini.audio_port.verify import inspect as inspect_audio
+from tools.build_mini_entry_recovery_v2 import (APPEND_ORIGIN, build as build_recovery,
+    patches as recovery_patches, bind_append)
 
 
 def sha(data): return hashlib.sha256(data).hexdigest()
@@ -45,13 +48,28 @@ def build(output: Path, audio_manifest: Path):
     require(inspected['symbols'] == audio['elf']['symbols'], 'audio entry symbols differ')
     g_raw, mini = (ROOT / G_PATH).read_bytes(), (ROOT / MINI_PATH).read_bytes()
     g_plain, *_ = pinned_inputs(g_raw, mini)
+    # The allocator derives this location from the actual audio bytes. Keep
+    # word alignment explicit so a future shim cannot leave a stale branch.
+    require(len(payload) % 2 == 0, 'audio code must end on an instruction boundary')
+    alignment_padding = b'\0' * ((-len(payload)) & 3)  # pi32v2 nop halfwords
+    preceding_append = payload + alignment_padding
+    recovery_address = APPEND_ORIGIN + len(preceding_append)
+    recovery = build_recovery(recovery_address)
+    recovery_payload = (ROOT / recovery['component']['file']).read_bytes()
+    appended = bind_append(g_plain, preceding_append, recovery_payload, recovery)
+    require(recovery['policy']['requires_initial_DIR_inputs'] is False and
+            recovery['component']['BSS_bytes'] == recovery['component']['initialized_RAM_bytes'] == 0,
+            'application recovery policy or RAM contract differs')
     groups = {'panel': tuple(panel_patches(g_plain)), 'boot': tuple(boot_patches(g_plain)),
-              'audio': tuple(audio_patches(g_plain, inspected['symbols']))}
+              'audio': tuple(audio_patches(g_plain, inspected['symbols'])),
+              'recovery': tuple(recovery_patches(g_plain, recovery_address))}
+    require(len(groups['recovery']) == 1 and
+            [p.record() for p in groups['recovery']] == recovery['patches'], 'mandatory recovery hook differs')
     require(verify_control_flow(groups['audio'], inspected['symbols']) == 42, 'audio hook flow differs')
     patches = tuple(p for group in groups.values() for p in group)
-    image, composition = compose_candidate(g_raw, mini, additional_patches=patches, append_code=payload)
+    image, composition = compose_candidate(g_raw, mini, additional_patches=patches, append_code=appended)
     # Run the independent formatter twice to catch inadvertent retained state.
-    second, repeated = compose_candidate(g_raw, mini, additional_patches=patches, append_code=payload)
+    second, repeated = compose_candidate(g_raw, mini, additional_patches=patches, append_code=appended)
     require(second == image and repeated == composition, 'composition is not deterministic')
     require(composition['stock_mini_application_bytes_used'] == 0, 'stock application graft is outside the agreed goal')
     require(composition['crc_and_layout_valid'] and
@@ -60,9 +78,23 @@ def build(output: Path, audio_manifest: Path):
     output.mkdir(parents=True, exist_ok=True)
     image_path = output / 'hyperrig-mini.app-area.bin'
     image_path.write_bytes(image)
+    recovery_manifest_path = output / 'entry-recovery-manifest.json'
+    write_json(recovery_manifest_path, recovery)
+    recovery_binding = {
+        'version': 2, 'mandatory': True, 'manifest': relative(recovery_manifest_path),
+        'manifest_sha256': sha(recovery_manifest_path.read_bytes()),
+        'address': recovery_address, 'end_exclusive': recovery['component']['end_exclusive'],
+        'payload_bytes': len(recovery_payload), 'payload_sha256': sha(recovery_payload),
+        'preceding_audio_bytes': len(payload), 'alignment_padding_bytes': len(alignment_padding),
+        'actual_preceding_payload_validated': True, 'requires_initial_DIR_inputs': False,
+        'cold_entry_verified_on_mini': False, 'valid_image_hang_recovery_verified': False,
+        'damaged_header_entry_or_guard_covered': False,
+        'physical_key_and_reset_qualification': 'Separate HYK1 evidence; not inferred as a full application boot.',
+    }
     gates = ['Full application has not booted on the physical MINI.',
              'Codec preconditions, nominal 48kHz timing and analog audio remain to be qualified.',
-             'Independent recovery from a valid-image hang has not been demonstrated.',
+             'The application entry guard has not run on cold boot; physical HYK1 key/reset qualification is separate.',
+             'A damaged application header, entry or guard is outside the footswitch guard coverage.',
              'Preset read/write through the adapted application has not been demonstrated.',
              'Physical LED and knob mapping remains incomplete.']
     firmware_manifest = {
@@ -76,6 +108,7 @@ def build(output: Path, audio_manifest: Path):
         'SPL_and_unit_partitions_included': False,
         'audio_shim': {'manifest': relative(audio_manifest), 'sha256': sha(audio_manifest.read_bytes()),
                        'codec_script': audio['codec_script']},
+        'entry_recovery': recovery_binding,
     }
     manifest_path = output / 'firmware-manifest.json'
     write_json(manifest_path, firmware_manifest)
@@ -83,15 +116,16 @@ def build(output: Path, audio_manifest: Path):
     profile = app_report['profile']
     require(profile['image_sha256'] == sha(image) and profile['capabilities']['read'] and
             not profile['capabilities']['write'] and not profile['hardware_verified'], 'editor capability binding differs')
-    paths = ['tools/build_mini_ultrarig.py', 'tools/audit_mini_ultrarig_port.py',
+    paths = sorted(set(['tools/build_mini_ultrarig.py', 'tools/audit_mini_ultrarig_port.py',
              'tools/audit_mini_panel_port.py', 'tools/audit_mini_boot_contract.py',
              'tools/build_mini_app.py', 'app/mini/board-profile.json',
-             'app/mini/mini-profile.js', 'app/mini/mini-ui.js']
+             'app/mini/mini-profile.js', 'app/mini/mini-ui.js', *recovery['source_sha256']]))
     report = {'project': 'HyperRig', 'target': 'tank-mini', 'kind': 'integrated offline candidate',
         'architecture': 'standalone-ultrarig-port', 'goal': 'docs/HYPERRIG_GOAL.md',
         'composition': composition, 'patch_groups': {name: [p.name for p in group] for name, group in groups.items()},
         'source_sha256': {name: sha((ROOT / name).read_bytes()) for name in paths},
         'audio_manifest': relative(audio_manifest), 'audio_manifest_sha256': sha(audio_manifest.read_bytes()),
+        'entry_recovery': recovery_binding,
         'editor_report': relative(output / 'editor-report.json'),
         'firmware_manifest': relative(manifest_path), 'firmware_manifest_sha256': sha(manifest_path.read_bytes()),
         'editor': relative(output / 'app/web/tankmini.html'),

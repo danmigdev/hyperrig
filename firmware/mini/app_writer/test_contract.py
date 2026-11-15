@@ -100,12 +100,38 @@ class ContractTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 contract.validate_protocol(proposal)
 
+    def test_locked_elf_rejects_mutation_flag_and_invalid_entry(self):
+        path=ROOT/"build/mini-app-writer/hyperrig-writer-locked-01c20000.elf"
+        if not path.is_file():self.skipTest("run --build-locked to produce ELF negative controls")
+        import struct
+        raw=path.read_bytes();_flat,item=contract.inspect_writer_elf(raw,0x1C20000)
+        h=struct.unpack_from("<HHIIIIIHHHHHH",raw,16)
+        p=struct.unpack_from("<8I",raw,h[4])
+        altered=bytearray(raw);offset=p[1]+item["mutation_gate_address"]-0x1C20000
+        struct.pack_into("<I",altered,offset,1)
+        with self.assertRaisesRegex(ValueError,"gate"):contract.inspect_writer_elf(bytes(altered),0x1C20000)
+        altered=bytearray(raw);struct.pack_into("<I",altered,24,0x1C20004)
+        with self.assertRaises(ValueError):contract.inspect_writer_elf(bytes(altered),0x1C20000)
+
+    def test_audit_record_disallows_mutation_claim_from_locked_target(self):
+        path=ROOT/"build/mini-app-writer/host-stage-locked.bin"
+        if not path.is_file():self.skipTest("run --build-locked for host record fixture")
+        import struct
+        raw=path.read_bytes();tag=struct.unpack_from("<I",raw,12)[0]
+        result=contract.validate_audit_record(raw,base=0x1C20000,build_tag=tag)
+        self.assertEqual(result["staged"],1);self.assertEqual(result["echoed"],1)
+        for offset in (68,72,76,116):
+            changed=bytearray(raw);struct.pack_into("<I",changed,offset,1)
+            struct.pack_into("<I",changed,120,contract.crc(changed[:120]))
+            with self.assertRaises(ValueError):contract.validate_audit_record(bytes(changed),base=0x1C20000,build_tag=tag)
+
     def test_no_target_artifact_or_readiness_in_report(self):
         report = contract.build_contract(ROOT / contract.DEFAULT_PLAN)
         self.assertEqual(report["executable_artifacts"], [])
         for flag in ("execution_ready", "flashable", "hardware_qualified", "device_access_performed",
-                     "nvm_write_operations_implemented", "nvm_write_operations_executed"):
+                     "target_mutations_enabled", "nvm_write_operations_executed"):
             self.assertIs(report[flag], False)
+        self.assertIs(report["nvm_write_operations_implemented"], True)
         self.assertFalse(any(report["qualification_gates"].values()))
         self.assertIsNone(report["receive_evidence"]["return_value_interpretation"])
 

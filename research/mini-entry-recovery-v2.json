@@ -1,0 +1,1411 @@
+{
+  "schema": 2,
+  "kind": "mini-entry-recovery-v2",
+  "source_sha256": {
+    "firmware/mini/entry_recovery/check.S": "81759eccb5502189248617a6e90a87b699e6537302b71562194423e17adfcb5f",
+    "firmware/mini/entry_recovery/reset.S": "bec61640edc8ab6bcf92422091e9b6a9489ad94dfa4ad2eb6a4c95c4ae09af2c",
+    "firmware/mini/entry_recovery/verify.py": "62fa4b21503b3df839af18a7a42aa047cc058dd2e99cb67f5cd3c11366393180",
+    "firmware/mini/entry_recovery_v2/prefix.S": "cc543465d2eedf0bffcdb5fc1d9c78a18c9a67af18b146b6ebae61ef0135c6aa",
+    "firmware/mini/entry_recovery_v2/append.ld": "3e78935a1df4373489a54129d950506884161a701ab012a0f18e3a862be0702c",
+    "tools/build_mini_entry_recovery_v2.py": "50f7fdcfa528a30bef115d39a31a6286b27028cdc1566bf390a21fa4881eaba1",
+    "tools/audit_mini_ultrarig_port.py": "16ff2d1677d1df444a9bd764c233707ff06acf1c348cd41d04a700539311fc6f",
+    "tools/audit_mini_panel_port.py": "34ccce518ac9e0e05dcc55d74578596ac8e03ad8eb83084e9f67db9c44ef1d19",
+    "tools/audit_mini_boot_contract.py": "4819d1dae16f3f19793c2b2c0baec5d2fe372a779f35a749b50cfea8834d54b2"
+  },
+  "G_container_sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+  "G_decoded_sha256": "2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334",
+  "component": {
+    "address": 34042560,
+    "end_exclusive": 34042858,
+    "payload_bytes": 298,
+    "payload_sha256": "2ca43752d2b9d542c78f2a8465c030f98f99a2ab28999149e01c0d644e5f18a4",
+    "file": "build/mini-entry-recovery-v2/020772c0/entry-recovery-v2.bin",
+    "elf": "build/mini-entry-recovery-v2/020772c0/entry-recovery-v2.elf",
+    "elf_sha256": "a23a33010002ee09a5f3f52be085c94861a0d84ac3c2a5d8b92d39f1d05f80b4",
+    "symbols": {
+      "hyperrig_mini_entry_guard_v2": {
+        "address": 34042560,
+        "bytes": 54,
+        "type": 2
+      },
+      "HYPERRIG_ENTRY_GUARD_ADDRESS": {
+        "address": 34042560,
+        "bytes": 0,
+        "type": 0
+      },
+      "hyperrig_mini_entry_recovery_to_rom": {
+        "address": 34042804,
+        "bytes": 54,
+        "type": 2
+      },
+      "hyperrig_mini_g_startup_resume": {
+        "address": 33554838,
+        "bytes": 0,
+        "type": 0
+      },
+      "hyperrig_mini_entry_recovery_check": {
+        "address": 34042614,
+        "bytes": 190,
+        "type": 2
+      }
+    },
+    "BSS_bytes": 0,
+    "initialized_RAM_bytes": 0,
+    "stack_bytes": 100
+  },
+  "patches": [
+    {
+      "name": "mini_entry_footswitch_recovery_v2",
+      "cpu_address": 33554826,
+      "area_offset": 394,
+      "physical_address": 16778,
+      "bytes": 12,
+      "before_hex": "eeffb850c301edffb860c301",
+      "after_hex": "c3ea99b80000000000000000",
+      "rationale": "Branch before G startup to an application guard: preserve context, force PA10/PA0/PA3 input, check the chord, then reset with stock ROM marker or resume the original G entry."
+    }
+  ],
+  "hook_instructions": [
+    {
+      "address": 33554826,
+      "size": 4,
+      "id": "goto.l",
+      "fields": {
+        "n": 243865
+      },
+      "text": "goto 487730",
+      "bytes": "c3ea99b8",
+      "target": 34042560
+    },
+    {
+      "address": 33554830,
+      "size": 2,
+      "id": "nop",
+      "fields": {},
+      "text": "nop",
+      "bytes": "0000"
+    },
+    {
+      "address": 33554832,
+      "size": 2,
+      "id": "nop",
+      "fields": {},
+      "text": "nop",
+      "bytes": "0000"
+    },
+    {
+      "address": 33554834,
+      "size": 2,
+      "id": "nop",
+      "fields": {},
+      "text": "nop",
+      "bytes": "0000"
+    },
+    {
+      "address": 33554836,
+      "size": 2,
+      "id": "nop",
+      "fields": {},
+      "text": "nop",
+      "bytes": "0000"
+    }
+  ],
+  "instructions": [
+    {
+      "address": 34042560,
+      "size": 6,
+      "id": "li.sr_u32",
+      "fields": {
+        "s": 14,
+        "n": 29577400
+      },
+      "text": "sp = 29577400",
+      "bytes": "eeffb850c301"
+    },
+    {
+      "address": 34042566,
+      "size": 6,
+      "id": "li.sr_u32",
+      "fields": {
+        "s": 13,
+        "n": 29581496
+      },
+      "text": "ssp = 29581496",
+      "bytes": "edffb860c301"
+    },
+    {
+      "address": 34042572,
+      "size": 2,
+      "id": "push.srl",
+      "fields": {
+        "m": 41
+      },
+      "text": "[--sp] = {psr, rets, reti}",
+      "bytes": "e904"
+    },
+    {
+      "address": 34042574,
+      "size": 4,
+      "id": "push.rmask",
+      "fields": {
+        "m": 65535
+      },
+      "text": "[--sp] = {r15-r0}",
+      "bytes": "d8e8ffff"
+    },
+    {
+      "address": 34042578,
+      "size": 4,
+      "id": "li.modimm",
+      "fields": {
+        "r": 0,
+        "n": 2720
+      },
+      "text": "r0 = 0x50000",
+      "bytes": "60e0a00a"
+    },
+    {
+      "address": 34042582,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 1,
+        "b": 0,
+        "n": 2
+      },
+      "text": "r1 = [r0+8]",
+      "bytes": "0162"
+    },
+    {
+      "address": 34042584,
+      "size": 4,
+      "id": "li.s16",
+      "fields": {
+        "r": 2,
+        "n": 1033
+      },
+      "text": "r2 = 1033",
+      "bytes": "42e00904"
+    },
+    {
+      "address": 34042588,
+      "size": 2,
+      "id": "or.rr",
+      "fields": {
+        "d": 1,
+        "s": 2
+      },
+      "text": "r1 |= r2",
+      "bytes": "2119"
+    },
+    {
+      "address": 34042590,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 1,
+        "b": 0,
+        "n": 2
+      },
+      "text": "[r0+8] = r1",
+      "bytes": "8162"
+    },
+    {
+      "address": 34042592,
+      "size": 2,
+      "id": "csync",
+      "fields": {},
+      "text": "csync",
+      "bytes": "2000"
+    },
+    {
+      "address": 34042594,
+      "size": 4,
+      "id": "call.l",
+      "fields": {
+        "n": 8
+      },
+      "text": "call 16",
+      "bytes": "80ea0800",
+      "target": 34042614
+    },
+    {
+      "address": 34042598,
+      "size": 6,
+      "id": "beq.ri.l",
+      "fields": {
+        "r": 0,
+        "i": 1,
+        "n": 100
+      },
+      "text": "if (r0 == 1) goto 200",
+      "bytes": "00ff01006400",
+      "target": 34042804
+    },
+    {
+      "address": 34042604,
+      "size": 4,
+      "id": "pop.rmask",
+      "fields": {
+        "n": 65535
+      },
+      "text": "{r15-r0} = [sp++]",
+      "bytes": "d4e8ffff"
+    },
+    {
+      "address": 34042608,
+      "size": 2,
+      "id": "pop.srl",
+      "fields": {
+        "m": 41
+      },
+      "text": "{psr, rets, reti} = [sp++]",
+      "bytes": "a904"
+    },
+    {
+      "address": 34042610,
+      "size": 4,
+      "id": "goto.l",
+      "fields": {
+        "n": 3950416
+      },
+      "text": "goto -487776",
+      "bytes": "fcea5047",
+      "target": 33554838
+    },
+    {
+      "address": 34042614,
+      "size": 2,
+      "id": "push.rl",
+      "fields": {
+        "l": 9
+      },
+      "text": "[--sp] = {r9-r4}",
+      "bytes": "6904"
+    },
+    {
+      "address": 34042616,
+      "size": 4,
+      "id": "li.modimm",
+      "fields": {
+        "r": 4,
+        "n": 2720
+      },
+      "text": "r4 = 0x50000",
+      "bytes": "60e0a04a"
+    },
+    {
+      "address": 34042620,
+      "size": 4,
+      "id": "li.s16",
+      "fields": {
+        "r": 5,
+        "n": 1033
+      },
+      "text": "r5 = 1033",
+      "bytes": "45e00904"
+    },
+    {
+      "address": 34042624,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 6,
+        "b": 4,
+        "n": 2
+      },
+      "text": "r6 = [r4+8]",
+      "bytes": "4662"
+    },
+    {
+      "address": 34042626,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 7,
+        "b": 4,
+        "n": 3
+      },
+      "text": "r7 = [r4+12]",
+      "bytes": "4763"
+    },
+    {
+      "address": 34042628,
+      "size": 4,
+      "id": "ld.w.l",
+      "fields": {
+        "r": 8,
+        "s": 4,
+        "n": 4
+      },
+      "text": "r8 = [r4+16]",
+      "bytes": "d0ec4081"
+    },
+    {
+      "address": 34042632,
+      "size": 4,
+      "id": "ld.w.l",
+      "fields": {
+        "r": 9,
+        "s": 4,
+        "n": 5
+      },
+      "text": "r9 = [r4+20]",
+      "bytes": "d0ec4491"
+    },
+    {
+      "address": 34042636,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 6,
+        "s": 5
+      },
+      "text": "r6 &= r5",
+      "bytes": "d619"
+    },
+    {
+      "address": 34042638,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 7,
+        "s": 5
+      },
+      "text": "r7 &= r5",
+      "bytes": "d719"
+    },
+    {
+      "address": 34042640,
+      "size": 4,
+      "id": "and.rrr",
+      "fields": {
+        "r": 8,
+        "s": 8,
+        "t": 5
+      },
+      "text": "r8 = r8 & r5",
+      "bytes": "90e18285"
+    },
+    {
+      "address": 34042644,
+      "size": 4,
+      "id": "and.rrr",
+      "fields": {
+        "r": 9,
+        "s": 9,
+        "t": 5
+      },
+      "text": "r9 = r9 & r5",
+      "bytes": "90e19295"
+    },
+    {
+      "address": 34042648,
+      "size": 4,
+      "id": "bne.rr",
+      "fields": {
+        "r": 6,
+        "s": 5,
+        "n": 73
+      },
+      "text": "if (r6 != r5) goto 146",
+      "bytes": "85e84960",
+      "target": 34042798
+    },
+    {
+      "address": 34042652,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 2
+      },
+      "text": "r0 = [r4+8]",
+      "bytes": "4062"
+    },
+    {
+      "address": 34042654,
+      "size": 2,
+      "id": "or.rr",
+      "fields": {
+        "d": 0,
+        "s": 5
+      },
+      "text": "r0 |= r5",
+      "bytes": "5019"
+    },
+    {
+      "address": 34042656,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 2
+      },
+      "text": "[r4+8] = r0",
+      "bytes": "c062"
+    },
+    {
+      "address": 34042658,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 3
+      },
+      "text": "r0 = [r4+12]",
+      "bytes": "4063"
+    },
+    {
+      "address": 34042660,
+      "size": 2,
+      "id": "or.rr",
+      "fields": {
+        "d": 0,
+        "s": 5
+      },
+      "text": "r0 |= r5",
+      "bytes": "5019"
+    },
+    {
+      "address": 34042662,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 3
+      },
+      "text": "[r4+12] = r0",
+      "bytes": "c063"
+    },
+    {
+      "address": 34042664,
+      "size": 2,
+      "id": "not.rr",
+      "fields": {
+        "d": 2,
+        "s": 5
+      },
+      "text": "r2 = ~r5",
+      "bytes": "da19"
+    },
+    {
+      "address": 34042666,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 5
+      },
+      "text": "r0 = [r4+20]",
+      "bytes": "4065"
+    },
+    {
+      "address": 34042668,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 2
+      },
+      "text": "r0 &= r2",
+      "bytes": "a019"
+    },
+    {
+      "address": 34042670,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 5
+      },
+      "text": "[r4+20] = r0",
+      "bytes": "c065"
+    },
+    {
+      "address": 34042672,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 4
+      },
+      "text": "r0 = [r4+16]",
+      "bytes": "4064"
+    },
+    {
+      "address": 34042674,
+      "size": 2,
+      "id": "or.rr",
+      "fields": {
+        "d": 0,
+        "s": 5
+      },
+      "text": "r0 |= r5",
+      "bytes": "5019"
+    },
+    {
+      "address": 34042676,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 4
+      },
+      "text": "[r4+16] = r0",
+      "bytes": "c064"
+    },
+    {
+      "address": 34042678,
+      "size": 2,
+      "id": "csync",
+      "fields": {},
+      "text": "csync",
+      "bytes": "2000"
+    },
+    {
+      "address": 34042680,
+      "size": 2,
+      "id": "li.u8",
+      "fields": {
+        "r": 1,
+        "n": 2
+      },
+      "text": "r1 = 2",
+      "bytes": "4122"
+    },
+    {
+      "address": 34042682,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 2
+      },
+      "text": "r0 = [r4+8]",
+      "bytes": "4062"
+    },
+    {
+      "address": 34042684,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 5
+      },
+      "text": "r0 &= r5",
+      "bytes": "d019"
+    },
+    {
+      "address": 34042686,
+      "size": 4,
+      "id": "bne.rr",
+      "fields": {
+        "r": 0,
+        "s": 5,
+        "n": 31
+      },
+      "text": "if (r0 != r5) goto 62",
+      "bytes": "85e81f00",
+      "target": 34042752
+    },
+    {
+      "address": 34042690,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 3
+      },
+      "text": "r0 = [r4+12]",
+      "bytes": "4063"
+    },
+    {
+      "address": 34042692,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 5
+      },
+      "text": "r0 &= r5",
+      "bytes": "d019"
+    },
+    {
+      "address": 34042694,
+      "size": 4,
+      "id": "bne.rr",
+      "fields": {
+        "r": 0,
+        "s": 5,
+        "n": 27
+      },
+      "text": "if (r0 != r5) goto 54",
+      "bytes": "85e81b00",
+      "target": 34042752
+    },
+    {
+      "address": 34042698,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 4
+      },
+      "text": "r0 = [r4+16]",
+      "bytes": "4064"
+    },
+    {
+      "address": 34042700,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 5
+      },
+      "text": "r0 &= r5",
+      "bytes": "d019"
+    },
+    {
+      "address": 34042702,
+      "size": 4,
+      "id": "bne.rr",
+      "fields": {
+        "r": 0,
+        "s": 5,
+        "n": 23
+      },
+      "text": "if (r0 != r5) goto 46",
+      "bytes": "85e81700",
+      "target": 34042752
+    },
+    {
+      "address": 34042706,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 5
+      },
+      "text": "r0 = [r4+20]",
+      "bytes": "4065"
+    },
+    {
+      "address": 34042708,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 5
+      },
+      "text": "r0 &= r5",
+      "bytes": "d019"
+    },
+    {
+      "address": 34042710,
+      "size": 2,
+      "id": "bnez",
+      "fields": {
+        "r": 0,
+        "n": 20
+      },
+      "text": "if (r0 != 0) goto 40",
+      "bytes": "8054",
+      "target": 34042752
+    },
+    {
+      "address": 34042712,
+      "size": 6,
+      "id": "li.u32",
+      "fields": {
+        "r": 2,
+        "n": 100000
+      },
+      "text": "r2 = 100000",
+      "bytes": "c2ffa0860100"
+    },
+    {
+      "address": 34042718,
+      "size": 2,
+      "id": "nop",
+      "fields": {},
+      "text": "nop",
+      "bytes": "0000"
+    },
+    {
+      "address": 34042720,
+      "size": 2,
+      "id": "add.ri.neg7",
+      "fields": {
+        "r": 2,
+        "n": 127
+      },
+      "text": "r2 += -1",
+      "bytes": "fa3f"
+    },
+    {
+      "address": 34042722,
+      "size": 2,
+      "id": "bnez",
+      "fields": {
+        "r": 2,
+        "n": 253
+      },
+      "text": "if (r2 != 0) goto -6",
+      "bytes": "f25d",
+      "target": 34042718
+    },
+    {
+      "address": 34042724,
+      "size": 2,
+      "id": "li.u8",
+      "fields": {
+        "r": 3,
+        "n": 32
+      },
+      "text": "r3 = 32",
+      "bytes": "4b20"
+    },
+    {
+      "address": 34042726,
+      "size": 2,
+      "id": "li.u8",
+      "fields": {
+        "r": 1,
+        "n": 0
+      },
+      "text": "r1 = 0",
+      "bytes": "4120"
+    },
+    {
+      "address": 34042728,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 1
+      },
+      "text": "r0 = [r4+4]",
+      "bytes": "4061"
+    },
+    {
+      "address": 34042730,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 5
+      },
+      "text": "r0 &= r5",
+      "bytes": "d019"
+    },
+    {
+      "address": 34042732,
+      "size": 2,
+      "id": "bnez",
+      "fields": {
+        "r": 0,
+        "n": 9
+      },
+      "text": "if (r0 != 0) goto 18",
+      "bytes": "8049",
+      "target": 34042752
+    },
+    {
+      "address": 34042734,
+      "size": 6,
+      "id": "li.u32",
+      "fields": {
+        "r": 2,
+        "n": 100000
+      },
+      "text": "r2 = 100000",
+      "bytes": "c2ffa0860100"
+    },
+    {
+      "address": 34042740,
+      "size": 2,
+      "id": "nop",
+      "fields": {},
+      "text": "nop",
+      "bytes": "0000"
+    },
+    {
+      "address": 34042742,
+      "size": 2,
+      "id": "add.ri.neg7",
+      "fields": {
+        "r": 2,
+        "n": 127
+      },
+      "text": "r2 += -1",
+      "bytes": "fa3f"
+    },
+    {
+      "address": 34042744,
+      "size": 2,
+      "id": "bnez",
+      "fields": {
+        "r": 2,
+        "n": 253
+      },
+      "text": "if (r2 != 0) goto -6",
+      "bytes": "f25d",
+      "target": 34042740
+    },
+    {
+      "address": 34042746,
+      "size": 2,
+      "id": "add.ri.neg7",
+      "fields": {
+        "r": 3,
+        "n": 127
+      },
+      "text": "r3 += -1",
+      "bytes": "fb3f"
+    },
+    {
+      "address": 34042748,
+      "size": 2,
+      "id": "bnez",
+      "fields": {
+        "r": 3,
+        "n": 245
+      },
+      "text": "if (r3 != 0) goto -22",
+      "bytes": "f355",
+      "target": 34042728
+    },
+    {
+      "address": 34042750,
+      "size": 2,
+      "id": "li.u8",
+      "fields": {
+        "r": 1,
+        "n": 1
+      },
+      "text": "r1 = 1",
+      "bytes": "4121"
+    },
+    {
+      "address": 34042752,
+      "size": 2,
+      "id": "not.rr",
+      "fields": {
+        "d": 2,
+        "s": 5
+      },
+      "text": "r2 = ~r5",
+      "bytes": "da19"
+    },
+    {
+      "address": 34042754,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 5
+      },
+      "text": "r0 = [r4+20]",
+      "bytes": "4065"
+    },
+    {
+      "address": 34042756,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 2
+      },
+      "text": "r0 &= r2",
+      "bytes": "a019"
+    },
+    {
+      "address": 34042758,
+      "size": 4,
+      "id": "or.rrr",
+      "fields": {
+        "r": 0,
+        "s": 0,
+        "t": 9
+      },
+      "text": "r0 = r0 | r9",
+      "bytes": "90e10009"
+    },
+    {
+      "address": 34042762,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 5
+      },
+      "text": "[r4+20] = r0",
+      "bytes": "c065"
+    },
+    {
+      "address": 34042764,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 4
+      },
+      "text": "r0 = [r4+16]",
+      "bytes": "4064"
+    },
+    {
+      "address": 34042766,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 2
+      },
+      "text": "r0 &= r2",
+      "bytes": "a019"
+    },
+    {
+      "address": 34042768,
+      "size": 4,
+      "id": "or.rrr",
+      "fields": {
+        "r": 0,
+        "s": 0,
+        "t": 8
+      },
+      "text": "r0 = r0 | r8",
+      "bytes": "90e10008"
+    },
+    {
+      "address": 34042772,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 4
+      },
+      "text": "[r4+16] = r0",
+      "bytes": "c064"
+    },
+    {
+      "address": 34042774,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 3
+      },
+      "text": "r0 = [r4+12]",
+      "bytes": "4063"
+    },
+    {
+      "address": 34042776,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 2
+      },
+      "text": "r0 &= r2",
+      "bytes": "a019"
+    },
+    {
+      "address": 34042778,
+      "size": 2,
+      "id": "or.rr",
+      "fields": {
+        "d": 0,
+        "s": 7
+      },
+      "text": "r0 |= r7",
+      "bytes": "7019"
+    },
+    {
+      "address": 34042780,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 3
+      },
+      "text": "[r4+12] = r0",
+      "bytes": "c063"
+    },
+    {
+      "address": 34042782,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 2
+      },
+      "text": "r0 = [r4+8]",
+      "bytes": "4062"
+    },
+    {
+      "address": 34042784,
+      "size": 2,
+      "id": "and.rr",
+      "fields": {
+        "d": 0,
+        "s": 2
+      },
+      "text": "r0 &= r2",
+      "bytes": "a019"
+    },
+    {
+      "address": 34042786,
+      "size": 2,
+      "id": "or.rr",
+      "fields": {
+        "d": 0,
+        "s": 6
+      },
+      "text": "r0 |= r6",
+      "bytes": "6019"
+    },
+    {
+      "address": 34042788,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 0,
+        "b": 4,
+        "n": 2
+      },
+      "text": "[r4+8] = r0",
+      "bytes": "c062"
+    },
+    {
+      "address": 34042790,
+      "size": 2,
+      "id": "csync",
+      "fields": {},
+      "text": "csync",
+      "bytes": "2000"
+    },
+    {
+      "address": 34042792,
+      "size": 2,
+      "id": "mov.rr",
+      "fields": {
+        "x": 0,
+        "y": 1
+      },
+      "text": "r0 = r1",
+      "bytes": "1016"
+    },
+    {
+      "address": 34042794,
+      "size": 2,
+      "id": "pop.rl",
+      "fields": {
+        "l": 9
+      },
+      "text": "{r9-r4} = [sp++]",
+      "bytes": "4904"
+    },
+    {
+      "address": 34042796,
+      "size": 2,
+      "id": "rts",
+      "fields": {},
+      "text": "rts",
+      "bytes": "8000"
+    },
+    {
+      "address": 34042798,
+      "size": 2,
+      "id": "li.u8",
+      "fields": {
+        "r": 0,
+        "n": 2
+      },
+      "text": "r0 = 2",
+      "bytes": "4022"
+    },
+    {
+      "address": 34042800,
+      "size": 2,
+      "id": "pop.rl",
+      "fields": {
+        "l": 9
+      },
+      "text": "{r9-r4} = [sp++]",
+      "bytes": "4904"
+    },
+    {
+      "address": 34042802,
+      "size": 2,
+      "id": "rts",
+      "fields": {},
+      "text": "rts",
+      "bytes": "8000"
+    },
+    {
+      "address": 34042804,
+      "size": 6,
+      "id": "li.u32",
+      "fields": {
+        "r": 0,
+        "n": 29883776
+      },
+      "text": "r0 = 29883776",
+      "bytes": "c0ff80fdc701"
+    },
+    {
+      "address": 34042810,
+      "size": 6,
+      "id": "li.u32",
+      "fields": {
+        "r": 1,
+        "n": 1600287605
+      },
+      "text": "r1 = 1600287605",
+      "bytes": "c1ff7573625f"
+    },
+    {
+      "address": 34042816,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 1,
+        "b": 0,
+        "n": 0
+      },
+      "text": "[r0+0] = r1",
+      "bytes": "8160"
+    },
+    {
+      "address": 34042818,
+      "size": 6,
+      "id": "li.u32",
+      "fields": {
+        "r": 1,
+        "n": 1633972341
+      },
+      "text": "r1 = 1633972341",
+      "bytes": "c1ff75706461"
+    },
+    {
+      "address": 34042824,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 1,
+        "b": 0,
+        "n": 1
+      },
+      "text": "[r0+4] = r1",
+      "bytes": "8161"
+    },
+    {
+      "address": 34042826,
+      "size": 6,
+      "id": "li.u32",
+      "fields": {
+        "r": 1,
+        "n": 1834968436
+      },
+      "text": "r1 = 1834968436",
+      "bytes": "c1ff74655f6d"
+    },
+    {
+      "address": 34042832,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 1,
+        "b": 0,
+        "n": 2
+      },
+      "text": "[r0+8] = r1",
+      "bytes": "8162"
+    },
+    {
+      "address": 34042834,
+      "size": 6,
+      "id": "li.u32",
+      "fields": {
+        "r": 1,
+        "n": 6644847
+      },
+      "text": "r1 = 6644847",
+      "bytes": "c1ff6f646500"
+    },
+    {
+      "address": 34042840,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 1,
+        "b": 0,
+        "n": 3
+      },
+      "text": "[r0+12] = r1",
+      "bytes": "8163"
+    },
+    {
+      "address": 34042842,
+      "size": 2,
+      "id": "csync",
+      "fields": {},
+      "text": "csync",
+      "bytes": "2000"
+    },
+    {
+      "address": 34042844,
+      "size": 4,
+      "id": "li.modimm",
+      "fields": {
+        "r": 0,
+        "n": 2944
+      },
+      "text": "r0 = 0x10000",
+      "bytes": "60e0800b"
+    },
+    {
+      "address": 34042848,
+      "size": 2,
+      "id": "ld.w",
+      "fields": {
+        "d": 1,
+        "b": 0,
+        "n": 0
+      },
+      "text": "r1 = [r0+0]",
+      "bytes": "0160"
+    },
+    {
+      "address": 34042850,
+      "size": 2,
+      "id": "or.bit",
+      "fields": {
+        "r": 1,
+        "b": 4
+      },
+      "text": "r1 |= 16",
+      "bytes": "3124"
+    },
+    {
+      "address": 34042852,
+      "size": 2,
+      "id": "st.w",
+      "fields": {
+        "d": 1,
+        "b": 0,
+        "n": 0
+      },
+      "text": "[r0+0] = r1",
+      "bytes": "8160"
+    },
+    {
+      "address": 34042854,
+      "size": 2,
+      "id": "csync",
+      "fields": {},
+      "text": "csync",
+      "bytes": "2000"
+    },
+    {
+      "address": 34042856,
+      "size": 2,
+      "id": "goto.s",
+      "fields": {
+        "n": 2047
+      },
+      "text": "goto -2",
+      "bytes": "f79f",
+      "target": 34042856
+    }
+  ],
+  "tests": {
+    "cases": 1280,
+    "maximum_stack_bytes": 100,
+    "initial_DIR_combinations": 8,
+    "key_level_combinations": 8,
+    "SP_alias_models": 2,
+    "incoming_r0_context_and_all_GPRs_preserved_on_resume": true,
+    "PSR_RETS_RETI_preserved_on_resume": true,
+    "foreign_GPIO_bits_preserved": true,
+    "key_direction_final": "input even when initially output",
+    "PSR_test": "adversarial clobber, not CPU status-flag simulation",
+    "push_pop_model": "matched frames; physical stack order not independently executed",
+    "hardware_timing_or_electrical_simulation": false
+  },
+  "frozen_callables": {
+    "check": {
+      "bytes": 190,
+      "sha256": "0872924dc1d476913a441a6d58b83025962a00ca6b9ceb0e8b66e07d8afc045d"
+    },
+    "reset": {
+      "bytes": 54,
+      "sha256": "a84be9b34190a67265f001ed328372eaba2c48fcea3111b2ead481a6bb7ee48f"
+    }
+  },
+  "policy": {
+    "PORTA_DIR_address": 327688,
+    "permanent_input_mask": 1033,
+    "requires_initial_DIR_inputs": false,
+    "other_GPIO_configuration_restored": true,
+    "G_context_restored_on_normal_resume": true,
+    "resume_address": 33554838,
+    "ROM_plugin_callable": false,
+    "SFC_PLL_IRQ_writes": false
+  },
+  "allocation": {
+    "original_append_origin": 34040492,
+    "code_limit_with_cfg_reserved": 34070145,
+    "preceding_append_bytes_required": 2068,
+    "actual_preceding_payload_validated": false,
+    "binding_API": "bind_append(g_plain, preceding_append, payload, manifest)"
+  },
+  "candidate_modified": false,
+  "hardware_executed": false,
+  "recovery_hardware_qualified": false,
+  "device_access": false,
+  "NVM_access": false,
+  "flashable": false,
+  "limits": [
+    "The ordinary application path preserves the incoming context; the deliberate reset path does not return.",
+    "The prefix owns only key direction permanently; check/reset remain byte-identical to v1.",
+    "ROM key/reset qualification does not execute this XIP prefix or prove cold boot behavior.",
+    "A valid application that hangs after the guard is a different case from damaged header/entry/guard.",
+    "Instruction counts are not measured delay time, GPIO voltages, mux validity or continuous debounce."
+  ],
+  "negative_cases_rejected": [
+    "changed_G",
+    "address_True",
+    "address_34040488",
+    "address_34042561",
+    "address_34070145",
+    "ELF_entry",
+    "ELF_LMA",
+    "ELF_BSS",
+    "ELF_permissions",
+    "mutated_frozen_callable",
+    "append_length",
+    "append_payload_hash"
+  ]
+}

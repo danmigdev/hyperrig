@@ -150,7 +150,9 @@
       "research/mini-package.json",
       "research/mini-handover.json",
       "research/mini-hardware-rom.json",
-      "research/mini-engine-hardware.json"
+      "research/mini-engine-hardware.json",
+      "research/mini-receive-hardware.json",
+      "research/mini-entry-recovery-hardware.json"
     ],
     "host_dsp_audio_selftest": {
       "passed": true,
@@ -231,7 +233,7 @@
     "return_to_stock_verified": true,
     "corrupt_application_recovery_verified": false,
     "evidence": "research/mini-hardware-rom.json",
-    "verified_stock_returns": 5
+    "verified_stock_returns": 9
   },
   "integral_application_candidate": {
     "architecture": "standalone-ultrarig-port",
@@ -283,5 +285,73 @@
     "accepted_clock_configuration": false,
     "GPIO_touched": false,
     "codec_transaction_attempted": false
+  },
+  "receive_ROM_observation": {
+    "evidence": "research/mini-receive-hardware.json",
+    "payload_executed": true,
+    "length": 260,
+    "raw_return": 260,
+    "record_samples": 2,
+    "data_matches_expected": true,
+    "observed_complete_and_stable": true,
+    "pointer_observations": {
+      "send": "0x01E008E4",
+      "receive": "0x01E0089A",
+      "handler_slot": "0x01C01264"
+    },
+    "pointer_address_map_validated": false,
+    "return_semantics_qualified": false,
+    "synchronous_completion_proven": false,
+    "firmware_write_performed": false,
+    "NVM_writer_qualified": false,
+    "stock_return_after_separate_hub_restart": true
+  },
+  "entry_recovery_ROM_observation": {
+    "evidence": "research/mini-entry-recovery-hardware.json",
+    "payload_executed": true,
+    "grouped_key_check_results": [
+      0,
+      1,
+      0
+    ],
+    "pins": [
+      "PA10",
+      "PA0",
+      "PA3"
+    ],
+    "gpio_configuration_restored": true,
+    "clock_words_unchanged": true,
+    "private_stack_observed_bytes": 60,
+    "stack_guards_ok": true,
+    "marker_reset_to_ROM_verified": true,
+    "fresh_ROM_arrival_and_INQUIRY_verified": true,
+    "hub_restart_performed": false,
+    "stock_return_verified": true,
+    "presets_unchanged": true,
+    "application_prefix_on_device_verified": false,
+    "cold_SPL_handover_verified": false,
+    "corrupt_application_recovery_verified": false,
+    "firmware_write_performed": false
+  },
+  "codec_ROM_nominal_clock_probe": {
+    "evidence": "research/mini-codec-rom-hardware.json",
+    "clock_profile_accepted": true,
+    "nominal_hz": 48000000,
+    "first_address_NACK": true,
+    "GPIO_restored": true
+  },
+  "writer_ROM_observation": {
+    "evidence": "research/mini-writer-observer-hardware.json",
+    "payload_executed": true,
+    "first_sector_matches_backup": true,
+    "frozen_page_echo_matches_candidate": true,
+    "raw_receive_return": 260,
+    "WREN_attempts": 0,
+    "erase_attempts": 0,
+    "program_attempts": 0,
+    "firmware_write_performed": false,
+    "operational_writer_qualified": false,
+    "stock_return_verified": true,
+    "presets_unchanged": true
   }
 }

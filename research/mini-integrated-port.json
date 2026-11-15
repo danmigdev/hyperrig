@@ -5,44 +5,44 @@
   "architecture": "standalone-ultrarig-port",
   "goal": "docs/HYPERRIG_GOAL.md",
   "composition": {
-    "sha256": "f8835a7fd45b1b324d66c457434c7943d70525ed5eb98b514aaac1095031f068",
+    "sha256": "639f58864e2b7c29c4312545fe94b345b2f8c8c21eb72eceb0932712bd608f70",
     "bytes": 516096,
     "physical_range": [
       16384,
       532480
     ],
     "cpu_entry": 33554720,
-    "app_bytes": 487840,
-    "app_sha256": "185792e5059f5dbf4ae362c4c5f98d651c9ce55e07ddc73f90a3308ad5cb8d0c",
+    "app_bytes": 488138,
+    "app_sha256": "7ea6d11fd146a5ac7c4edf9f2cb606b189a0ae552a62570ec24a245e32a99610",
     "cfg_tool_bytes": 383,
-    "cfg_tool_area_offset": 488128,
-    "head_end": 488511,
-    "encoding_end": 488512,
+    "cfg_tool_area_offset": 488426,
+    "head_end": 488809,
+    "encoding_end": 488832,
     "directory": [
       {
         "name": "app_area_head",
         "header_offset": 0,
         "offset": 33554720,
-        "size": 488511,
+        "size": 488809,
         "flags": 131,
         "reserved": 255,
         "index": 0,
-        "data_crc": 12184
+        "data_crc": 4501
       },
       {
         "name": "app.bin",
         "header_offset": 32,
         "offset": 288,
-        "size": 487840,
+        "size": 488138,
         "flags": 130,
         "reserved": 255,
         "index": 0,
-        "data_crc": 7309
+        "data_crc": 17833
       },
       {
         "name": "cfg_tool.bin",
         "header_offset": 64,
-        "offset": 488128,
+        "offset": 488426,
         "size": 383,
         "flags": 130,
         "reserved": 255,
@@ -280,12 +280,22 @@
         "before_hex": "bfeab9fe",
         "after_hex": "bfeac6ff",
         "rationale": "Call the local post trampoline, which invokes original G channel-start through the C binding then MINI PA9 sequence."
+      },
+      {
+        "name": "mini_entry_footswitch_recovery_v2",
+        "cpu_address": 33554826,
+        "area_offset": 394,
+        "physical_address": 16778,
+        "bytes": 12,
+        "before_hex": "eeffb850c301edffb860c301",
+        "after_hex": "c3ea99b80000000000000000",
+        "rationale": "Branch before G startup to an application guard: preserve context, force PA10/PA0/PA3 input, check the chord, then reset with stock ROM marker or resume the original G entry."
       }
     ],
     "appended_code": {
       "cpu_address": 34040492,
-      "bytes": 2068,
-      "sha256": "a63d80c1444372a06d5d5d870ccc9abeedd08b6a54144a3a75af1b4fbe6c486a"
+      "bytes": 2366,
+      "sha256": "32fcb91ea4bed469493914ad333651aa73d53ffbbabc167801c712b8e62b6ca9"
     },
     "original_application_recovered_exactly_by_reversing_patches": true,
     "original_application_bytes_retained": 485772,
@@ -319,25 +329,52 @@
     "audio": [
       "mini_codec_pre_and_post_trampoline",
       "mini_codec_post_call"
+    ],
+    "recovery": [
+      "mini_entry_footswitch_recovery_v2"
     ]
   },
   "source_sha256": {
-    "tools/build_mini_ultrarig.py": "f4e59c48723ebc3eec76d21a8d405f3b9b95f780d2c16f14c3d79ccfa67c7a4d",
-    "tools/audit_mini_ultrarig_port.py": "16ff2d1677d1df444a9bd764c233707ff06acf1c348cd41d04a700539311fc6f",
-    "tools/audit_mini_panel_port.py": "34ccce518ac9e0e05dcc55d74578596ac8e03ad8eb83084e9f67db9c44ef1d19",
-    "tools/audit_mini_boot_contract.py": "4819d1dae16f3f19793c2b2c0baec5d2fe372a779f35a749b50cfea8834d54b2",
-    "tools/build_mini_app.py": "47ed0183fc9dbc9fc5a561733d4fc943d4e99d4815c90fac7783d954a3703831",
     "app/mini/board-profile.json": "81f7f7582f9a0f13e8b85dffb95a66d75784a1c5a0c40ee0043c052c93aac393",
     "app/mini/mini-profile.js": "c9a6f31e46154598f22df942e1db432b2a7164c9acfe05523e8c704d5cc9fd55",
-    "app/mini/mini-ui.js": "42b815af820f0fe411aed1d194c2a8476a91abddf0bbff40d7180f60f42c18fc"
+    "app/mini/mini-ui.js": "42b815af820f0fe411aed1d194c2a8476a91abddf0bbff40d7180f60f42c18fc",
+    "firmware/mini/entry_recovery/check.S": "81759eccb5502189248617a6e90a87b699e6537302b71562194423e17adfcb5f",
+    "firmware/mini/entry_recovery/reset.S": "bec61640edc8ab6bcf92422091e9b6a9489ad94dfa4ad2eb6a4c95c4ae09af2c",
+    "firmware/mini/entry_recovery/verify.py": "62fa4b21503b3df839af18a7a42aa047cc058dd2e99cb67f5cd3c11366393180",
+    "firmware/mini/entry_recovery_v2/append.ld": "3e78935a1df4373489a54129d950506884161a701ab012a0f18e3a862be0702c",
+    "firmware/mini/entry_recovery_v2/prefix.S": "cc543465d2eedf0bffcdb5fc1d9c78a18c9a67af18b146b6ebae61ef0135c6aa",
+    "tools/audit_mini_boot_contract.py": "4819d1dae16f3f19793c2b2c0baec5d2fe372a779f35a749b50cfea8834d54b2",
+    "tools/audit_mini_panel_port.py": "34ccce518ac9e0e05dcc55d74578596ac8e03ad8eb83084e9f67db9c44ef1d19",
+    "tools/audit_mini_ultrarig_port.py": "16ff2d1677d1df444a9bd764c233707ff06acf1c348cd41d04a700539311fc6f",
+    "tools/build_mini_app.py": "47ed0183fc9dbc9fc5a561733d4fc943d4e99d4815c90fac7783d954a3703831",
+    "tools/build_mini_entry_recovery_v2.py": "50f7fdcfa528a30bef115d39a31a6286b27028cdc1566bf390a21fa4881eaba1",
+    "tools/build_mini_ultrarig.py": "daf4238cd276b2e7f02339d4b78b7545fe280db7b49c673982491229a5fa1fe0"
   },
   "audio_manifest": "build/mini-audio-port/manifest.json",
   "audio_manifest_sha256": "67b34b8e77dfe7a40dcab8b4499eb741ab70b73de5fa2cc82007311b4f98b2b0",
+  "entry_recovery": {
+    "version": 2,
+    "mandatory": true,
+    "manifest": "build/hyperrig-mini-integrated/entry-recovery-manifest.json",
+    "manifest_sha256": "38c74b37811aa33de45d70c2c50662a47c3303bc2e71c93ce94e83f21dcb0a52",
+    "address": 34042560,
+    "end_exclusive": 34042858,
+    "payload_bytes": 298,
+    "payload_sha256": "2ca43752d2b9d542c78f2a8465c030f98f99a2ab28999149e01c0d644e5f18a4",
+    "preceding_audio_bytes": 2068,
+    "alignment_padding_bytes": 0,
+    "actual_preceding_payload_validated": true,
+    "requires_initial_DIR_inputs": false,
+    "cold_entry_verified_on_mini": false,
+    "valid_image_hang_recovery_verified": false,
+    "damaged_header_entry_or_guard_covered": false,
+    "physical_key_and_reset_qualification": "Separate HYK1 evidence; not inferred as a full application boot."
+  },
   "editor_report": "build/hyperrig-mini-integrated/editor-report.json",
   "firmware_manifest": "build/hyperrig-mini-integrated/firmware-manifest.json",
-  "firmware_manifest_sha256": "c84a6e3437de3206e5b5c3ce0a1396e40647994010b723a6e54799dbad9cbe22",
+  "firmware_manifest_sha256": "eb649094df0441a75ec9e30ec870ef576c44ba056f4db22bf052745250a9a7a1",
   "editor": "build/hyperrig-mini-integrated/app/web/tankmini.html",
-  "editor_sha256": "71a8f31c4dbe7a4082304bc36924429a457cd58656166e5f8eaf2ec21daa3f5d",
+  "editor_sha256": "cf6f804c7b75285bc06db187270e13a9f4349cc9d2a9676a922b0e3fa0ef7b7a",
   "read_capability_enabled_for_target_identity": true,
   "write_capability_enabled": false,
   "boot_verified_on_mini": false,
@@ -347,7 +384,8 @@
   "remaining_gates": [
     "Full application has not booted on the physical MINI.",
     "Codec preconditions, nominal 48kHz timing and analog audio remain to be qualified.",
-    "Independent recovery from a valid-image hang has not been demonstrated.",
+    "The application entry guard has not run on cold boot; physical HYK1 key/reset qualification is separate.",
+    "A damaged application header, entry or guard is outside the footswitch guard coverage.",
     "Preset read/write through the adapted application has not been demonstrated.",
     "Physical LED and knob mapping remains incomplete."
   ]

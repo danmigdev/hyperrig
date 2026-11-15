@@ -1,0 +1,828 @@
+{
+  "project": "HyperRig",
+  "kind": "physical-observation-not-host-simulation",
+  "date": "2026-11-15",
+  "target": "tank-mini",
+  "identity": "TANK MINI_009",
+  "build_tag": 2348256965,
+  "started_utc": "2026-11-15T19:54:42.013595+00:00",
+  "finished_utc": "2026-11-15T19:59:37.747148+00:00",
+  "firmware_write_performed": false,
+  "manifest": "research/mini-rom-entry-recovery.json",
+  "manifest_sha256_at_execution": "eb6673b00dab2a8e0ca2141313b95a6441fb7bf882bb4a4e2076c99dfdd23516",
+  "source_sha256_at_execution": {
+    "firmware/mini/rom_entry_recovery/entry.c": "1c39a2eaf678bda57969674539f1db9a5d7c889477291d8bd42b45c3775171e3",
+    "firmware/mini/rom_entry_recovery/probe.c": "357ffb19a0b0acbe4d6e8840771493593d57a513d63a3b18dc7259cdd8b3b25c",
+    "firmware/mini/boot/runtime.c": "a0fe564e1785238960f4810bb1684066bfd4d33f5337d98d74803b702c066973",
+    "firmware/mini/rom_stack/rom_stack_pi32v2.S": "3d5f0733f39eea37a8a9c4648b7cddd5145dda0444c02910862b2069ae6a7f10",
+    "firmware/mini/entry_recovery/check.S": "81759eccb5502189248617a6e90a87b699e6537302b71562194423e17adfcb5f",
+    "firmware/mini/entry_recovery/reset.S": "bec61640edc8ab6bcf92422091e9b6a9489ad94dfa4ad2eb6a4c95c4ae09af2c",
+    "firmware/mini/rom_entry_recovery/rom_entry_recovery.h": "2bc4209554e069ab3431076faf74dd66dd8ace8a92baf1a9fd7f4ff2e7b638fe",
+    "firmware/mini/rom_entry_recovery/host_test.c": "380f02f58b7c9ee7888986ede909bcbc2050e3f48452b06f0b96c645b5424218",
+    "firmware/mini/rom_entry_recovery/probe.ld": "0c13050d16cfd50a9791d6cf76a115d58bea8eb9c0a9489a94012a380e9686c0",
+    "firmware/mini/entry_recovery/entry_recovery.h": "cb4dab5f6479cde80b2178509fd36c83527b3d0f6d70db4dfa49b98c78b0ca87",
+    "firmware/mini/entry_recovery/verify.py": "62fa4b21503b3df839af18a7a42aa047cc058dd2e99cb67f5cd3c11366393180",
+    "firmware/mini/rom_stack/rom_stack.h": "5416bbfb993be1c8751e851a9af5b442a0a46f244d269460a5a4551b54bd562c",
+    "tools/verify_mini_rom_stack.py": "3a8a72d3937f28163091305ba05e69145a00f868f15016cc66d6ca4683ecf268",
+    "tools/build_mini_rom_entry_recovery.py": "d4c2a393b5f9cd430ac62bd7331c918444265a2768a861a8b4159e9db5833144",
+    "tools/probe_mini_entry_recovery.py": "6cc1b511adbeecc877549a45ec61b36af308c4f6fdfb8ddd9fd7a889d3904069",
+    "firmware/mini/rom_entry_recovery/test_client.py": "7a38e9cae4bbdab1f76126d435c17202c5e96e693cefd7b9861fdf19bfe8d0ee",
+    "tools/probe_mini_recovery.py": "1d512173776f5f87424e7870731df2871cdf1f9293636765a6371c7bb44191e8"
+  },
+  "execution_pins": {
+    "research/mini-rom-entry-recovery.json": "eb6673b00dab2a8e0ca2141313b95a6441fb7bf882bb4a4e2076c99dfdd23516",
+    "tools/build_mini_rom_entry_recovery.py": "d4c2a393b5f9cd430ac62bd7331c918444265a2768a861a8b4159e9db5833144",
+    "tools/probe_mini_entry_recovery.py": "6cc1b511adbeecc877549a45ec61b36af308c4f6fdfb8ddd9fd7a889d3904069",
+    "tools/probe_mini_recovery.py": "1d512173776f5f87424e7870731df2871cdf1f9293636765a6371c7bb44191e8",
+    "analysis/hardware/restart-engine-hub.ps1": "435d822c8caf8dbb05ca2fd41186abf426831c213dddb84fc4b5e168d5a271fc",
+    "analysis/hardware/run_mini_entry_setup.py": "16972089d4767f3584e20e6547f4370a97bd7f7f5234305876563cf0d4ea2b18",
+    "analysis/hardware/run_mini_entry_setup.ps1": "941bf5045e0c9202910c1dc6858a4d4e550d7bef6f46aac04cce22f41ed6ea27",
+    "analysis/hardware/run_mini_entry_step.py": "24fa4c83cfde534042bab1a7fdd397238f821f03d42253b9ca979ee966187300",
+    "analysis/hardware/mini-entry-setup-client-pins.json": "8da55f7c87dca591686ee2092e1089aa6c4a30d83dcaad5e1aa9deaf785dc8d4",
+    "analysis/hardware/run_mini_entry_held.ps1": "f72b8086b41fa36d9960d7684f4bf210b16723b56b174d39a8baedc862390d3b",
+    "analysis/hardware/run_mini_entry_released.ps1": "80797c754ec9602cba5dbd46c8a2f65234e48a15f952dec092a4335de2f2bb5d",
+    "analysis/hardware/run_mini_entry_reset.ps1": "e2d884c5613ba1bba504e3bf64919a369dafafdd254a502b2b4591375e0b9381"
+  },
+  "historical_source_locations": {
+    "tools/probe_mini_recovery.py": "analysis/hardware/recovery-dispatcher-1d512173.py"
+  },
+  "evidence_sha256": {
+    "analysis/hardware/mini-entry-setup-run.json": "edee7b93e041a3b30bf8de57e8b3bc5d7283fe15f33857f0b41fb3d54c057f65",
+    "analysis/hardware/mini-entry-held-run.json": "359ab82527c40116807c68c044db4e868b0742f07256b58a866f0c96746e608a",
+    "analysis/hardware/mini-entry-released-run.json": "198eae176c77e104937d8bf3618761764dcf34ed106af5ba5009f660f66857bc",
+    "analysis/hardware/mini-entry-reset-run.json": "16437f20820292c868cd4a2bcf3239e1c7819c52d6485d647473fdcc7f61c905",
+    "analysis/hardware/mini-entry-setup-trace.jsonl": "26c2dc293fab95c2e151319304d4513e106f09a74f71e1f2aa94bec952945828",
+    "analysis/hardware/mini-entry-held-trace.jsonl": "4fe04f94e65d4f2b21d0d62c9e8054e485ead61cd7885d4fd11a5c1b9589f9d5",
+    "analysis/hardware/mini-entry-released-trace.jsonl": "b5110af371126c58e14229c5f58c2195bcd18cc1ca93024daa924ad5c528cbf0",
+    "analysis/hardware/mini-entry-reset-trace.jsonl": "7b8eba642ace8a7837aceb7a76fb41106b300f88e9ec0a0634e8d8355c13f361",
+    "analysis/hardware/mini-entry-initial-snapshot.bin": "3256eedbfcf6a34e82bdadab838eb321d8100cc27d5626f580e998187f5273d5",
+    "analysis/hardware/mini-entry-released-baseline.bin": "71a8daf5112d06d5a8012822345b0ec765916902a7b43372088f81d5024bd530",
+    "analysis/hardware/mini-entry-held-snapshot.bin": "84238a3451d62f99661ed31ed2a442b5cb7fe50438782cbb7e846b8c7c6275e7",
+    "analysis/hardware/mini-entry-held-check.bin": "a3e10f0e0fb7f3b141a8c4249fb9866589fc782a317807c48ba3a4a28bc8335b",
+    "analysis/hardware/mini-entry-released-snapshot.bin": "30a7f09ffb2544b506505c3db3687765b9bfb8620a68df863ccfccfdf88f5b36",
+    "analysis/hardware/mini-entry-released-check.bin": "579849e0fec99e15ba565640ba64d76a4bb57d35b6553de2f2d89141949c6408",
+    "analysis/hardware/mini-entry-setup-client-pins.json": "8da55f7c87dca591686ee2092e1089aa6c4a30d83dcaad5e1aa9deaf785dc8d4",
+    "analysis/hardware/mini-entry-step-pins.json": "03ee314e600a6cdb8c969475486a4be4e404c0450a174695a258807eb3142a7e",
+    "analysis/hardware/recovery-dispatcher-1d512173.py": "1d512173776f5f87424e7870731df2871cdf1f9293636765a6371c7bb44191e8"
+  },
+  "offline_seal": {
+    "build_manifest_recompiled": false,
+    "builder_invoked": false,
+    "device_access": false,
+    "distinct_pinned_files_verified": 26,
+    "historical_dispatcher_verified_from_archive": true,
+    "ELF_layout_and_payload_verified": true,
+    "FD07_trace_decoded_per_command_and_matched_to_payload": true,
+    "stack_listing_verified": true,
+    "record_files_validated_with_frozen_builder": 6,
+    "record_reads_matched_to_trace": 9,
+    "command_pairs_checked": 34,
+    "four_journal_hash_chain_verified": true,
+    "original_logs_and_frozen_artifacts_unchanged": true
+  },
+  "already_executed_tests": {
+    "source": "research/mini-rom-entry-recovery.json",
+    "host_C_cases": 909,
+    "ASan": true,
+    "UBSan": true,
+    "client": {
+      "tests": 11,
+      "result": "PASS",
+      "transport": "mock only",
+      "record_stack_observation": "synthetic parser fixture",
+      "hardware_access": false
+    },
+    "target_instruction_cases_per_slot": [
+      99,
+      99
+    ],
+    "malformed_records_rejected": 19,
+    "malformed_ELFs_rejected": 12,
+    "rerun_during_seal": false
+  },
+  "target_artifact": {
+    "base": 29491200,
+    "entry": 29491200,
+    "span": 32768,
+    "payload_bytes": 2472,
+    "bss_bytes": 4472,
+    "memory_bytes": 6944,
+    "slot_free_bytes": 25824,
+    "record_address": 29497888,
+    "record_bytes": 256,
+    "private_stack_bottom": 29493760,
+    "private_stack_top": 29497856,
+    "private_stack_bytes": 4096,
+    "state_bytes": 52,
+    "elf_sha256": "49977d1e7b84c5c20a62e3a6737f87f8e1e1a5a62976a432957f4251578ee3e9",
+    "payload_sha256": "02a875e24470c7168a74be3a89ee10be3cf324fb3ebe954302fb64332e48a88b",
+    "application_prefix_absent": true,
+    "file": "build/mini-rom-entry-recovery/hyperrig-rom-entry-recovery-01c20000.bin",
+    "elf": "build/mini-rom-entry-recovery/hyperrig-rom-entry-recovery-01c20000.elf",
+    "stack": {
+      "private_callgraph_bound": 60,
+      "private_stack_bytes": 4096,
+      "margin": 4036,
+      "interrupt_stack_included": false,
+      "functions": {
+        "read_word": {
+          "frame": 0,
+          "callees": [],
+          "bound": 0
+        },
+        "hyperrig_mini_entry_recovery_check": {
+          "frame": 24,
+          "callees": [],
+          "bound": 24
+        },
+        "check_keys": {
+          "frame": 0,
+          "callees": [
+            "hyperrig_mini_entry_recovery_check"
+          ],
+          "bound": 24
+        },
+        "snapshot": {
+          "frame": 24,
+          "callees": [
+            "read_word"
+          ],
+          "bound": 24
+        },
+        "core": {
+          "frame": 36,
+          "callees": [
+            "read_word",
+            "check_keys",
+            "snapshot"
+          ],
+          "bound": 60
+        },
+        "hyperrig_mini_entry_recovery_to_rom": {
+          "frame": 0,
+          "callees": [],
+          "bound": 0
+        },
+        "request_rom": {
+          "frame": 0,
+          "callees": [
+            "hyperrig_mini_entry_recovery_to_rom"
+          ],
+          "bound": 0
+        },
+        "reset_core": {
+          "frame": 4,
+          "callees": [
+            "request_rom"
+          ],
+          "bound": 4
+        }
+      }
+    }
+  },
+  "session": {
+    "slot": 29491200,
+    "image_sha256": "02a875e24470c7168a74be3a89ee10be3cf324fb3ebe954302fb64332e48a88b",
+    "rom_readback_sha256": "02a875e24470c7168a74be3a89ee10be3cf324fb3ebe954302fb64332e48a88b",
+    "rom_wire_sha256": "6a15bceb96a18c5efc817df23d1f20d1c3807d79b9947cc9a833d93f2bd736e8",
+    "rom_readback_transform": "jl_crc_cipher keyffffffff, restart per FD07 command",
+    "image_bytes": 2472,
+    "readback_verified": true,
+    "jump_sent": true,
+    "flash_write_commands_sent": false,
+    "jump_answer_hex": "fb080000000000000000000000000000",
+    "entry_recovery_identity_hex": "fc7448594b31010701c2000080000100",
+    "entry_MMIO": false,
+    "snapshot_performed": false,
+    "reset_performed": false,
+    "spi_initialized": false
+  },
+  "records": [
+    {
+      "record_valid": true,
+      "base": 29491200,
+      "sequence": 1,
+      "phase": 0,
+      "status": 0,
+      "check_result": null,
+      "all_three_observed": false,
+      "gpio_configuration_restored": true,
+      "clock_words_unchanged": true,
+      "stack_guards_ok": true,
+      "stack_observed_bytes": 60,
+      "reset_attempted": false,
+      "ROM_reset_verified": false,
+      "cold_SPL_state_verified": false,
+      "record_sha256": "3256eedbfcf6a34e82bdadab838eb321d8100cc27d5626f580e998187f5273d5",
+      "artifact": "analysis/hardware/mini-entry-initial-snapshot.bin",
+      "record_hex": "48594b31010000000000c201c58ef78b010000000000000000000000ffffffff090400003c00000001000000010000000904000009040000000000000000000000000000ff070000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000ff070000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000001000000000000000000000000000000eb9bbd3c444f4e45",
+      "record_crc32": "3cbd9beb",
+      "gpio_before": [
+        0,
+        2047,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "gpio_after": [
+        0,
+        2047,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "clocks_before": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "clocks_after": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "consumed_sequence": 0,
+      "trial": "setup"
+    },
+    {
+      "record_valid": true,
+      "base": 29491200,
+      "sequence": 2,
+      "phase": 1,
+      "status": 0,
+      "check_result": 0,
+      "all_three_observed": false,
+      "gpio_configuration_restored": true,
+      "clock_words_unchanged": true,
+      "stack_guards_ok": true,
+      "stack_observed_bytes": 60,
+      "reset_attempted": false,
+      "ROM_reset_verified": false,
+      "cold_SPL_state_verified": false,
+      "record_sha256": "71a8daf5112d06d5a8012822345b0ec765916902a7b43372088f81d5024bd530",
+      "artifact": "analysis/hardware/mini-entry-released-baseline.bin",
+      "record_hex": "48594b31010000000000c201c58ef78b02000000010000000000000000000000090400003c00000001000000010000000904000009040000010000000000000000000000ff070000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000ff070000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000001000000010000000000000000000000e0aaaafe444f4e45",
+      "record_crc32": "feaaaae0",
+      "gpio_before": [
+        0,
+        2047,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "gpio_after": [
+        0,
+        2047,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "clocks_before": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "clocks_after": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "consumed_sequence": 1,
+      "trial": "setup"
+    },
+    {
+      "record_valid": true,
+      "base": 29491200,
+      "sequence": 3,
+      "phase": 0,
+      "status": 0,
+      "check_result": null,
+      "all_three_observed": false,
+      "gpio_configuration_restored": true,
+      "clock_words_unchanged": true,
+      "stack_guards_ok": true,
+      "stack_observed_bytes": 60,
+      "reset_attempted": false,
+      "ROM_reset_verified": false,
+      "cold_SPL_state_verified": false,
+      "record_sha256": "84238a3451d62f99661ed31ed2a442b5cb7fe50438782cbb7e846b8c7c6275e7",
+      "artifact": "analysis/hardware/mini-entry-held-snapshot.bin",
+      "record_hex": "48594b31010000000000c201c58ef78b030000000000000000000000ffffffff090400003c00000001000000010000000000000000000000000000000000000000000000f6030000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000f6030000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000000000000c101000000000100800000002b024009ee30503f000000000000000000000000000000003400580101000000010000000000000000000000000000006f3f781f444f4e45",
+      "record_crc32": "1f783f6f",
+      "gpio_before": [
+        0,
+        1014,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "gpio_after": [
+        0,
+        1014,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "clocks_before": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "clocks_after": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "consumed_sequence": 0,
+      "trial": "held"
+    },
+    {
+      "record_valid": true,
+      "base": 29491200,
+      "sequence": 4,
+      "phase": 1,
+      "status": 0,
+      "check_result": 1,
+      "all_three_observed": true,
+      "gpio_configuration_restored": true,
+      "clock_words_unchanged": true,
+      "stack_guards_ok": true,
+      "stack_observed_bytes": 60,
+      "reset_attempted": false,
+      "ROM_reset_verified": false,
+      "cold_SPL_state_verified": false,
+      "record_sha256": "a3e10f0e0fb7f3b141a8c4249fb9866589fc782a317807c48ba3a4a28bc8335b",
+      "artifact": "analysis/hardware/mini-entry-held-check.bin",
+      "record_hex": "48594b31010000000000c201c58ef78b04000000010000000000000001000000090400003c00000001000000010000000000000000000000010000000000000000000000f6030000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000f6030000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000000000000c101000000000100800000002b024009ee30503f0000000000000000000000000000000034005801010000000100000003000000000000000000000029755e9b444f4e45",
+      "record_crc32": "9b5e7529",
+      "gpio_before": [
+        0,
+        1014,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "gpio_after": [
+        0,
+        1014,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "clocks_before": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "clocks_after": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "consumed_sequence": 3,
+      "trial": "held"
+    },
+    {
+      "record_valid": true,
+      "base": 29491200,
+      "sequence": 5,
+      "phase": 0,
+      "status": 0,
+      "check_result": null,
+      "all_three_observed": false,
+      "gpio_configuration_restored": true,
+      "clock_words_unchanged": true,
+      "stack_guards_ok": true,
+      "stack_observed_bytes": 60,
+      "reset_attempted": false,
+      "ROM_reset_verified": false,
+      "cold_SPL_state_verified": false,
+      "record_sha256": "30a7f09ffb2544b506505c3db3687765b9bfb8620a68df863ccfccfdf88f5b36",
+      "artifact": "analysis/hardware/mini-entry-released-snapshot.bin",
+      "record_hex": "48594b31010000000000c201c58ef78b050000000000000000000000ffffffff090400003c00000001000000010000000904000009040000000000000000000000000000ff070000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000ff070000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000000000000c101000000000100800000002b024009ee30503f000000000000000000000000000000003400580101000000010000000000000000000000000000009f288d40444f4e45",
+      "record_crc32": "408d289f",
+      "gpio_before": [
+        0,
+        2047,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "gpio_after": [
+        0,
+        2047,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "clocks_before": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "clocks_after": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "consumed_sequence": 0,
+      "trial": "released"
+    },
+    {
+      "record_valid": true,
+      "base": 29491200,
+      "sequence": 6,
+      "phase": 1,
+      "status": 0,
+      "check_result": 0,
+      "all_three_observed": false,
+      "gpio_configuration_restored": true,
+      "clock_words_unchanged": true,
+      "stack_guards_ok": true,
+      "stack_observed_bytes": 60,
+      "reset_attempted": false,
+      "ROM_reset_verified": false,
+      "cold_SPL_state_verified": false,
+      "record_sha256": "579849e0fec99e15ba565640ba64d76a4bb57d35b6553de2f2d89141949c6408",
+      "artifact": "analysis/hardware/mini-entry-released-check.bin",
+      "record_hex": "48594b31010000000000c201c58ef78b06000000010000000000000000000000090400003c00000001000000010000000904000009040000010000000000000000000000ff070000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000ff070000ffff0000ffff00000000000000000000ffff000000000000ffff000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000001000000050000000000000000000000eb229c81444f4e45",
+      "record_crc32": "819c22eb",
+      "gpio_before": [
+        0,
+        2047,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "gpio_after": [
+        0,
+        2047,
+        65535,
+        65535,
+        0,
+        0,
+        65535,
+        0,
+        65535
+      ],
+      "clocks_before": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "clocks_after": [
+        0,
+        449,
+        65536,
+        128,
+        155189803,
+        1062220014,
+        0,
+        0,
+        0,
+        0,
+        22544436,
+        1
+      ],
+      "consumed_sequence": 5,
+      "trial": "released"
+    }
+  ],
+  "key_observation": {
+    "pins": [
+      "PA10",
+      "PA0",
+      "PA3"
+    ],
+    "mask": 1033,
+    "mask_hex": "0x409",
+    "trial_order": [
+      "released baseline",
+      "all three held",
+      "released again"
+    ],
+    "check_results": [
+      0,
+      1,
+      0
+    ],
+    "PORTA_IN_observed": [
+      2047,
+      1014,
+      2047
+    ],
+    "masked_inputs": [
+      1033,
+      0,
+      1033
+    ],
+    "active_low_group_observed": true,
+    "individual_physical_label_mapping_verified": false,
+    "all_six_records_GPIO_configuration_restored": true,
+    "all_six_records_clock_words_unchanged": true,
+    "all_six_records_stack_guards_ok": true,
+    "private_stack_observed_bytes": 60,
+    "private_stack_callgraph_bound_bytes": 60,
+    "ROM_interrupt_stack_qualified": false,
+    "real_hold_duration_calibrated": false
+  },
+  "trace_summary": {
+    "stages": {
+      "setup": {
+        "artifact": "analysis/hardware/mini-entry-setup-trace.jsonl",
+        "command_pairs": 16,
+        "command_counts": {
+          "FB06": 5,
+          "FD07": 5,
+          "FB08": 1,
+          "FC74": 1,
+          "FC75": 1,
+          "FD77": 2,
+          "FC76": 1
+        },
+        "transport_errors": 0
+      },
+      "held": {
+        "artifact": "analysis/hardware/mini-entry-held-trace.jsonl",
+        "command_pairs": 6,
+        "command_counts": {
+          "FC74": 1,
+          "FD77": 3,
+          "FC75": 1,
+          "FC76": 1
+        },
+        "transport_errors": 0
+      },
+      "released": {
+        "artifact": "analysis/hardware/mini-entry-released-trace.jsonl",
+        "command_pairs": 6,
+        "command_counts": {
+          "FC74": 1,
+          "FD77": 3,
+          "FC75": 1,
+          "FC76": 1
+        },
+        "transport_errors": 0
+      },
+      "reset": {
+        "artifact": "analysis/hardware/mini-entry-reset-trace.jsonl",
+        "command_pairs": 6,
+        "command_counts": {
+          "FC74": 1,
+          "FD77": 1,
+          "FC81": 1,
+          "FB06": 1,
+          "FD07": 1,
+          "FB08": 1
+        },
+        "transport_errors": 2
+      }
+    },
+    "combined_command_counts": {
+      "FB06": 6,
+      "FD07": 6,
+      "FB08": 2,
+      "FC74": 4,
+      "FC75": 3,
+      "FD77": 9,
+      "FC76": 3,
+      "FC81": 1
+    },
+    "record_reads": 9,
+    "checks": 3,
+    "FC81_attempts": 1,
+    "separate_stock_reset_FB08_attempts": 1,
+    "automatic_retry": false,
+    "NOR_commands_sent": false
+  },
+  "ROM_reset": {
+    "request": {
+      "opcode": "FC81",
+      "sequence": 6,
+      "cdb_hex": "fc8100000006819c22eb524f4d21ffff",
+      "request_attempted": true,
+      "reset_completion_verified": false,
+      "automatic_retry": false,
+      "fresh_USB_arrival_and_ROM_INQUIRY_required": true,
+      "token_is_authentication": false,
+      "outcome": "post_submit_transport_error",
+      "error_type": "RomCommandError",
+      "error": "[Errno 121] SCSI command failed; no automatic retry",
+      "transport_details": {
+        "scsi_status": 0,
+        "data_transfer_length": 16,
+        "bytes_returned": 0,
+        "sense_info_length": 32,
+        "sense_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    "request_started_utc": "2026-11-15T19:59:11.814222+00:00",
+    "arrival_before_utc": "2026-11-15T19:54:53.5112400Z",
+    "arrival_after_utc": "2026-11-15T19:59:12.5150710Z",
+    "same_USB_instance_reenumerated": true,
+    "new_arrival_after_request": true,
+    "new_ROM_INQUIRY": {
+      "vendor": "WL82",
+      "product": "UBOOT1.00",
+      "raw_hex": "0080020220000000574c38322020202055424f4f54312e303020202020202020312e3030"
+    },
+    "hub_restart_performed": false,
+    "hub_restart_evidence_basis": "complete runner path contains no hub restart action; executing agent reported no hub restart",
+    "completion_verified_by_USB_arrival_and_INQUIRY": true,
+    "completion_verified_from_command_reply": false,
+    "reset_request_retried": false,
+    "mailbox_readback_obtained": false,
+    "cold_SPL_state_verified": false
+  },
+  "stock_return": {
+    "evidence": "analysis/hardware/mini-entry-reset-run.json",
+    "reset_slot": 29523968,
+    "reset_payload_sha256": "cf3526d914eef007649f88f1f22e085a908359b9ad0e9f4743427b4757c0540f",
+    "reset_payload_bytes": 26,
+    "reset_ELF_sha256": "d80e117b75fd306eab0acab4311660a14502bffeaa7f95469ca5325987972bba",
+    "reset_payload_readback_verified": true,
+    "reset_jump_outcome": "post_submit_transport_error",
+    "completion_verified_from_jump_response": false,
+    "verified_by_stock_identity_and_presets": true,
+    "stock_before": {
+      "identity": "TANK MINI_009",
+      "bytes": 1942,
+      "sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+      "equal_reads": 2
+    },
+    "stock_after": {
+      "identity": "TANK MINI_009",
+      "bytes": 1942,
+      "sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+      "equal_reads": 2
+    },
+    "presets_unchanged": true,
+    "hub_restart_performed": false,
+    "verified_stock_returns_after_this_session": 7
+  },
+  "scope": {
+    "ROM_key_check_physically_verified": true,
+    "marker_reset_to_ROM_physically_verified": true,
+    "stock_return_verified": true,
+    "application_prefix_present_in_payload": false,
+    "application_prefix_on_device_verified": false,
+    "cold_SPL_handover_verified": false,
+    "application_boot_verified": false,
+    "corrupt_application_recovery_verified": false,
+    "flashable": false,
+    "NOR_write_performed": false,
+    "clock_writes_performed": false,
+    "real_audio_verified": false
+  },
+  "limits": [
+    "The physical check qualifies the three inputs together in this ROM context; individual footswitch labels and cold SPL pin state remain unverified.",
+    "The marker/reset path is supported by a new USB arrival and new ROM INQUIRY without hub restart; the FC81 transport error itself is not a completion acknowledgement.",
+    "The application prefix and its startup stacks were not linked or executed. This is not an application cold-boot or corrupt-flash recovery test.",
+    "The observed 60-byte private stack use and intact guards do not qualify inherited ROM interrupt stack capacity.",
+    "Delay loops are instruction counts, not a calibrated physical hold time.",
+    "No NOR erase/program command or audio transaction was executed."
+  ]
+}

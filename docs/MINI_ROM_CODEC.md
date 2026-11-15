@@ -78,3 +78,8 @@ conserva record, pin dei sorgenti e log; il
 [manifest offline](../research/mini-rom-codec-board.json) resta separato.
 La prova chiarisce il contesto ROM ma non risolve il NACK HYC1 né qualifica
 audio, identità codec o avvio della candidata integrale.
+
+La terza prova HYC3 ha poi accettato il profilo ROM nominale da 48 MHz ma
+ha ricevuto ancora NACK al primo indirizzo, con GPIO ripristinati e ritorno
+allo stock verificato. Il risultato e la distinzione dal completo startup
+applicativo sono descritti in [MINI_ROM_CODEC_CLOCK.md](MINI_ROM_CODEC_CLOCK.md).

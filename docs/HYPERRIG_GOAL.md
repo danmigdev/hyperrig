@@ -53,12 +53,19 @@ Il lavoro procede con agenti in parallelo. Il risultato viene dichiarato
 completo soltanto dopo le verifiche sul pedale e sull'app, indicando anche
 le eventuali limitazioni residue del reverse engineering.
 
-## Raspberry Pi dell'utente
+## Recupero scelto e Raspberry Pi dell'utente
+
+L'utente ha escluso la strada USB_KEY con cablaggio GPIO e scelto il
+recupero mediante i tre footswitch. Il lavoro prosegue su questa strada:
+verifica dei tasti in RAM, marker/reset verso ROM e guard all'ingresso
+dell'applicazione UltraRig adattata. USB_KEY e i suoi strumenti restano
+materiale sperimentale archiviato, non un prerequisito richiesto all'utente.
+Il guard non copre un header o il proprio codice danneggiati; questo limite
+resta distinto dal recupero dei blocchi successivi all'ingresso.
 
 Il Raspberry Pi 3 disponibile ha già un sistema installato e viene usato
 come MIDI hub. L'utente richiede di preservare questa installazione.
-L'eventuale strumento USB_KEY resta separato: nessuna reinstallazione,
-modifica dei servizi MIDI o della configurazione di avvio. Prima del suo
-uso si verificano compatibilità e disponibilità dei GPIO senza richiedere
-le linee né modificare il sistema. Accesso e cablaggio del Pi non risultano
-ancora verificati.
+Sono stati eseguiti controlli di compatibilità in sola lettura e una build
+con simulazione in una cartella dedicata. Nessuna reinstallazione,
+modifica dei servizi MIDI, configurazione di avvio o richiesta di linee
+GPIO è stata effettuata. Il Pi non serve al percorso footswitch scelto.

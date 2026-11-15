@@ -1,0 +1,6130 @@
+{
+  "project": "HyperRig",
+  "scope": "PC5 preparation and stock-derived per-record NACK continuation, integral G shim v2",
+  "source_sha256": {
+    "firmware/mini/audio_port/README.md": "46752851ec3eba3ab856941732c009d500002c6e28ce0dc0ba3475f971b00ea3",
+    "firmware/mini/audio_port/audio_port.c": "581ba9535911b17f99538ed89e1a4aa9a1e894585f6cd68f14e545736053e1fa",
+    "firmware/mini/audio_port/audio_port.h": "3a59ae5d34e70c7423aa95f05f10d954a68ecdb1dfa2e4358cc6823ffbd98d7d",
+    "firmware/mini/audio_port/audio_port.ld": "094aedce4d69a37518031da3f33a38b391d2c5dd171e6c4fc889e64c6acfa7c0",
+    "firmware/mini/audio_port/g_bindings.c": "a6ace0c1409b7895a266c3d9e86def74971def44b1fcd446a9097ed78a5f1d3a",
+    "firmware/mini/audio_port/patches.py": "494d5526414e08110bb722866aa2a95e4bc093f8ae982654f9b797d54fea5348",
+    "firmware/mini/audio_port/test_audio_port.c": "d424d4885f3fdd78811ce8e295cac06d4a2391b3ae3154d2cd81a0a76192bd3e",
+    "firmware/mini/audio_port/verify.py": "9c27dd0c0948288e6ab6ea16f1a572f2fe0bd333321c9e8bd16aa206b65aecb7",
+    "firmware/mini/audio_port_v2/audio_port.c": "420fe4e0bc406464cf16b0c6a5790f022afa1ecad10bf72f19041b97db74a36c",
+    "firmware/mini/audio_port_v2/audio_port_v2.h": "9a23132f692ce092d0dc36d3b4f0b83fdff5d575a007fac23367ad7c9d3b1627",
+    "firmware/mini/audio_port_v2/evidence.py": "734a5a8e554ac727abe68016dfef9de32f154308c839f882e192e62380873fbe",
+    "firmware/mini/audio_port_v2/pc5_hd.S": "0ecb5175ac8d6f338faa4080b0f6714767f8ddff32fe45e46f2f6cdf5977be91",
+    "firmware/mini/audio_port_v2/pre_pc5.c": "98f06c0f2fd95a3adf0d6fe2c5ec4ac166b5d7abc5d1fb6cd91976859e0d006d",
+    "firmware/mini/audio_port_v2/test_pc5.c": "dfa25e06c2a7f5574b616fd548c26971130012012e2eafffaff4341bf105e5d1",
+    "firmware/mini/audio_port_v2/test_policy.c": "8143d9374f71d5ebdb94b848880884e4d8d6717554261c32412f0ea9556ec785",
+    "firmware/mini/audio_port_v2/verify.py": "b131f53981b9525a1cf2562b250e7cefd4e8546dd68bfd251c52d9aeb417e2c7",
+    "firmware/mini/codec/hyperrig_mini_codec.c": "059e130d4f965a0a878d91ec8884fb11be5a4edb8b510857816fa1b151f96229",
+    "firmware/mini/codec/hyperrig_mini_codec.h": "d91a4d5e0f909254c970d2a8e57773b36dc9d8a15a8ba88c2e36415824b914d7",
+    "firmware/mini/codec/spin_pi32v2.S": "8dfea293fd17338544bd7c39b6e6535c2ba4eb63eeb4fcc4ed523b1564fb6d22",
+    "tools/audit_mini_boot_contract.py": "4819d1dae16f3f19793c2b2c0baec5d2fe372a779f35a749b50cfea8834d54b2",
+    "tools/audit_mini_ultrarig_port.py": "16ff2d1677d1df444a9bd764c233707ff06acf1c348cd41d04a700539311fc6f",
+    "tools/disassemble.py": "29face12b53bc52833b43599e541dac390356cfa6882b5913174556d39a6adfb",
+    "tools/verify_mini_codec.py": "1a1795f3b6604118bf12447beaede55428a96ccbe48746c5e340358b9f0b1484",
+    "upstream/m-bootloader/docs/SPEC.md": "d86ae060b1db368a8aba421e21903b3b9c7517943bcf2667ee170a5a96a2863c"
+  },
+  "frozen_v1_manifest_sha256": "67b34b8e77dfe7a40dcab8b4499eb741ab70b73de5fa2cc82007311b4f98b2b0",
+  "G_container_sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+  "G_decoded_sha256": "2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334",
+  "codec_script": {
+    "stock_MINI_container_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+    "original_table_cpu": 33775157,
+    "records": 22,
+    "bytes": 88,
+    "sha256": "1032b05743d45148e6aecd2bdc6834ab54804d154362c545d9949a49461c415d",
+    "stock_replay_byte_identical": true,
+    "osr_override": null,
+    "conditional_NAU88L21_map_OSR": 256,
+    "additional_codec_writes": [],
+    "hardware_48k_qualified": false
+  },
+  "host_asan_ubsan": {
+    "policy": {
+      "all_ACK": 1,
+      "single_NACK_continued": 110,
+      "all_22_address_NACK_continued_ACK_count_zero": 1,
+      "fatal_delay_or_cleanup": 35,
+      "fatal_sample": 1,
+      "post_failure": 2,
+      "invalid": 4,
+      "next_record_START_and_bytes_verified": true,
+      "physical_equivalence_claimed": false
+    },
+    "PC5": {
+      "PC5_before_original_pre_cases": 640,
+      "foreign_GPIO_preserved": true,
+      "host_helpers_simulated": true
+    }
+  },
+  "hook_control_flow_cases": 42,
+  "hook_vendor_disassembly_match": true,
+  "original_G_binding_evidence": [
+    {
+      "name": "gpio_output",
+      "start": 33573272,
+      "end_exclusive": 33573488,
+      "sha256": "7f3777f4ef6985da68c2f2478a8ec2213087f0b81f125eb125c97d2bc212f263",
+      "preimage_hex": "76041416031693f906284120518f30164116519f560483f80d204820412080ff50c5bfff603a412080ff46c5bfff4016619f560493f9282000e17030061706fc4a02c5ff9a800000501680ffe0c4bfff94e10316501680ff18c5bfff4021601a452034eaff000516c4ff99800000401680ffbac4bfff94e1030650190117401680ffeec4bfff5604bfea20e7021672f822feb0a4c1ffe05cc2010d1c80fff4c3bfff2000b50040e8fdff60e10f304121c8e110002000044534e8010064e80020048264e8032064e80b2020004020d84080ffd8c3bfff5604",
+      "instructions": [
+        {
+          "address": 33573272,
+          "assembly": "[--sp] = {rets, r6-r4}"
+        },
+        {
+          "address": 33573274,
+          "assembly": "r4 = r1"
+        },
+        {
+          "address": 33573276,
+          "assembly": "r3 = r0"
+        },
+        {
+          "address": 33573278,
+          "assembly": "if (r3 < 148) goto 12",
+          "direct_target": 33573294
+        },
+        {
+          "address": 33573282,
+          "assembly": "r1 = 0"
+        },
+        {
+          "address": 33573284,
+          "assembly": "call -162",
+          "direct_target": 33573124
+        },
+        {
+          "address": 33573286,
+          "assembly": "r0 = r3"
+        },
+        {
+          "address": 33573288,
+          "assembly": "r1 = r4"
+        },
+        {
+          "address": 33573290,
+          "assembly": "call -130",
+          "direct_target": 33573162
+        },
+        {
+          "address": 33573292,
+          "assembly": "{pc, r6-r4} = [sp++]"
+        },
+        {
+          "address": 33573294,
+          "assembly": "if (r3 != 16) goto 26",
+          "direct_target": 33573324
+        },
+        {
+          "address": 33573298,
+          "assembly": "r0 = 32"
+        },
+        {
+          "address": 33573300,
+          "assembly": "r1 = 0"
+        },
+        {
+          "address": 33573302,
+          "assembly": "call -4209328",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33573308,
+          "assembly": "r0 = 154"
+        },
+        {
+          "address": 33573310,
+          "assembly": "r1 = 0"
+        },
+        {
+          "address": 33573312,
+          "assembly": "call -4209338",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33573318,
+          "assembly": "r0 = r4"
+        },
+        {
+          "address": 33573320,
+          "assembly": "call -66",
+          "direct_target": 33573256
+        },
+        {
+          "address": 33573322,
+          "assembly": "{pc, r6-r4} = [sp++]"
+        },
+        {
+          "address": 33573324,
+          "assembly": "if (r3 < 144) goto 80",
+          "direct_target": 33573408
+        },
+        {
+          "address": 33573328,
+          "assembly": "r0 = r3 + 112"
+        },
+        {
+          "address": 33573332,
+          "assembly": "r6 = r0.b0 (u)"
+        },
+        {
+          "address": 33573334,
+          "assembly": "if (r6 > 1) goto 148",
+          "direct_target": 33573486
+        },
+        {
+          "address": 33573338,
+          "assembly": "r5 = 32922"
+        },
+        {
+          "address": 33573344,
+          "assembly": "r0 = r5"
+        },
+        {
+          "address": 33573346,
+          "assembly": "call -4209440",
+          "direct_target": 29363912
+        },
+        {
+          "address": 33573352,
+          "assembly": "r1 = r0 & ~(1 << r6)"
+        },
+        {
+          "address": 33573356,
+          "assembly": "r0 = r5"
+        },
+        {
+          "address": 33573358,
+          "assembly": "call -4209384",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33573364,
+          "assembly": "r0 = 1"
+        },
+        {
+          "address": 33573366,
+          "assembly": "r0 <<= r6"
+        },
+        {
+          "address": 33573368,
+          "assembly": "r5 = 0"
+        },
+        {
+          "address": 33573370,
+          "assembly": "if ((r4 & 0xFF) != 0) {"
+        },
+        {
+          "address": 33573374,
+          "assembly": "r5 = r0"
+        },
+        {
+          "address": 33573376,
+          "assembly": "r4 = 32921"
+        },
+        {
+          "address": 33573382,
+          "assembly": "r0 = r4"
+        },
+        {
+          "address": 33573384,
+          "assembly": "call -4209478",
+          "direct_target": 29363912
+        },
+        {
+          "address": 33573390,
+          "assembly": "r0 = r0 & ~(1 << r6)"
+        },
+        {
+          "address": 33573394,
+          "assembly": "r0 |= r5"
+        },
+        {
+          "address": 33573396,
+          "assembly": "r1 = r0.b0 (u)"
+        },
+        {
+          "address": 33573398,
+          "assembly": "r0 = r4"
+        },
+        {
+          "address": 33573400,
+          "assembly": "call -4209426",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33573406,
+          "assembly": "{pc, r6-r4} = [sp++]"
+        },
+        {
+          "address": 33573408,
+          "assembly": "call -12736",
+          "direct_target": 33560676
+        },
+        {
+          "address": 33573412,
+          "assembly": "r2 = r0"
+        },
+        {
+          "address": 33573414,
+          "assembly": "if (r2 == -1) goto 68",
+          "direct_target": 33573486
+        },
+        {
+          "address": 33573418,
+          "assembly": "r0 = r3 >> 4"
+        },
+        {
+          "address": 33573420,
+          "assembly": "r1 = 29514976"
+        },
+        {
+          "address": 33573426,
+          "assembly": "r5 = r0 + r1"
+        },
+        {
+          "address": 33573428,
+          "assembly": "call -4209676",
+          "direct_target": 29363758
+        },
+        {
+          "address": 33573434,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573436,
+          "assembly": "testset b[r5]"
+        },
+        {
+          "address": 33573438,
+          "assembly": "ifeq goto -6",
+          "direct_target": 33573436
+        },
+        {
+          "address": 33573442,
+          "assembly": "r0 = r3 & 0xF"
+        },
+        {
+          "address": 33573446,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33573448,
+          "assembly": "r0 = r1 << r0"
+        },
+        {
+          "address": 33573452,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573454,
+          "assembly": "if (r4 == 0) goto 10",
+          "direct_target": 33573466
+        },
+        {
+          "address": 33573456,
+          "assembly": "if (r4 == 1) {"
+        },
+        {
+          "address": 33573460,
+          "assembly": "[r2+0] |= r0"
+        },
+        {
+          "address": 33573464,
+          "assembly": "goto 4",
+          "direct_target": 33573470
+        },
+        {
+          "address": 33573466,
+          "assembly": "[r2+0] &= ~r0"
+        },
+        {
+          "address": 33573470,
+          "assembly": "[r2+8] &= ~r0"
+        },
+        {
+          "address": 33573474,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573476,
+          "assembly": "r0 = 0"
+        },
+        {
+          "address": 33573478,
+          "assembly": "b[r5+0] = r0"
+        },
+        {
+          "address": 33573480,
+          "assembly": "call -4209704",
+          "direct_target": 29363782
+        },
+        {
+          "address": 33573486,
+          "assembly": "{pc, r6-r4} = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "gpio_direction_input",
+      "start": 33573590,
+      "end_exclusive": 33573704,
+      "sha256": "d7ce00297ff8f69158fd996412eb91295b91bc3afd5654e5836c731a6f478a47",
+      "preimage_hex": "7404021692f904284121bfea10ff540482f80b204820412080ff18c4bfff603a412180ff0ec4bfff540492f9052000e17020001761905404bfeaa9e6031673f817fea0a4c1ffe05cc2010c1c80ff06c3bfff2000b40040e8fdff200060e10f2066e8083020004020c84080ff00c3bfff5404",
+      "instructions": [
+        {
+          "address": 33573590,
+          "assembly": "[--sp] = {rets, r4}"
+        },
+        {
+          "address": 33573592,
+          "assembly": "r2 = r0"
+        },
+        {
+          "address": 33573594,
+          "assembly": "if (r2 < 148) goto 8",
+          "direct_target": 33573606
+        },
+        {
+          "address": 33573598,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33573600,
+          "assembly": "call -480",
+          "direct_target": 33573124
+        },
+        {
+          "address": 33573604,
+          "assembly": "{pc, r4} = [sp++]"
+        },
+        {
+          "address": 33573606,
+          "assembly": "if (r2 != 16) goto 22",
+          "direct_target": 33573632
+        },
+        {
+          "address": 33573610,
+          "assembly": "r0 = 32"
+        },
+        {
+          "address": 33573612,
+          "assembly": "r1 = 0"
+        },
+        {
+          "address": 33573614,
+          "assembly": "call -4209640",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33573620,
+          "assembly": "r0 = 154"
+        },
+        {
+          "address": 33573622,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33573624,
+          "assembly": "call -4209650",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33573630,
+          "assembly": "{pc, r4} = [sp++]"
+        },
+        {
+          "address": 33573632,
+          "assembly": "if (r2 < 144) goto 10",
+          "direct_target": 33573646
+        },
+        {
+          "address": 33573636,
+          "assembly": "r0 = r2 + 112"
+        },
+        {
+          "address": 33573640,
+          "assembly": "r0 = r0.b0 (u)"
+        },
+        {
+          "address": 33573642,
+          "assembly": "call -96",
+          "direct_target": 33573548
+        },
+        {
+          "address": 33573644,
+          "assembly": "{pc, r4} = [sp++]"
+        },
+        {
+          "address": 33573646,
+          "assembly": "call -12974",
+          "direct_target": 33560676
+        },
+        {
+          "address": 33573650,
+          "assembly": "r3 = r0"
+        },
+        {
+          "address": 33573652,
+          "assembly": "if (r3 == -1) goto 46",
+          "direct_target": 33573702
+        },
+        {
+          "address": 33573656,
+          "assembly": "r0 = r2 >> 4"
+        },
+        {
+          "address": 33573658,
+          "assembly": "r1 = 29514976"
+        },
+        {
+          "address": 33573664,
+          "assembly": "r4 = r0 + r1"
+        },
+        {
+          "address": 33573666,
+          "assembly": "call -4209914",
+          "direct_target": 29363758
+        },
+        {
+          "address": 33573672,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573674,
+          "assembly": "testset b[r4]"
+        },
+        {
+          "address": 33573676,
+          "assembly": "ifeq goto -6",
+          "direct_target": 33573674
+        },
+        {
+          "address": 33573680,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573682,
+          "assembly": "r0 = r2 & 0xF"
+        },
+        {
+          "address": 33573686,
+          "assembly": "[r3+8] |= 1 << r0"
+        },
+        {
+          "address": 33573690,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573692,
+          "assembly": "r0 = 0"
+        },
+        {
+          "address": 33573694,
+          "assembly": "b[r4+0] = r0"
+        },
+        {
+          "address": 33573696,
+          "assembly": "call -4209920",
+          "direct_target": 29363782
+        },
+        {
+          "address": 33573702,
+          "assembly": "{pc, r4} = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "gpio_digital",
+      "start": 33560700,
+      "end_exclusive": 33560854,
+      "sha256": "5387db72055e0c8402b25991506ecafb6aa7b3424e59a92a57c21c6b6b7e5be8",
+      "preimage_hex": "75041416021692f902286193550482f8032040167181550492f91c2000e17020001700fc39024121c8e11050c0ff9b80000080ff14f6bfff24eaff5051e1ff50901950190117c0ff9b80000080ff3ef6bfff55046189031673f81efea0a4c1ffe05cc2010d1c80ff46f5bfff2000b50040e8fdff60e10f204121c8e11000200034e8001064e80f3064e80c3020004020d84080ff32f5bfff5504",
+      "instructions": [
+        {
+          "address": 33560700,
+          "assembly": "[--sp] = {rets, r5, r4}"
+        },
+        {
+          "address": 33560702,
+          "assembly": "r4 = r1"
+        },
+        {
+          "address": 33560704,
+          "assembly": "r2 = r0"
+        },
+        {
+          "address": 33560706,
+          "assembly": "if (r2 < 148) goto 4",
+          "direct_target": 33560714
+        },
+        {
+          "address": 33560710,
+          "assembly": "call -90",
+          "direct_target": 33560622
+        },
+        {
+          "address": 33560712,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33560714,
+          "assembly": "if (r2 != 16) goto 6",
+          "direct_target": 33560724
+        },
+        {
+          "address": 33560718,
+          "assembly": "r0 = r4"
+        },
+        {
+          "address": 33560720,
+          "assembly": "call -62",
+          "direct_target": 33560660
+        },
+        {
+          "address": 33560722,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33560724,
+          "assembly": "if (r2 < 144) goto 56",
+          "direct_target": 33560784
+        },
+        {
+          "address": 33560728,
+          "assembly": "r0 = r2 + 112"
+        },
+        {
+          "address": 33560732,
+          "assembly": "r0 = r0.b0 (u)"
+        },
+        {
+          "address": 33560734,
+          "assembly": "if (r0 > 1) goto 114",
+          "direct_target": 33560852
+        },
+        {
+          "address": 33560738,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33560740,
+          "assembly": "r5 = r1 << r0"
+        },
+        {
+          "address": 33560744,
+          "assembly": "r0 = 32923"
+        },
+        {
+          "address": 33560750,
+          "assembly": "call -4196844",
+          "direct_target": 29363912
+        },
+        {
+          "address": 33560756,
+          "assembly": "if ((r4 & 0xFF) == 0) {"
+        },
+        {
+          "address": 33560760,
+          "assembly": "r1 = r5 ^ 0xFF"
+        },
+        {
+          "address": 33560764,
+          "assembly": "r0 &= r1"
+        },
+        {
+          "address": 33560766,
+          "assembly": "r0 |= r5"
+        },
+        {
+          "address": 33560768,
+          "assembly": "r1 = r0.b0 (u)"
+        },
+        {
+          "address": 33560770,
+          "assembly": "r0 = 32923"
+        },
+        {
+          "address": 33560776,
+          "assembly": "call -4196802",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33560782,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33560784,
+          "assembly": "call -110",
+          "direct_target": 33560676
+        },
+        {
+          "address": 33560786,
+          "assembly": "r3 = r0"
+        },
+        {
+          "address": 33560788,
+          "assembly": "if (r3 == -1) goto 60",
+          "direct_target": 33560852
+        },
+        {
+          "address": 33560792,
+          "assembly": "r0 = r2 >> 4"
+        },
+        {
+          "address": 33560794,
+          "assembly": "r1 = 29514976"
+        },
+        {
+          "address": 33560800,
+          "assembly": "r5 = r0 + r1"
+        },
+        {
+          "address": 33560802,
+          "assembly": "call -4197050",
+          "direct_target": 29363758
+        },
+        {
+          "address": 33560808,
+          "assembly": "csync"
+        },
+        {
+          "address": 33560810,
+          "assembly": "testset b[r5]"
+        },
+        {
+          "address": 33560812,
+          "assembly": "ifeq goto -6",
+          "direct_target": 33560810
+        },
+        {
+          "address": 33560816,
+          "assembly": "r0 = r2 & 0xF"
+        },
+        {
+          "address": 33560820,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33560822,
+          "assembly": "r0 = r1 << r0"
+        },
+        {
+          "address": 33560826,
+          "assembly": "csync"
+        },
+        {
+          "address": 33560828,
+          "assembly": "if (r4 == 0) {"
+        },
+        {
+          "address": 33560832,
+          "assembly": "[r3+12] &= ~r0"
+        },
+        {
+          "address": 33560836,
+          "assembly": "[r3+12] |= r0"
+        },
+        {
+          "address": 33560840,
+          "assembly": "csync"
+        },
+        {
+          "address": 33560842,
+          "assembly": "r0 = 0"
+        },
+        {
+          "address": 33560844,
+          "assembly": "b[r5+0] = r0"
+        },
+        {
+          "address": 33560846,
+          "assembly": "call -4197070",
+          "direct_target": 29363782
+        },
+        {
+          "address": 33560852,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "gpio_pull_down",
+      "start": 33573804,
+      "end_exclusive": 33573960,
+      "sha256": "e4755e9ea780507f0a816225d9d6a0799d5b1b4652c9a522f29823d6e68309ec",
+      "preimage_hex": "75041416021692f902286188550482f803204016718d550492f91c2000e17020001700fc3a024121c8e11050c0ff9d80000080ffe4c2bfff24eaff5051e1ff50901950190117c0ff9d80000080ff0ec3bfff5504bfea30e6031673f81efea0a4c1ffe05cc2010d1c80ff14c2bfff2000b50040e8fdff60e10f204121c8e11000200034e8001064e8173064e8143020004020d84080ff00c2bfff5504",
+      "instructions": [
+        {
+          "address": 33573804,
+          "assembly": "[--sp] = {rets, r5, r4}"
+        },
+        {
+          "address": 33573806,
+          "assembly": "r4 = r1"
+        },
+        {
+          "address": 33573808,
+          "assembly": "r2 = r0"
+        },
+        {
+          "address": 33573810,
+          "assembly": "if (r2 < 148) goto 4",
+          "direct_target": 33573818
+        },
+        {
+          "address": 33573814,
+          "assembly": "call -112",
+          "direct_target": 33573704
+        },
+        {
+          "address": 33573816,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33573818,
+          "assembly": "if (r2 != 16) goto 6",
+          "direct_target": 33573828
+        },
+        {
+          "address": 33573822,
+          "assembly": "r0 = r4"
+        },
+        {
+          "address": 33573824,
+          "assembly": "call -38",
+          "direct_target": 33573788
+        },
+        {
+          "address": 33573826,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33573828,
+          "assembly": "if (r2 < 144) goto 56",
+          "direct_target": 33573888
+        },
+        {
+          "address": 33573832,
+          "assembly": "r0 = r2 + 112"
+        },
+        {
+          "address": 33573836,
+          "assembly": "r0 = r0.b0 (u)"
+        },
+        {
+          "address": 33573838,
+          "assembly": "if (r0 > 1) goto 116",
+          "direct_target": 33573958
+        },
+        {
+          "address": 33573842,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33573844,
+          "assembly": "r5 = r1 << r0"
+        },
+        {
+          "address": 33573848,
+          "assembly": "r0 = 32925"
+        },
+        {
+          "address": 33573854,
+          "assembly": "call -4209948",
+          "direct_target": 29363912
+        },
+        {
+          "address": 33573860,
+          "assembly": "if ((r4 & 0xFF) == 0) {"
+        },
+        {
+          "address": 33573864,
+          "assembly": "r1 = r5 ^ 0xFF"
+        },
+        {
+          "address": 33573868,
+          "assembly": "r0 &= r1"
+        },
+        {
+          "address": 33573870,
+          "assembly": "r0 |= r5"
+        },
+        {
+          "address": 33573872,
+          "assembly": "r1 = r0.b0 (u)"
+        },
+        {
+          "address": 33573874,
+          "assembly": "r0 = 32925"
+        },
+        {
+          "address": 33573880,
+          "assembly": "call -4209906",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33573886,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33573888,
+          "assembly": "call -13216",
+          "direct_target": 33560676
+        },
+        {
+          "address": 33573892,
+          "assembly": "r3 = r0"
+        },
+        {
+          "address": 33573894,
+          "assembly": "if (r3 == -1) goto 60",
+          "direct_target": 33573958
+        },
+        {
+          "address": 33573898,
+          "assembly": "r0 = r2 >> 4"
+        },
+        {
+          "address": 33573900,
+          "assembly": "r1 = 29514976"
+        },
+        {
+          "address": 33573906,
+          "assembly": "r5 = r0 + r1"
+        },
+        {
+          "address": 33573908,
+          "assembly": "call -4210156",
+          "direct_target": 29363758
+        },
+        {
+          "address": 33573914,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573916,
+          "assembly": "testset b[r5]"
+        },
+        {
+          "address": 33573918,
+          "assembly": "ifeq goto -6",
+          "direct_target": 33573916
+        },
+        {
+          "address": 33573922,
+          "assembly": "r0 = r2 & 0xF"
+        },
+        {
+          "address": 33573926,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33573928,
+          "assembly": "r0 = r1 << r0"
+        },
+        {
+          "address": 33573932,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573934,
+          "assembly": "if (r4 == 0) {"
+        },
+        {
+          "address": 33573938,
+          "assembly": "[r3+20] &= ~r0"
+        },
+        {
+          "address": 33573942,
+          "assembly": "[r3+20] |= r0"
+        },
+        {
+          "address": 33573946,
+          "assembly": "csync"
+        },
+        {
+          "address": 33573948,
+          "assembly": "r0 = 0"
+        },
+        {
+          "address": 33573950,
+          "assembly": "b[r5+0] = r0"
+        },
+        {
+          "address": 33573952,
+          "assembly": "call -4210176",
+          "direct_target": 29363782
+        },
+        {
+          "address": 33573958,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "gpio_pull_up",
+      "start": 33574042,
+      "end_exclusive": 33574198,
+      "sha256": "658a5e68b7a4b5302652026c321cbbe1a8c5a7cae8570bd184febbd43487074d",
+      "preimage_hex": "75041416021692f902286191550482f803204016718d550492f91c2000e17020001700fc3a024121c8e11050c0ff9c80000080fff6c1bfff24eaff5051e1ff50901950190117c0ff9c80000080ff20c2bfff5504bfeab9e5031673f81efea0a4c1ffe05cc2010d1c80ff26c1bfff2000b50040e8fdff60e10f204121c8e11000200034e8001064e8133064e8103020004020d84080ff12c1bfff5504",
+      "instructions": [
+        {
+          "address": 33574042,
+          "assembly": "[--sp] = {rets, r5, r4}"
+        },
+        {
+          "address": 33574044,
+          "assembly": "r4 = r1"
+        },
+        {
+          "address": 33574046,
+          "assembly": "r2 = r0"
+        },
+        {
+          "address": 33574048,
+          "assembly": "if (r2 < 148) goto 4",
+          "direct_target": 33574056
+        },
+        {
+          "address": 33574052,
+          "assembly": "call -94",
+          "direct_target": 33573960
+        },
+        {
+          "address": 33574054,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33574056,
+          "assembly": "if (r2 != 16) goto 6",
+          "direct_target": 33574066
+        },
+        {
+          "address": 33574060,
+          "assembly": "r0 = r4"
+        },
+        {
+          "address": 33574062,
+          "assembly": "call -38",
+          "direct_target": 33574026
+        },
+        {
+          "address": 33574064,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33574066,
+          "assembly": "if (r2 < 144) goto 56",
+          "direct_target": 33574126
+        },
+        {
+          "address": 33574070,
+          "assembly": "r0 = r2 + 112"
+        },
+        {
+          "address": 33574074,
+          "assembly": "r0 = r0.b0 (u)"
+        },
+        {
+          "address": 33574076,
+          "assembly": "if (r0 > 1) goto 116",
+          "direct_target": 33574196
+        },
+        {
+          "address": 33574080,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33574082,
+          "assembly": "r5 = r1 << r0"
+        },
+        {
+          "address": 33574086,
+          "assembly": "r0 = 32924"
+        },
+        {
+          "address": 33574092,
+          "assembly": "call -4210186",
+          "direct_target": 29363912
+        },
+        {
+          "address": 33574098,
+          "assembly": "if ((r4 & 0xFF) == 0) {"
+        },
+        {
+          "address": 33574102,
+          "assembly": "r1 = r5 ^ 0xFF"
+        },
+        {
+          "address": 33574106,
+          "assembly": "r0 &= r1"
+        },
+        {
+          "address": 33574108,
+          "assembly": "r0 |= r5"
+        },
+        {
+          "address": 33574110,
+          "assembly": "r1 = r0.b0 (u)"
+        },
+        {
+          "address": 33574112,
+          "assembly": "r0 = 32924"
+        },
+        {
+          "address": 33574118,
+          "assembly": "call -4210144",
+          "direct_target": 29363980
+        },
+        {
+          "address": 33574124,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        },
+        {
+          "address": 33574126,
+          "assembly": "call -13454",
+          "direct_target": 33560676
+        },
+        {
+          "address": 33574130,
+          "assembly": "r3 = r0"
+        },
+        {
+          "address": 33574132,
+          "assembly": "if (r3 == -1) goto 60",
+          "direct_target": 33574196
+        },
+        {
+          "address": 33574136,
+          "assembly": "r0 = r2 >> 4"
+        },
+        {
+          "address": 33574138,
+          "assembly": "r1 = 29514976"
+        },
+        {
+          "address": 33574144,
+          "assembly": "r5 = r0 + r1"
+        },
+        {
+          "address": 33574146,
+          "assembly": "call -4210394",
+          "direct_target": 29363758
+        },
+        {
+          "address": 33574152,
+          "assembly": "csync"
+        },
+        {
+          "address": 33574154,
+          "assembly": "testset b[r5]"
+        },
+        {
+          "address": 33574156,
+          "assembly": "ifeq goto -6",
+          "direct_target": 33574154
+        },
+        {
+          "address": 33574160,
+          "assembly": "r0 = r2 & 0xF"
+        },
+        {
+          "address": 33574164,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33574166,
+          "assembly": "r0 = r1 << r0"
+        },
+        {
+          "address": 33574170,
+          "assembly": "csync"
+        },
+        {
+          "address": 33574172,
+          "assembly": "if (r4 == 0) {"
+        },
+        {
+          "address": 33574176,
+          "assembly": "[r3+16] &= ~r0"
+        },
+        {
+          "address": 33574180,
+          "assembly": "[r3+16] |= r0"
+        },
+        {
+          "address": 33574184,
+          "assembly": "csync"
+        },
+        {
+          "address": 33574186,
+          "assembly": "r0 = 0"
+        },
+        {
+          "address": 33574188,
+          "assembly": "b[r5+0] = r0"
+        },
+        {
+          "address": 33574190,
+          "assembly": "call -4210414",
+          "direct_target": 29363782
+        },
+        {
+          "address": 33574196,
+          "assembly": "{pc, r5, r4} = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "original_channel_start",
+      "start": 33575316,
+      "end_exclusive": 33575420,
+      "sha256": "8021cc1e55cee1e7350f70d2e5670830e0402497d774275c4d88b1cffdad6e7b",
+      "preimage_hex": "790440e04c10c8ff9068c201d8ee8000104a40e02708d8ed880041e01f04d8ec8a6104a3173c452049e01b040496788400fc1102694894e11000b4f05008e848d8ec0a094120421680ff30e20200686294e10005e862c524c721f74940e04c104122d8ee81105904",
+      "instructions": [
+        {
+          "address": 33575316,
+          "assembly": "[--sp] = {rets, r9-r4}"
+        },
+        {
+          "address": 33575318,
+          "assembly": "r0 = 4172"
+        },
+        {
+          "address": 33575322,
+          "assembly": "r8 = 29517968"
+        },
+        {
+          "address": 33575328,
+          "assembly": "r0 = b[r8+r0] (u)"
+        },
+        {
+          "address": 33575332,
+          "assembly": "if (r0 == 0) goto 84",
+          "direct_target": 33575418
+        },
+        {
+          "address": 33575334,
+          "assembly": "r0 = 2087"
+        },
+        {
+          "address": 33575338,
+          "assembly": "r0 = h[r8+r0<<1] (u)"
+        },
+        {
+          "address": 33575342,
+          "assembly": "r1 = 1055"
+        },
+        {
+          "address": 33575346,
+          "assembly": "r6 = [r8+r1<<2]"
+        },
+        {
+          "address": 33575350,
+          "assembly": "r4 = r0 << 3"
+        },
+        {
+          "address": 33575352,
+          "assembly": "r7 = -4"
+        },
+        {
+          "address": 33575354,
+          "assembly": "r5 = 0"
+        },
+        {
+          "address": 33575356,
+          "assembly": "r9 = 1051"
+        },
+        {
+          "address": 33575360,
+          "assembly": "goto 44",
+          "direct_target": 33575406
+        },
+        {
+          "address": 33575362,
+          "assembly": "r0 = r7 + 4"
+        },
+        {
+          "address": 33575364,
+          "assembly": "if (r0 > 1) goto 34",
+          "direct_target": 33575402
+        },
+        {
+          "address": 33575368,
+          "assembly": "r1 = b[r6+8] (u)"
+        },
+        {
+          "address": 33575370,
+          "assembly": "r0 = r1 | (1 << r0)"
+        },
+        {
+          "address": 33575374,
+          "assembly": "r0 = r5 + r8  #"
+        },
+        {
+          "address": 33575378,
+          "assembly": "b[r6+8] = r0"
+        },
+        {
+          "address": 33575380,
+          "assembly": "r0 = [r0+r9<<2]"
+        },
+        {
+          "address": 33575384,
+          "assembly": "r1 = 0"
+        },
+        {
+          "address": 33575386,
+          "assembly": "r2 = r4"
+        },
+        {
+          "address": 33575388,
+          "assembly": "call 188976",
+          "direct_target": 33764370
+        },
+        {
+          "address": 33575394,
+          "assembly": "r0 = h[r6+4] (u)"
+        },
+        {
+          "address": 33575396,
+          "assembly": "r0 = r0 | (1 << r5)"
+        },
+        {
+          "address": 33575400,
+          "assembly": "h[r6+4] = r0"
+        },
+        {
+          "address": 33575402,
+          "assembly": "r5 += 4"
+        },
+        {
+          "address": 33575404,
+          "assembly": "r7 += 1"
+        },
+        {
+          "address": 33575406,
+          "assembly": "if (r7 != 0) goto -46",
+          "direct_target": 33575362
+        },
+        {
+          "address": 33575408,
+          "assembly": "r0 = 4172"
+        },
+        {
+          "address": 33575412,
+          "assembly": "r1 = 2"
+        },
+        {
+          "address": 33575414,
+          "assembly": "b[r8+r0] = r1"
+        },
+        {
+          "address": 33575418,
+          "assembly": "{pc, r9-r4} = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "original_cpu_mhz_getter",
+      "start": 33576902,
+      "end_exclusive": 33576972,
+      "sha256": "6c47a946631c734e9a11cff5d3027bfe955fb80155a05675d3bcd0ef81070024",
+      "preimage_hex": "40e0a802c1ff9068c201d8ee10000045c0ff80f1c101006b8000c0ff14000100006061e10f00402081f80c0cc0ffac19010041f0fc3f006000a29019c0284123f4e100018000",
+      "instructions": [
+        {
+          "address": 33576902,
+          "assembly": "r0 = 680"
+        },
+        {
+          "address": 33576906,
+          "assembly": "r1 = 29517968"
+        },
+        {
+          "address": 33576912,
+          "assembly": "r0 = b[r1+r0] (u)"
+        },
+        {
+          "address": 33576916,
+          "assembly": "if (r0 == 0) goto 10",
+          "direct_target": 33576928
+        },
+        {
+          "address": 33576918,
+          "assembly": "r0 = 29487488"
+        },
+        {
+          "address": 33576924,
+          "assembly": "r0 = [r0+44]"
+        },
+        {
+          "address": 33576926,
+          "assembly": "rts"
+        },
+        {
+          "address": 33576928,
+          "assembly": "r0 = 65556"
+        },
+        {
+          "address": 33576934,
+          "assembly": "r0 = [r0+0]"
+        },
+        {
+          "address": 33576936,
+          "assembly": "r1 = r0 & 0xF"
+        },
+        {
+          "address": 33576940,
+          "assembly": "r0 = 0"
+        },
+        {
+          "address": 33576942,
+          "assembly": "if (r1 != 6) goto 24",
+          "direct_target": 33576970
+        },
+        {
+          "address": 33576946,
+          "assembly": "r0 = 72108"
+        },
+        {
+          "address": 33576952,
+          "assembly": "r1 = 16380  #"
+        },
+        {
+          "address": 33576956,
+          "assembly": "r0 = [r0+0]"
+        },
+        {
+          "address": 33576958,
+          "assembly": "r0 = r0 << 2"
+        },
+        {
+          "address": 33576960,
+          "assembly": "r0 &= r1"
+        },
+        {
+          "address": 33576962,
+          "assembly": "r0 += 8"
+        },
+        {
+          "address": 33576964,
+          "assembly": "r1 = 3"
+        },
+        {
+          "address": 33576966,
+          "assembly": "r0 = r0 / r1 (u)"
+        },
+        {
+          "address": 33576970,
+          "assembly": "rts"
+        }
+      ]
+    },
+    {
+      "name": "original_driver_ready_state",
+      "start": 33575158,
+      "end_exclusive": 33575204,
+      "sha256": "c54b501c9de8e328c7e107dba19211cce11dd3db11f5e0b416d53c6fc658dd70",
+      "preimage_hex": "10e14c90026c0368a3640369a365036aa366036ba36750ed21122000016c1a60322b9a6041218940422020165f04",
+      "instructions": [
+        {
+          "address": 33575158,
+          "assembly": "r0 = r9 + 4172"
+        },
+        {
+          "address": 33575162,
+          "assembly": "r2 = [r0+48]"
+        },
+        {
+          "address": 33575164,
+          "assembly": "r3 = [r0+32]"
+        },
+        {
+          "address": 33575166,
+          "assembly": "[r2+16] = r3"
+        },
+        {
+          "address": 33575168,
+          "assembly": "r3 = [r0+36]"
+        },
+        {
+          "address": 33575170,
+          "assembly": "[r2+20] = r3"
+        },
+        {
+          "address": 33575172,
+          "assembly": "r3 = [r0+40]"
+        },
+        {
+          "address": 33575174,
+          "assembly": "[r2+24] = r3"
+        },
+        {
+          "address": 33575176,
+          "assembly": "r3 = [r0+44]"
+        },
+        {
+          "address": 33575178,
+          "assembly": "[r2+28] = r3"
+        },
+        {
+          "address": 33575180,
+          "assembly": "h[r2+32] = r1"
+        },
+        {
+          "address": 33575184,
+          "assembly": "csync"
+        },
+        {
+          "address": 33575186,
+          "assembly": "r1 = [r0+48]"
+        },
+        {
+          "address": 33575188,
+          "assembly": "r2 = h[r1+0] (u)"
+        },
+        {
+          "address": 33575190,
+          "assembly": "r2 |= 2048"
+        },
+        {
+          "address": 33575192,
+          "assembly": "h[r1+0] = r2"
+        },
+        {
+          "address": 33575194,
+          "assembly": "r1 = 1"
+        },
+        {
+          "address": 33575196,
+          "assembly": "b[r0+0] = r1"
+        },
+        {
+          "address": 33575198,
+          "assembly": "r2 = 0"
+        },
+        {
+          "address": 33575200,
+          "assembly": "r0 = r2"
+        },
+        {
+          "address": 33575202,
+          "assembly": "{pc, r15-r4} = [sp++]"
+        }
+      ]
+    }
+  ],
+  "additional_evidence": {
+    "PC5": {
+      "pin": 37,
+      "bank": 327808,
+      "bit": 5,
+      "lock_byte": 29514978,
+      "MINI_original_preparation": {
+        "start": 33577934,
+        "end_exclusive": 33578082,
+        "sha256": "216b7f3a3e475bafaecd0e2eccddad0655f4aa8275cd841b38ae991e42c4b733",
+        "preimage_hex": "760448254121518048254121bfead4f9600064e0000601a2c0ffd8d6c0010118c0eb011020002000c1ff3456c1011a82b20040e8fdff2000c3ff98000500c1ef2030200044209c4264e00056d8ec0a65fe3fd8ec0b65864220006100600064e0005655a20518c0eb015020002000b20040e8fdff2000c0ef203020009c4264e00016d8ec0a21fa3fd8ec0b218242200061005604",
+        "instructions": [
+          {
+            "address": 33577934,
+            "size": 2,
+            "id": "push.rets_rl",
+            "fields": {
+              "l": 6
+            },
+            "text": "[--sp] = {rets, r6-r4}",
+            "bytes": "7604"
+          },
+          {
+            "address": 33577936,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 0,
+              "n": 37
+            },
+            "text": "r0 = 37",
+            "bytes": "4825"
+          },
+          {
+            "address": 33577938,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 1,
+              "n": 1
+            },
+            "text": "r1 = 1",
+            "bytes": "4121"
+          },
+          {
+            "address": 33577940,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 160
+            },
+            "text": "call -192",
+            "bytes": "5180",
+            "target": 33577750
+          },
+          {
+            "address": 33577942,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 0,
+              "n": 37
+            },
+            "text": "r0 = 37",
+            "bytes": "4825"
+          },
+          {
+            "address": 33577944,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 1,
+              "n": 1
+            },
+            "text": "r1 = 1",
+            "bytes": "4121"
+          },
+          {
+            "address": 33577946,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4192724
+            },
+            "text": "call -3160",
+            "bytes": "bfead4f9",
+            "target": 33574790
+          },
+          {
+            "address": 33577950,
+            "size": 2,
+            "id": "cli",
+            "fields": {},
+            "text": "cli",
+            "bytes": "6000"
+          },
+          {
+            "address": 33577952,
+            "size": 4,
+            "id": "mov.r_sr",
+            "fields": {
+              "r": 0,
+              "s": 6
+            },
+            "text": "r0 = cnum",
+            "bytes": "64e00006"
+          },
+          {
+            "address": 33577956,
+            "size": 2,
+            "id": "lsl.rri",
+            "fields": {
+              "d": 1,
+              "s": 0,
+              "n": 2
+            },
+            "text": "r1 = r0 << 2",
+            "bytes": "01a2"
+          },
+          {
+            "address": 33577958,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 0,
+              "n": 29415128
+            },
+            "text": "r0 = 29415128",
+            "bytes": "c0ffd8d6c001"
+          },
+          {
+            "address": 33577964,
+            "size": 2,
+            "id": "add.rr",
+            "fields": {
+              "d": 1,
+              "s": 0
+            },
+            "text": "r1 += r0",
+            "bytes": "0118"
+          },
+          {
+            "address": 33577966,
+            "size": 4,
+            "id": "rmw.add.s12",
+            "fields": {
+              "r": 1,
+              "n": 0,
+              "m": 1
+            },
+            "text": "[r1+0] += 1",
+            "bytes": "c0eb0110"
+          },
+          {
+            "address": 33577970,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33577972,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33577974,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 1,
+              "n": 29447732
+            },
+            "text": "r1 = 29447732",
+            "bytes": "c1ff3456c101"
+          },
+          {
+            "address": 33577980,
+            "size": 2,
+            "id": "add.rri",
+            "fields": {
+              "d": 2,
+              "s": 1,
+              "n": 2
+            },
+            "text": "r2 = r1 + 2",
+            "bytes": "1a82"
+          },
+          {
+            "address": 33577982,
+            "size": 2,
+            "id": "testset.b",
+            "fields": {
+              "x": 2
+            },
+            "text": "testset b[r2]",
+            "bytes": "b200"
+          },
+          {
+            "address": 33577984,
+            "size": 4,
+            "id": "bc.eq",
+            "fields": {
+              "n": 65533
+            },
+            "text": "ifeq goto -6",
+            "bytes": "40e8fdff",
+            "target": 33577982
+          },
+          {
+            "address": 33577988,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33577990,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 3,
+              "n": 327832
+            },
+            "text": "r3 = 327832",
+            "bytes": "c3ff98000500"
+          },
+          {
+            "address": 33577996,
+            "size": 4,
+            "id": "rmw.and.nmodimm",
+            "fields": {
+              "r": 3,
+              "n": 1,
+              "m": 32
+            },
+            "text": "[r3+4] &= 0xFFFFFFDF",
+            "bytes": "c1ef2030"
+          },
+          {
+            "address": 33578000,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33578002,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 4,
+              "n": 0
+            },
+            "text": "r4 = 0",
+            "bytes": "4420"
+          },
+          {
+            "address": 33578004,
+            "size": 2,
+            "id": "st.b",
+            "fields": {
+              "d": 4,
+              "b": 1,
+              "n": 2
+            },
+            "text": "b[r1+2] = r4",
+            "bytes": "9c42"
+          },
+          {
+            "address": 33578006,
+            "size": 4,
+            "id": "mov.r_sr",
+            "fields": {
+              "r": 5,
+              "s": 6
+            },
+            "text": "r5 = cnum",
+            "bytes": "64e00056"
+          },
+          {
+            "address": 33578010,
+            "size": 4,
+            "id": "ld.w.idxs",
+            "fields": {
+              "r": 6,
+              "s": 0,
+              "t": 5
+            },
+            "text": "r6 = [r0+r5<<2]",
+            "bytes": "d8ec0a65"
+          },
+          {
+            "address": 33578014,
+            "size": 2,
+            "id": "add.ri.neg7",
+            "fields": {
+              "r": 6,
+              "n": 127
+            },
+            "text": "r6 += -1",
+            "bytes": "fe3f"
+          },
+          {
+            "address": 33578016,
+            "size": 4,
+            "id": "st.w.idxs",
+            "fields": {
+              "r": 0,
+              "s": 5,
+              "t": 6
+            },
+            "text": "[r0+r5<<2] = r6",
+            "bytes": "d8ec0b65"
+          },
+          {
+            "address": 33578020,
+            "size": 2,
+            "id": "bnez",
+            "fields": {
+              "r": 6,
+              "n": 2
+            },
+            "text": "if (r6 != 0) goto 4",
+            "bytes": "8642",
+            "target": 33578026
+          },
+          {
+            "address": 33578022,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33578024,
+            "size": 2,
+            "id": "sti",
+            "fields": {},
+            "text": "sti",
+            "bytes": "6100"
+          },
+          {
+            "address": 33578026,
+            "size": 2,
+            "id": "cli",
+            "fields": {},
+            "text": "cli",
+            "bytes": "6000"
+          },
+          {
+            "address": 33578028,
+            "size": 4,
+            "id": "mov.r_sr",
+            "fields": {
+              "r": 5,
+              "s": 6
+            },
+            "text": "r5 = cnum",
+            "bytes": "64e00056"
+          },
+          {
+            "address": 33578032,
+            "size": 2,
+            "id": "lsl.rri",
+            "fields": {
+              "d": 5,
+              "s": 5,
+              "n": 2
+            },
+            "text": "r5 = r5 << 2",
+            "bytes": "55a2"
+          },
+          {
+            "address": 33578034,
+            "size": 2,
+            "id": "add.rr",
+            "fields": {
+              "d": 5,
+              "s": 0
+            },
+            "text": "r5 += r0",
+            "bytes": "0518"
+          },
+          {
+            "address": 33578036,
+            "size": 4,
+            "id": "rmw.add.s12",
+            "fields": {
+              "r": 5,
+              "n": 0,
+              "m": 1
+            },
+            "text": "[r5+0] += 1",
+            "bytes": "c0eb0150"
+          },
+          {
+            "address": 33578040,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33578042,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33578044,
+            "size": 2,
+            "id": "testset.b",
+            "fields": {
+              "x": 2
+            },
+            "text": "testset b[r2]",
+            "bytes": "b200"
+          },
+          {
+            "address": 33578046,
+            "size": 4,
+            "id": "bc.eq",
+            "fields": {
+              "n": 65533
+            },
+            "text": "ifeq goto -6",
+            "bytes": "40e8fdff",
+            "target": 33578044
+          },
+          {
+            "address": 33578050,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33578052,
+            "size": 4,
+            "id": "rmw.and.nmodimm",
+            "fields": {
+              "r": 3,
+              "n": 0,
+              "m": 32
+            },
+            "text": "[r3+0] &= 0xFFFFFFDF",
+            "bytes": "c0ef2030"
+          },
+          {
+            "address": 33578056,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33578058,
+            "size": 2,
+            "id": "st.b",
+            "fields": {
+              "d": 4,
+              "b": 1,
+              "n": 2
+            },
+            "text": "b[r1+2] = r4",
+            "bytes": "9c42"
+          },
+          {
+            "address": 33578060,
+            "size": 4,
+            "id": "mov.r_sr",
+            "fields": {
+              "r": 1,
+              "s": 6
+            },
+            "text": "r1 = cnum",
+            "bytes": "64e00016"
+          },
+          {
+            "address": 33578064,
+            "size": 4,
+            "id": "ld.w.idxs",
+            "fields": {
+              "r": 2,
+              "s": 0,
+              "t": 1
+            },
+            "text": "r2 = [r0+r1<<2]",
+            "bytes": "d8ec0a21"
+          },
+          {
+            "address": 33578068,
+            "size": 2,
+            "id": "add.ri.neg7",
+            "fields": {
+              "r": 2,
+              "n": 127
+            },
+            "text": "r2 += -1",
+            "bytes": "fa3f"
+          },
+          {
+            "address": 33578070,
+            "size": 4,
+            "id": "st.w.idxs",
+            "fields": {
+              "r": 0,
+              "s": 1,
+              "t": 2
+            },
+            "text": "[r0+r1<<2] = r2",
+            "bytes": "d8ec0b21"
+          },
+          {
+            "address": 33578074,
+            "size": 2,
+            "id": "bnez",
+            "fields": {
+              "r": 2,
+              "n": 2
+            },
+            "text": "if (r2 != 0) goto 4",
+            "bytes": "8242",
+            "target": 33578080
+          },
+          {
+            "address": 33578076,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33578078,
+            "size": 2,
+            "id": "sti",
+            "fields": {},
+            "text": "sti",
+            "bytes": "6100"
+          },
+          {
+            "address": 33578080,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 6
+            },
+            "text": "{pc, r6-r4} = [sp++]",
+            "bytes": "5604"
+          }
+        ]
+      },
+      "sequence": [
+        "DIE|=bit5",
+        "OUT|=bit5,DIR&=~bit5",
+        "HD&=~bit5",
+        "HD0&=~bit5"
+      ],
+      "HD0_original_helper": {
+        "start": 33665462,
+        "end_exclusive": 33665594,
+        "sha256": "65b7b238badafcf24311328c32f923e2481ffecb80e6239ae38b3fd521b70566",
+        "preimage_hex": "7504021692fc0126550482f80620603e412080ff3e5dbeff550492f9162000e17020001700fcf003793f94e11150c4ff9e800000401680ffd65cbeff90e10215401680ff0e5dbeff5504bfea3033031673f8daffa0a4c1ffe05cc2010c1c80ff145cbeff2000b40040e8fdff200060e10f2066e81b3020004020c84080ff0e5cbeff5504",
+        "instructions": [
+          {
+            "address": 33665462,
+            "size": 2,
+            "id": "push.rets_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "[--sp] = {rets, r5, r4}",
+            "bytes": "7504"
+          },
+          {
+            "address": 33665464,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 2,
+              "y": 0
+            },
+            "text": "r2 = r0",
+            "bytes": "0216"
+          },
+          {
+            "address": 33665466,
+            "size": 4,
+            "id": "ble.ri",
+            "fields": {
+              "r": 2,
+              "i": 147,
+              "n": 1
+            },
+            "text": "if (r2 <= 147) goto 2",
+            "bytes": "92fc0126",
+            "target": 33665472
+          },
+          {
+            "address": 33665470,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "{pc, r5, r4} = [sp++]",
+            "bytes": "5504"
+          },
+          {
+            "address": 33665472,
+            "size": 4,
+            "id": "bne.ri",
+            "fields": {
+              "r": 2,
+              "i": 16,
+              "n": 6
+            },
+            "text": "if (r2 != 16) goto 12",
+            "bytes": "82f80620",
+            "target": 33665488
+          },
+          {
+            "address": 33665476,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 0,
+              "n": 158
+            },
+            "text": "r0 = 158",
+            "bytes": "603e"
+          },
+          {
+            "address": 33665478,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 1,
+              "n": 0
+            },
+            "text": "r1 = 0",
+            "bytes": "4120"
+          },
+          {
+            "address": 33665480,
+            "size": 6,
+            "id": "call.xl",
+            "fields": {
+              "n": 2145332895
+            },
+            "text": "call -4301506",
+            "bytes": "80ff3e5dbeff",
+            "target": 29363980
+          },
+          {
+            "address": 33665486,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "{pc, r5, r4} = [sp++]",
+            "bytes": "5504"
+          },
+          {
+            "address": 33665488,
+            "size": 4,
+            "id": "blt.ri",
+            "fields": {
+              "r": 2,
+              "i": 144,
+              "n": 22
+            },
+            "text": "if (r2 < 144) goto 44",
+            "bytes": "92f91620",
+            "target": 33665536
+          },
+          {
+            "address": 33665492,
+            "size": 4,
+            "id": "add.s14.rri",
+            "fields": {
+              "r": 0,
+              "s": 2,
+              "n": 112
+            },
+            "text": "r0 = r2 + 112",
+            "bytes": "00e17020"
+          },
+          {
+            "address": 33665496,
+            "size": 2,
+            "id": "ext.b0.u",
+            "fields": {
+              "d": 0,
+              "s": 0
+            },
+            "text": "r0 = r0.b0 (u)",
+            "bytes": "0017"
+          },
+          {
+            "address": 33665498,
+            "size": 4,
+            "id": "bgt.ri",
+            "fields": {
+              "r": 0,
+              "i": 1,
+              "n": 496
+            },
+            "text": "if (r0 > 1) goto -32",
+            "bytes": "00fcf003",
+            "target": 33665470
+          },
+          {
+            "address": 33665502,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 1,
+              "n": 255
+            },
+            "text": "r1 = 255",
+            "bytes": "793f"
+          },
+          {
+            "address": 33665504,
+            "size": 4,
+            "id": "xor.bit.rrr",
+            "fields": {
+              "r": 5,
+              "s": 1,
+              "t": 0
+            },
+            "text": "r5 = r1 ^ (1 << r0)",
+            "bytes": "94e11150"
+          },
+          {
+            "address": 33665508,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 4,
+              "n": 32926
+            },
+            "text": "r4 = 32926",
+            "bytes": "c4ff9e800000"
+          },
+          {
+            "address": 33665514,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 0,
+              "y": 4
+            },
+            "text": "r0 = r4",
+            "bytes": "4016"
+          },
+          {
+            "address": 33665516,
+            "size": 6,
+            "id": "call.xl",
+            "fields": {
+              "n": 2145332843
+            },
+            "text": "call -4301610",
+            "bytes": "80ffd65cbeff",
+            "target": 29363912
+          },
+          {
+            "address": 33665522,
+            "size": 4,
+            "id": "and.rrr",
+            "fields": {
+              "r": 1,
+              "s": 0,
+              "t": 5
+            },
+            "text": "r1 = r0 & r5",
+            "bytes": "90e10215"
+          },
+          {
+            "address": 33665526,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 0,
+              "y": 4
+            },
+            "text": "r0 = r4",
+            "bytes": "4016"
+          },
+          {
+            "address": 33665528,
+            "size": 6,
+            "id": "call.xl",
+            "fields": {
+              "n": 2145332871
+            },
+            "text": "call -4301554",
+            "bytes": "80ff0e5dbeff",
+            "target": 29363980
+          },
+          {
+            "address": 33665534,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "{pc, r5, r4} = [sp++]",
+            "bytes": "5504"
+          },
+          {
+            "address": 33665536,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4141872
+            },
+            "text": "call -104864",
+            "bytes": "bfea3033",
+            "target": 33560676
+          },
+          {
+            "address": 33665540,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 3,
+              "y": 0
+            },
+            "text": "r3 = r0",
+            "bytes": "0316"
+          },
+          {
+            "address": 33665542,
+            "size": 4,
+            "id": "beq.ri",
+            "fields": {
+              "r": 3,
+              "i": 1023,
+              "n": 474
+            },
+            "text": "if (r3 == -1) goto -76",
+            "bytes": "73f8daff",
+            "target": 33665470
+          },
+          {
+            "address": 33665546,
+            "size": 2,
+            "id": "lsr.rri",
+            "fields": {
+              "d": 0,
+              "s": 2,
+              "n": 4
+            },
+            "text": "r0 = r2 >> 4",
+            "bytes": "a0a4"
+          },
+          {
+            "address": 33665548,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 1,
+              "n": 29514976
+            },
+            "text": "r1 = 29514976",
+            "bytes": "c1ffe05cc201"
+          },
+          {
+            "address": 33665554,
+            "size": 2,
+            "id": "add.rrr",
+            "fields": {
+              "d": 4,
+              "a": 0,
+              "b": 1
+            },
+            "text": "r4 = r0 + r1",
+            "bytes": "0c1c"
+          },
+          {
+            "address": 33665556,
+            "size": 6,
+            "id": "call.xl",
+            "fields": {
+              "n": 2145332746
+            },
+            "text": "call -4301804",
+            "bytes": "80ff145cbeff",
+            "target": 29363758
+          },
+          {
+            "address": 33665562,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33665564,
+            "size": 2,
+            "id": "testset.b",
+            "fields": {
+              "x": 4
+            },
+            "text": "testset b[r4]",
+            "bytes": "b400"
+          },
+          {
+            "address": 33665566,
+            "size": 4,
+            "id": "bc.eq",
+            "fields": {
+              "n": 65533
+            },
+            "text": "ifeq goto -6",
+            "bytes": "40e8fdff",
+            "target": 33665564
+          },
+          {
+            "address": 33665570,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33665572,
+            "size": 4,
+            "id": "and.modimm.rri",
+            "fields": {
+              "r": 0,
+              "s": 2,
+              "n": 15
+            },
+            "text": "r0 = r2 & 0xF",
+            "bytes": "60e10f20"
+          },
+          {
+            "address": 33665576,
+            "size": 4,
+            "id": "rmw.and.invbitr",
+            "fields": {
+              "r": 3,
+              "n": 6,
+              "s": 0
+            },
+            "text": "[r3+24] &= ~(1 << r0)",
+            "bytes": "66e81b30"
+          },
+          {
+            "address": 33665580,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 33665582,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 0,
+              "n": 0
+            },
+            "text": "r0 = 0",
+            "bytes": "4020"
+          },
+          {
+            "address": 33665584,
+            "size": 2,
+            "id": "st.b",
+            "fields": {
+              "d": 0,
+              "b": 4,
+              "n": 0
+            },
+            "text": "b[r4+0] = r0",
+            "bytes": "c840"
+          },
+          {
+            "address": 33665586,
+            "size": 6,
+            "id": "call.xl",
+            "fields": {
+              "n": 2145332743
+            },
+            "text": "call -4301810",
+            "bytes": "80ff0e5cbeff",
+            "target": 29363782
+          },
+          {
+            "address": 33665592,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "{pc, r5, r4} = [sp++]",
+            "bytes": "5504"
+          }
+        ]
+      },
+      "HD_original_helper_identified": false,
+      "HD_new_helper_uses_original_G_lock": true,
+      "critical_API": {
+        "start": 29363758,
+        "end_exclusive": 29363810,
+        "sha256": "4916b5b4ffb66a307d9ac1a9942bf7e62161379e03dfb2de803255808660154f",
+        "preimage_hex": "600064e0000600a2c1ff54fcc1011018c0eb01002000800064e00006c1ff54fcc101d8ec1a20fa3fd8ec1b208242200061008000",
+        "instructions": [
+          {
+            "address": 29363758,
+            "size": 2,
+            "id": "cli",
+            "fields": {},
+            "text": "cli",
+            "bytes": "6000"
+          },
+          {
+            "address": 29363760,
+            "size": 4,
+            "id": "mov.r_sr",
+            "fields": {
+              "r": 0,
+              "s": 6
+            },
+            "text": "r0 = cnum",
+            "bytes": "64e00006"
+          },
+          {
+            "address": 29363764,
+            "size": 2,
+            "id": "lsl.rri",
+            "fields": {
+              "d": 0,
+              "s": 0,
+              "n": 2
+            },
+            "text": "r0 = r0 << 2",
+            "bytes": "00a2"
+          },
+          {
+            "address": 29363766,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 1,
+              "n": 29490260
+            },
+            "text": "r1 = 29490260",
+            "bytes": "c1ff54fcc101"
+          },
+          {
+            "address": 29363772,
+            "size": 2,
+            "id": "add.rr",
+            "fields": {
+              "d": 0,
+              "s": 1
+            },
+            "text": "r0 += r1",
+            "bytes": "1018"
+          },
+          {
+            "address": 29363774,
+            "size": 4,
+            "id": "rmw.add.s12",
+            "fields": {
+              "r": 0,
+              "n": 0,
+              "m": 1
+            },
+            "text": "[r0+0] += 1",
+            "bytes": "c0eb0100"
+          },
+          {
+            "address": 29363778,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 29363780,
+            "size": 2,
+            "id": "rts",
+            "fields": {},
+            "text": "rts",
+            "bytes": "8000"
+          },
+          {
+            "address": 29363782,
+            "size": 4,
+            "id": "mov.r_sr",
+            "fields": {
+              "r": 0,
+              "s": 6
+            },
+            "text": "r0 = cnum",
+            "bytes": "64e00006"
+          },
+          {
+            "address": 29363786,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 1,
+              "n": 29490260
+            },
+            "text": "r1 = 29490260",
+            "bytes": "c1ff54fcc101"
+          },
+          {
+            "address": 29363792,
+            "size": 4,
+            "id": "ld.w.idxs",
+            "fields": {
+              "r": 2,
+              "s": 1,
+              "t": 0
+            },
+            "text": "r2 = [r1+r0<<2]",
+            "bytes": "d8ec1a20"
+          },
+          {
+            "address": 29363796,
+            "size": 2,
+            "id": "add.ri.neg7",
+            "fields": {
+              "r": 2,
+              "n": 127
+            },
+            "text": "r2 += -1",
+            "bytes": "fa3f"
+          },
+          {
+            "address": 29363798,
+            "size": 4,
+            "id": "st.w.idxs",
+            "fields": {
+              "r": 1,
+              "s": 0,
+              "t": 2
+            },
+            "text": "[r1+r0<<2] = r2",
+            "bytes": "d8ec1b20"
+          },
+          {
+            "address": 29363802,
+            "size": 2,
+            "id": "bnez",
+            "fields": {
+              "r": 2,
+              "n": 2
+            },
+            "text": "if (r2 != 0) goto 4",
+            "bytes": "8242",
+            "target": 29363808
+          },
+          {
+            "address": 29363804,
+            "size": 2,
+            "id": "csync",
+            "fields": {},
+            "text": "csync",
+            "bytes": "2000"
+          },
+          {
+            "address": 29363806,
+            "size": 2,
+            "id": "sti",
+            "fields": {},
+            "text": "sti",
+            "bytes": "6100"
+          },
+          {
+            "address": 29363808,
+            "size": 2,
+            "id": "rts",
+            "fields": {},
+            "text": "rts",
+            "bytes": "8000"
+          }
+        ]
+      },
+      "physical_function_proven": false
+    },
+    "latches": {
+      "sequences": {
+        "G_application": {
+          "start": 33558242,
+          "end_exclusive": 33558432,
+          "sha256": "7dac0125464eb2c51107b5f4bbf225f8bb8f04924ef82804437ffa6861c2b7e7",
+          "preimage_hex": "7030412080ff2000c0ff7031412080ff1600c0ff7032412080ff0c00c0ff7033412080ff0200c0ff7034412080fff8ffbfff7035412080ffeeffbfff7036412080ffe4ffbfff7037412080ffdaffbfff7038412080ffd0ffbfff7039412080ffc6ffbfff703a412080ffbcffbfff703b412080ffb2ffbfff703c412080ffa8ffbfff703d412080ff9effbfff703e412080ff94ffbfff703f412080ff8affbfff682f412080ff80ffbfff682e412080ff76ffbfff682d412080ff6cffbfff",
+          "instructions": [
+            {
+              "address": 33558242,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 208
+              },
+              "text": "r0 = 208",
+              "bytes": "7030"
+            },
+            {
+              "address": 33558244,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558246,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386512
+              },
+              "text": "call -4194272",
+              "bytes": "80ff2000c0ff",
+              "target": 29363980
+            },
+            {
+              "address": 33558252,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 209
+              },
+              "text": "r0 = 209",
+              "bytes": "7031"
+            },
+            {
+              "address": 33558254,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558256,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386507
+              },
+              "text": "call -4194282",
+              "bytes": "80ff1600c0ff",
+              "target": 29363980
+            },
+            {
+              "address": 33558262,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 210
+              },
+              "text": "r0 = 210",
+              "bytes": "7032"
+            },
+            {
+              "address": 33558264,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558266,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386502
+              },
+              "text": "call -4194292",
+              "bytes": "80ff0c00c0ff",
+              "target": 29363980
+            },
+            {
+              "address": 33558272,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 211
+              },
+              "text": "r0 = 211",
+              "bytes": "7033"
+            },
+            {
+              "address": 33558274,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558276,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386497
+              },
+              "text": "call -4194302",
+              "bytes": "80ff0200c0ff",
+              "target": 29363980
+            },
+            {
+              "address": 33558282,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 212
+              },
+              "text": "r0 = 212",
+              "bytes": "7034"
+            },
+            {
+              "address": 33558284,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558286,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386492
+              },
+              "text": "call -4194312",
+              "bytes": "80fff8ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558292,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 213
+              },
+              "text": "r0 = 213",
+              "bytes": "7035"
+            },
+            {
+              "address": 33558294,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558296,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386487
+              },
+              "text": "call -4194322",
+              "bytes": "80ffeeffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558302,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 214
+              },
+              "text": "r0 = 214",
+              "bytes": "7036"
+            },
+            {
+              "address": 33558304,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558306,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386482
+              },
+              "text": "call -4194332",
+              "bytes": "80ffe4ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558312,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 215
+              },
+              "text": "r0 = 215",
+              "bytes": "7037"
+            },
+            {
+              "address": 33558314,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558316,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386477
+              },
+              "text": "call -4194342",
+              "bytes": "80ffdaffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558322,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 216
+              },
+              "text": "r0 = 216",
+              "bytes": "7038"
+            },
+            {
+              "address": 33558324,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558326,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386472
+              },
+              "text": "call -4194352",
+              "bytes": "80ffd0ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558332,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 217
+              },
+              "text": "r0 = 217",
+              "bytes": "7039"
+            },
+            {
+              "address": 33558334,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558336,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386467
+              },
+              "text": "call -4194362",
+              "bytes": "80ffc6ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558342,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 218
+              },
+              "text": "r0 = 218",
+              "bytes": "703a"
+            },
+            {
+              "address": 33558344,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558346,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386462
+              },
+              "text": "call -4194372",
+              "bytes": "80ffbcffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558352,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 219
+              },
+              "text": "r0 = 219",
+              "bytes": "703b"
+            },
+            {
+              "address": 33558354,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558356,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386457
+              },
+              "text": "call -4194382",
+              "bytes": "80ffb2ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558362,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 220
+              },
+              "text": "r0 = 220",
+              "bytes": "703c"
+            },
+            {
+              "address": 33558364,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558366,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386452
+              },
+              "text": "call -4194392",
+              "bytes": "80ffa8ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558372,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 221
+              },
+              "text": "r0 = 221",
+              "bytes": "703d"
+            },
+            {
+              "address": 33558374,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558376,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386447
+              },
+              "text": "call -4194402",
+              "bytes": "80ff9effbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558382,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 222
+              },
+              "text": "r0 = 222",
+              "bytes": "703e"
+            },
+            {
+              "address": 33558384,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558386,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386442
+              },
+              "text": "call -4194412",
+              "bytes": "80ff94ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558392,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 223
+              },
+              "text": "r0 = 223",
+              "bytes": "703f"
+            },
+            {
+              "address": 33558394,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558396,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386437
+              },
+              "text": "call -4194422",
+              "bytes": "80ff8affbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558402,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 175
+              },
+              "text": "r0 = 175",
+              "bytes": "682f"
+            },
+            {
+              "address": 33558404,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558406,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386432
+              },
+              "text": "call -4194432",
+              "bytes": "80ff80ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558412,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 174
+              },
+              "text": "r0 = 174",
+              "bytes": "682e"
+            },
+            {
+              "address": 33558414,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558416,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386427
+              },
+              "text": "call -4194442",
+              "bytes": "80ff76ffbfff",
+              "target": 29363980
+            },
+            {
+              "address": 33558422,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 173
+              },
+              "text": "r0 = 173",
+              "bytes": "682d"
+            },
+            {
+              "address": 33558424,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33558426,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145386422
+              },
+              "text": "call -4194452",
+              "bytes": "80ff6cffbfff",
+              "target": 29363980
+            }
+          ],
+          "P33_write_function": 29363980,
+          "writes": [
+            [
+              208,
+              0
+            ],
+            [
+              209,
+              0
+            ],
+            [
+              210,
+              0
+            ],
+            [
+              211,
+              0
+            ],
+            [
+              212,
+              0
+            ],
+            [
+              213,
+              0
+            ],
+            [
+              214,
+              0
+            ],
+            [
+              215,
+              0
+            ],
+            [
+              216,
+              0
+            ],
+            [
+              217,
+              0
+            ],
+            [
+              218,
+              0
+            ],
+            [
+              219,
+              0
+            ],
+            [
+              220,
+              0
+            ],
+            [
+              221,
+              0
+            ],
+            [
+              222,
+              0
+            ],
+            [
+              223,
+              0
+            ],
+            [
+              175,
+              0
+            ],
+            [
+              174,
+              0
+            ],
+            [
+              173,
+              0
+            ]
+          ]
+        },
+        "MINI_application": {
+          "start": 33566684,
+          "end_exclusive": 33566874,
+          "sha256": "60d2b82a244dbf19f066807d3a17f1da90e24cf60cdae5355a8d0bce38a9f904",
+          "preimage_hex": "7030412080ff68e0bfff7031412080ff5ee0bfff7032412080ff54e0bfff7033412080ff4ae0bfff7034412080ff40e0bfff7035412080ff36e0bfff7036412080ff2ce0bfff7037412080ff22e0bfff7038412080ff18e0bfff7039412080ff0ee0bfff703a412080ff04e0bfff703b412080fffadfbfff703c412080fff0dfbfff703d412080ffe6dfbfff703e412080ffdcdfbfff703f412080ffd2dfbfff682f412080ffc8dfbfff682e412080ffbedfbfff682d412080ffb4dfbfff",
+          "instructions": [
+            {
+              "address": 33566684,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 208
+              },
+              "text": "r0 = 208",
+              "bytes": "7030"
+            },
+            {
+              "address": 33566686,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566688,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382452
+              },
+              "text": "call -4202392",
+              "bytes": "80ff68e0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566694,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 209
+              },
+              "text": "r0 = 209",
+              "bytes": "7031"
+            },
+            {
+              "address": 33566696,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566698,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382447
+              },
+              "text": "call -4202402",
+              "bytes": "80ff5ee0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566704,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 210
+              },
+              "text": "r0 = 210",
+              "bytes": "7032"
+            },
+            {
+              "address": 33566706,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566708,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382442
+              },
+              "text": "call -4202412",
+              "bytes": "80ff54e0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566714,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 211
+              },
+              "text": "r0 = 211",
+              "bytes": "7033"
+            },
+            {
+              "address": 33566716,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566718,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382437
+              },
+              "text": "call -4202422",
+              "bytes": "80ff4ae0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566724,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 212
+              },
+              "text": "r0 = 212",
+              "bytes": "7034"
+            },
+            {
+              "address": 33566726,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566728,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382432
+              },
+              "text": "call -4202432",
+              "bytes": "80ff40e0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566734,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 213
+              },
+              "text": "r0 = 213",
+              "bytes": "7035"
+            },
+            {
+              "address": 33566736,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566738,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382427
+              },
+              "text": "call -4202442",
+              "bytes": "80ff36e0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566744,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 214
+              },
+              "text": "r0 = 214",
+              "bytes": "7036"
+            },
+            {
+              "address": 33566746,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566748,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382422
+              },
+              "text": "call -4202452",
+              "bytes": "80ff2ce0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566754,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 215
+              },
+              "text": "r0 = 215",
+              "bytes": "7037"
+            },
+            {
+              "address": 33566756,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566758,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382417
+              },
+              "text": "call -4202462",
+              "bytes": "80ff22e0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566764,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 216
+              },
+              "text": "r0 = 216",
+              "bytes": "7038"
+            },
+            {
+              "address": 33566766,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566768,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382412
+              },
+              "text": "call -4202472",
+              "bytes": "80ff18e0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566774,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 217
+              },
+              "text": "r0 = 217",
+              "bytes": "7039"
+            },
+            {
+              "address": 33566776,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566778,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382407
+              },
+              "text": "call -4202482",
+              "bytes": "80ff0ee0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566784,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 218
+              },
+              "text": "r0 = 218",
+              "bytes": "703a"
+            },
+            {
+              "address": 33566786,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566788,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382402
+              },
+              "text": "call -4202492",
+              "bytes": "80ff04e0bfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566794,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 219
+              },
+              "text": "r0 = 219",
+              "bytes": "703b"
+            },
+            {
+              "address": 33566796,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566798,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382397
+              },
+              "text": "call -4202502",
+              "bytes": "80fffadfbfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566804,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 220
+              },
+              "text": "r0 = 220",
+              "bytes": "703c"
+            },
+            {
+              "address": 33566806,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566808,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382392
+              },
+              "text": "call -4202512",
+              "bytes": "80fff0dfbfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566814,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 221
+              },
+              "text": "r0 = 221",
+              "bytes": "703d"
+            },
+            {
+              "address": 33566816,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566818,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382387
+              },
+              "text": "call -4202522",
+              "bytes": "80ffe6dfbfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566824,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 222
+              },
+              "text": "r0 = 222",
+              "bytes": "703e"
+            },
+            {
+              "address": 33566826,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566828,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382382
+              },
+              "text": "call -4202532",
+              "bytes": "80ffdcdfbfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566834,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 223
+              },
+              "text": "r0 = 223",
+              "bytes": "703f"
+            },
+            {
+              "address": 33566836,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566838,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382377
+              },
+              "text": "call -4202542",
+              "bytes": "80ffd2dfbfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566844,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 175
+              },
+              "text": "r0 = 175",
+              "bytes": "682f"
+            },
+            {
+              "address": 33566846,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566848,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382372
+              },
+              "text": "call -4202552",
+              "bytes": "80ffc8dfbfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566854,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 174
+              },
+              "text": "r0 = 174",
+              "bytes": "682e"
+            },
+            {
+              "address": 33566856,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566858,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382367
+              },
+              "text": "call -4202562",
+              "bytes": "80ffbedfbfff",
+              "target": 29364302
+            },
+            {
+              "address": 33566864,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 173
+              },
+              "text": "r0 = 173",
+              "bytes": "682d"
+            },
+            {
+              "address": 33566866,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 33566868,
+              "size": 6,
+              "id": "call.xl",
+              "fields": {
+                "n": 2145382362
+              },
+              "text": "call -4202572",
+              "bytes": "80ffb4dfbfff",
+              "target": 29364302
+            }
+          ],
+          "P33_write_function": 29364302,
+          "writes": [
+            [
+              208,
+              0
+            ],
+            [
+              209,
+              0
+            ],
+            [
+              210,
+              0
+            ],
+            [
+              211,
+              0
+            ],
+            [
+              212,
+              0
+            ],
+            [
+              213,
+              0
+            ],
+            [
+              214,
+              0
+            ],
+            [
+              215,
+              0
+            ],
+            [
+              216,
+              0
+            ],
+            [
+              217,
+              0
+            ],
+            [
+              218,
+              0
+            ],
+            [
+              219,
+              0
+            ],
+            [
+              220,
+              0
+            ],
+            [
+              221,
+              0
+            ],
+            [
+              222,
+              0
+            ],
+            [
+              223,
+              0
+            ],
+            [
+              175,
+              0
+            ],
+            [
+              174,
+              0
+            ],
+            [
+              173,
+              0
+            ]
+          ]
+        },
+        "MINI_SPL": {
+          "start": 29376718,
+          "end_exclusive": 29376834,
+          "sha256": "c957ddb24407a966ff98da0bfe5995c914cafca3c72c6e265926ffddc6d657a4",
+          "preimage_hex": "70304120bfea99f17031bfea96f17032bfea93f17033bfea90f17034bfea8df17035bfea8af17036bfea87f17037bfea84f17038bfea81f17039bfea7ef1703abfea7bf1703bbfea78f1703cbfea75f1703dbfea72f1703ebfea6ff1703fbfea6cf1682dbfea69f1682ebfea66f1682fbfea63f1",
+          "instructions": [
+            {
+              "address": 29376718,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 208
+              },
+              "text": "r0 = 208",
+              "bytes": "7030"
+            },
+            {
+              "address": 29376720,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 1,
+                "n": 0
+              },
+              "text": "r1 = 0",
+              "bytes": "4120"
+            },
+            {
+              "address": 29376722,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190617
+              },
+              "text": "call -7374",
+              "bytes": "bfea99f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376726,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 209
+              },
+              "text": "r0 = 209",
+              "bytes": "7031"
+            },
+            {
+              "address": 29376728,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190614
+              },
+              "text": "call -7380",
+              "bytes": "bfea96f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376732,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 210
+              },
+              "text": "r0 = 210",
+              "bytes": "7032"
+            },
+            {
+              "address": 29376734,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190611
+              },
+              "text": "call -7386",
+              "bytes": "bfea93f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376738,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 211
+              },
+              "text": "r0 = 211",
+              "bytes": "7033"
+            },
+            {
+              "address": 29376740,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190608
+              },
+              "text": "call -7392",
+              "bytes": "bfea90f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376744,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 212
+              },
+              "text": "r0 = 212",
+              "bytes": "7034"
+            },
+            {
+              "address": 29376746,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190605
+              },
+              "text": "call -7398",
+              "bytes": "bfea8df1",
+              "target": 29369352
+            },
+            {
+              "address": 29376750,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 213
+              },
+              "text": "r0 = 213",
+              "bytes": "7035"
+            },
+            {
+              "address": 29376752,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190602
+              },
+              "text": "call -7404",
+              "bytes": "bfea8af1",
+              "target": 29369352
+            },
+            {
+              "address": 29376756,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 214
+              },
+              "text": "r0 = 214",
+              "bytes": "7036"
+            },
+            {
+              "address": 29376758,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190599
+              },
+              "text": "call -7410",
+              "bytes": "bfea87f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376762,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 215
+              },
+              "text": "r0 = 215",
+              "bytes": "7037"
+            },
+            {
+              "address": 29376764,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190596
+              },
+              "text": "call -7416",
+              "bytes": "bfea84f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376768,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 216
+              },
+              "text": "r0 = 216",
+              "bytes": "7038"
+            },
+            {
+              "address": 29376770,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190593
+              },
+              "text": "call -7422",
+              "bytes": "bfea81f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376774,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 217
+              },
+              "text": "r0 = 217",
+              "bytes": "7039"
+            },
+            {
+              "address": 29376776,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190590
+              },
+              "text": "call -7428",
+              "bytes": "bfea7ef1",
+              "target": 29369352
+            },
+            {
+              "address": 29376780,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 218
+              },
+              "text": "r0 = 218",
+              "bytes": "703a"
+            },
+            {
+              "address": 29376782,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190587
+              },
+              "text": "call -7434",
+              "bytes": "bfea7bf1",
+              "target": 29369352
+            },
+            {
+              "address": 29376786,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 219
+              },
+              "text": "r0 = 219",
+              "bytes": "703b"
+            },
+            {
+              "address": 29376788,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190584
+              },
+              "text": "call -7440",
+              "bytes": "bfea78f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376792,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 220
+              },
+              "text": "r0 = 220",
+              "bytes": "703c"
+            },
+            {
+              "address": 29376794,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190581
+              },
+              "text": "call -7446",
+              "bytes": "bfea75f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376798,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 221
+              },
+              "text": "r0 = 221",
+              "bytes": "703d"
+            },
+            {
+              "address": 29376800,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190578
+              },
+              "text": "call -7452",
+              "bytes": "bfea72f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376804,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 222
+              },
+              "text": "r0 = 222",
+              "bytes": "703e"
+            },
+            {
+              "address": 29376806,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190575
+              },
+              "text": "call -7458",
+              "bytes": "bfea6ff1",
+              "target": 29369352
+            },
+            {
+              "address": 29376810,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 223
+              },
+              "text": "r0 = 223",
+              "bytes": "703f"
+            },
+            {
+              "address": 29376812,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190572
+              },
+              "text": "call -7464",
+              "bytes": "bfea6cf1",
+              "target": 29369352
+            },
+            {
+              "address": 29376816,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 173
+              },
+              "text": "r0 = 173",
+              "bytes": "682d"
+            },
+            {
+              "address": 29376818,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190569
+              },
+              "text": "call -7470",
+              "bytes": "bfea69f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376822,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 174
+              },
+              "text": "r0 = 174",
+              "bytes": "682e"
+            },
+            {
+              "address": 29376824,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190566
+              },
+              "text": "call -7476",
+              "bytes": "bfea66f1",
+              "target": 29369352
+            },
+            {
+              "address": 29376828,
+              "size": 2,
+              "id": "li.u8",
+              "fields": {
+                "r": 0,
+                "n": 175
+              },
+              "text": "r0 = 175",
+              "bytes": "682f"
+            },
+            {
+              "address": 29376830,
+              "size": 4,
+              "id": "call.l",
+              "fields": {
+                "n": 4190563
+              },
+              "text": "call -7482",
+              "bytes": "bfea63f1",
+              "target": 29369352
+            }
+          ],
+          "P33_write_function": 29369352,
+          "writes": [
+            [
+              208,
+              0
+            ],
+            [
+              209,
+              0
+            ],
+            [
+              210,
+              0
+            ],
+            [
+              211,
+              0
+            ],
+            [
+              212,
+              0
+            ],
+            [
+              213,
+              0
+            ],
+            [
+              214,
+              0
+            ],
+            [
+              215,
+              0
+            ],
+            [
+              216,
+              0
+            ],
+            [
+              217,
+              0
+            ],
+            [
+              218,
+              0
+            ],
+            [
+              219,
+              0
+            ],
+            [
+              220,
+              0
+            ],
+            [
+              221,
+              0
+            ],
+            [
+              222,
+              0
+            ],
+            [
+              223,
+              0
+            ],
+            [
+              173,
+              0
+            ],
+            [
+              174,
+              0
+            ],
+            [
+              175,
+              0
+            ]
+          ]
+        }
+      },
+      "G_normal_startup_caller": {
+        "start": 33558978,
+        "end_exclusive": 33558994,
+        "sha256": "e82d5e26a2e54447d7474531daa4767b4e2db17d6e7d6ced2cbb20fc24b903de",
+        "preimage_hex": "bfea7bfebfea2ffabfea81febfea87fe",
+        "instructions": [
+          {
+            "address": 33558978,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4193915
+            },
+            "text": "call -778",
+            "bytes": "bfea7bfe",
+            "target": 33558204
+          },
+          {
+            "address": 33558982,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4192815
+            },
+            "text": "call -2978",
+            "bytes": "bfea2ffa",
+            "target": 33556008
+          },
+          {
+            "address": 33558986,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4193921
+            },
+            "text": "call -766",
+            "bytes": "bfea81fe",
+            "target": 33558224
+          },
+          {
+            "address": 33558990,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4193927
+            },
+            "text": "call -754",
+            "bytes": "bfea87fe",
+            "target": 33558240
+          }
+        ]
+      },
+      "G_RAM_P33_writer": {
+        "start": 29363980,
+        "end_exclusive": 29364042,
+        "sha256": "8eba76050331b82b689a41888980e694757bb3bd97b477a89cd0659eb70918b9",
+        "preimage_hex": "750412160316bd175198c4ff083e010035ed0050c0ef804f402140e0010164e80040b0e10834519470e17f3c51912016518f40e0fefe64e8024051975504",
+        "instructions": [
+          {
+            "address": 29363980,
+            "size": 2,
+            "id": "push.rets_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "[--sp] = {rets, r5, r4}",
+            "bytes": "7504"
+          },
+          {
+            "address": 29363982,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 2,
+              "y": 1
+            },
+            "text": "r2 = r1",
+            "bytes": "1216"
+          },
+          {
+            "address": 29363984,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 3,
+              "y": 0
+            },
+            "text": "r3 = r0",
+            "bytes": "0316"
+          },
+          {
+            "address": 29363986,
+            "size": 2,
+            "id": "ext.l.s",
+            "fields": {
+              "d": 5,
+              "s": 3
+            },
+            "text": "r5 = r3.l (s)",
+            "bytes": "bd17"
+          },
+          {
+            "address": 29363988,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 184
+            },
+            "text": "call -144",
+            "bytes": "5198",
+            "target": 29363846
+          },
+          {
+            "address": 29363990,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 4,
+              "n": 81416
+            },
+            "text": "r4 = 81416",
+            "bytes": "c4ff083e0100"
+          },
+          {
+            "address": 29363996,
+            "size": 4,
+            "id": "ifs.ge.ri.s12",
+            "fields": {
+              "r": 5,
+              "n": 0,
+              "t": 1,
+              "e": 1
+            },
+            "text": "ifs (r5 >= 0) {",
+            "bytes": "35ed0050"
+          },
+          {
+            "address": 29364000,
+            "size": 4,
+            "id": "rmw.and.nmodimm",
+            "fields": {
+              "r": 4,
+              "n": 0,
+              "m": 3968
+            },
+            "text": "[r4+0] &= 0xFFFFFEFF",
+            "bytes": "c0ef804f"
+          },
+          {
+            "address": 29364004,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 0,
+              "n": 1
+            },
+            "text": "r0 = 1",
+            "bytes": "4021"
+          },
+          {
+            "address": 29364006,
+            "size": 4,
+            "id": "li.s16",
+            "fields": {
+              "r": 0,
+              "n": 257
+            },
+            "text": "r0 = 257",
+            "bytes": "40e00101"
+          },
+          {
+            "address": 29364010,
+            "size": 4,
+            "id": "rmw.or.r",
+            "fields": {
+              "r": 4,
+              "n": 0,
+              "s": 0
+            },
+            "text": "[r4+0] |= r0",
+            "bytes": "64e80040"
+          },
+          {
+            "address": 29364014,
+            "size": 4,
+            "id": "uextra.rrii",
+            "fields": {
+              "r": 0,
+              "s": 3,
+              "n": 8,
+              "m": 2
+            },
+            "text": "r0 = uextra(r3, p:8, l:2)",
+            "bytes": "b0e10834"
+          },
+          {
+            "address": 29364018,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 180
+            },
+            "text": "call -152",
+            "bytes": "5194",
+            "target": 29363868
+          },
+          {
+            "address": 29364020,
+            "size": 4,
+            "id": "and.nmodimm.rri",
+            "fields": {
+              "r": 0,
+              "s": 3,
+              "n": 3199
+            },
+            "text": "r0 = r3 & 0xFFFF00FF",
+            "bytes": "70e17f3c"
+          },
+          {
+            "address": 29364024,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 177
+            },
+            "text": "call -158",
+            "bytes": "5191",
+            "target": 29363868
+          },
+          {
+            "address": 29364026,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 0,
+              "y": 2
+            },
+            "text": "r0 = r2",
+            "bytes": "2016"
+          },
+          {
+            "address": 29364028,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 175
+            },
+            "text": "call -162",
+            "bytes": "518f",
+            "target": 29363868
+          },
+          {
+            "address": 29364030,
+            "size": 4,
+            "id": "li.s16",
+            "fields": {
+              "r": 0,
+              "n": 65278
+            },
+            "text": "r0 = -258",
+            "bytes": "40e0fefe"
+          },
+          {
+            "address": 29364034,
+            "size": 4,
+            "id": "rmw.and.r",
+            "fields": {
+              "r": 4,
+              "n": 0,
+              "s": 0
+            },
+            "text": "[r4+0] &= r0",
+            "bytes": "64e80240"
+          },
+          {
+            "address": 29364038,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 183
+            },
+            "text": "call -146",
+            "bytes": "5197",
+            "target": 29363894
+          },
+          {
+            "address": 29364040,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "{pc, r5, r4} = [sp++]",
+            "bytes": "5504"
+          }
+        ]
+      },
+      "retained_MINI_SPL_releases_before_app_call": 29381260,
+      "current_candidate_check": {
+        "path": "build/hyperrig-mini-integrated/hyperrig-mini.app-area.bin",
+        "sha256": "639f58864e2b7c29c4312545fe94b345b2f8c8c21eb72eceb0932712bd608f70",
+        "G_latch_code_caller_and_RAM_writer_byte_identical": true,
+        "ranges": [
+          [
+            33558240,
+            33558454
+          ],
+          [
+            33558978,
+            33558994
+          ],
+          [
+            33912460,
+            33912522
+          ]
+        ]
+      },
+      "spec_sha256": "d86ae060b1db368a8aba421e21903b3b9c7517943bcf2667ee170a5a96a2863c",
+      "spec_path": "upstream/m-bootloader/docs/SPEC.md",
+      "spec_section": "3.1",
+      "ROM_latch_state_observed": false,
+      "NACK_cause_proven": false
+    },
+    "NACK_policy": {
+      "MINI_data_writer": {
+        "start": 33582366,
+        "end_exclusive": 33582394,
+        "sha256": "794275d36b26b9bfe6b6db7f03989cc27b69576414617e599e775b894ecab053",
+        "preimage_hex": "76041416061645200481c52104ed0450d8ee6005419bf05950165604",
+        "instructions": [
+          {
+            "address": 33582366,
+            "size": 2,
+            "id": "push.rets_rl",
+            "fields": {
+              "l": 6
+            },
+            "text": "[--sp] = {rets, r6-r4}",
+            "bytes": "7604"
+          },
+          {
+            "address": 33582368,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 4,
+              "y": 1
+            },
+            "text": "r4 = r1",
+            "bytes": "1416"
+          },
+          {
+            "address": 33582370,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 6,
+              "y": 0
+            },
+            "text": "r6 = r0",
+            "bytes": "0616"
+          },
+          {
+            "address": 33582372,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 5,
+              "n": 0
+            },
+            "text": "r5 = 0",
+            "bytes": "4520"
+          },
+          {
+            "address": 33582374,
+            "size": 2,
+            "id": "goto.s",
+            "fields": {
+              "n": 1
+            },
+            "text": "goto 2",
+            "bytes": "0481",
+            "target": 33582378
+          },
+          {
+            "address": 33582376,
+            "size": 2,
+            "id": "add.ri.u5",
+            "fields": {
+              "r": 5,
+              "n": 1
+            },
+            "text": "r5 += 1",
+            "bytes": "c521"
+          },
+          {
+            "address": 33582378,
+            "size": 4,
+            "id": "bges.rr",
+            "fields": {
+              "r": 5,
+              "s": 4,
+              "n": 4
+            },
+            "text": "ifs (r5 >= r4) goto 8",
+            "bytes": "04ed0450",
+            "target": 33582390
+          },
+          {
+            "address": 33582382,
+            "size": 4,
+            "id": "ld.bu.idx",
+            "fields": {
+              "r": 0,
+              "s": 6,
+              "t": 5
+            },
+            "text": "r0 = b[r6+r5] (u)",
+            "bytes": "d8ee6005"
+          },
+          {
+            "address": 33582386,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 155
+            },
+            "text": "call -202",
+            "bytes": "419b",
+            "target": 33582186
+          },
+          {
+            "address": 33582388,
+            "size": 2,
+            "id": "bnez",
+            "fields": {
+              "r": 0,
+              "n": 249
+            },
+            "text": "if (r0 != 0) goto -14",
+            "bytes": "f059",
+            "target": 33582376
+          },
+          {
+            "address": 33582390,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 0,
+              "y": 5
+            },
+            "text": "r0 = r5",
+            "bytes": "5016"
+          },
+          {
+            "address": 33582392,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 6
+            },
+            "text": "{pc, r6-r4} = [sp++]",
+            "bytes": "5604"
+          }
+        ]
+      },
+      "MINI_single_record_writer": {
+        "start": 33582542,
+        "end_exclusive": 33582572,
+        "sha256": "e6562b7e17fc17df36df064361b3fb8ae4ac8c15a2751bdafd593226acc446df",
+        "preimage_hex": "74040416bfeaf3fd4836bfea47ff004641244016419d30e8040051885404",
+        "instructions": [
+          {
+            "address": 33582542,
+            "size": 2,
+            "id": "push.rets_rl",
+            "fields": {
+              "l": 4
+            },
+            "text": "[--sp] = {rets, r4}",
+            "bytes": "7404"
+          },
+          {
+            "address": 33582544,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 4,
+              "y": 0
+            },
+            "text": "r4 = r0",
+            "bytes": "0416"
+          },
+          {
+            "address": 33582546,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4193779
+            },
+            "text": "call -1050",
+            "bytes": "bfeaf3fd",
+            "target": 33581500
+          },
+          {
+            "address": 33582550,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 0,
+              "n": 54
+            },
+            "text": "r0 = 54",
+            "bytes": "4836"
+          },
+          {
+            "address": 33582552,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4194119
+            },
+            "text": "call -370",
+            "bytes": "bfea47ff",
+            "target": 33582186
+          },
+          {
+            "address": 33582556,
+            "size": 2,
+            "id": "beqz",
+            "fields": {
+              "r": 0,
+              "n": 6
+            },
+            "text": "if (r0 == 0) goto 12",
+            "bytes": "0046",
+            "target": 33582570
+          },
+          {
+            "address": 33582558,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 1,
+              "n": 4
+            },
+            "text": "r1 = 4",
+            "bytes": "4124"
+          },
+          {
+            "address": 33582560,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 0,
+              "y": 4
+            },
+            "text": "r0 = r4",
+            "bytes": "4016"
+          },
+          {
+            "address": 33582562,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 157
+            },
+            "text": "call -198",
+            "bytes": "419d",
+            "target": 33582366
+          },
+          {
+            "address": 33582564,
+            "size": 4,
+            "id": "if.eq.ri.s12",
+            "fields": {
+              "r": 0,
+              "n": 4,
+              "t": 0,
+              "e": 0
+            },
+            "text": "if (r0 == 4) {",
+            "bytes": "30e80400"
+          },
+          {
+            "address": 33582568,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 168
+            },
+            "text": "call -176",
+            "bytes": "5188",
+            "target": 33582394
+          },
+          {
+            "address": 33582570,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 4
+            },
+            "text": "{pc, r4} = [sp++]",
+            "bytes": "5404"
+          }
+        ]
+      },
+      "MINI_table_loop": {
+        "start": 33582572,
+        "end_exclusive": 33582600,
+        "sha256": "50729046b217153434b78cab1815f9238a056f18ee785039235d78cf06fe04f5",
+        "preimage_hex": "7504bfeab7fd4420c5ff355e03020483481d7187c42484fcfbaf5504",
+        "instructions": [
+          {
+            "address": 33582572,
+            "size": 2,
+            "id": "push.rets_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "[--sp] = {rets, r5, r4}",
+            "bytes": "7504"
+          },
+          {
+            "address": 33582574,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4193719
+            },
+            "text": "call -1170",
+            "bytes": "bfeab7fd",
+            "target": 33581408
+          },
+          {
+            "address": 33582578,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 4,
+              "n": 0
+            },
+            "text": "r4 = 0",
+            "bytes": "4420"
+          },
+          {
+            "address": 33582580,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 5,
+              "n": 33775157
+            },
+            "text": "r5 = 33775157",
+            "bytes": "c5ff355e0302"
+          },
+          {
+            "address": 33582586,
+            "size": 2,
+            "id": "goto.s",
+            "fields": {
+              "n": 3
+            },
+            "text": "goto 6",
+            "bytes": "0483",
+            "target": 33582594
+          },
+          {
+            "address": 33582588,
+            "size": 2,
+            "id": "add.rrr",
+            "fields": {
+              "d": 0,
+              "a": 4,
+              "b": 5
+            },
+            "text": "r0 = r4 + r5",
+            "bytes": "481d"
+          },
+          {
+            "address": 33582590,
+            "size": 2,
+            "id": "call.s",
+            "fields": {
+              "n": 231
+            },
+            "text": "call -50",
+            "bytes": "7187",
+            "target": 33582542
+          },
+          {
+            "address": 33582592,
+            "size": 2,
+            "id": "add.ri.u5",
+            "fields": {
+              "r": 4,
+              "n": 4
+            },
+            "text": "r4 += 4",
+            "bytes": "c424"
+          },
+          {
+            "address": 33582594,
+            "size": 4,
+            "id": "ble.ri",
+            "fields": {
+              "r": 4,
+              "i": 87,
+              "n": 507
+            },
+            "text": "if (r4 <= 87) goto -10",
+            "bytes": "84fcfbaf",
+            "target": 33582588
+          },
+          {
+            "address": 33582598,
+            "size": 2,
+            "id": "pop.pc_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "{pc, r5, r4} = [sp++]",
+            "bytes": "5504"
+          }
+        ]
+      },
+      "MINI_audio_caller": {
+        "start": 33583484,
+        "end_exclusive": 33583518,
+        "sha256": "9e507c29e911ead6103e0102831ab141ec7154180ba2d703463e80e802e06472",
+        "preimage_hex": "7504e29d402a80ff3ece0300bfea30fec4ff56bac1014027422145214116bfea4fe6",
+        "instructions": [
+          {
+            "address": 33583484,
+            "size": 2,
+            "id": "push.rets_rl",
+            "fields": {
+              "l": 5
+            },
+            "text": "[--sp] = {rets, r5, r4}",
+            "bytes": "7504"
+          },
+          {
+            "address": 33583486,
+            "size": 2,
+            "id": "add.sp_i",
+            "fields": {
+              "n": 253
+            },
+            "text": "sp += -12",
+            "bytes": "e29d"
+          },
+          {
+            "address": 33583488,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 0,
+              "n": 10
+            },
+            "text": "r0 = 10",
+            "bytes": "402a"
+          },
+          {
+            "address": 33583490,
+            "size": 6,
+            "id": "call.xl",
+            "fields": {
+              "n": 124703
+            },
+            "text": "call 249406",
+            "bytes": "80ff3ece0300",
+            "target": 33832902
+          },
+          {
+            "address": 33583496,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4193840
+            },
+            "text": "call -928",
+            "bytes": "bfea30fe",
+            "target": 33582572
+          },
+          {
+            "address": 33583500,
+            "size": 6,
+            "id": "li.u32",
+            "fields": {
+              "r": 4,
+              "n": 29473366
+            },
+            "text": "r4 = 29473366",
+            "bytes": "c4ff56bac101"
+          },
+          {
+            "address": 33583506,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 0,
+              "n": 7
+            },
+            "text": "r0 = 7",
+            "bytes": "4027"
+          },
+          {
+            "address": 33583508,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 2,
+              "n": 1
+            },
+            "text": "r2 = 1",
+            "bytes": "4221"
+          },
+          {
+            "address": 33583510,
+            "size": 2,
+            "id": "li.u8",
+            "fields": {
+              "r": 5,
+              "n": 1
+            },
+            "text": "r5 = 1",
+            "bytes": "4521"
+          },
+          {
+            "address": 33583512,
+            "size": 2,
+            "id": "mov.rr",
+            "fields": {
+              "x": 1,
+              "y": 4
+            },
+            "text": "r1 = r4",
+            "bytes": "4116"
+          },
+          {
+            "address": 33583514,
+            "size": 4,
+            "id": "call.l",
+            "fields": {
+              "n": 4187727
+            },
+            "text": "call -13154",
+            "bytes": "bfea4fe6",
+            "target": 33570364
+          }
+        ]
+      },
+      "stock_stops_current_record_on_NACK": true,
+      "stock_continues_next_record_after_NACK": true,
+      "stock_table_caller_checks_ACK_count": false,
+      "v2_NACK_continuation_requires_successful_STOP": true,
+      "extra_STOP_on_NACK": true,
+      "bit_exact_failed_transaction_equivalence": false,
+      "next_START_and_record_bytes_equal": true,
+      "electrical_or_target_state_equivalence_proven": false
+    }
+  },
+  "HD_target_instruction_model": {
+    "address": 34042666,
+    "bytes": 52,
+    "sha256": "a229c6193ed63fc7a1833514c018ffaed2a89cc438c8f1c72a0e6bc8e25a9279",
+    "instructions": [
+      {
+        "address": 34042666,
+        "size": 2,
+        "id": "push.rets_rl",
+        "fields": {
+          "l": 4
+        },
+        "text": "[--sp] = {rets, r4}",
+        "bytes": "7404"
+      },
+      {
+        "address": 34042668,
+        "size": 6,
+        "id": "li.u32",
+        "fields": {
+          "r": 4,
+          "n": 29514978
+        },
+        "text": "r4 = 29514978",
+        "bytes": "c4ffe25cc201"
+      },
+      {
+        "address": 34042674,
+        "size": 6,
+        "id": "li.u32",
+        "fields": {
+          "r": 0,
+          "n": 29363758
+        },
+        "text": "r0 = 29363758",
+        "bytes": "c0ff2e0ec001"
+      },
+      {
+        "address": 34042680,
+        "size": 2,
+        "id": "call.r",
+        "fields": {
+          "x": 0
+        },
+        "text": "call r0",
+        "bytes": "c000"
+      },
+      {
+        "address": 34042682,
+        "size": 2,
+        "id": "csync",
+        "fields": {},
+        "text": "csync",
+        "bytes": "2000"
+      },
+      {
+        "address": 34042684,
+        "size": 2,
+        "id": "testset.b",
+        "fields": {
+          "x": 4
+        },
+        "text": "testset b[r4]",
+        "bytes": "b400"
+      },
+      {
+        "address": 34042686,
+        "size": 4,
+        "id": "bc.eq",
+        "fields": {
+          "n": 65533
+        },
+        "text": "ifeq goto -6",
+        "bytes": "40e8fdff",
+        "target": 34042684
+      },
+      {
+        "address": 34042690,
+        "size": 2,
+        "id": "csync",
+        "fields": {},
+        "text": "csync",
+        "bytes": "2000"
+      },
+      {
+        "address": 34042692,
+        "size": 6,
+        "id": "li.u32",
+        "fields": {
+          "r": 0,
+          "n": 327836
+        },
+        "text": "r0 = 327836",
+        "bytes": "c0ff9c000500"
+      },
+      {
+        "address": 34042698,
+        "size": 4,
+        "id": "rmw.and.nmodimm",
+        "fields": {
+          "r": 0,
+          "n": 0,
+          "m": 32
+        },
+        "text": "[r0+0] &= 0xFFFFFFDF",
+        "bytes": "c0ef2000"
+      },
+      {
+        "address": 34042702,
+        "size": 2,
+        "id": "csync",
+        "fields": {},
+        "text": "csync",
+        "bytes": "2000"
+      },
+      {
+        "address": 34042704,
+        "size": 2,
+        "id": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 0
+        },
+        "text": "r0 = 0",
+        "bytes": "4020"
+      },
+      {
+        "address": 34042706,
+        "size": 2,
+        "id": "st.b",
+        "fields": {
+          "d": 0,
+          "b": 4,
+          "n": 0
+        },
+        "text": "b[r4+0] = r0",
+        "bytes": "c840"
+      },
+      {
+        "address": 34042708,
+        "size": 6,
+        "id": "li.u32",
+        "fields": {
+          "r": 0,
+          "n": 29363782
+        },
+        "text": "r0 = 29363782",
+        "bytes": "c0ff460ec001"
+      },
+      {
+        "address": 34042714,
+        "size": 2,
+        "id": "call.r",
+        "fields": {
+          "x": 0
+        },
+        "text": "call r0",
+        "bytes": "c000"
+      },
+      {
+        "address": 34042716,
+        "size": 2,
+        "id": "pop.pc_rl",
+        "fields": {
+          "l": 4
+        },
+        "text": "{pc, r4} = [sp++]",
+        "bytes": "5404"
+      }
+    ],
+    "cases": 576,
+    "stack_bytes": 8,
+    "only_peripheral_write": {
+      "address": 327836,
+      "clear_mask": 32
+    },
+    "lock_byte": 29514978,
+    "critical_enter": 29363758,
+    "critical_exit": 29363782,
+    "critical_calls_and_atomic_lock_results_simulated": true,
+    "physical_multicore_execution_proven": false
+  },
+  "PC5_compiled_wrapper": {
+    "address": 34040492,
+    "bytes": 46,
+    "sha256": "9966a6953ec1106d30428726418c3b927cd5648d94c9c1d510ba76f1323201f5",
+    "instructions": [
+      {
+        "address": 34040492,
+        "size": 2,
+        "id": "push.rets",
+        "fields": {},
+        "text": "[--sp] = rets",
+        "bytes": "1004"
+      },
+      {
+        "address": 34040494,
+        "size": 6,
+        "id": "li.u32",
+        "fields": {
+          "r": 2,
+          "n": 33560700
+        },
+        "text": "r2 = 33560700",
+        "bytes": "c2ff7c180002"
+      },
+      {
+        "address": 34040500,
+        "size": 2,
+        "id": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 37
+        },
+        "text": "r0 = 37",
+        "bytes": "4825"
+      },
+      {
+        "address": 34040502,
+        "size": 2,
+        "id": "li.u8",
+        "fields": {
+          "r": 1,
+          "n": 1
+        },
+        "text": "r1 = 1",
+        "bytes": "4121"
+      },
+      {
+        "address": 34040504,
+        "size": 2,
+        "id": "call.r",
+        "fields": {
+          "x": 2
+        },
+        "text": "call r2",
+        "bytes": "c200"
+      },
+      {
+        "address": 34040506,
+        "size": 6,
+        "id": "li.u32",
+        "fields": {
+          "r": 2,
+          "n": 33573272
+        },
+        "text": "r2 = 33573272",
+        "bytes": "c2ff98490002"
+      },
+      {
+        "address": 34040512,
+        "size": 2,
+        "id": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 37
+        },
+        "text": "r0 = 37",
+        "bytes": "4825"
+      },
+      {
+        "address": 34040514,
+        "size": 2,
+        "id": "li.u8",
+        "fields": {
+          "r": 1,
+          "n": 1
+        },
+        "text": "r1 = 1",
+        "bytes": "4121"
+      },
+      {
+        "address": 34040516,
+        "size": 2,
+        "id": "call.r",
+        "fields": {
+          "x": 2
+        },
+        "text": "call r2",
+        "bytes": "c200"
+      },
+      {
+        "address": 34040518,
+        "size": 4,
+        "id": "call.l",
+        "fields": {
+          "n": 1072
+        },
+        "text": "call 2144",
+        "bytes": "80ea3004",
+        "target": 34042666
+      },
+      {
+        "address": 34040522,
+        "size": 6,
+        "id": "li.u32",
+        "fields": {
+          "r": 1,
+          "n": 33665462
+        },
+        "text": "r1 = 33665462",
+        "bytes": "c1ffb6b10102"
+      },
+      {
+        "address": 34040528,
+        "size": 2,
+        "id": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 37
+        },
+        "text": "r0 = 37",
+        "bytes": "4825"
+      },
+      {
+        "address": 34040530,
+        "size": 2,
+        "id": "call.r",
+        "fields": {
+          "x": 1
+        },
+        "text": "call r1",
+        "bytes": "c100"
+      },
+      {
+        "address": 34040532,
+        "size": 2,
+        "id": "pop.srl",
+        "fields": {
+          "m": 8
+        },
+        "text": "{rets} = [sp++]",
+        "bytes": "8804"
+      },
+      {
+        "address": 34040534,
+        "size": 4,
+        "id": "goto.l",
+        "fields": {
+          "n": 259
+        },
+        "text": "goto 518",
+        "bytes": "c0ea0301",
+        "target": 34041056
+      }
+    ],
+    "arguments_and_call_order_verified": true,
+    "caller_RETS_preserved": true,
+    "GPR_callee_saved_registers_not_modified": true,
+    "stack_bytes": 4
+  },
+  "elf": {
+    "sha256": "7e67387bdce2a03cb548fe7cf7e11b4e1235dda9bfdee43d9eea0c3c20a57cab",
+    "section_bytes": {
+      ".text": 2226,
+      ".rodata": 104
+    },
+    "undefined_symbols": [],
+    "address": 34040492,
+    "bytes": 2332,
+    "end": 34042824,
+    "entry": 34040492,
+    "symbols": {
+      "hyperrig_mini_codec_stock_record": 34042020,
+      "hyperrig_mini_g_audio_pre_current_clock": 34040492,
+      "hyperrig_mini_codec_delay_iterations": 34042370,
+      "hyperrig_mini_codec_write_adapter": 34041996,
+      "hyperrig_mini_codec_soft_mute": 34042188,
+      "hyperrig_mini_g_audio_post": 34041046,
+      "hyperrig_mini_g_pc5_hd_clear": 34042666,
+      "hyperrig_mini_codec_control_apply_stock": 34042142,
+      "hyperrig_mini_codec_spin_pi32v2": 34042652,
+      "hyperrig_mini_codec_encode": 34042088,
+      "hyperrig_mini_audio_port_post": 34040780,
+      "hyperrig_mini_codec_apply_stock": 34042040,
+      "hyperrig_mini_codec_bind_mmio": 34042434,
+      "hyperrig_mini_g_audio_pre": 34040840,
+      "hyperrig_mini_g_audio_pre_current_clock_v1": 34041056,
+      "hyperrig_mini_codec_control_init": 34042104,
+      "hyperrig_mini_codec_plan_128": 34042286,
+      "hyperrig_mini_codec_write": 34041346,
+      "hyperrig_mini_codec_bus_init": 34041190,
+      "hyperrig_mini_audio_port_pre": 34040776,
+      "hyperrig_mini_audio_v2_pre": 34040538
+    },
+    "path": "build/mini-audio-port-v2/hyperrig-mini-g-audio-v2.elf"
+  },
+  "payload": {
+    "path": "build/mini-audio-port-v2/hyperrig-mini-g-audio-v2.bin",
+    "bytes": 2332,
+    "sha256": "cd0d973b76f31afdb20bf591dedbf50b82984ee75fb615e38ce9829957530791",
+    "base": 34040492,
+    "read_only_xip": true,
+    "extra_application_BSS_bytes": 0
+  },
+  "patches": [
+    {
+      "name": "mini_codec_pre_and_post_trampoline",
+      "cpu_address": 33575844,
+      "area_offset": 21412,
+      "physical_address": 37796,
+      "bytes": 34,
+      "before_hex": "482041214621bfeaf5fa48214121bfeaf1fa48254121bfeaedfa40294120bfeae9fa",
+      "after_hex": "462183ea818ba045048c740483ea918c3404905f8000000000000000000000000000",
+      "rationale": "Retain r6=1; codec-pre failure skips IRQ/ALNK setup. Local post trampoline restores RETS/r4 and skips success flags on failure."
+    },
+    {
+      "name": "mini_codec_post_call",
+      "cpu_address": 33575966,
+      "area_offset": 21534,
+      "physical_address": 37918,
+      "bytes": 4,
+      "before_hex": "bfeab9fe",
+      "after_hex": "bfeac6ff",
+      "rationale": "Call the local post trampoline, which invokes original G channel-start through the C binding then MINI PA9 sequence."
+    }
+  ],
+  "decoded_hook_instructions": [
+    {
+      "address": 33575844,
+      "bytes": "4621",
+      "instruction": "li.u8",
+      "fields": {
+        "r": 6,
+        "n": 1
+      },
+      "assembly": "r6 = 1"
+    },
+    {
+      "address": 33575846,
+      "bytes": "83ea818b",
+      "instruction": "call.l",
+      "fields": {
+        "n": 232321
+      },
+      "assembly": "call 464642",
+      "direct_target": 34040492
+    },
+    {
+      "address": 33575850,
+      "bytes": "a045",
+      "instruction": "bnez",
+      "fields": {
+        "r": 0,
+        "n": 69
+      },
+      "assembly": "if (r0 != 0) goto 138",
+      "direct_target": 33575990
+    },
+    {
+      "address": 33575852,
+      "bytes": "048c",
+      "instruction": "goto.s",
+      "fields": {
+        "n": 12
+      },
+      "assembly": "goto 24",
+      "direct_target": 33575878
+    },
+    {
+      "address": 33575854,
+      "bytes": "7404",
+      "instruction": "push.rets_rl",
+      "fields": {
+        "l": 4
+      },
+      "assembly": "[--sp] = {rets, r4}"
+    },
+    {
+      "address": 33575856,
+      "bytes": "83ea918c",
+      "instruction": "call.l",
+      "fields": {
+        "n": 232593
+      },
+      "assembly": "call 465186",
+      "direct_target": 34041046
+    },
+    {
+      "address": 33575860,
+      "bytes": "3404",
+      "instruction": "pop.rets_rl",
+      "fields": {
+        "l": 4
+      },
+      "assembly": "{rets, r4} = [sp++]"
+    },
+    {
+      "address": 33575862,
+      "bytes": "905f",
+      "instruction": "bnez",
+      "fields": {
+        "r": 0,
+        "n": 63
+      },
+      "assembly": "if (r0 != 0) goto 126",
+      "direct_target": 33575990
+    },
+    {
+      "address": 33575864,
+      "bytes": "8000",
+      "instruction": "rts",
+      "fields": {},
+      "assembly": "rts"
+    },
+    {
+      "address": 33575866,
+      "bytes": "0000",
+      "instruction": "nop",
+      "fields": {},
+      "assembly": "nop"
+    },
+    {
+      "address": 33575868,
+      "bytes": "0000",
+      "instruction": "nop",
+      "fields": {},
+      "assembly": "nop"
+    },
+    {
+      "address": 33575870,
+      "bytes": "0000",
+      "instruction": "nop",
+      "fields": {},
+      "assembly": "nop"
+    },
+    {
+      "address": 33575872,
+      "bytes": "0000",
+      "instruction": "nop",
+      "fields": {},
+      "assembly": "nop"
+    },
+    {
+      "address": 33575874,
+      "bytes": "0000",
+      "instruction": "nop",
+      "fields": {},
+      "assembly": "nop"
+    },
+    {
+      "address": 33575876,
+      "bytes": "0000",
+      "instruction": "nop",
+      "fields": {},
+      "assembly": "nop"
+    },
+    {
+      "address": 33575966,
+      "bytes": "bfeac6ff",
+      "instruction": "call.l",
+      "fields": {
+        "n": 4194246
+      },
+      "assembly": "call -116",
+      "direct_target": 33575854
+    }
+  ],
+  "success_flow": [
+    "PC5 digital=1, output=1/direction=0, HD=0, HD0=0 under original G bank lock",
+    "unchanged G MHz getter and checked Hz",
+    "PA9 low",
+    "100000 spin iterations",
+    "MINI bus GPIO init",
+    "22 unchanged stock codec records; clean NACK continues and is never counted as ACK",
+    "unchanged original G IRQ/open/rate/start",
+    "100000 spin iterations",
+    "PA9 high"
+  ],
+  "failure_flow": "Software/clock/timing/cleanup failures still skip G IRQ/ALNK success path and keep PA9 low.",
+  "NACK_policy": "Continue only NACK with STOP cleanup=0, stop_attempted and initialized bus; return0 is permission to continue, not ACK evidence.",
+  "extra_STOP_after_NACK": true,
+  "physical_equivalence_to_stock_failed_transfer_proven": false,
+  "unchanged": [
+    "22-record codec table",
+    "OSR",
+    "G ALNK open/rate/start",
+    "nominal48000 configuration",
+    "G DSP",
+    "G RTOS"
+  ],
+  "remaining_gates": [
+    "PC5 electrical purpose and actual codec identity are unproven.",
+    "Full G boot, physical clock/audio and preset mutation remain separate qualifications.",
+    "No new P33 write is added; preserved SPL/G latch-release paths are audited offline.",
+    "Extra STOP changes the failed-transaction boundary; the next START/address/data is checked, electrical equivalence is not.",
+    "GPIO helpers and HD wrapper require the original G critical/bank-lock state; never call them from ROM."
+  ],
+  "candidate_composed": false,
+  "hardware_accessed": false
+}

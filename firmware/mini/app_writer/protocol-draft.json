@@ -3,7 +3,8 @@
   "kind": "mini-app-writer-protocol-proposal",
   "protocol": "HYW1",
   "version": 1,
-  "implementation_status": "design_only_receive_contract_unqualified",
+  "implementation_status": "offline_tested_target_mutations_disabled",
+  "target_mutations_enabled": false,
   "executable_artifacts": [],
   "transport_implemented": false,
   "physical_app_range": [16384, 532480],
@@ -31,14 +32,16 @@
   },
   "commands": [
     {"opcode": "fc78", "name": "identity", "direction": "in", "transfer_bytes": 16, "fields": [], "effect": "Private RAM only; entry and identity perform no MMIO."},
-    {"opcode": "fc79", "name": "initialize", "direction": "in", "transfer_bytes": 16, "fields": [], "effect": "Explicit reader-derived SPI setup, exact JEDEC and status checks; no WREN or status-register writes. Raw SR1/SR2 must be retained in an audit record before implementation is approved."},
+    {"opcode": "fc79", "name": "initialize", "direction": "in", "transfer_bytes": 16, "fields": [], "effect": "Explicit reader-derived SPI setup, exact JEDEC and status checks; no WREN or status-register writes. Raw SR1/SR2 retained in FD88 audit record."},
     {"opcode": "fc7a", "name": "arm_sector", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_address"], [6, 4, "expected_preimage_crc32"], [10, 4, "expected_target_crc32"]], "effect": "Read all 4096 bytes and compare preimage CRC before issuing a fresh nonzero token and sequence1. No NVM mutation."},
-    {"opcode": "fc7b", "name": "erase_sector", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "sector_address"]], "effect": "One explicit 4KiB erase of the armed sector after a second preimage check; consume authorization before WREN. Read back every erased byte."},
-    {"opcode": "fb7c", "name": "stage_page", "direction": "out", "transfer_bytes": 260, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "page_address"], [14, 2, "page_bytes_exactly_256"]], "effect": "Receive256 raw page bytes plus CRC32BE into private RAM, validate complete reception and checksum, then retain staged data. No WREN. Query FC7E after OUT; no IN answer in the same transaction."},
-    {"opcode": "fc7d", "name": "program_staged_page", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "page_address"]], "effect": "Consume staged page and sequence before WREN; require aligned unused page in the erased armed sector, revalidate RAM CRC and erased preimage, program once, wait bounded WIP, check status and compare all256 readback bytes."},
+    {"opcode": "fc7b", "name": "erase_sector", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "sector_address"]], "effect": "Initial target gate0 refuses before WREN. Operational path requires an already frozen and echoed first page, then second sector-preimage check; consume authorization before one4KiB erase. Read back every erased byte."},
+    {"opcode": "fb7c", "name": "stage_page", "direction": "out", "transfer_bytes": 260, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "page_address"], [14, 2, "page_bytes_exactly_256"]], "effect": "Receive256 raw page bytes plus CRC32BE into guarded RX RAM; require observed MINI return260, copy to distinct frozen page, validate CRC. STAGE is allowed after ARM before ERASE, or after ERASE; never WREN. Query FC7E and compare FD87 byte-for-byte before FC7D. No IN answer to OUT."},
+    {"opcode": "fc7d", "name": "program_staged_page", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "page_address"]], "effect": "Target initial gate0 refuses before WREN. Operational host-tested path requires emitted FD87 echo, aligned unused page in erased sector, frozen CRC/guard and erased preimage; consumes page before WREN, programs once, bounded WIP/status and all256-byte readback. Host must explicitly compare echo bytes before issuing this command."},
     {"opcode": "fc7e", "name": "status", "direction": "in", "transfer_bytes": 16, "fields": [], "effect": "Return retained RAM status; never clears an error or repeats an operation."},
     {"opcode": "fd7f", "name": "readback", "direction": "in", "transfer_bytes": "n16 in [1,512]", "fields": [[2, 4, "physical_address"], [6, 2, "n16"]], "effect": "Raw bounded read wholly within the application range. No other physical or CPU address space is exposed."},
-    {"opcode": "fc80", "name": "finish_sector", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "sector_address"]], "effect": "Require all16 pages verified, read4096 bytes, match target CRC, invalidate the token and retain final result. No automatic next-sector arm."}
+    {"opcode": "fc80", "name": "finish_sector", "direction": "in", "transfer_bytes": 16, "fields": [[2, 4, "sector_token"], [6, 4, "next_operation_sequence"], [10, 4, "sector_address"]], "effect": "Require all16 pages verified, read4096 bytes, match target CRC, invalidate the token and retain final result. No automatic next-sector arm."},
+    {"opcode": "fd87", "name": "echo_frozen_page", "direction": "in", "transfer_bytes": 256, "fields": [[2, 4, "sector_token"], [6, 4, "staging_sequence"], [10, 4, "page_address"]], "effect": "Send exact frozen256-byte page with no NVM access. Does not consume operation sequence; host must compare all bytes. A later ERASE may advance current_sequence without changing staging_sequence."},
+    {"opcode": "fd88", "name": "retained_audit_record", "direction": "in", "transfer_bytes": 128, "fields": [], "effect": "RAM-only HYW1 record:128LE bytes; CRC32[0:120]@120, DONE@124. No new NOR read or clear of sticky error."}
   ],
   "nor_commands_read_only": ["ff ff", "9f", "03", "05", "35"],
   "nor_commands_mutating_proposed": ["06", "20", "02"],
@@ -46,15 +49,15 @@
   "status_guards": {"sr1_wip": 1, "sr1_wel": 2, "sr1_protection_mask": 124, "sr2_cmp_mask": 64, "writes_to_status_registers": false},
   "sequence_rules": [
     "One active sector at a time; token and sequence must not wrap or be reused during a session.",
-    "Every accepted erase/stage/program/finish consumes exactly current_sequence+1 before its first external callback or SPI action.",
+    "Every accepted erase/stage/program/finish consumes exactly current_sequence+1 before its first external callback or SPI action. Sequence restarts at1 only under a fresh sector token.",
     "Duplicate, stale, out-of-order or cross-sector commands fail closed; no retry or deduplication that can hide a repeated mutation.",
     "A transport failure after authorization leaves completion ambiguous; only retained status and bounded readback may be requested.",
     "On any error, invalidate staged data and mutation authorization. There is no command to clear a sticky failure.",
     "Tokens are sequencing checks, not authentication or cryptographic nonces; a newly loaded plugin is a new session."
   ],
-  "unresolved_before_runtime_implementation": [
-    "ROM receive return/partial-transfer/error and buffer-lifetime semantics on this MINI.",
-    "Detailed retained audit-record schema including raw status bytes, operation counters, transfer return and guard checks.",
+  "unresolved_before_mutation_enablement": [
+    "Receive260 was physically observed once; general error/lifetime semantics remain unknown. Frozen staging plus exact host echo is independently required.",
+    "Root-managed footswitch recovery and exact candidate qualification; no new GPIO wiring or USB_KEY prerequisite is added.",
     "Bounded poll counts tied to a reviewed erase/program timing budget; no unbounded WIP wait.",
     "Malformed OUT framing/refusal policy without fallback into the ROM flash commands.",
     "Host and target qualification evidence binding this exact writer, candidate image and unit backup."

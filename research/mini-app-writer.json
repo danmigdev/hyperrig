@@ -3,12 +3,184 @@
   "project": "HyperRig",
   "target": "tank-mini",
   "kind": "bounded-app-writer-design",
-  "status": "blocked_on_rom_receive_completion_contract",
+  "status": "offline_core_implemented_target_mutations_disabled",
   "offline_only": true,
   "device_access_performed": false,
-  "nvm_write_operations_implemented": false,
+  "nvm_write_operations_implemented": true,
+  "target_mutations_enabled": false,
   "nvm_write_operations_executed": false,
-  "executable_artifacts": [],
+  "executable_artifacts": [
+    {
+      "base": 29491200,
+      "span": 32768,
+      "entry": 29491200,
+      "payload_bytes": 5712,
+      "memory_bytes": 11328,
+      "elf_sha256": "8eee8d7f92e2ef8eab00a30d57c4054feeb8399ce75d58b10b70cba45360fc8e",
+      "payload_sha256": "5bb09c5380f1d0973c75b73125694c053802f76c56d660c2d7dd5e4050c88f49",
+      "record_address": 29502392,
+      "record_bytes": 128,
+      "mutation_gate_address": 29494900,
+      "mutation_gate_value": 0,
+      "private_stack_bytes": 4096,
+      "private_stack_bottom": 29498264,
+      "private_stack_top": 29502360,
+      "bridge_instructions": [
+        {
+          "offset": 0,
+          "length": 2,
+          "id": "push.rets_rl",
+          "text": "[--sp] = {rets, r4}",
+          "hex": "7404"
+        },
+        {
+          "offset": 2,
+          "length": 4,
+          "id": "mov.r_sr",
+          "text": "r4 = sp",
+          "hex": "64e0004e"
+        },
+        {
+          "offset": 6,
+          "length": 2,
+          "id": "mov.rr",
+          "text": "r3 = r0",
+          "hex": "0316"
+        },
+        {
+          "offset": 8,
+          "length": 4,
+          "id": "mov.sr_r",
+          "text": "sp = r2",
+          "hex": "64e0802e"
+        },
+        {
+          "offset": 12,
+          "length": 2,
+          "id": "mov.rr",
+          "text": "r0 = r1",
+          "hex": "1016"
+        },
+        {
+          "offset": 14,
+          "length": 2,
+          "id": "call.r",
+          "text": "call r3",
+          "hex": "c300"
+        },
+        {
+          "offset": 16,
+          "length": 4,
+          "id": "mov.sr_r",
+          "text": "sp = r4",
+          "hex": "64e0804e"
+        },
+        {
+          "offset": 20,
+          "length": 2,
+          "id": "pop.rets_rl",
+          "text": "{rets, r4} = [sp++]",
+          "hex": "3404"
+        },
+        {
+          "offset": 22,
+          "length": 2,
+          "id": "rts",
+          "text": "rts",
+          "hex": "8000"
+        }
+      ],
+      "hardware_executed": false,
+      "physical_NVM_write_enabled": false,
+      "file": "build/mini-app-writer/hyperrig-writer-locked-01c20000.bin",
+      "elf": "build/mini-app-writer/hyperrig-writer-locked-01c20000.elf"
+    },
+    {
+      "base": 29523968,
+      "span": 32768,
+      "entry": 29523968,
+      "payload_bytes": 5712,
+      "memory_bytes": 11328,
+      "elf_sha256": "d321dca6d7a7d558b6ab02b5ecc5f02305b8c00fe168d1818e31aa577d78a933",
+      "payload_sha256": "e45f628abc47e19528f2ad9b5d2d7eaf51449948d9a7b993250276c755f975ca",
+      "record_address": 29535160,
+      "record_bytes": 128,
+      "mutation_gate_address": 29527668,
+      "mutation_gate_value": 0,
+      "private_stack_bytes": 4096,
+      "private_stack_bottom": 29531032,
+      "private_stack_top": 29535128,
+      "bridge_instructions": [
+        {
+          "offset": 0,
+          "length": 2,
+          "id": "push.rets_rl",
+          "text": "[--sp] = {rets, r4}",
+          "hex": "7404"
+        },
+        {
+          "offset": 2,
+          "length": 4,
+          "id": "mov.r_sr",
+          "text": "r4 = sp",
+          "hex": "64e0004e"
+        },
+        {
+          "offset": 6,
+          "length": 2,
+          "id": "mov.rr",
+          "text": "r3 = r0",
+          "hex": "0316"
+        },
+        {
+          "offset": 8,
+          "length": 4,
+          "id": "mov.sr_r",
+          "text": "sp = r2",
+          "hex": "64e0802e"
+        },
+        {
+          "offset": 12,
+          "length": 2,
+          "id": "mov.rr",
+          "text": "r0 = r1",
+          "hex": "1016"
+        },
+        {
+          "offset": 14,
+          "length": 2,
+          "id": "call.r",
+          "text": "call r3",
+          "hex": "c300"
+        },
+        {
+          "offset": 16,
+          "length": 4,
+          "id": "mov.sr_r",
+          "text": "sp = r4",
+          "hex": "64e0804e"
+        },
+        {
+          "offset": 20,
+          "length": 2,
+          "id": "pop.rets_rl",
+          "text": "{rets, r4} = [sp++]",
+          "hex": "3404"
+        },
+        {
+          "offset": 22,
+          "length": 2,
+          "id": "rts",
+          "text": "rts",
+          "hex": "8000"
+        }
+      ],
+      "hardware_executed": false,
+      "physical_NVM_write_enabled": false,
+      "file": "build/mini-app-writer/hyperrig-writer-locked-01c28000.bin",
+      "elf": "build/mini-app-writer/hyperrig-writer-locked-01c28000.elf"
+    }
+  ],
   "execution_ready": false,
   "flashable": false,
   "hardware_qualified": false,
@@ -17,7 +189,8 @@
     "kind": "mini-app-writer-protocol-proposal",
     "protocol": "HYW1",
     "version": 1,
-    "implementation_status": "design_only_receive_contract_unqualified",
+    "implementation_status": "offline_tested_target_mutations_disabled",
+    "target_mutations_enabled": false,
     "executable_artifacts": [],
     "transport_implemented": false,
     "physical_app_range": [
@@ -88,7 +261,7 @@
         "direction": "in",
         "transfer_bytes": 16,
         "fields": [],
-        "effect": "Explicit reader-derived SPI setup, exact JEDEC and status checks; no WREN or status-register writes. Raw SR1/SR2 must be retained in an audit record before implementation is approved."
+        "effect": "Explicit reader-derived SPI setup, exact JEDEC and status checks; no WREN or status-register writes. Raw SR1/SR2 retained in FD88 audit record."
       },
       {
         "opcode": "fc7a",
@@ -136,7 +309,7 @@
             "sector_address"
           ]
         ],
-        "effect": "One explicit 4KiB erase of the armed sector after a second preimage check; consume authorization before WREN. Read back every erased byte."
+        "effect": "Initial target gate0 refuses before WREN. Operational path requires an already frozen and echoed first page, then second sector-preimage check; consume authorization before one4KiB erase. Read back every erased byte."
       },
       {
         "opcode": "fb7c",
@@ -165,7 +338,7 @@
             "page_bytes_exactly_256"
           ]
         ],
-        "effect": "Receive256 raw page bytes plus CRC32BE into private RAM, validate complete reception and checksum, then retain staged data. No WREN. Query FC7E after OUT; no IN answer in the same transaction."
+        "effect": "Receive256 raw page bytes plus CRC32BE into guarded RX RAM; require observed MINI return260, copy to distinct frozen page, validate CRC. STAGE is allowed after ARM before ERASE, or after ERASE; never WREN. Query FC7E and compare FD87 byte-for-byte before FC7D. No IN answer to OUT."
       },
       {
         "opcode": "fc7d",
@@ -189,7 +362,7 @@
             "page_address"
           ]
         ],
-        "effect": "Consume staged page and sequence before WREN; require aligned unused page in the erased armed sector, revalidate RAM CRC and erased preimage, program once, wait bounded WIP, check status and compare all256 readback bytes."
+        "effect": "Target initial gate0 refuses before WREN. Operational host-tested path requires emitted FD87 echo, aligned unused page in erased sector, frozen CRC/guard and erased preimage; consumes page before WREN, programs once, bounded WIP/status and all256-byte readback. Host must explicitly compare echo bytes before issuing this command."
       },
       {
         "opcode": "fc7e",
@@ -241,6 +414,38 @@
           ]
         ],
         "effect": "Require all16 pages verified, read4096 bytes, match target CRC, invalidate the token and retain final result. No automatic next-sector arm."
+      },
+      {
+        "opcode": "fd87",
+        "name": "echo_frozen_page",
+        "direction": "in",
+        "transfer_bytes": 256,
+        "fields": [
+          [
+            2,
+            4,
+            "sector_token"
+          ],
+          [
+            6,
+            4,
+            "staging_sequence"
+          ],
+          [
+            10,
+            4,
+            "page_address"
+          ]
+        ],
+        "effect": "Send exact frozen256-byte page with no NVM access. Does not consume operation sequence; host must compare all bytes. A later ERASE may advance current_sequence without changing staging_sequence."
+      },
+      {
+        "opcode": "fd88",
+        "name": "retained_audit_record",
+        "direction": "in",
+        "transfer_bytes": 128,
+        "fields": [],
+        "effect": "RAM-only HYW1 record:128LE bytes; CRC32[0:120]@120, DONE@124. No new NOR read or clear of sticky error."
       }
     ],
     "nor_commands_read_only": [
@@ -273,15 +478,15 @@
     },
     "sequence_rules": [
       "One active sector at a time; token and sequence must not wrap or be reused during a session.",
-      "Every accepted erase/stage/program/finish consumes exactly current_sequence+1 before its first external callback or SPI action.",
+      "Every accepted erase/stage/program/finish consumes exactly current_sequence+1 before its first external callback or SPI action. Sequence restarts at1 only under a fresh sector token.",
       "Duplicate, stale, out-of-order or cross-sector commands fail closed; no retry or deduplication that can hide a repeated mutation.",
       "A transport failure after authorization leaves completion ambiguous; only retained status and bounded readback may be requested.",
       "On any error, invalidate staged data and mutation authorization. There is no command to clear a sticky failure.",
       "Tokens are sequencing checks, not authentication or cryptographic nonces; a newly loaded plugin is a new session."
     ],
-    "unresolved_before_runtime_implementation": [
-      "ROM receive return/partial-transfer/error and buffer-lifetime semantics on this MINI.",
-      "Detailed retained audit-record schema including raw status bytes, operation counters, transfer return and guard checks.",
+    "unresolved_before_mutation_enablement": [
+      "Receive260 was physically observed once; general error/lifetime semantics remain unknown. Frozen staging plus exact host echo is independently required.",
+      "Root-managed footswitch recovery and exact candidate qualification; no new GPIO wiring or USB_KEY prerequisite is added.",
       "Bounded poll counts tied to a reviewed erase/program timing budget; no unbounded WIP wait.",
       "Malformed OUT framing/refusal policy without fallback into the ROM flash commands.",
       "Host and target qualification evidence binding this exact writer, candidate image and unit backup."
@@ -289,10 +494,10 @@
   },
   "install_plan": {
     "path": "build/mini-install-plan/install-plan.json",
-    "sha256": "99c1021761cec6ece663d70dfcf452c429418c4c53f9fa02aa6a119f4d7ea17e",
+    "sha256": "22212e9d668ca0d02da94bbbe8242e85ccbba26957dce47325b7a3afaaaea20f",
     "candidate": {
       "path": "build/hyperrig-mini-integrated/hyperrig-mini.app-area.bin",
-      "sha256": "f8835a7fd45b1b324d66c457434c7943d70525ed5eb98b514aaac1095031f068",
+      "sha256": "639f58864e2b7c29c4312545fe94b345b2f8c8c21eb72eceb0932712bd608f70",
       "bytes": 516096
     },
     "unit_backup": {
@@ -445,20 +650,20 @@
       "physical_address": 16384,
       "bytes": 4096,
       "preimage_crc32": 1343972482,
-      "candidate_crc32": 732801328,
+      "candidate_crc32": 2850727580,
       "preimage_sha256": "4facb7fb3c4e27905813c502d057856d87588f4cfcbc87a9e1d3f5418a95f132",
-      "candidate_sha256": "4a1962aa7d378047c713a95636573733651c5ae4353938f33de858c1814ee563",
+      "candidate_sha256": "def117de30544e6ba99a871a7b51c0131c4737f3d075b38fd5accad51046544f",
       "differs": true,
       "pages": [
         {
           "physical_address": 16384,
           "bytes": 256,
-          "candidate_crc32": 811924469
+          "candidate_crc32": 2850167665
         },
         {
           "physical_address": 16640,
           "bytes": 256,
-          "candidate_crc32": 3314482240
+          "candidate_crc32": 3391763318
         },
         {
           "physical_address": 16896,
@@ -11274,9 +11479,9 @@
       "physical_address": 503808,
       "bytes": 4096,
       "preimage_crc32": 2399947696,
-      "candidate_crc32": 1493882916,
+      "candidate_crc32": 318098217,
       "preimage_sha256": "27b1262220ac6d78f70f9bca25d050cf47016840a49e44986508aabf1ae99f9e",
-      "candidate_sha256": "adc277334fd21f7dea68453a33c8d472534e43890fdf904b0c35cd68a69b5f6f",
+      "candidate_sha256": "4f74918b78adf8f66f91bfa4195c0320fb6bc6cca3610dafcfb97220670a384e",
       "differs": true,
       "pages": [
         {
@@ -11292,22 +11497,22 @@
         {
           "physical_address": 504320,
           "bytes": 256,
-          "candidate_crc32": 2504959939
+          "candidate_crc32": 3711219254
         },
         {
           "physical_address": 504576,
           "bytes": 256,
-          "candidate_crc32": 238314305
+          "candidate_crc32": 74763662
         },
         {
           "physical_address": 504832,
           "bytes": 256,
-          "candidate_crc32": 994102922
+          "candidate_crc32": 3522547772
         },
         {
           "physical_address": 505088,
           "bytes": 256,
-          "candidate_crc32": 4272465953
+          "candidate_crc32": 1294360424
         },
         {
           "physical_address": 505344,
@@ -11909,10 +12114,10 @@
     }
   ],
   "source_sha256": {
-    "firmware/mini/app_writer/protocol-draft.json": "25556adfa33e8bf5abda0988cf95b4fb0b2dfaf08738d0932004041726c9230e",
-    "firmware/mini/app_writer/DESIGN.md": "530da197895ae9ffa9332d87e4398de75c758d63c20dec04d440c5f091ddebd8",
-    "tools/build_mini_app_writer.py": "e758302291add22f4ddbf782b54949fd156c919326b10f6da051dc1fb8778f0c",
-    "firmware/mini/app_writer/test_contract.py": "876fdfdf80b4b4cc97efc2b0b594013df2ecac2e6d90161f44aa5d28ec3c1883",
+    "firmware/mini/app_writer/protocol-draft.json": "a8fffba4519664adc0ffcc3fa463669e9815926daf687467862a288695fde622",
+    "firmware/mini/app_writer/DESIGN.md": "aa8284e70b44ea47e2d84f4181cdac8eec2b9340977f9ede8ec156cd2c88caf3",
+    "tools/build_mini_app_writer.py": "39941618458365ca9c151a33e468a8b83e531f700fd7bfb3aedb581dd61c2ec2",
+    "firmware/mini/app_writer/test_contract.py": "6b81e3f7ef36ab80dfe328a38391710eae28f80f34625efc25b4a7b84f8a8168",
     "upstream/m-bootloader/docs/SPEC.md": "d86ae060b1db368a8aba421e21903b3b9c7517943bcf2667ee170a5a96a2863c",
     "upstream/m-bootloader/src/loader_target.c": "6d8cacc6c300a106b0f6ed175005782eb17a2d74d70084e9a6ee7b43c4ad6fec",
     "upstream/m-bootloader/src/loader.c": "60ab6790adb0b9cb9ae853f47ed3f39b0ee97c2f170619ec9674d67e0fd207bc",
@@ -11920,7 +12125,22 @@
     "firmware/mini/recovery_reader/reader.c": "a67a471ec875118e83a2adb757c936449f6d009f6647ef4eec633c1720e5d881",
     "firmware/mini/recovery_reader/reader.h": "3ca18d15d3743b89d64ac5cf89af0286d2419f5a768cbdf15ef67fdc824711c4",
     "firmware/mini/recovery_reader/entry.c": "d3d48ce899ed29a18bb011255f9d491df9530f212302043d2531c9637a39efd4",
-    "tools/plan_mini_install.py": "1c99f931789e8ef79feef43ab50472af22f65eb8468f6884aac16c3e7a715a64"
+    "tools/plan_mini_install.py": "1c99f931789e8ef79feef43ab50472af22f65eb8468f6884aac16c3e7a715a64",
+    "firmware/mini/app_writer/entry.c": "88b483fecee627cecac8abdd8d95d9193b2e8f9e050e5e7744cbe6b3588d8cbe",
+    "firmware/mini/app_writer/nor_pio.c": "a31813c4e71d232b62f0c29f0bd40c4fc923c40f8c672faa7d205f0ee8ec4dab",
+    "firmware/mini/app_writer/test_pio.c": "f6f12d99c5e96f8451cc3d4dd0f72c5be1e3b1deff1b189b1d2a640373bbcf45",
+    "firmware/mini/app_writer/test_writer.c": "ae3f3b89f9e488d5911e6bc22dcc520ca02690573a660b71dd37a00e435f286a",
+    "firmware/mini/app_writer/writer.c": "f43e42b4d0aec8b354ac7f02a1067b22d3e978bd81d4412a9471f01e18086de2",
+    "firmware/mini/app_writer/writer.h": "8d1e3d5297ead7bcafb1d3f662b3cf9ffa2067c923ed35664baeb67f415cd53a",
+    "firmware/mini/app_writer/writer.ld": "a572cd21716538e2da2ea11da52a730d5c9d9a448726f8fa389bb6b39d6859b2",
+    "research/mini-rom-receive.json": "a2528e6019de515b9d06055127e93cfc01a3e6d6773fbbee4179e83290feed07",
+    "tools/build_mini_rom_receive.py": "d5081295beb2785904088e2b08056c746321b1ff2c4fbff44ebac13389fec6c6",
+    "analysis/hardware/mini-receive-record-1.bin": "ae29db1045ffcfd9693a495b0f983539438f76909662cf4dc0a8469e299127de",
+    "analysis/hardware/mini-receive-record-2.bin": "8a544e62f4862be688b2e8a5b8be49f6fc4b45727e278894a60f068d4e51e216",
+    "firmware/mini/boot/runtime.c": "a0fe564e1785238960f4810bb1684066bfd4d33f5337d98d74803b702c066973",
+    "firmware/mini/rom_stack/rom_stack_pi32v2.S": "3d5f0733f39eea37a8a9c4648b7cddd5145dda0444c02910862b2069ae6a7f10",
+    "firmware/mini/rom_stack/rom_stack.h": "5416bbfb993be1c8751e851a9af5b442a0a46f244d269460a5a4551b54bd562c",
+    "tools/verify_mini_rom_stack.py": "3a8a72d3937f28163091305ba05e69145a00f868f15016cc66d6ca4683ecf268"
   },
   "receive_evidence": {
     "repository": "https://github.com/jvitkauskas/m-bootloader",
@@ -11929,11 +12149,76 @@
     "entry_reference": "src/loader_target.c:19",
     "call_reference": "src/loader.c:14-20: return discarded; unconditional pointer advance; chunks<=512",
     "limitation_reference": "docs/SPEC.md:835: return values and partial-transfer/error semantics unknown",
-    "mini_receive_hardware_trace_available": false,
+    "mini_receive_hardware_trace_available": true,
+    "observed_success_length_and_return": 260,
     "return_value_interpretation": null,
     "partial_transfer_semantics": null,
     "callback_buffer_lifetime_qualified": false,
-    "unknown_return_must_not_be_assumed_success": true
+    "unknown_return_must_not_be_assumed_success": true,
+    "observed_sample": {
+      "successful_OUT_commands_observed": 1,
+      "length": 260,
+      "raw_return": 260,
+      "samples": [
+        {
+          "record_valid": true,
+          "state": 3,
+          "error": 0,
+          "sequence": 1,
+          "nonce": 305441741,
+          "length": 260,
+          "raw_return": 260,
+          "callback_entered": true,
+          "callback_returned": true,
+          "data_matches_expected": true,
+          "observed_complete_and_stable": true,
+          "canary_mask": 3,
+          "sample_count": 1,
+          "changed_bytes": 260,
+          "return_semantics_qualified": false,
+          "synchronous_completion_proven": false,
+          "rom_pointer_observations": {
+            "send": 31459556,
+            "receive": 31459482,
+            "handler_slot": 29364836
+          },
+          "pointer_address_map_validated": false,
+          "record_sha256": "ae29db1045ffcfd9693a495b0f983539438f76909662cf4dc0a8469e299127de"
+        },
+        {
+          "record_valid": true,
+          "state": 3,
+          "error": 0,
+          "sequence": 1,
+          "nonce": 305441741,
+          "length": 260,
+          "raw_return": 260,
+          "callback_entered": true,
+          "callback_returned": true,
+          "data_matches_expected": true,
+          "observed_complete_and_stable": true,
+          "canary_mask": 3,
+          "sample_count": 2,
+          "changed_bytes": 260,
+          "return_semantics_qualified": false,
+          "synchronous_completion_proven": false,
+          "rom_pointer_observations": {
+            "send": 31459556,
+            "receive": 31459482,
+            "handler_slot": 29364836
+          },
+          "pointer_address_map_validated": false,
+          "record_sha256": "8a544e62f4862be688b2e8a5b8be49f6fc4b45727e278894a60f068d4e51e216"
+        }
+      ],
+      "general_return_error_lifetime_semantics_qualified": false,
+      "source_sha256": {
+        "research/mini-rom-receive.json": "a2528e6019de515b9d06055127e93cfc01a3e6d6773fbbee4179e83290feed07",
+        "tools/build_mini_rom_receive.py": "d5081295beb2785904088e2b08056c746321b1ff2c4fbff44ebac13389fec6c6",
+        "analysis/hardware/mini-receive-record-1.bin": "ae29db1045ffcfd9693a495b0f983539438f76909662cf4dc0a8469e299127de",
+        "analysis/hardware/mini-receive-record-2.bin": "8a544e62f4862be688b2e8a5b8be49f6fc4b45727e278894a60f068d4e51e216"
+      }
+    }
   },
   "status_register_reference": {
     "source": "upstream/m-bootloader/docs/SPEC.md:178",
@@ -11944,16 +12229,115 @@
   },
   "qualification_gates": {
     "rom_receive_complete_error_lifetime": false,
-    "writer_mock_nor_fault_suite": false,
+    "writer_mock_nor_fault_suite": true,
     "writer_target_elf_and_stack_review": false,
     "independent_recovery_from_valid_image_hang": false,
-    "exact_candidate_codec_board_first_boot": false
+    "exact_candidate_codec_board_first_boot": false,
+    "writer_target_elf_layout_and_bridge_bytes": true
   },
   "limitations": [
     "CRC/page tables are computed from local bytes; no device byte has been read by this tool.",
     "This report does not qualify or change any hardware/readiness gate in another report.",
     "CRC32 is not authentication and does not replace host SHA256 preimage/readback checks.",
     "A sector interrupted during erase/program can be partially changed; no automatic rollback is claimed.",
-    "Mock NOR and target ELF tests are deferred because no writer runtime has been implemented."
-  ]
+    "Default validation does not execute build/tests; --build-locked records actual mock/ELF results."
+  ],
+  "build_tag": 952581649,
+  "host_tests": {
+    "asan": true,
+    "ubsan": true,
+    "host-write-tests": {
+      "cases": 297,
+      "mutations_enabled": true,
+      "hardware_IO": false,
+      "partial_receives": 260
+    },
+    "host-locked-tests": {
+      "cases": 3,
+      "mutations_enabled": false,
+      "target_gate_model": true
+    },
+    "host-pio-tests": {
+      "normal_byte_transfers": 544,
+      "byte_timeout_cases": 544,
+      "negative_cases": 553,
+      "CS_released_on_all_timeouts": true
+    },
+    "audit_records": {
+      "locked": {
+        "version": 1,
+        "base": 29491200,
+        "build_tag": 952581649,
+        "phase": 4,
+        "error": 0,
+        "token": 1,
+        "sequence": 2,
+        "sector": 16384,
+        "page": 16384,
+        "preimage_crc32": 1426392259,
+        "target_crc32": 2644679971,
+        "page_crc32": 4192965635,
+        "last_crc32": 4192965635,
+        "jedec": 15425556,
+        "sr1": 0,
+        "sr2": 0,
+        "wren_attempts": 0,
+        "erase_attempts": 0,
+        "program_attempts": 0,
+        "read_bytes": 4096,
+        "status_polls": 0,
+        "raw_receive_return": 260,
+        "rx_guards_ok": 1,
+        "page_bitmap": 0,
+        "staged": 1,
+        "echoed": 1,
+        "stack_guards_ok": 1,
+        "stack_observed_bytes": 0,
+        "mutations_enabled": 0,
+        "record_sha256": "1d423d296628c5dc8d6673b9b3457643a97c5e4292f253d9ef96d580ecd0634a",
+        "hardware_readiness_asserted": false
+      },
+      "mock": {
+        "version": 1,
+        "base": 29491200,
+        "build_tag": 952581649,
+        "phase": 4,
+        "error": 0,
+        "token": 1,
+        "sequence": 2,
+        "sector": 16384,
+        "page": 16384,
+        "preimage_crc32": 1426392259,
+        "target_crc32": 2644679971,
+        "page_crc32": 4192965635,
+        "last_crc32": 4192965635,
+        "jedec": 15425556,
+        "sr1": 0,
+        "sr2": 0,
+        "wren_attempts": 0,
+        "erase_attempts": 0,
+        "program_attempts": 0,
+        "read_bytes": 4096,
+        "status_polls": 0,
+        "raw_receive_return": 260,
+        "rx_guards_ok": 1,
+        "page_bitmap": 0,
+        "staged": 1,
+        "echoed": 1,
+        "stack_guards_ok": 1,
+        "stack_observed_bytes": 0,
+        "mutations_enabled": 1,
+        "record_sha256": "66f59b323d3ea2e83ec3394b0c08562861e721e4b3b346ef77b57072d0a53380",
+        "hardware_readiness_asserted": false
+      }
+    }
+  },
+  "timeouts": {
+    "PIO_byte_poll_limit": 32768,
+    "WIP_status_poll_limit": 65536,
+    "poll_delay_busy_iterations": 256,
+    "physical_time_calibration_verified": false,
+    "host_transport_timeout_must_be_reviewed": true
+  },
+  "NVM_enablement_policy": "No enabled target option exists; root qualifies footswitch recovery and exact candidate before a separate reviewed build."
 }

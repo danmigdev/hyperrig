@@ -1,11 +1,19 @@
-# Writer applicazione MINI: progetto sospeso prima della ricezione ROM
+# Writer applicazione MINI: implementazione con mutazioni target disabilitate
 
-Questo folder contiene un contratto proposto, **non un writer eseguibile**.
-Non contiene un entry point, un driver NOR o un file ELF/bin. Il builder verifica
-il piano e produce soltanto dati di revisione. Il reader HYRN già provato rimane
-immutato e non acquisisce comandi di scrittura.
+Questo folder contiene il protocollo HYW1, il driver PIO separato e il core
+del writer. Il target iniziale ha **gate di mutazione costante zero**: FC7B e
+FC7D non possono raggiungere WREN attraverso il dispatch. Il reader HYRN già
+provato rimane immutato. I test host abilitano le mutazioni esclusivamente su
+una NOR in memoria; la stessa macro è vietata quando si compila il target.
 
-## Blocco osservato nelle fonti
+Il comando `python tools/build_mini_app_writer.py --build-locked` compila due
+payload RAM da 32 KiB massimi, esegue i test e verifica il gate zero negli ELF.
+La CLI predefinita controlla soltanto il piano locale. Non esiste un client
+writer hardware, un'opzione force o una modalità target abilitata. Il piano
+viene ricontrollato contro candidata, backup completo e rollback prima del
+report; gli hash di tutti i 126 settori e i CRC delle 2.016 pagine sono inclusi.
+
+## Evidenza ROM e limite ancora esplicito
 
 La fonte fissata è `upstream/m-bootloader`, commit
 `3ac7651a019fa44daba061b05654278496477b64`. In `src/loader_target.c:19`,
@@ -16,16 +24,25 @@ firma e convenzione usata dal loader; non dimostra una ricezione completa.
 
 `docs/SPEC.md:835` dichiara esplicitamente sconosciuti i valori di ritorno e le
 semantiche di trasferimento parziale/errore. Il codice disponibile non risolve
-questa lacuna. I nostri plugin hanno provato invio e dispatch sul MINI; nessuna
-prova acquisita qualifica `receive` per una pagina da programmare. Assumere
+questa lacuna generale. Assumere
 `return >= 0`, `return == 0` o `return == length` come successo sarebbe una scelta
 senza evidenza. Un CRC corretto è un controllo sui byte osservati, non una prova
 generale della semantica della callback o della fine di un trasferimento asincrono.
 
-Per questa ragione l'implementazione capace di emettere `WREN`, erase o program
-è rinviata. Il file `protocol-draft.json` è una proposta, modificabile prima di
-qualificare una versione wire. Non viene aggiunto alcun profilo Windows capace
-di inviare questi opcode, né un'opzione per ignorare il blocco.
+Successivamente HYRX ha osservato sul MINI un singolo OUT da 260 byte,
+ritorno grezzo 260, dati esatti e due record stabili con canary integri. I
+record acquisiti e il manifest eseguito sono fissati nel rapporto del writer.
+I callback osservati sono send `0x01E008E4`, receive `0x01E0089A` e handler slot
+`0x01C01264`: l'entry di questo target rifiuta valori diversi prima di SPI.
+La prova non qualifica errori, durata generale del buffer o sincronicità.
+
+Per ridurre questa dipendenza il writer riceve in un'arena con guard, esige il
+ritorno 260 osservato e copia la pagina in un **secondo buffer congelato**.
+Verifica il CRC della copia, espone esattamente quei 256 byte via FD87 e
+richiede un comando FC7D separato dopo l'echo. L'host dovrà confrontare tutti
+i byte prima di FC7D. PP usa soltanto la copia congelata: scritture tardive
+nel precedente buffer RX non cambiano la sorgente programmata. Guard e CRC
+della copia sono ricontrollati prima di WREN; ogni esito incoerente rifiuta.
 
 ## Limiti del futuro writer
 
@@ -61,11 +78,16 @@ retry automatico, resume implicito o comando che cancella l'errore.
 2. L'host legge il settore e verifica SHA256 contro il piano. FC7A rilegge
    tutti4096byte e confronta il CRC32 del preimage prima di armare quel solo
    settore. CRC32 non sostituisce il confronto SHA256 dell'host.
-3. FC7B consuma token/sequenza, ricontrolla preimage/status, WREN e WEL, poi
+3. Prima di qualsiasi WREN, anche dell'erase, occorre già una prima pagina
+   ricevuta, congelata ed esposta con FD87 per il confronto dell'host.
+   Nel percorso operativo provato sul mock, FC7B consuma token/sequenza,
+   ricontrolla preimage/status, WREN e WEL, poi
    esegue una sola erase20. WIP ha un limite finito e ogni byte del settore
    deve risultare FF. I limiti temporali effettivi restano da qualificare.
 4. FB7C riceve una pagina completa più CRC in RAM; **non scrive flash**.
-   FC7E deve confermare lo staging prima di FC7D. Solo FC7D può consumare la
+   È ammesso anche prima dell'erase, per verificare staging/echo nel target
+   bloccato. FC7E deve confermare lo staging e FD87 deve essere confrontato
+   byte per byte dall'host prima di FC7D. Solo FC7D può consumare la
    pagina, ricontrollare CRC e pagina ancora cancellata, verificare WREN/WEL
    e programmare una sola PP02 senza attraversare un confine da256byte.
 5. Dopo ogni mutazione: WIP finito, WEL/status controllati, CS alto anche
@@ -74,7 +96,12 @@ retry automatico, resume implicito o comando che cancella l'errore.
    automatico, né si ripete PP per nascondere un errore di trasporto.
 6. FC80 verifica bitmap delle16pagine e CRC del settore completo. L'host
    rilegge il settore e confronta SHA256, quindi tutta l'area applicazione.
-   Il prossimo settore richiede un nuovo arm esplicito.
+   Il prossimo settore richiede un nuovo token. La sequenza riparte da 1
+   soltanto sotto quel nuovo token; FD87 usa la sequenza dello staging,
+   mantenuta anche se un successivo erase avanza la sequenza corrente.
+
+Il target iniziale rifiuta erase/program prima di ogni operazione distruttiva.
+STAGE/echo dopo ARM restano operazioni reali in RAM, senza simulare un erase.
 
 La risposta OUT non include un pacchetto IN extra: il risultato viene letto
 separatamente. Una risposta host fallita dopo un comando distruttivo implica
@@ -82,32 +109,40 @@ esito ambiguo, non autorizzazione a ritentare. ROM FB06/FD07/FB08 restano parte
 del lifecycle RAM; non si devono esporre genericamente dal client writer.
 Rifiuti di comandi legacy non devono ricadere nel gestore flash della ROM.
 
-## Esperimento ricezione da progettare separatamente
+## Record e stack
 
-Il passo minimo prima del writer è un plugin solo RAM, senza SPI, GPIO o
-registri NVM: ricezione OUT di1..260byte in buffer inizializzato a pattern
-distinto, canary prima/dopo, record del ritorno grezzo della callback, CRC e
-successiva lettura IN di tutti i byte. Usare payload che differiscano dal
-pattern iniziale e ripetere con lunghezze1/63/64/65/255/256/260. Servono tracce
-host e record target correlati, verificando persistenza dei byte dopo il
-ritorno e dopo il successivo comando.
+FD88 restituisce 128 byte LE di stato già raccolto, senza leggere nuovamente
+la NOR. Il record contiene magic HYW1, versione, base/tag, fase/errore,
+token/sequenza, settore/pagina, CRC preimage/target/pagina/ultima lettura,
+JEDEC, SR1/SR2, contatori WREN/erase/PP/letture/poll, ritorno receive, guard,
+bitmap pagine, staged/echoed e guard/uso osservato dello stack. Gate zero a116,
+CRC32 dei primi120 byte a120 e DONE a124. FC7E non cancella errori persistenti.
 
-Prove su richieste valide non qualificano da sole timeout, trasferimenti
-corti, gestione degli errori o reentrancy. Questi casi richiedono ulteriori
-evidenze dalla ROM o un esperimento esplicitamente isolato; non vanno
-provocati dentro un writer armato. Questa proposta non esegue l'esperimento.
+Il lavoro NOR usa lo stack privato da 4 KiB con guard, tramite il bridge
+pi32v2 già verificato. Le callback USB rimangono sullo stack originale ROM.
+Gli ELF devono avere un solo segmento RAM nello slot, entry al primo byte,
+nessun simbolo irrisolto e nessuna sovrapposizione fra codice, stato, record e
+stack. L'audit automatico verifica anche i byte esatti del bridge e il gate
+zero. La disponibilità dello stack interrupt della ROM resta fuori da questa
+prova statica; non viene dichiarata esecuzione hardware del writer.
 
-## Verifiche successive richieste
+## Verifiche eseguite e rimanenti
 
-Quando l'ABI sarà chiarita: mock NOR con traccia di ogni byte SPI e fault
-injection su ogni attesa; protezioni SR1/SR2; WEL non impostato; WIP bloccato;
-CRC errato; ricezione corta; canary corrotti; token duplicati; limiti esatti
-4000/81F00/82000; interruzione in ogni punto di PP; readback errato; CS sempre
-rilasciato; nessuna WREN prima della pagina interamente ricevuta. ASan/UBSan
-sul modello host e audit ELF di entrambi gli slot da32KiB con stack privato
-e callback ROM sullo stack previsto sono richiesti, non ancora eseguiti.
+I test C con ASan/UBSan coprono installazione completa di un settore ai due
+estremi dell'area, protezioni SR1/SR2, WEL assente/persistente, WIP bloccato,
+CRC errato, tutte le 260 lunghezze di ricezione corta, guard corrotti,
+token/sequenze duplicati, limiti 4000/81F00/82000, PP parziale, readback errato
+e isolamento del buffer congelato. Un modello SPI distinto inietta timeout
+su ciascuno dei 544 byte della sequenza init/status/WREN/erase/program/read:
+CS viene sempre rilasciato e una transazione fallita non viene ritentata.
+Il test con gate zero verifica staging/echo e rifiuto erase senza WREN.
 
-Restano gate distinti: receive qualificata, writer qualificato, recupero
-indipendente dimostrato anche con immagine valida che si blocca, codec/board e
-immagine esatta approvati. Nessuno di questi gate viene abilitato dal builder
-del contratto o dai CRC generati offline.
+Il limite PIO è 32.768 poll per byte; WIP ha 65.536 campioni massimi, con
+256 iterazioni di attesa fra campioni occupati. Sono limiti finiti, non una
+misura temporale certificata. La compatibilità con i timeout host e i tempi
+fisici di erase/program richiede revisione prima del build abilitato.
+
+Root gestisce i gate attuali: recupero con footswitch scelto dall'utente,
+codec/board e candidata esatta, quindi revisione del build abilitato. Non si
+aggiungono prerequisiti USB_KEY, cablaggi GPIO o nuove approvazioni di progetto.
+Il builder non promuove la readiness hardware e non esegue comandi al MINI.

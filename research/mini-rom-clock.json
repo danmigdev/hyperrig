@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "type": "offline audit of saved MINI ROM clocks",
+  "evidence": {
+    "record_sha256": "d5494ce5fe320b951f1470d0e896ccce214a6dce1fd48c2f138635c4bd225083",
+    "record_hex": "48594332020000000000c201b7f2a0710100000000000000ffff0000fdffffff0400000000000000070000000000000000000000000000000000000000000000fcffffffffff000000000000000000000000000000000000000000000000000001000000d8010000010000000000000000000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000002400000ffffff00ffff00000000000034005b0100000000c101000000000100800000002b024009ee30503f00000000000000000000000000000000340058010100000002400000ffffff00ffff00000000000034005b01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002728fa18444f4e45",
+    "record_validation": {
+      "record_valid": true,
+      "phase": 0,
+      "sequence": 1,
+      "register": 65535,
+      "status": -3,
+      "gate": 4,
+      "nominal_active_hz": 0,
+      "iterations_per_unit": 0,
+      "read_successful": false,
+      "value": null,
+      "setup_flags": 0,
+      "restoration_flags": 0,
+      "stack_observed_bytes": 472,
+      "record_sha256": "d5494ce5fe320b951f1470d0e896ccce214a6dce1fd48c2f138635c4bd225083",
+      "calibrated_timing": false
+    },
+    "snapshot_words": [
+      0,
+      449,
+      65536,
+      128,
+      155189803,
+      1062220014,
+      0,
+      0,
+      0,
+      0,
+      22544436,
+      1,
+      16386,
+      16777215,
+      65535,
+      0,
+      22741044
+    ],
+    "pins": {
+      "research/mini-rom-codec-board.json": "4e22b804e6cb7fb9e02c7a86755d8d2f87b011c2073e2fc12904bccd8f902ade",
+      "analysis/tank-mini/app.bin": "bc46bc604d42067449cdf5b8200f8ebbafd668b722243e3db1b033289e49bdea",
+      "upstream/ac79-sdk-reference/cpu/wl82/liba/cpu.a": "00cea21d3c8d99487821f2c2b203f2c5a04b2cc8421bc05e9b875a0d70e42c62",
+      "upstream/ac79-sdk-reference/include_lib/driver/cpu/wl82/clock_hw.h": "ae1ea1b672b3855f6b0e2378d9ee1583e1b87614ed617db3d41f001681f855ae",
+      "upstream/m-bootloader/docs/SPEC.md": "d86ae060b1db368a8aba421e21903b3b9c7517943bcf2667ee170a5a96a2863c"
+    },
+    "SDK_clock_member_sha256": "8a5f9b26dec4ddada3673567745dbf70b003d8a2706905efe4c2a0bed44dadb4",
+    "SDK_clk_early_init_IR_sha256": "71f36f3dd2a3eba23ef51fcef690d8342ebb9df8f3193dacf198dca8e9f38275"
+  },
+  "stock_replay": {
+    "start": "0x02002d76",
+    "end_exclusive": "0x02002ec8",
+    "sha256": "de019096c01b9801c0e23aea0ffdfe5d993bd25028277fd9a1d63590f896a9d3",
+    "interpreted_instructions": 67,
+    "nominal": {
+      "sys_hz": 48000000,
+      "hsb_hz": 48000000,
+      "lsb_hz": 48000000,
+      "sdram_hz": 0,
+      "pll2_hz": 40000000
+    },
+    "unused_pll2_result_is_not_physical": true
+  },
+  "active_clock": {
+    "main_selector": 7,
+    "test_selector": 0,
+    "osc_selector": 0,
+    "source_nibble": 0,
+    "source_nominal_hz": 192000000,
+    "odd_divisor": 1,
+    "power_of_two_divisor": 4,
+    "sys_nominal_hz": 48000000,
+    "HSB_nominal_hz": 48000000,
+    "LSB_nominal_hz": 48000000,
+    "SFCbit0": 0,
+    "stock_delay_iterations_per_unit": 12,
+    "physical_frequency_measured": false
+  },
+  "PLL_observation": {
+    "primary_control0": "0x0940022b",
+    "primary_control1": "0x3f5030ee",
+    "divider_field_plus_two": 12,
+    "feedback_field_plus_two": 240,
+    "candidate_24MHz_div12_times240_hz": 480000000,
+    "candidate_formula_is_not_the_clock_gate_basis": true,
+    "secondary_control0": 0,
+    "secondary_control1": 0
+  },
+  "HYC3_gate_proposal": {
+    "exact_first_12_words": [
+      0,
+      449,
+      65536,
+      128,
+      155189803,
+      1062220014,
+      0,
+      0,
+      0,
+      0,
+      22544436,
+      1
+    ],
+    "nominal_hz": 48000000,
+    "iterations_per_unit": 12,
+    "clock_USB_writes": false,
+    "unknown_tuple_action": "snapshot-only; no GPIO setup or bus read"
+  },
+  "limitations": [
+    "The SDK 24/40MHz oscillator heuristic must not be used to infer a physical oscillator from this ROM profile.",
+    "The disabled secondary PLL arithmetic result is not an enabled clock.",
+    "The observed exact tuple and independent stock/SDK/SPEC nominal decode do not measure edge timing or analog PLL lock.",
+    "No hardware execution is performed by this audit; HYC2 remains unchanged."
+  ],
+  "source_sha256": "ee6e2fc90ad16108ee080eae92d203f63b93b95a3bc11167c2bfd9694e8abcb4",
+  "device_access": false,
+  "network_access": false
+}

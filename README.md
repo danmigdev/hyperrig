@@ -52,7 +52,7 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   sei blocchi e ripetizione dopo reset con CRC corretti; stack privato e arena
   integri. È una prova distinta dalla capture originale a 23 layer e dall'audio.
 - Identità `TANK MINI_009` confermata via BLE e USB. Ritorno dalla ROM al
-  firmware stock verificato quattro volte, con preset invariati. **Backup completo
+  firmware stock verificato nove volte, con preset invariati. **Backup completo
   della NOR: due copie da 1 MiB identiche**, CRC validi e firmware corrispondente
   allo stock 009. Nessuna scrittura flash effettuata; recupero da un'applicazione
   corrotta ancora da verificare.
@@ -61,11 +61,15 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
 - Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
   APK Android `com.hyperrig.app`, ricostruito e firmato localmente. Sono in
   `build/hyperrig/`: **queste copie G/B non sono il port MINI**.
-- Prima candidata integrale MINI da **516.096 byte**, con applicazione UltraRig G,
-  19 patch e shim audio C da 2.068 byte. Struttura, CRC e confronto inverso
+- Candidata integrale MINI da **516.096 byte**, con applicazione UltraRig G,
+  20 patch, shim audio v2 da 2.332 byte e guardia footswitch da 298 byte. Struttura, CRC e confronto inverso
   con l'originale verificati; nessun codice applicativo stock MINI usato.
   L'editor MINI è associato all'hash dell'immagine. Avvio e audio sul pedale
-  restano da provare: `build/hyperrig-mini-integrated/` non è ancora installabile.
+  restano da provare: `build/hyperrig-mini-audio-v2/` è una candidata per il primo avvio.
+- Recupero tramite tre footswitch e reset verso ROM verificati in RAM; la guardia
+  integrata deve ancora essere eseguita all'accensione. Ricezione, lettura NOR e
+  restituzione della pagina dell'installatore verificate sul MINI con tutte le
+  scritture disabilitate; nessun flash del nuovo firmware è stato effettuato.
 
 I sorgenti C originali del DSP UltraRig **non sono stati trovati**: il repository,
 la sua cronologia e i fork pubblici controllati non li contengono. La

@@ -19,7 +19,7 @@
   "preset_backup_acquired": true,
   "complete_flash_backup_acquired": true,
   "firmware_write_performed": false,
-  "limitation": "ROM primitive and synthetic three-layer A2L engine probes, two identical complete NOR reads matching stock009, and five returns to stock with unchanged presets are verified. Original 23-layer capture, application boot, real audio and recovery from corrupted flash remain unverified.",
+  "limitation": "ROM primitive and synthetic three-layer A2L engine probes, a single 260-byte ROM receive observation, grouped footswitch checks and marker/reset back to ROM, two identical complete NOR reads matching stock009, and nine returns to stock with unchanged presets are verified. The HYRX return needed a separately recorded hub restart after code 43; HYK1 returned without a hub restart. Original 23-layer capture, application cold boot and its entry guard, real audio and recovery from corrupted flash remain unverified.",
   "usb_mini_identified": true,
   "preset_backup": {
     "bytes": 1942,
@@ -35,7 +35,7 @@
   },
   "latest_readonly_check": {
     "date": "2026-11-15",
-    "transport": "USB-MIDI after HYC2 clock snapshot and RAM reset",
+    "transport": "USB-MIDI after HYW1 gate-zero observer and RAM reset",
     "identity_confirmed_again": true,
     "midi_inputs": [
       "USB-Midi 0"
@@ -47,7 +47,10 @@
     "stock_usb_vid_pid": "4c4a:c755",
     "preset_equal_reads": 2,
     "preset_sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
-    "presets_equal_to_initial_backup": true
+    "presets_equal_to_initial_backup": true,
+    "evidence": "analysis/hardware/mini-entry-reset-run.json",
+    "completed_utc": "2026-11-15T19:59:37.747148+00:00",
+    "midi_port_names_source": "earlier enumeration; the HYK1 return report records identity and preset equality"
   },
   "usb_rom_diagnostics": {
     "evidence": "research/mini-hardware-rom.json",
@@ -59,7 +62,7 @@
     "return_to_stock_verified": true,
     "presets_unchanged": true,
     "firmware_write_performed": false,
-    "verified_stock_returns": 5
+    "verified_stock_returns": 9
   },
   "complete_flash_backup": {
     "bytes": 1048576,
@@ -102,5 +105,73 @@
     "accepted_clock_configuration": false,
     "GPIO_touched": false,
     "codec_transaction_attempted": false
+  },
+  "receive_ROM_observation": {
+    "evidence": "research/mini-receive-hardware.json",
+    "payload_executed": true,
+    "length": 260,
+    "raw_return": 260,
+    "record_samples": 2,
+    "data_matches_expected": true,
+    "observed_complete_and_stable": true,
+    "pointer_observations": {
+      "send": "0x01E008E4",
+      "receive": "0x01E0089A",
+      "handler_slot": "0x01C01264"
+    },
+    "pointer_address_map_validated": false,
+    "return_semantics_qualified": false,
+    "synchronous_completion_proven": false,
+    "firmware_write_performed": false,
+    "NVM_writer_qualified": false,
+    "stock_return_after_separate_hub_restart": true
+  },
+  "entry_recovery_ROM_observation": {
+    "evidence": "research/mini-entry-recovery-hardware.json",
+    "payload_executed": true,
+    "grouped_key_check_results": [
+      0,
+      1,
+      0
+    ],
+    "pins": [
+      "PA10",
+      "PA0",
+      "PA3"
+    ],
+    "gpio_configuration_restored": true,
+    "clock_words_unchanged": true,
+    "private_stack_observed_bytes": 60,
+    "stack_guards_ok": true,
+    "marker_reset_to_ROM_verified": true,
+    "fresh_ROM_arrival_and_INQUIRY_verified": true,
+    "hub_restart_performed": false,
+    "stock_return_verified": true,
+    "presets_unchanged": true,
+    "application_prefix_on_device_verified": false,
+    "cold_SPL_handover_verified": false,
+    "corrupt_application_recovery_verified": false,
+    "firmware_write_performed": false
+  },
+  "codec_ROM_nominal_clock_probe": {
+    "evidence": "research/mini-codec-rom-hardware.json",
+    "clock_profile_accepted": true,
+    "nominal_hz": 48000000,
+    "first_address_NACK": true,
+    "GPIO_restored": true
+  },
+  "writer_ROM_observation": {
+    "evidence": "research/mini-writer-observer-hardware.json",
+    "payload_executed": true,
+    "first_sector_matches_backup": true,
+    "frozen_page_echo_matches_candidate": true,
+    "raw_receive_return": 260,
+    "WREN_attempts": 0,
+    "erase_attempts": 0,
+    "program_attempts": 0,
+    "firmware_write_performed": false,
+    "operational_writer_qualified": false,
+    "stock_return_verified": true,
+    "presets_unchanged": true
   }
 }
