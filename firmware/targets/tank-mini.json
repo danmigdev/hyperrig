@@ -360,7 +360,7 @@
     "installation_complete": false,
     "boot_attempted": false,
     "physical_state": "ROM; application partially replaced, not bootable or qualified",
-    "latest_verified_flash_sha256": "74095e9ae0f69878dd5d708150b419548e28db0cf1dabc0e3076c27cd8873406",
+    "latest_verified_flash_sha256": "568e4f7d2b4f048ea45bcc3b0fc7b87a705442ea91fee6d4572a1bf9716dc699",
     "last_verified_live_slot": "0x01C28000",
     "subsequent_actions_in": "analysis/hardware/CURRENT_STATE.json"
   }

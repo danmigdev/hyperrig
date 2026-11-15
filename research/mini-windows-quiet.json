@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "target": "tank-mini",
+  "component": "windows-quiet-buffered-constructor",
+  "api": {
+    "module": "tools.mini_windows_quiet",
+    "attestation": "RomDiskAttestation.from_discovery(disk)",
+    "transport": "QuietBufferedRomTransport(attestation, slot=..., profile=...)",
+    "reuse_bound_attestation": "transport.attestation",
+    "diagnostics": "transport.open_metadata"
+  },
+  "source_sha256": {
+    "tools/mini_windows_quiet.py": "c36e92fbb32cab3cd9e49b357acead6c1e2ff4ccd1198fd1f5bdcb1f0c1e6708",
+    "tests/test_mini_windows_quiet.py": "3e6c08e1679e9540b4e5fafe5299dc1ad3489bb5c90d511dc90b8e07f93f8490",
+    "tools/mini_windows_spt.py": "604f55a337938ffaf7cd499e27fe39d1dcde17dbecdd16efe25be52a712acff0",
+    "tools/mini_windows_aligned.py": "7d7d9de2de67c08088a0e5e5de820603124582940c35a564918aef025af0d4d4",
+    "tools/probe_mini_recovery.py": "401f501729e08ecb3efbd54e6d75157989deca5cd3c0c9629bcbf9b076042073",
+    "tools/recover_mini_read_v2.py": "43143f57a1da597d472ad6add3afd88882a11af38c2250901e493ad39bdcf6d1",
+    "build/mini-windows-diagnostics/stordiag-mcn-install-initial.json": "08bb4fcdba6a40a72a63d1fc782c94ded79162ef03150005448059f2dece8507"
+  },
+  "verified_offline": true,
+  "hardware_tested": false,
+  "device_io_performed_by_author": false,
+  "bound_checks": [
+    "same configured PnP disk instance and exact ancestry",
+    "all ancestors started and problem-free",
+    "one PRESENT disk interface for that exact instance",
+    "same USB LastArrivalDate before and after open/INQUIRY",
+    "storage device type 7 and attested PhysicalDrive number",
+    "exact INQUIRY WL82 / UBOOT1.00"
+  ],
+  "inherited_unmodified": [
+    "WindowsBufferedRomTransport.exchange",
+    "WindowsBufferedRomTransport._exchange_once",
+    "WindowsRomTransport.close",
+    "WindowsRomTransport.__enter__",
+    "WindowsRomTransport.__exit__"
+  ],
+  "constructor_io": {
+    "cfgmgr32_only_selected_devnodes": true,
+    "win32_diskdrive_queries": 0,
+    "geometry_media_queries": 0,
+    "ioctl_storage_get_device_number": {
+      "code": 2953344,
+      "bytes": 12
+    },
+    "storage_adapter_queries": 2,
+    "scsi_cdbs": [
+      {
+        "hex": "120000002400",
+        "read_length": 36
+      }
+    ],
+    "automatic_retry": false,
+    "reset": false,
+    "discovery_fallback": false
+  },
+  "limits": {
+    "ancestry_nodes": 12,
+    "device_id_characters": 199,
+    "interface_list_characters": 8192,
+    "last_arrival_property_bytes": 8
+  },
+  "verification": {
+    "new_tests": 20,
+    "combined_tests": 58,
+    "result": "PASS",
+    "command": "python -B -X utf8 -m unittest tests.test_mini_windows_quiet tests.test_mini_windows_spt tests.test_mini_read_recovery_v2 -q",
+    "all_windows_apis_fake": true
+  },
+  "limitations": [
+    "No evidence yet that this constructor resolves all Win31 failures.",
+    "Six-TUR bursts correlated with failures also occurred before constructor reopens.",
+    "PnP metadata and INQUIRY are selection/continuity checks, not cryptographic authentication.",
+    "Caller must still verify plugin identity, slot, build, state audit and complete fresh preimage before a mutation.",
+    "A physical removal/re-enumeration requires a new explicitly selected attestation."
+  ],
+  "primary_sources": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_get_device_interface_listw",
+    "https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_locate_devnodew",
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_get_device_number"
+  ],
+  "local_sdk": "Windows Kits/10/Include/10.0.19041.0: um/cfgmgr32.h, shared/cfg.h, shared/devpkey.h, shared/devpropdef.h, shared/ntddstor.h"
+}

@@ -54,8 +54,9 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
 - Identità `TANK MINI_009` confermata via BLE e USB. Ritorno dalla ROM al
   firmware stock verificato nove volte, con preset invariati. **Backup completo
   della NOR: due copie da 1 MiB identiche**, CRC validi e firmware corrispondente
-  allo stock 009. Nessuna scrittura flash effettuata; recupero da un'applicazione
-  corrotta ancora da verificare.
+  allo stock 009. L'installazione è iniziata ed è ancora incompleta: il pedale
+  resta in ROM, con il contenuto parziale riletto e verificato. Stato e prove in
+  [mini-installation-interruptions.json](research/mini-installation-interruptions.json).
 - Handover del bootloader, varianti applicative interamente in flash e selettore
   dei clock ricostruiti. Candidato codec OSR64 preparato, ancora da provare sul pedale.
 - Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
@@ -69,7 +70,15 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
 - Recupero tramite tre footswitch e reset verso ROM verificati in RAM; la guardia
   integrata deve ancora essere eseguita all'accensione. Ricezione, lettura NOR e
   restituzione della pagina dell'installatore verificate sul MINI con tutte le
-  scritture disabilitate; nessun flash del nuovo firmware è stato effettuato.
+  scritture disabilitate. I primi erase/program reali sono stati verificati;
+  quattro sessioni si sono fermate per Win31 durante una lettura USB successiva.
+  Sono verificati 72 settori completi e dieci pagine del settore seguente;
+  le sei pagine successive sono cancellate e tutti gli altri byte sono identici
+  al backup. La quarta sessione ha recuperato otto interruzioni di lettura
+  prima di raggiungere il limite previsto. La sospensione del polling automatico
+  di Windows non ha eliminato gli errori; l'apertura USB senza ripetere le query
+  del disco è in preparazione. Rimangono 54 settori da completare.
+  Non è stato tentato l'avvio dell'applicazione parziale.
 
 I sorgenti C originali del DSP UltraRig **non sono stati trovati**: il repository,
 la sua cronologia e i fork pubblici controllati non li contengono. La
