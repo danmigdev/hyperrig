@@ -1,0 +1,72 @@
+{
+  "repositories": {
+    "ultrarig": {
+      "url": "https://github.com/manuaguirre9/ultrarig.git",
+      "commit": "658c89c2bcb2743c19c5caf0fb9704a8ce68212c"
+    },
+    "jl-misctools": {
+      "url": "https://github.com/kagaimiq/jl-misctools.git",
+      "commit": "0a5b12db0ef38f3042acffbe2452730a37fd2405"
+    },
+    "pi32v2-isa": {
+      "url": "https://github.com/jvitkauskas/pi32v2-isa.git",
+      "commit": "1f09804d36ddcba36dbd84cb6242ef88f35f15b7"
+    },
+    "ghidra-jieli": {
+      "url": "https://github.com/virtualabs/ghidra-jieli.git",
+      "commit": "8b7d50bef0dd15b1d56d668b75eb07d55b4cd92e"
+    },
+    "tankmini-linux": {
+      "url": "https://github.com/viniciusapl97/tankmini-linux.git",
+      "commit": "d19741c61dff7b5f937ee66dc8d27839acd65433"
+    }
+  },
+  "ghidra": {
+    "url": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.2_build/ghidra_12.2_PUBLIC_20261016.zip",
+    "name": "ghidra_12.2_PUBLIC_20261016.zip",
+    "sha256": "2c2cd776db3c1f6a097ba418922378ac3649cadd5e844a6f5f088ae628a7be67",
+    "version": "12.2"
+  },
+  "sdk_reference": {
+    "repository": "https://github.com/amitv87/fw-AC79_AIoT_SDK",
+    "commit": "ffbb2a8d925682ba6880d643a83a63ee0691ec09",
+    "official_origin": "https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK",
+    "files": [
+      {
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      {
+        "path": "include_lib/btctrler/adapter/include/gpio.h",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/btctrler/adapter/include/gpio.h",
+        "sha256": "0d3dbd8e2c9b9ce29faf357b6bf37dc66d58cb818cfdc9b9c2a7977f183b4fa6"
+      },
+      {
+        "path": "include_lib/driver/cpu/wl82/asm/WL82.h",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/WL82.h",
+        "sha256": "6f5a44f39282f66203d837a1c74c9d8197d2856547356fce8ed0d191318ff645"
+      },
+      {
+        "path": "include_lib/driver/cpu/wl82/asm/adc_api.h",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/adc_api.h",
+        "sha256": "fdd0ff3b8a5f72cb4ae2a17779b7d0255f107af959b05fa11a7c6eae1d298acf"
+      },
+      {
+        "path": "include_lib/driver/cpu/wl82/asm/dac.h",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/dac.h",
+        "sha256": "488836dfd6d085fb0103b04fbf10137db9086d031266fb675cbbc6afab26d2f1"
+      },
+      {
+        "path": "include_lib/driver/cpu/wl82/asm/gpio.h",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/gpio.h",
+        "sha256": "acaab01241d8c2f57275d481a59e5116eedcadf27e4d3cc36d9ce504fef14187"
+      },
+      {
+        "path": "include_lib/driver/device/gpio.h",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/device/gpio.h",
+        "sha256": "fd88d25f968fa8bf1fe964371da0a66956f9ccbea32434e38c303f33acbe3255"
+      }
+    ]
+  }
+}

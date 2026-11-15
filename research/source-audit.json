@@ -1,0 +1,482 @@
+{
+  "repository": "https://github.com/manuaguirre9/ultrarig",
+  "branches": {
+    "manuaguirre9/ultrarig": [
+      "main"
+    ],
+    "heil-j/ultrarig": [
+      "feature/ai-tone",
+      "main"
+    ],
+    "rcesarbm/ultrarig-mac": [
+      "main"
+    ],
+    "mackmilan/ultrarig": [
+      "main"
+    ],
+    "smallbutfine/ultrarig": [
+      "main"
+    ]
+  },
+  "releases": [
+    {
+      "tag": "editor-0.1.0",
+      "assets": [
+        {
+          "name": "SHA256SUMS.txt",
+          "size": 196,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/editor-0.1.0/SHA256SUMS.txt"
+        },
+        {
+          "name": "UltraRig-Editor-0.1.0-mac.dmg",
+          "size": 219601610,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/editor-0.1.0/UltraRig-Editor-0.1.0-mac.dmg"
+        },
+        {
+          "name": "UltraRig-Editor-0.1.0-win-x64.zip",
+          "size": 142438760,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/editor-0.1.0/UltraRig-Editor-0.1.0-win-x64.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha11.1.1-test",
+      "assets": [
+        {
+          "name": "UltraRig-alpha11.1.1-v1-win.zip",
+          "size": 13365836,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11.1.1-test/UltraRig-alpha11.1.1-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha11.1.1-v2-win.zip",
+          "size": 13365634,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11.1.1-test/UltraRig-alpha11.1.1-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha11.1-test",
+      "assets": [
+        {
+          "name": "UltraRig-alpha11.1-v1-win.zip",
+          "size": 13360695,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11.1-test/UltraRig-alpha11.1-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha11.1-v2-win.zip",
+          "size": 13360504,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11.1-test/UltraRig-alpha11.1-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha11",
+      "assets": [
+        {
+          "name": "UltraRig-alpha11-android.apk",
+          "size": 5293085,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha11-v1-win.zip",
+          "size": 13839799,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha11-v2-win.zip",
+          "size": 13839411,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-v2-win.zip"
+        },
+        {
+          "name": "UltraRig-installer-done.png",
+          "size": 33585,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-installer-done.png"
+        },
+        {
+          "name": "UltraRig-installer-start.png",
+          "size": 23013,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-installer-start.png"
+        }
+      ]
+    },
+    {
+      "tag": "alpha10.1",
+      "assets": [
+        {
+          "name": "UltraRig-alpha10.1-android.apk",
+          "size": 4801976,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10.1/UltraRig-alpha10.1-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha10.1-v1-win.zip",
+          "size": 13568681,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10.1/UltraRig-alpha10.1-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha10.1-v2-win.zip",
+          "size": 13568665,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10.1/UltraRig-alpha10.1-v2-win.zip"
+        },
+        {
+          "name": "UltraRig-installer-done.png",
+          "size": 31418,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10.1/UltraRig-installer-done.png"
+        },
+        {
+          "name": "UltraRig-installer-start.png",
+          "size": 23148,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10.1/UltraRig-installer-start.png"
+        }
+      ]
+    },
+    {
+      "tag": "alpha10",
+      "assets": [
+        {
+          "name": "UltraRig-alpha10-android.apk",
+          "size": 5258149,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10/UltraRig-alpha10-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha10-v1-win.zip",
+          "size": 13563003,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10/UltraRig-alpha10-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha10-v2-win.zip",
+          "size": 13562902,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10/UltraRig-alpha10-v2-win.zip"
+        },
+        {
+          "name": "UltraRig-installer-done.png",
+          "size": 31409,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10/UltraRig-installer-done.png"
+        },
+        {
+          "name": "UltraRig-installer-start.png",
+          "size": 23139,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha10/UltraRig-installer-start.png"
+        }
+      ]
+    },
+    {
+      "tag": "alpha9.1",
+      "assets": [
+        {
+          "name": "UltraRig-alpha9.1-android.apk",
+          "size": 4740956,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9.1/UltraRig-alpha9.1-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha9.1-v1-win.zip",
+          "size": 13350867,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9.1/UltraRig-alpha9.1-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha9.1-v2-win.zip",
+          "size": 13350748,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9.1/UltraRig-alpha9.1-v2-win.zip"
+        },
+        {
+          "name": "UltraRig-installer-done.png",
+          "size": 31498,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9.1/UltraRig-installer-done.png"
+        },
+        {
+          "name": "UltraRig-installer-start.png",
+          "size": 23222,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9.1/UltraRig-installer-start.png"
+        }
+      ]
+    },
+    {
+      "tag": "alpha9",
+      "assets": [
+        {
+          "name": "UltraRig-alpha9-android.apk",
+          "size": 4739660,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9/UltraRig-alpha9-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha9-v1-win.zip",
+          "size": 13314278,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9/UltraRig-alpha9-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha9-v2-win.zip",
+          "size": 13314190,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9/UltraRig-alpha9-v2-win.zip"
+        },
+        {
+          "name": "UltraRig-installer-done.png",
+          "size": 31558,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9/UltraRig-installer-done.png"
+        },
+        {
+          "name": "UltraRig-installer-start.png",
+          "size": 23279,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9/UltraRig-installer-start.png"
+        }
+      ]
+    },
+    {
+      "tag": "alpha8",
+      "assets": [
+        {
+          "name": "UltraRig-alpha8-android.apk",
+          "size": 4721740,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha8/UltraRig-alpha8-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha8-v1-win.zip",
+          "size": 12750247,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha8/UltraRig-alpha8-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha8-v2-win.zip",
+          "size": 12750332,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha8/UltraRig-alpha8-v2-win.zip"
+        },
+        {
+          "name": "UltraRig-installer-done.png",
+          "size": 24412,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha8/UltraRig-installer-done.png"
+        },
+        {
+          "name": "UltraRig-installer-start.png",
+          "size": 23251,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha8/UltraRig-installer-start.png"
+        }
+      ]
+    },
+    {
+      "tag": "check-tankb",
+      "assets": [
+        {
+          "name": "UltraRig-check1.6-tankb-win.zip",
+          "size": 12228190,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/check-tankb/UltraRig-check1.6-tankb-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha9.1-diag",
+      "assets": [
+        {
+          "name": "UltraRig-alpha9.1-diag-v2-win.zip",
+          "size": 12906769,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9.1-diag/UltraRig-alpha9.1-diag-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha9-test1",
+      "assets": [
+        {
+          "name": "UltraRig-alpha9-test1-android.apk",
+          "size": 4726860,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9-test1/UltraRig-alpha9-test1-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha9-test1-v1-win.zip",
+          "size": 13249680,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9-test1/UltraRig-alpha9-test1-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha9-test1-v2-win.zip",
+          "size": 13249906,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha9-test1/UltraRig-alpha9-test1-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha7.1",
+      "assets": [
+        {
+          "name": "UltraRig-alpha7.1-android.apk",
+          "size": 4721988,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha7.1/UltraRig-alpha7.1-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha7.1-v1-win.zip",
+          "size": 12700809,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha7.1/UltraRig-alpha7.1-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha7.1-v2-win.zip",
+          "size": 12700705,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha7.1/UltraRig-alpha7.1-v2-win.zip"
+        },
+        {
+          "name": "UltraRig-installer-done.png",
+          "size": 19799,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha7.1/UltraRig-installer-done.png"
+        },
+        {
+          "name": "UltraRig-installer-start.png",
+          "size": 15923,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha7.1/UltraRig-installer-start.png"
+        }
+      ]
+    },
+    {
+      "tag": "alpha7",
+      "assets": [
+        {
+          "name": "UltraRig-alpha7-android.apk",
+          "size": 5015897,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha7/UltraRig-alpha7-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha7-v1-win.zip",
+          "size": 12684188,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha7/UltraRig-alpha7-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha7-v2-win.zip",
+          "size": 12684083,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha7/UltraRig-alpha7-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha6",
+      "assets": [
+        {
+          "name": "UltraRig-alpha6-android.apk",
+          "size": 4998442,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha6/UltraRig-alpha6-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha6-v1-win.zip",
+          "size": 12689398,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha6/UltraRig-alpha6-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha6-v2-win.zip",
+          "size": 12689250,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha6/UltraRig-alpha6-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha5",
+      "assets": [
+        {
+          "name": "UltraRig-alpha5-android.apk",
+          "size": 4997893,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha5/UltraRig-alpha5-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha5-v1-win.zip",
+          "size": 12683256,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha5/UltraRig-alpha5-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha5-v2-win.zip",
+          "size": 12683156,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha5/UltraRig-alpha5-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha4",
+      "assets": [
+        {
+          "name": "UltraRig-alpha4-android.apk",
+          "size": 4982080,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha4/UltraRig-alpha4-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha4-v1-win.zip",
+          "size": 12082571,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha4/UltraRig-alpha4-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha4-v2-win.zip",
+          "size": 12082455,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha4/UltraRig-alpha4-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha3",
+      "assets": [
+        {
+          "name": "UltraRig-alpha3-android.apk",
+          "size": 4936135,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha3/UltraRig-alpha3-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha3-v1-win.zip",
+          "size": 11946383,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha3/UltraRig-alpha3-v1-win.zip"
+        },
+        {
+          "name": "UltraRig-alpha3-v2-win.zip",
+          "size": 11946290,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha3/UltraRig-alpha3-v2-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha2-v1",
+      "assets": [
+        {
+          "name": "UltraRig-alpha2-android.apk",
+          "size": 4787967,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha2-v1/UltraRig-alpha2-android.apk"
+        },
+        {
+          "name": "UltraRig-alpha2-v1b-win.zip",
+          "size": 11800291,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha2-v1/UltraRig-alpha2-v1b-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "alpha1",
+      "assets": [
+        {
+          "name": "UltraRig-alpha1-win.zip",
+          "size": 8349514,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha1/UltraRig-alpha1-win.zip"
+        }
+      ]
+    },
+    {
+      "tag": "check1",
+      "assets": [
+        {
+          "name": "UltraRig-check1.7-win.zip",
+          "size": 12832701,
+          "url": "https://github.com/manuaguirre9/ultrarig/releases/download/check1/UltraRig-check1.7-win.zip"
+        }
+      ]
+    }
+  ],
+  "git_history_paths": [
+    ".github/ISSUE_TEMPLATE/bug-report.yml",
+    ".github/ISSUE_TEMPLATE/check-report.yml",
+    ".github/ISSUE_TEMPLATE/config.yml",
+    ".github/workflows/release-email.yml",
+    "LICENSE.md",
+    "NOTICE.md",
+    "README.md"
+  ],
+  "fork_feature_ai_tone_tree": [
+    ".github/ISSUE_TEMPLATE/bug-report.yml",
+    ".github/ISSUE_TEMPLATE/check-report.yml",
+    ".github/ISSUE_TEMPLATE/config.yml",
+    ".github/workflows/release-email.yml",
+    "AI_TONE.md",
+    "LICENSE.md",
+    "NOTICE.md",
+    "README.md",
+    "web/aitone.css",
+    "web/aitone.js",
+    "web/index.html",
+    "web/nam2chip.js",
+    "web/tankg.html"
+  ]
+}

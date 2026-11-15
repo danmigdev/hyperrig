@@ -1,0 +1,37 @@
+{
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "status": "port-in-progress-not-flashable",
+  "evidence_firmware": "TANK MINI_009",
+  "evidence_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+  "chip": "AC791N",
+  "isa": "pi32v2",
+  "flash_bytes_from_package_header": 1044480,
+  "physical_flash_capacity_verified_on_device": false,
+  "application_area": [16384, 532480],
+  "cpu_entry": 33554720,
+  "sfc_key_in_package": 38927,
+  "regions_from_jlfs": {
+    "vm": [532480, 778240],
+    "btif": [778240, 782336],
+    "usr": [782336, 1044480],
+    "key_mac": [1044480, 1048576]
+  },
+  "gpio_candidates": {
+    "status": "static-inference-needs-hardware-confirmation",
+    "input_register": 327684,
+    "port": "A",
+    "pins": [10, 0, 3],
+    "scan_function_address": 33595488,
+    "physical_labels_abc": null,
+    "active_level": null,
+    "led_pins": null
+  },
+  "panel": {"footswitches": 3},
+  "stock_presets": {"count": 21, "record_bytes": 92, "bank_bytes": 1942},
+  "audio": {"adc_pins": null, "dac_route": null, "sample_rate": null, "dma_period": null},
+  "clock_mhz": null,
+  "validated_boot": false,
+  "validated_restore": false,
+  "native_dsp_reconstructed": false
+}

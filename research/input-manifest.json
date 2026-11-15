@@ -1,0 +1,121 @@
+{
+  "release": {
+    "repository": "https://github.com/manuaguirre9/ultrarig",
+    "tag": "alpha11",
+    "published_at": "2026-11-12T21:11:46Z",
+    "api_url": "https://api.github.com/repos/manuaguirre9/ultrarig/releases/tags/alpha11",
+    "assets": [
+      {
+        "name": "UltraRig-alpha11-android.apk",
+        "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-android.apk",
+        "size": 5293085,
+        "sha256": "cbf63092505bc77d8aa402f97374c9d8229f0794ba9cf1acc8d3489325a51717"
+      },
+      {
+        "name": "UltraRig-alpha11-v1-win.zip",
+        "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-v1-win.zip",
+        "size": 13839799,
+        "sha256": "7c5875342679c4a1c08edf2ba27231007acf3b7f031f2c4741b9f861bc1a0395"
+      },
+      {
+        "name": "UltraRig-alpha11-v2-win.zip",
+        "url": "https://github.com/manuaguirre9/ultrarig/releases/download/alpha11/UltraRig-alpha11-v2-win.zip",
+        "size": 13839411,
+        "sha256": "26f2f075ebc39e362284d9a6b3a557b46eaf3b262cdaee69c2f5c869933b1ec2"
+      }
+    ]
+  },
+  "firmware_images": [
+    {
+      "path": "artifacts/alpha11/v1/UltraRig-alpha11-v1-win/m571_tbv1_app.bin",
+      "name": "m571_tbv1",
+      "file": "m571_tbv1_app.bin",
+      "sha256": "61bb430370d840f7f119b85aa1a7db9a38f0c5f3ff63fd356252baa27ffee061",
+      "size": 487424,
+      "range": [
+        "0x4000",
+        "0x7B000"
+      ],
+      "version": "tankg_fw M5.71 rel ble tankb v1",
+      "profile": "release",
+      "amx": false,
+      "ble": true,
+      "board": "v1",
+      "model": "tank-b",
+      "cpu_mhz": 396,
+      "date": "2026-11-12 16:08:59",
+      "flash_image_sha256": "c01c4e30f7fd4ac6150d3dc7f11cb167c8aef64a012693141acbd371215cf762",
+      "target": "TANK-B v1 (JieLi AC791N, flash 1 MiB, chip key 0x980F)"
+    },
+    {
+      "path": "artifacts/alpha11/v1/UltraRig-alpha11-v1-win/m571_v1_app.bin",
+      "name": "m571_v1",
+      "file": "m571_v1_app.bin",
+      "sha256": "5a6af30735fca9190835c9307770323f5a0cad50ae9d94223d639fb065dc4188",
+      "size": 487424,
+      "range": [
+        "0x4000",
+        "0x7B000"
+      ],
+      "version": "tankg_fw M5.71 rel ble v1",
+      "profile": "release",
+      "amx": false,
+      "ble": true,
+      "board": "v1",
+      "model": "tank-g",
+      "cpu_mhz": 396,
+      "date": "2026-11-12 16:06:09",
+      "flash_image_sha256": "9db46c38833db8eee5e5358cc82380066cc5f813416a4cc8e153fd95172107ea",
+      "target": "TANK-G v1 (JieLi AC791N, flash 1 MiB, chip key 0x980F)"
+    },
+    {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_g_app.bin",
+      "name": "m571_g",
+      "file": "m571_g_app.bin",
+      "sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+      "size": 487424,
+      "range": [
+        "0x4000",
+        "0x7B000"
+      ],
+      "version": "tankg_fw M5.71 rel ble",
+      "profile": "release",
+      "amx": false,
+      "ble": true,
+      "board": "v2",
+      "model": "tank-g",
+      "cpu_mhz": 396,
+      "date": "2026-11-12 16:04:33",
+      "flash_image_sha256": "0216d1c92d1fe9af6feec13f3174fad944847fdaf625abf70ef70570843852e8",
+      "target": "TANK-Gv2 (JieLi AC791N, flash 1 MiB, chip key 0x980F)"
+    },
+    {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_tb_app.bin",
+      "name": "m571_tb",
+      "file": "m571_tb_app.bin",
+      "sha256": "5e75acc31483aa8b55fc9db78e1a99651e673ce6ccdb4ee3975533852ed0808c",
+      "size": 487424,
+      "range": [
+        "0x4000",
+        "0x7B000"
+      ],
+      "version": "tankg_fw M5.71 rel ble tankb",
+      "profile": "release",
+      "amx": false,
+      "ble": true,
+      "board": "v2",
+      "model": "tank-b",
+      "cpu_mhz": 396,
+      "date": "2026-11-12 16:07:43",
+      "flash_image_sha256": "8335656b35d2c721f24804dc6b66e60761c5d64ff806a21bb7836d738216ba0e",
+      "target": "TANK-Bv2 (JieLi AC791N, flash 1 MiB, chip key 0x980F)"
+    }
+  ],
+  "tank_mini": {
+    "name": "TANK-MINI.fwsc",
+    "url": "https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/TANK-MINI.fwsc",
+    "size": 557044,
+    "sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+    "version_in_binary": "TANK MINI_009"
+  }
+}
