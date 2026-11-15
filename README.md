@@ -3,9 +3,11 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato: motore capture A2-Lite a tre canali/int32 ricostruito e compilabile;
-porting del MINI in corso. Non è ancora un firmware completo installabile sul MINI.** Il nome HyperRig è quello
-scelto per questo progetto indipendente.
+**Stato documentato al 15 novembre 2026, 23:32 UTC: applicazione UltraRig completa
+adattata al MINI, scritta e riletta integralmente. Tutte le regioni esterne
+all'applicazione sono invariate. Avvio, audio e connessione dell'app al nuovo
+firmware non sono ancora verificati.** HyperRig
+è il nome scelto per questo progetto indipendente.
 
 L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
 UltraRig completa adattata al MINI, in sostituzione dello stock, e copie
@@ -17,7 +19,8 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   verificate con SHA-256, decodificate e separate in `app.bin` e `cfg_tool.bin`.
 - Firmware ufficiale `TANK MINI_009`: contenitore FWSC e applicazione estratti,
   con verifica dei CRC. Confermato AC791N/pi32v2, con una mappa flash diversa.
-- Sorgenti originali HTML/JavaScript recuperati dall'editor e dall'APK.
+- HTML/JavaScript distribuiti nell'editor e nell'APK originali, estratti e
+  conservati senza modifiche; copie derivate HyperRig separate.
 - Bytecode Python dell'installer estratto e disassemblato senza eseguirlo.
 - Pseudocodice C generato da Ghidra per tutti e cinque i firmware e listati
   pi32v2 delle aree flash/RAM. Il C è **parziale, inferito e non compilabile**.
@@ -29,7 +32,8 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   dilatati, attivazioni, residuali e testa finale. **7.509 confronti con le
   istruzioni originali interpretate**, inclusi tutti i 23 layer della capture
   A2. Profilo supportato: tre canali/int32 e shift del percorso ottimizzato.
-  Orchestrazione portabile propria; IR, effetti e frontend restano da integrare.
+  Orchestrazione portabile propria; in questo motore C separato IR, effetti e
+  frontend restano da integrare. La candidata binaria conserva i componenti originali.
   Build UBSan/ASan e oggetto pi32v2 prodotti dalla toolchain JieLi.
 - Percorso audio ALNK0 ricostruito per G e MINI: pin, buffer, IRQ e blocchi
   da 64 frame; differenza tra 44,1 kHz stock MINI e 48 kHz UltraRig identificata.
@@ -51,11 +55,14 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
 - **Motore A2L sintetico eseguito sul MINI in RAM:** tre layer, 230 frame,
   sei blocchi e ripetizione dopo reset con CRC corretti; stack privato e arena
   integri. È una prova distinta dalla capture originale a 23 layer e dall'audio.
-- Identità `TANK MINI_009` confermata via BLE e USB. Ritorno dalla ROM al
-  firmware stock verificato nove volte, con preset invariati. **Backup completo
+- Identità `TANK MINI_009` confermata via BLE e USB prima dell'installazione.
+  Ritorno dalla ROM al firmware stock verificato nove volte, con preset invariati.
+  **Backup completo
   della NOR: due copie da 1 MiB identiche**, CRC validi e firmware corrispondente
-  allo stock 009. L'installazione è iniziata ed è ancora incompleta: il pedale
-  resta in ROM, con il contenuto parziale riletto e verificato. Stato e prove in
+  allo stock 009. L'installazione della candidata è completata: una nuova lettura
+  indipendente di tutta la NOR conferma l'applicazione esatta e ogni byte esterno
+  invariato. Il pedale resta in ROM in attesa della prova di primo avvio.
+  Stato e prove in
   [mini-installation-interruptions.json](research/mini-installation-interruptions.json).
 - Handover del bootloader, varianti applicative interamente in flash e selettore
   dei clock ricostruiti. Candidato codec OSR64 preparato, ancora da provare sul pedale.
@@ -64,26 +71,36 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   `build/hyperrig/`: **queste copie G/B non sono il port MINI**.
 - Candidata integrale MINI da **516.096 byte**, con applicazione UltraRig G,
   20 patch, shim audio v2 da 2.332 byte e guardia footswitch da 298 byte. Struttura, CRC e confronto inverso
-  con l'originale verificati; nessun codice applicativo stock MINI usato.
+  con l'originale verificati. La base applicativa è UltraRig G; lo stock MINI
+  fornisce il riferimento hardware e il backup di ripristino.
   L'editor MINI è associato all'hash dell'immagine. Avvio e audio sul pedale
-  restano da provare: `build/hyperrig-mini-audio-v2/` è una candidata per il primo avvio.
+  restano da provare. L'immagine installata da `build/hyperrig-mini-audio-v2/` ha SHA-256
+  `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`.
 - Recupero tramite tre footswitch e reset verso ROM verificati in RAM; la guardia
   integrata deve ancora essere eseguita all'accensione. Ricezione, lettura NOR e
   restituzione della pagina dell'installatore verificate sul MINI con tutte le
-  scritture disabilitate. I primi erase/program reali sono stati verificati;
-  quattro sessioni si sono fermate per Win31 durante una lettura USB successiva.
-  Sono verificati 72 settori completi e dieci pagine del settore seguente;
-  le sei pagine successive sono cancellate e tutti gli altri byte sono identici
-  al backup. La quarta sessione ha recuperato otto interruzioni di lettura
-  prima di raggiungere il limite previsto. La sospensione del polling automatico
-  di Windows non ha eliminato gli errori; l'apertura USB senza ripetere le query
-  del disco è in preparazione. Rimangono 54 settori da completare.
-  Non è stato tentato l'avvio dell'applicazione parziale.
+  scritture disabilitate. Otto sessioni di installazione si sono fermate per
+  Win31: cinque durante letture/stato, una durante la restituzione della pagina
+  RAM, una sulla risposta a PROGRAM e una sulla verifica finale di settore
+  FINISH. Per il PROGRAM fallito, audit invariato e
+  rilettura completa confermano che il comando non aveva programmato la pagina.
+  Il nono tentativo ha completato i 16 settori residui, scrivendo il settore
+  dell'header e la sua prima pagina per ultimi. Sono verificati **tutti i 126
+  settori dell'applicazione** e la NOR completa da 1 MiB; SHA-256 del dump finale
+  `a35868ab3a4beb42454070ce46d67efaf695615a670de177343860e88d107c47`.
+  La [verifica indipendente](research/mini-final-install-independent.json)
+  controlla anche ordine delle scritture, contatori, log e regioni preservate.
+  Quattro errori di lettura/stato/echo RAM sono stati recuperati con controlli
+  dello stato; nessuna mutazione NOR è stata ripetuta in questa sessione.
+  La causa degli errori Windows non è dimostrata. Il completamento della
+  scrittura non prova l'avvio o il funzionamento dell'applicazione.
 
-I sorgenti C originali del DSP UltraRig **non sono stati trovati**: il repository,
+Il progetto sorgente C originale del firmware UltraRig **non è stato recuperato**: il repository,
 la sua cronologia e i fork pubblici controllati non li contengono. La
 decompilazione non recupera nomi, commenti, tipi e struttura del progetto
 originale. Il dettaglio delle ricerche è in [source-audit.json](research/source-audit.json).
+Gli originali conservano autore, avvisi e licenze; il nome HyperRig identifica
+le copie derivate e il lavoro di adattamento, non la paternità del codice originale.
 
 ## Dove leggere
 
@@ -193,7 +210,7 @@ recuperati. Nessun repository remoto è stato creato.
 
 ## Collegamento del MINI
 
-L'esemplare online ha risposto `TANK MINI_009` tramite il servizio BLE proprietario
+Prima dell'installazione, l'esemplare ha risposto `TANK MINI_009` tramite il servizio BLE proprietario
 AE40, caratteristiche AE41/AE42. La prova è registrata in
 [hardware-observation.json](research/hardware-observation.json). La CLI qui sotto
 usa RtMidi: su questo Windows il pedale Bluetooth non compare fra le sue porte.
@@ -203,7 +220,9 @@ e acquisito i 1.942 byte dei preset, con due letture identiche e struttura valid
 Il backup locale è in `artifacts/my-mini-presets/ble-20261115/`; hash e limiti
 sono registrati nell'osservazione hardware. Non è un backup completo della flash.
 
-Per un collegamento USB-MIDI, elencare le porte e scegliere gli indici corretti:
+Le istruzioni USB-MIDI seguenti riguardano il firmware stock in esecuzione;
+non si applicano allo stato ROM né al protocollo dell'applicazione HyperRig.
+Elencare le porte e scegliere gli indici corretti:
 
 ```powershell
 python -m venv .venv
@@ -242,11 +261,11 @@ nuovo. Il comando segnala eventuale clipping. Per il confronto automatico con
 il JavaScript originale serve Node.js; i test indicano esplicitamente gli skip
 quando mancano Node o gli artefatti.
 
-Validazione locale: **54 test superati, nessuno saltato**, più **7.509 confronti
-nativi**, 112 controlli del layout A2L, 4.905 input non validi rifiutati e
+Le verifiche DSP documentate comprendono **7.509 confronti nativi**,
+112 controlli del layout A2L, 4.905 input non validi rifiutati e
 6.942 casi con buffer di dimensione esatta e 400 blocchi del motore sotto
 ASan/UBSan. Due flussi da 7.001 campioni verificano reset e continuità tra blocchi.
 Comprendono CRC e
 hash dei campioni, vettori MIDI catturati, trasporto simulato, casi DSP con
 risultato analitico e confronto delle 49 misure di calibrazione su tre segnali.
-Le prove audio e di avvio del nuovo codice sul pedale restano da eseguire.
+Le prove audio e di avvio dell'applicazione completa sul pedale restano da eseguire.

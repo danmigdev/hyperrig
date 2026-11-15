@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "finite-writer-budget-v6",
+  "protocol": "HYW1",
+  "offline_only": true,
+  "device_access_performed": false,
+  "hardware_executed": false,
+  "API": {
+    "module": "tools.recover_mini_read_v6",
+    "class": "BoundedCommandRecoveryTransport",
+    "parent": "tools.recover_mini_read_v5.FinishCommandRecoveryTransport",
+    "default_max_recoveries": 32,
+    "accepted_type": "type(value) is int",
+    "accepted_range": [
+      1,
+      32
+    ],
+    "parent_initialization_bound": "min(max_recoveries,8)",
+    "changed_methods": [
+      "__init__",
+      "summary"
+    ]
+  },
+  "policy": {
+    "version": 6,
+    "max_writer_recoveries": 32,
+    "scope": "one writer session; shared across all inherited v5 command families and all installation phases",
+    "command_witness_policy_version": 5,
+    "command_witness_policy_unchanged_from_v5": true,
+    "new_recoverable_opcodes": [],
+    "same_witness_once": true,
+    "nested_recovery": false,
+    "executed_or_ambiguous_command_replay": false,
+    "real_ACK_and_core_postchecks_required": true,
+    "separate_NOR_reader_max": 8,
+    "frozen_v5_max": 8,
+    "global_mutation": false,
+    "firmware_changed": false
+  },
+  "reason": {
+    "completed_physical_v5_run": {
+      "path": "analysis/hardware/mini-complete-install-run.json",
+      "sha256": "53ba43c881e1bd812dbe1c922214693573171a98213fd1653f73218a0b20c188"
+    },
+    "v5_recovery_attempts": 8,
+    "v5_read_reissues": 2,
+    "v5_query_reissues": 1,
+    "v5_audit_reconciliations": 5,
+    "v5_failed": true,
+    "v5_mutation_completion_unknown": false,
+    "interpretation": "A finite session budget was exhausted across independent operations; command-level evidence is not relaxed. This prior physical run is not a v6 hardware test."
+  },
+  "tests": {
+    "commands": [
+      "python -B -X utf8 -m unittest tests.test_mini_read_recovery_v6",
+      "python -B -X utf8 -m unittest tests.test_mini_final_install_runner"
+    ],
+    "v6_total": 66,
+    "v5_cases_reapplied": 59,
+    "runner_total": 13,
+    "total": 79,
+    "passed": true,
+    "distinct_recoveries_successful": 32,
+    "phase_distribution": {
+      "preimage": 12,
+      "installation": 10,
+      "final_application_read": 10
+    },
+    "failure33_stops_before_reopen": true,
+    "same_witness_and_nested_errors_stop_at_budget32": true,
+    "executed_PP_and_FINISH_not_replayed_at_budget32": true,
+    "NOR_reader_and_v5_bounds_unchanged": true,
+    "fake_NOR_and_handles_only": true
+  },
+  "independent_review": {
+    "reviewer": "mini_boot",
+    "source_sha256": "1373ee555a0001ce4797403cf825e564fce845f2d4ade2519002e00c8f640468",
+    "test_sha256": "2606ebfd6fe79bcdf84c170e48d51aaeec313e0dd8f07a4d58ed9a0b3f3d97af",
+    "tests_rerun": 66,
+    "passed": true,
+    "blockers_found": false,
+    "source_and_test_unchanged": true
+  },
+  "limits": [
+    "No device access or target payload change in v6",
+    "Raising a finite session bound does not relax any per-command witness or permit nested retry",
+    "V5 assumptions about serialized commands and observed target state remain unchanged",
+    "No conclusion about Win32 31 cause or a guarantee that32 recoveries suffice",
+    "No flash completion, boot or audio qualification"
+  ],
+  "source_sha256": {
+    "tools/recover_mini_read_v6.py": "1373ee555a0001ce4797403cf825e564fce845f2d4ade2519002e00c8f640468",
+    "tests/test_mini_read_recovery_v6.py": "2606ebfd6fe79bcdf84c170e48d51aaeec313e0dd8f07a4d58ed9a0b3f3d97af",
+    "tools/recover_mini_read_v5.py": "a30124eec15d378e3009536ec33eba8877c906b11ca542a166b5e7eeffa75d8f",
+    "tools/recover_mini_read_v4.py": "63816045683c0728e746f2f54a9cb46a82da1fba1397f008c74da28774a888e1",
+    "tools/recover_mini_read_v3.py": "17d1e69602d6735a16f930a797e92e1c6f022bb3633dc544b974058cfc23a323",
+    "tools/recover_mini_read_v2.py": "43143f57a1da597d472ad6add3afd88882a11af38c2250901e493ad39bdcf6d1",
+    "tools/install_mini_app.py": "4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f",
+    "tools/mini_nor_read_recovery.py": "5366657062f7c8fb564c065c2e8787377116105a65ca172387c7e0c26ce93b46",
+    "firmware/mini/app_writer/writer.c": "f43e42b4d0aec8b354ac7f02a1067b22d3e978bd81d4412a9471f01e18086de2",
+    "tests/test_mini_final_install_runner.py": "a419a33fbf55e97ea95e2aca04ab8ca0d185c8f8e2d2ba2a44b17de9a314dd89",
+    "docs/MINI_READ_RECOVERY_V6.md": "9f49493ca4c54fd33bda8d17e62c9509291f107776d58f7c207171ad22315e80"
+  }
+}

@@ -1,13 +1,18 @@
 # Port integrale UltraRig G → HyperRig MINI
 
-La candidata conserva **l'intera applicazione UltraRig G v2 M5.71**: 485.772
-byte, inclusi motore audio, OS, USB, BLE, gestione preset e driver originali.
+La candidata di base conserva il codice dell'**intera applicazione UltraRig G
+v2 M5.71**: 485.772 byte, inclusi motore audio, OS, USB, BLE, gestione preset
+e driver originali. La conservazione dei componenti binari non dimostra che
+ciascuna funzione operi correttamente sull'hardware MINI.
 Non incorpora l'applicazione stock MINI. Il pacchetto stock e il backup della
 singola unità servono a ricostruire hardware, avvio e partizioni.
 
-Il risultato attuale è una candidata **offline incompleta per l'hardware**,
-non un firmware installabile o già avviato. Non è stato eseguito alcun
-accesso al pedale da questo audit.
+Questo documento descrive il formatter di base e il suo artefatto **offline
+incompleto per l'hardware**, identificato dall'hash riportato sotto. Il formatter
+non installa né avvia il firmware e questo audit non accede al pedale.
+La candidata integrata successiva, con gli adattamenti della scheda, e le prove
+fisiche hanno artefatti e report separati: vedere
+[build integrata](MINI_INTEGRATED_PORT.md) e [stato del progetto](../README.md).
 
 ```powershell
 python -X utf8 tools/audit_mini_ultrarig_port.py
@@ -219,7 +224,12 @@ Una sostituzione solo in memoria del backup dimostra inoltre che bootloader
 e ogni byte da `0x82000` in poi rimangono identici; quel dump candidato
 completo non viene scritto su file.
 
-## Passi residui verso il prodotto
+## Passi successivi al formatter di base
+
+Questi punti descrivono il lavoro richiesto oltre all'artefatto di base di
+questo documento. Lo stato aggiornato delle integrazioni e delle prove fisiche
+è riportato nel README e nei report specifici, senza promuovere retroattivamente
+la validità hardware di questo formatter.
 
 1. Integrare sequenza codec/pin/mute MINI nel firmware G completo, poi
    mappare comandi fisici e LED; usare l'audit board separato come evidenza.
@@ -231,5 +241,7 @@ completo non viene scritto su file.
 
 Ricostruire tutto in C rimane un percorso più ampio: le fonti pubbliche
 UltraRig distribuiscono binari; il C decompilato locale è parziale e non è
-un sorgente completo ricompilabile. Il port binario conserva subito tutte
-le funzioni originali, ma richiede prove puntuali per ciascun cambio board.
+un sorgente completo ricompilabile. Il port binario conserva i componenti
+originali senza ricostruirli tutti in C; la loro presenza non equivale alla
+verifica delle funzioni sul MINI. Gli adattamenti hardware, i comandi fisici,
+l'audio e le operazioni dell'app richiedono prove proprie.

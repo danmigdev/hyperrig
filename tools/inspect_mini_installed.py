@@ -29,7 +29,7 @@ REGIONS = ((0, 0x4000, 'SPL and boot configuration'),
            (0xFF000, 0x100000, 'key_mac'))
 STATEFUL = {0xFC7A, 0xFB7C, 0xFD87, 0xFC7B, 0xFC7D, 0xFC80}
 MUTATIONS = {0xFC7B, 0xFC7D}
-WRITER_RECOVERABLE = {0xFD7F, 0xFC7E, 0xFD88, 0xFD87, *MUTATIONS}
+WRITER_RECOVERABLE = {0xFD7F, 0xFC7E, 0xFD88, 0xFD87, *MUTATIONS, 0xFC80}
 NOR_READ_STAGES = {'full_after', 'full-read-recovery-reopen'}
 
 
@@ -99,13 +99,14 @@ def expected_stateful_commands(preimage, candidate, order):
 
 
 def recovery_groups(recovery):
-    """Keep mixed v2/v3/v4 records in their durable, original order."""
+    """Keep mixed v2/v3/v4/v5 records in their durable, original order."""
     groups = []
     for item in recovery['events']:
         event = item['event']
         require(not event.endswith(('_terminal', '_not_permitted')),
                 'successful run contains a terminal recovery event')
-        if event in ('readonly_recovery_begin', 'unexecuted_mutation_recovery_begin'):
+        if event in ('readonly_recovery_begin', 'unexecuted_mutation_recovery_begin',
+                     'unexecuted_finish_recovery_begin'):
             groups.append([])
         require(groups, 'recovery event precedes its begin witness')
         groups[-1].append(item)
@@ -118,8 +119,9 @@ def validate_v4_policy(recovery):
     require(recovery is not None and recovery.get('v4_source_pinned') is True
             and recovery.get('v3_source_pinned') is True, 'v4 and inherited v3 source pins required')
     summary, policy = recovery['summary'], recovery['policy']
-    require(summary.get('version') == 4 and summary.get('failed') is False
-            and 0 <= summary['recovery_attempts'] <= summary['max_recoveries'] <= 8
+    require(summary.get('version') in (4, 5, 6) and summary.get('failed') is False
+            and type(summary['max_recoveries']) is int
+            and 0 <= summary['recovery_attempts'] <= summary['max_recoveries'] <= (32 if summary['version'] == 6 else 8)
             and summary.get('completed_NOR_mutations_repeated') == 0
             and summary.get('mutation_retries_allowed') is True
             and summary.get('executed_or_ambiguous_mutation_retry') is False
@@ -134,6 +136,19 @@ def validate_v4_policy(recovery):
             and policy.get('jump_or_reset_retries_allowed') is False
             and policy.get('backend_fallback_allowed') is False,
             'v4 mutation recovery policy is not the reviewed nonexecution policy')
+    if summary['version'] >= 5:
+        require(recovery.get('v5_source_pinned') is True
+                and policy.get('FINISH_reissue_requires_exact_prior_audit_and_complete_candidate_sector') is True
+                and summary.get('completed_FINISH_requests_repeated') == 0
+                and summary.get('executed_or_ambiguous_FINISH_retry') is False
+                and summary.get('synthetic_FINISH_ACK') is False,
+                'v5 FINISH source and exact nonexecution policy required')
+    if summary['version'] == 6:
+        require(recovery.get('v6_source_pinned') is True
+                and summary.get('command_witness_policy_unchanged_from_v5') is True
+                and policy.get('command_witness_policy_unchanged_from_v5') is True
+                and policy.get('max_reopens') == summary['max_recoveries'],
+                'v6 bounded session limit lacks its pinned unchanged command policy')
     return recovery_groups(recovery)
 
 
@@ -149,17 +164,17 @@ def inspect_echo_recoveries(journal, trace, candidate, recovery):
             'FD87 errors require pinned v3 recovery evidence')
     summary, policy, events = recovery['summary'], recovery['policy'], recovery['events']
     version = summary.get('version')
-    require(version in (3, 4) and not summary['failed']
+    require(version in (3, 4, 5, 6) and not summary['failed']
             and summary['echo_reissues'] == len(faults)
-            and 1 <= summary['recovery_attempts'] <= summary['max_recoveries'] <= 8,
+            and 1 <= summary['recovery_attempts'] <= summary['max_recoveries'] <= (32 if version == 6 else 8),
             'v3 echo recovery version/count/budget differs')
     require(policy['enabled'] and policy['only_Windows_error'] == 31
             and policy['FD87_requires_same_staged_page_and_exact_audit_except_echoed_and_record_CRC']
             and policy['FD87_reissue_requires_exact_candidate_page_bytes']
-            and policy['mutation_retries_allowed'] is (version == 4) and not policy['OUT_retries_allowed']
+            and policy['mutation_retries_allowed'] is (version >= 4) and not policy['OUT_retries_allowed']
             and not policy['jump_or_reset_retries_allowed'] and not policy['backend_fallback_allowed'],
             'v3 recovery policy is not the reviewed bounded RAM-echo policy')
-    groups = validate_v4_policy(recovery) if version == 4 else recovery_groups(recovery)
+    groups = validate_v4_policy(recovery) if version >= 4 else recovery_groups(recovery)
     echoes = [group for group in groups if group[0]['cdb'].startswith('fd87')]
     require(len(echoes) == len(faults), 'FD87 errors and recovery witnesses differ')
     names = ['begin', 'close_intent', 'reopen_intent', 'identity_intent', 'identity_reply',
@@ -252,7 +267,7 @@ def inspect_mutation_recoveries(journal, trace, candidate, recovery):
     """
     faults = [index for index, row in enumerate(trace) if row['state'] == 'error'
               and int(row['cdb'][:4], 16) in MUTATIONS]
-    if not faults and (recovery is None or recovery['summary'].get('version') != 4):
+    if not faults and (recovery is None or recovery['summary'].get('version') not in (4, 5, 6)):
         return []
     groups = validate_v4_policy(recovery)
     summary = recovery['summary']
@@ -380,6 +395,121 @@ def inspect_mutation_recoveries(journal, trace, candidate, recovery):
                         'postmutation_audit_sha256': sha(post_raw), 'WREN_delta': 1,
                         'erase_delta': int(op == 0xFC7B), 'program_delta': int(op == 0xFC7D),
                         'synthetic_ACK': False, 'executed_mutation_repeated': False})
+    return results
+
+
+def inspect_finish_recoveries(journal, trace, candidate, recovery):
+    """Verify one real FINISH after an unchanged complete-sector audit."""
+    faults = [i for i, row in enumerate(trace) if row['state'] == 'error' and row['cdb'].startswith('fc80')]
+    if recovery is None or recovery['summary'].get('version') not in (5, 6):
+        require(not faults, 'FINISH error requires v5 evidence')
+        return []
+    groups = validate_v4_policy(recovery)
+    finishes = [g for g in groups if g[0]['event'] == 'unexecuted_finish_recovery_begin']
+    require(len(finishes) == len(faults) == recovery['summary']['finish_request_reissues'],
+            'FINISH faults/witnesses/reissues differ')
+    names = ['unexecuted_finish_recovery_' + name for name in ('begin', 'close_intent', 'reopen_intent')]
+    names += ['readonly_recovery_identity_intent', 'readonly_recovery_identity_reply']
+    names += ['unexecuted_finish_recovery_' + name for name in ('audit_intent', 'audit_reply', 'reissue_intent', 'reissue_reply')]
+    identity_raw = b'\xfc\x78HYW1\1\1' + struct.pack('>II', recovery['slot'], 32768)
+    results, keys = [], set()
+    for fault_index, group in zip(faults, finishes):
+        require([x['event'] for x in group] == names, 'FINISH recovery event order differs')
+        begin, identity, fresh_event, reissue, reply = (group[i] for i in (0, 4, 6, 7, 8))
+        cdb = bytes.fromhex(trace[fault_index]['cdb'])
+        require(len(cdb) == 16 and cdb[:2] == b'\xfc\x80' and cdb[14:] == b'\xff\xff',
+                'FINISH CDB framing differs')
+        token, sequence, sector = struct.unpack_from('>III', cdb, 2)
+        require(sector in range(APP_START, APP_END, 4096), 'FINISH sector out of bounds')
+        target = candidate[sector-APP_START:sector-APP_START+4096]
+        page_address = page_order(sector)[-1]
+        page = candidate[page_address-APP_START:page_address-APP_START+256]
+        prior_raw, fresh_raw = bytes.fromhex(begin['prior_audit_hex']), bytes.fromhex(fresh_event['raw_hex'])
+        old = validate_audit_record(prior_raw, base=recovery['slot'], build_tag=recovery['build_tag'],
+                                    expected_mutations_enabled=True)
+        expected = begin['expected_state']
+        require(fresh_raw == prior_raw and fresh_event['sha256'] == sha(prior_raw),
+                'FINISH fresh audit changed; reissue was forbidden')
+        require(old['error'] == 0 and old['phase'] == 3 and old['page_bitmap'] == 65535
+                and old['staged'] == old['echoed'] == 0 and old['raw_receive_return'] == 260
+                and old['rx_guards_ok'] == old['stack_guards_ok'] == 1 and old['stack_observed_bytes'] > 0
+                and old['jedec'] == 0xEB6014 and not old['sr1'] & 0x7F and not old['sr2'] & 0x40
+                and old['sequence'] == 34 and sequence == expected['sequence'] == 35
+                and old['token'] == token and token > 0 and old['sector'] == sector and old['page'] == page_address
+                and old['target_crc32'] == crc(target) and old['page_crc32'] == old['last_crc32'] == crc(page)
+                and all(old.get(name) == value for name, value in expected.items() if name != 'sequence'),
+                'FINISH prior audit is not a complete candidate sector before sequence35')
+        material = json.dumps({'opcode': 0xFC80, 'cdb': cdb.hex(), 'length': 16,
+                               'expected': expected, 'prior_record': prior_raw.hex()},
+                              sort_keys=True, separators=(',', ':')).encode()
+        require(begin['witness_sha256'] == sha(material) and begin['witness_sha256'] not in keys,
+                'FINISH witness hash differs or repeats')
+        keys.add(begin['witness_sha256'])
+        require(begin['cdb'] == reissue['cdb'] == cdb.hex() and begin['read_length'] == reissue['read_length'] == 16
+                and begin['win32_error'] == 31 and begin['any_audit_change_forbids_reissue'] is True
+                and begin['synthetic_ACK'] is reissue['synthetic_ACK'] is reply['synthetic_ACK'] is False
+                and begin['NOR_mutation'] is False and reissue['no_WREN_erase_program'] is True
+                and begin['candidate_sector_sha256'] == reissue['candidate_sector_sha256'] == sha(target)
+                and begin['candidate_last_page_sha256'] == sha(page)
+                and reissue['raw_audit_identical'] is True and reissue['sequence_unconsumed'] is True
+                and (reissue['sequence_before'], reissue['requested_sequence']) == (34, 35)
+                and bytes.fromhex(identity['raw_hex']) == identity_raw
+                and reply['subsequent_installer_status_audit_and_sector_readback_required'] is True,
+                'FINISH nonexecution/identity/sector evidence differs')
+        ack = b'\xfc\x80\0\5' + struct.pack('>III', 0, 35, crc(target))
+        require(bytes.fromhex(reply['raw_hex']) == ack and reply['sha256'] == sha(ack),
+                'FINISH recovery did not receive the correct real ACK')
+        require(fault_index >= 2 and trace[fault_index-2]['state'] == 'after'
+                and trace[fault_index-2]['cdb'] == 'fd88'+'ff'*14
+                and bytes.fromhex(trace[fault_index-2]['response_hex']) == prior_raw,
+                'FINISH lacks immediately preceding target audit')
+        following = trace[fault_index+1:fault_index+7]
+        require(len(following) == 6 and [x['state'] for x in following] == ['before', 'after']*3
+                and [x['cdb'] for x in following[::2]] == ['fc78'+'ff'*14, 'fd88'+'ff'*14, cdb.hex()]
+                and bytes.fromhex(following[1]['response_hex']) == identity_raw
+                and bytes.fromhex(following[3]['response_hex']) == prior_raw
+                and bytes.fromhex(following[5]['response_hex']) == ack
+                and following[5]['response_bytes'] == 16 and following[5]['response_sha256'] == sha(ack),
+                'FINISH transport proof is not identity/audit/one actual reissue')
+        intents = [i for i, x in enumerate(journal) if x['event'] == 'command_intent' and x['cdb_hex'] == cdb.hex()]
+        require(len(intents) == 1, 'FINISH command intent repeated')
+        index = intents[0]
+        earlier = journal[:index]
+        audits = [x for x in earlier if x['event'] == 'audit_raw']
+        pages = [x for x in earlier if x['event'] == 'page_program_verified' and sector <= x['address'] < sector+4096]
+        require(audits and bytes.fromhex(audits[-1]['record_hex']) == prior_raw
+                and [x['address'] for x in pages] == page_order(sector)
+                and all(x['sha256'] == sha(candidate[x['address']-APP_START:x['address']-APP_START+256]) for x in pages),
+                'FINISH lacks all sixteen candidate page readbacks before its intent')
+        require(journal[index+1]['event'] == 'command_reply' and journal[index+1]['opcode'] == 'fc80'
+                and journal[index+1]['bytes'] == 16 and journal[index+1]['sha256'] == sha(ack),
+                'installer FINISH reply differs from real target ACK')
+        later = journal[index+2:]
+        first_audit = next((i for i, x in enumerate(later) if x['event'] == 'audit_raw'), None)
+        require(first_audit is not None and all(int(x.get('opcode', '0'), 16) not in STATEFUL for x in later[:first_audit]),
+                'next stateful command preceded FINISH audit')
+        post_event = later[first_audit]; post_raw = bytes.fromhex(post_event['record_hex'])
+        require(post_event['sha256'] == sha(post_raw), 'post-FINISH audit hash differs')
+        post = validate_audit_record(post_raw, base=recovery['slot'], build_tag=recovery['build_tag'], expected_mutations_enabled=True)
+        changes = {'phase': 5, 'token': 0, 'sequence': 35, 'last_crc32': crc(target), 'read_bytes': old['read_bytes']+4096}
+        for name, value in old.items():
+            if name not in ('sr1', 'sr2', 'stack_observed_bytes', 'record_sha256'):
+                require(post[name] == changes.get(name, value), 'post-FINISH audit differs: '+name)
+        require(not post['sr1'] & 0x7F and not post['sr2'] & 0x40 and post['stack_observed_bytes'] > 0,
+                'post-FINISH status/stack invalid')
+        wire = trace[fault_index+7:]
+        boundary = next((i for i, x in enumerate(wire) if int(x['cdb'][:4], 16) in STATEFUL), len(wire))
+        require(any(x['state'] == 'after' and x['cdb'] == 'fd88'+'ff'*14
+                    and bytes.fromhex(x['response_hex']) == post_raw for x in wire[:boundary]),
+                'post-FINISH audit was not received from target')
+        require(later[first_audit+1]['event'] == 'audit_verified'
+                and (later[first_audit+1]['wren'], later[first_audit+1]['erase'], later[first_audit+1]['program'])
+                    == (old['wren_attempts'], old['erase_attempts'], old['program_attempts']),
+                'original core did not confirm unchanged mutation counters after FINISH')
+        results.append({'sector': sector, 'sequence_before': 34, 'sequence_after': 35,
+                        'prior_and_fresh_audit_sha256': sha(prior_raw), 'actual_ACK_sha256': sha(ack),
+                        'postfinish_audit_sha256': sha(post_raw), 'WREN_delta': 0, 'erase_delta': 0,
+                        'program_delta': 0, 'synthetic_ACK': False, 'executed_FINISH_repeated': False})
     return results
 
 
@@ -572,7 +702,8 @@ def inspect_history(journal, trace, preimage, candidate, order, *, recovery=None
         op = int(before['cdb'][:4], 16)
         if after['state'] == 'error':
             require((op in (0xFD7F, 0xFC7E, 0xFD88, 0xFD87) or
-                     op in MUTATIONS and recovery is not None and recovery['summary'].get('version') == 4 or
+                     op in MUTATIONS and recovery is not None and recovery['summary'].get('version') in (4, 5, 6) or
+                     op == 0xFC80 and recovery is not None and recovery['summary'].get('version') in (5, 6) or
                      op in (0xFD71, 0xFC73) and before['stage'] in NOR_READ_STAGES and nor_proof is not None)
                     and after['native_transfer']['win32_error'] == 31,
                     'trace contains a mutation/OUT/jump failure or unreviewed error')
@@ -590,16 +721,19 @@ def inspect_history(journal, trace, preimage, candidate, order, *, recovery=None
     require(APP_START not in order or pages[-1] == APP_START, 'header page was not programmed last')
     echo_proofs = inspect_echo_recoveries(journal, trace, candidate, recovery)
     mutation_proofs = inspect_mutation_recoveries(journal, trace, candidate, recovery)
+    finish_proofs = inspect_finish_recoveries(journal, trace, candidate, recovery)
     return {'erase_commands': len(order), 'program_commands': len(pages),
             'expected_WREN_count': len(order) + len(pages), 'program_order': pages,
             'header_sector_last': APP_START not in order or order[-1] == APP_START,
             'header_page_last': APP_START not in order or pages[-1] == APP_START,
-            'read_query_errors': sum(int(x['cdb'][:4], 16) in WRITER_RECOVERABLE-MUTATIONS for x in errors),
+            'read_query_errors': sum(int(x['cdb'][:4], 16) in WRITER_RECOVERABLE-MUTATIONS-{0xFC80} for x in errors),
+            'finish_request_errors': sum(x['cdb'].startswith('fc80') for x in errors),
             'NOR_read_errors': sum(int(x['cdb'][:4], 16) in (0xFD71, 0xFC73) for x in errors),
             'mutation_request_errors': sum(int(x['cdb'][:4], 16) in MUTATIONS for x in errors),
             'stateful_transport_commands': len(observed),
             'verified_RAM_echo_recoveries': echo_proofs,
             'verified_unexecuted_mutation_recoveries': mutation_proofs,
+            'verified_unexecuted_finish_recoveries': finish_proofs,
             'final_NOR_read': nor_proof,
             'automatic_mutation_retries_observed': bool(mutation_proofs),
             'mutation_reissue_scope': 'byte-identical prior raw target audit; one real ACK and one core-validated mutation',
@@ -634,12 +768,14 @@ def inspect_bundle(run_path):
     trace = [json.loads(x) for x in trace_path.read_text().splitlines()]
     recovery_path = Path(prefix + '-read-recovery.jsonl')
     recovery = None
-    if run.get('read_recovery_final', {}).get('version') in (3, 4):
+    if run.get('read_recovery_final', {}).get('version') in (3, 4, 5, 6):
         recovery = {'summary': run['read_recovery_final'], 'policy': run['read_recovery_policy'],
                     'events': [json.loads(x) for x in recovery_path.read_text().splitlines()] if recovery_path.exists() else [],
                     'slot': run['installation']['slot'], 'build_tag': run['installation']['build_tag'],
                     'v3_source_pinned': 'tools/recover_mini_read_v3.py' in run['source_pins'],
-                    'v4_source_pinned': 'tools/recover_mini_read_v4.py' in run['source_pins']}
+                    'v4_source_pinned': 'tools/recover_mini_read_v4.py' in run['source_pins'],
+                    'v5_source_pinned': 'tools/recover_mini_read_v5.py' in run['source_pins'],
+                    'v6_source_pinned': 'tools/recover_mini_read_v6.py' in run['source_pins']}
     nor_recovery_path = Path(prefix + '-nor-read-recovery.jsonl')
     nor_recovery = None
     if 'full_after_read_recovery' in run:

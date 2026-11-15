@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "audited-FINISH-recovery-v5",
+  "protocol": "HYW1",
+  "offline_only": true,
+  "device_access_performed": false,
+  "hardware_executed": false,
+  "API": {
+    "module": "tools.recover_mini_read_v5",
+    "class": "FinishCommandRecoveryTransport",
+    "constructor": "transport, log, reopen_factory, max_recoveries=8",
+    "bind": "bind_session(frozen MiniAppInstallerSession)",
+    "new_counter": "finish_request_reissues"
+  },
+  "policy": {
+    "new_opcodes": [
+      "FC80"
+    ],
+    "submitted_Windows_error": 31,
+    "same_CDB_reissue_once": true,
+    "sequence_before": 34,
+    "sequence_requested": 35,
+    "phase_before": 3,
+    "bitmap_before": 65535,
+    "staged_before": 0,
+    "echoed_before": 0,
+    "requires_no_unknown_NOR_mutation": true,
+    "requires_current_planned_sector": true,
+    "requires_verified_last_page_echo_and_readback": true,
+    "requires_validated_immediately_previous_FD88": true,
+    "expected_host_change_before_ACK": "sequence only,34 to35",
+    "fresh_FC78_then_FD88_exact128_bytes": true,
+    "no_stack_watermark_allowance_before_reissue": true,
+    "real_ACK_only": true,
+    "ACK_phase": 5,
+    "ACK_token": 0,
+    "ACK_sequence": 35,
+    "ACK_crc": "known candidate sector CRC",
+    "usual_core_status_audit_and_sector_readback_required": true,
+    "nested_recovery": false,
+    "completed_FINISH_requests_repeated": 0,
+    "synthetic_FINISH_ACK": false,
+    "total_recovery_budget_shared_with_v4": 8,
+    "OUT_ARM_jump_reset_retry": false,
+    "prior_versions_unchanged": true
+  },
+  "frozen_C_semantics": {
+    "sequence_consumed_before_run_job": true,
+    "sequence_store_A": "0x01C2097C",
+    "run_job_call_A": "0x01C20980",
+    "FINISH_NOR_reads": 4096,
+    "FINISH_NOR_WREN_erase_program": false,
+    "FINISH_poll_counter_delta": 0,
+    "success_changes": {
+      "phase": 5,
+      "token": 0,
+      "erased": 0,
+      "last_crc": "candidate sector CRC"
+    },
+    "consumed_failed_or_completed_FINISH_changes_audit": true,
+    "target_payload_unchanged": true
+  },
+  "tests": {
+    "python_commands": [
+      "python -B -X utf8 -m unittest tests.test_mini_read_recovery_v5",
+      "python -B -X utf8 -m unittest tests.test_mini_complete_install_runner"
+    ],
+    "v5_total": 59,
+    "v4_cases_reapplied": 47,
+    "runner_total": 13,
+    "python_total": 72,
+    "python_passed": true,
+    "native_C_cases": 7,
+    "native_C_passed": true,
+    "ASan": true,
+    "UBSan": true,
+    "fake_NOR_only": true,
+    "native_harness_source": "tests/test_mini_read_recovery_v5.py:NATIVE_FINISH_HARNESS",
+    "generated_harness_sha256": "4232de3943e9ea769622e8e1a3363e4e95555e40772002975191304db13f3d20",
+    "native_binary_sha256": "222510ad7dc5f04445d7aacb91dce8c1f390456e9be6e0d9a99cfc0c551ee8d3"
+  },
+  "independent_review": {
+    "reviewer": "mini_image",
+    "source_sha256": "a30124eec15d378e3009536ec33eba8877c906b11ca542a166b5e7eeffa75d8f",
+    "test_sha256": "dc369ad55f7b665425a76f06ca1f7289891de379e0a5a5d874134fdec9f36bed",
+    "tests_rerun": 59,
+    "passed": true,
+    "blockers_found": false,
+    "source_and_test_unchanged": true,
+    "additional_readers": [
+      "root",
+      "mini_boot"
+    ]
+  },
+  "limits": [
+    "No device access or target payload changes in this revision",
+    "Exact audit equality is evidence of writer state at observation, under serialized host requests and the same pinned writer",
+    "No claim about Win32 31 cause or Windows queued transport operations",
+    "Executed or ambiguous FINISH cannot be retried or represented by synthetic ACK",
+    "No firmware boot or audio qualification"
+  ],
+  "source_sha256": {
+    "tools/recover_mini_read_v5.py": "a30124eec15d378e3009536ec33eba8877c906b11ca542a166b5e7eeffa75d8f",
+    "tests/test_mini_read_recovery_v5.py": "dc369ad55f7b665425a76f06ca1f7289891de379e0a5a5d874134fdec9f36bed",
+    "tools/recover_mini_read_v4.py": "63816045683c0728e746f2f54a9cb46a82da1fba1397f008c74da28774a888e1",
+    "tools/recover_mini_read_v3.py": "17d1e69602d6735a16f930a797e92e1c6f022bb3633dc544b974058cfc23a323",
+    "tools/recover_mini_read_v2.py": "43143f57a1da597d472ad6add3afd88882a11af38c2250901e493ad39bdcf6d1",
+    "tools/install_mini_app.py": "4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f",
+    "firmware/mini/app_writer/writer.c": "f43e42b4d0aec8b354ac7f02a1067b22d3e978bd81d4412a9471f01e18086de2",
+    "build/mini-app-writer-operational/writer.c": "c115632730fd76cc877b14b58d7681242938922fea9cc1f67e5084c6c896f883",
+    "build/mini-app-writer-operational/hyperrig-writer-operational-01c20000.elf": "39880f9272d2714d73bd165258288e5a63c9de305364cf8b723e59ee639835cd",
+    "build/mini-app-writer-operational/hyperrig-writer-operational-01c20000.asm": "98e026037050f9a6ace6c2ab9f2006b91508bd37c5ebcaf3ad0a827b2d519bd9",
+    "tests/test_mini_complete_install_runner.py": "64c3ef2fcabcdeed60f9a7c444cadf7fd6ca7175302850b8d1db8811b7e5393c",
+    "docs/MINI_READ_RECOVERY_V5.md": "43e2e44df255148903ac5739672c6e8eb80b198c52657038f453ad8dbd1d1321"
+  }
+}
