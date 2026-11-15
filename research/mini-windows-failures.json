@@ -1,0 +1,858 @@
+{
+  "schema_version": 1,
+  "analysis_device_io": false,
+  "NOR_write": false,
+  "event_source": "Microsoft-Windows-Storage-ClassPnP/Operational",
+  "device_number": 4,
+  "device_guid": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+  "source_sha256": {
+    "build/mini-windows-diagnostics/stordiag-20261115.json": "92f19ce5c55a05a0300c664c85d72c32dbbe483e78f0283eb74d0e50f1af809a",
+    "build/mini-windows-diagnostics/stordiag-mcn-20261115.json": "32c79cc4fe330699668c151ef518c322fba6a80f7a57a04d97cec5636725e089",
+    "analysis/hardware/mini-mcn-probe-run.json": "ef2ef5a6df29513d8306040ebef9f62d1c06cf06d9f15da036a771e2f80c4419",
+    "analysis/hardware/mini-first-install-trace.jsonl": "7d796a78486182fa477d251a71e5d56fea91298ef2f54ce79e08bca2936764e5",
+    "analysis/hardware/mini-first-resume-trace.jsonl": "cf20002498208a07c5bc3ae71a2d4ba9797f90a927466093a922fb69641d59b3",
+    "analysis/hardware/mini-buffered-transport-trace.jsonl": "5bb14230e2fd67cfd4f41bc40a18ae784b3e9b55e205bdd59da9b7340e4a95f3",
+    "analysis/hardware/mini-buffered-install-trace.jsonl": "83ab660981869ecc254b2e13e06d09a3deea94c9297bdda2756b64ddfd336608"
+  },
+  "script_sha256": "8d80becd22a772def60805a16a6caab8d4244770ed44547c4692ef72dc88e288",
+  "runs": [
+    {
+      "trace": "analysis/hardware/mini-first-install-trace.jsonl",
+      "trace_started_utc": "2026-11-15T20:47:20.137944+00:00",
+      "trace_last_command_started_utc": "2026-11-15T20:48:44.774876+00:00",
+      "completed_commands": 7314,
+      "errors": 1,
+      "successful_opcodes": {
+        "fb06": 18,
+        "fd07": 18,
+        "fb08": 2,
+        "fc70": 1,
+        "fc72": 1,
+        "fc73": 2049,
+        "fd71": 2048,
+        "fc78": 1,
+        "fd88": 1067,
+        "fc79": 1,
+        "fd7f": 1033,
+        "fc7e": 1043,
+        "fc7a": 1,
+        "fb7c": 10,
+        "fd87": 10,
+        "fc7b": 1,
+        "fc7d": 10
+      },
+      "host_events_between_command_start_times": [
+        {
+          "event_id": 500,
+          "CdbBytes": null,
+          "DownLevelIrpStatus": null,
+          "SrbStatus": null,
+          "ScsiStatus": null,
+          "SenseKey": null,
+          "AdditionalSenseCode": null,
+          "AdditionalSenseCodeQualifier": null,
+          "count": 4
+        },
+        {
+          "event_id": 507,
+          "CdbBytes": "000000000000",
+          "DownLevelIrpStatus": "0xc0000185",
+          "SrbStatus": "196",
+          "ScsiStatus": "2",
+          "SenseKey": "2",
+          "AdditionalSenseCode": "58",
+          "AdditionalSenseCodeQualifier": "0",
+          "count": 11
+        },
+        {
+          "event_id": 507,
+          "CdbBytes": "25000000000000000000",
+          "DownLevelIrpStatus": "0xc0000013",
+          "SrbStatus": "132",
+          "ScsiStatus": "2",
+          "SenseKey": "2",
+          "AdditionalSenseCode": "58",
+          "AdditionalSenseCodeQualifier": "0",
+          "count": 1
+        },
+        {
+          "event_id": 523,
+          "CdbBytes": null,
+          "DownLevelIrpStatus": null,
+          "SrbStatus": null,
+          "ScsiStatus": null,
+          "SenseKey": null,
+          "AdditionalSenseCode": null,
+          "AdditionalSenseCodeQualifier": null,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "trace": "analysis/hardware/mini-first-resume-trace.jsonl",
+      "trace_started_utc": "2026-11-15T20:58:27.937455+00:00",
+      "trace_last_command_started_utc": "2026-11-15T21:00:05.537763+00:00",
+      "completed_commands": 3246,
+      "errors": 1,
+      "successful_opcodes": {
+        "fc70": 1,
+        "fc73": 1,
+        "fb06": 13,
+        "fd07": 13,
+        "fb08": 1,
+        "fc78": 1,
+        "fd88": 1083,
+        "fc79": 1,
+        "fd7f": 1037,
+        "fc7e": 1051,
+        "fc7a": 1,
+        "fb7c": 14,
+        "fd87": 14,
+        "fc7b": 1,
+        "fc7d": 14
+      },
+      "host_events_between_command_start_times": [
+        {
+          "event_id": 500,
+          "CdbBytes": null,
+          "DownLevelIrpStatus": null,
+          "SrbStatus": null,
+          "ScsiStatus": null,
+          "SenseKey": null,
+          "AdditionalSenseCode": null,
+          "AdditionalSenseCodeQualifier": null,
+          "count": 4
+        },
+        {
+          "event_id": 507,
+          "CdbBytes": "000000000000",
+          "DownLevelIrpStatus": "0xc0000185",
+          "SrbStatus": "196",
+          "ScsiStatus": "2",
+          "SenseKey": "2",
+          "AdditionalSenseCode": "58",
+          "AdditionalSenseCodeQualifier": "0",
+          "count": 43
+        },
+        {
+          "event_id": 507,
+          "CdbBytes": "25000000000000000000",
+          "DownLevelIrpStatus": "0xc0000013",
+          "SrbStatus": "132",
+          "ScsiStatus": "2",
+          "SenseKey": "2",
+          "AdditionalSenseCode": "58",
+          "AdditionalSenseCodeQualifier": "0",
+          "count": 1
+        },
+        {
+          "event_id": 523,
+          "CdbBytes": null,
+          "DownLevelIrpStatus": null,
+          "SrbStatus": null,
+          "ScsiStatus": null,
+          "SenseKey": null,
+          "AdditionalSenseCode": null,
+          "AdditionalSenseCodeQualifier": null,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "trace": "analysis/hardware/mini-buffered-transport-trace.jsonl",
+      "trace_started_utc": "2026-11-15T21:14:10.908405+00:00",
+      "trace_last_command_started_utc": "2026-11-15T21:15:58.260742+00:00",
+      "completed_commands": 10220,
+      "errors": 0,
+      "successful_opcodes": {
+        "fc70": 2,
+        "fc73": 2050,
+        "fb06": 17,
+        "fd07": 17,
+        "fb08": 2,
+        "fc78": 1,
+        "fd88": 2029,
+        "fc79": 1,
+        "fd7f": 2024,
+        "fc7e": 2025,
+        "fc7a": 1,
+        "fb7c": 1,
+        "fd87": 1,
+        "fc72": 1,
+        "fd71": 2048
+      },
+      "host_events_between_command_start_times": [
+        {
+          "event_id": 500,
+          "CdbBytes": null,
+          "DownLevelIrpStatus": null,
+          "SrbStatus": null,
+          "ScsiStatus": null,
+          "SenseKey": null,
+          "AdditionalSenseCode": null,
+          "AdditionalSenseCodeQualifier": null,
+          "count": 8
+        },
+        {
+          "event_id": 507,
+          "CdbBytes": "000000000000",
+          "DownLevelIrpStatus": "0xc0000185",
+          "SrbStatus": "196",
+          "ScsiStatus": "2",
+          "SenseKey": "2",
+          "AdditionalSenseCode": "58",
+          "AdditionalSenseCodeQualifier": "0",
+          "count": 4
+        },
+        {
+          "event_id": 507,
+          "CdbBytes": "25000000000000000000",
+          "DownLevelIrpStatus": "0xc0000013",
+          "SrbStatus": "132",
+          "ScsiStatus": "2",
+          "SenseKey": "2",
+          "AdditionalSenseCode": "58",
+          "AdditionalSenseCodeQualifier": "0",
+          "count": 2
+        },
+        {
+          "event_id": 523,
+          "CdbBytes": null,
+          "DownLevelIrpStatus": null,
+          "SrbStatus": null,
+          "ScsiStatus": null,
+          "SenseKey": null,
+          "AdditionalSenseCode": null,
+          "AdditionalSenseCodeQualifier": null,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "trace": "analysis/hardware/mini-buffered-install-trace.jsonl",
+      "trace_started_utc": "2026-11-15T21:27:06.232041+00:00",
+      "trace_last_command_started_utc": "2026-11-15T21:28:00.009604+00:00",
+      "completed_commands": 3531,
+      "errors": 1,
+      "successful_opcodes": {
+        "fc70": 1,
+        "fc73": 1,
+        "fb06": 13,
+        "fd07": 13,
+        "fb08": 1,
+        "fc78": 1,
+        "fd88": 1191,
+        "fc79": 1,
+        "fd7f": 1088,
+        "fc7e": 1119,
+        "fc7a": 2,
+        "fb7c": 32,
+        "fd87": 32,
+        "fc7b": 2,
+        "fc7d": 32,
+        "fc80": 2
+      },
+      "host_events_between_command_start_times": [
+        {
+          "event_id": 500,
+          "CdbBytes": null,
+          "DownLevelIrpStatus": null,
+          "SrbStatus": null,
+          "ScsiStatus": null,
+          "SenseKey": null,
+          "AdditionalSenseCode": null,
+          "AdditionalSenseCodeQualifier": null,
+          "count": 4
+        },
+        {
+          "event_id": 507,
+          "CdbBytes": "000000000000",
+          "DownLevelIrpStatus": "0xc0000185",
+          "SrbStatus": "196",
+          "ScsiStatus": "2",
+          "SenseKey": "2",
+          "AdditionalSenseCode": "58",
+          "AdditionalSenseCodeQualifier": "0",
+          "count": 61
+        },
+        {
+          "event_id": 507,
+          "CdbBytes": "25000000000000000000",
+          "DownLevelIrpStatus": "0xc0000013",
+          "SrbStatus": "132",
+          "ScsiStatus": "2",
+          "SenseKey": "2",
+          "AdditionalSenseCode": "58",
+          "AdditionalSenseCodeQualifier": "0",
+          "count": 1
+        },
+        {
+          "event_id": 523,
+          "CdbBytes": null,
+          "DownLevelIrpStatus": null,
+          "SrbStatus": null,
+          "ScsiStatus": null,
+          "SenseKey": null,
+          "AdditionalSenseCode": null,
+          "AdditionalSenseCodeQualifier": null,
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "failed_commands": [
+    {
+      "trace": "analysis/hardware/mini-first-install-trace.jsonl",
+      "cdb": "fd7f000059000100ffffffffffffffff",
+      "started_utc": "2026-11-15T20:48:44.774876+00:00",
+      "native_ioctl_duration_ms": null,
+      "reported_error": "RomCommandError(31, 'SCSI command failed; no automatic retry')",
+      "transport_details": {
+        "scsi_status": 0,
+        "data_transfer_length": 256,
+        "bytes_returned": 0,
+        "sense_info_length": 32,
+        "sense_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "nearby_TUR_within_3ms": [
+        {
+          "record_id": 22719119,
+          "time_utc": "2026-11-15T20:48:44.7738577Z",
+          "offset_ms": -1.019,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719120,
+          "time_utc": "2026-11-15T20:48:44.7743950Z",
+          "offset_ms": -0.481,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719121,
+          "time_utc": "2026-11-15T20:48:44.7748120Z",
+          "offset_ms": -0.064,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719122,
+          "time_utc": "2026-11-15T20:48:44.7753582Z",
+          "offset_ms": 0.482,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719123,
+          "time_utc": "2026-11-15T20:48:44.7757804Z",
+          "offset_ms": 0.904,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719124,
+          "time_utc": "2026-11-15T20:48:44.7763275Z",
+          "offset_ms": 1.451,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        }
+      ]
+    },
+    {
+      "trace": "analysis/hardware/mini-first-resume-trace.jsonl",
+      "cdb": "fd7f00005d000100ffffffffffffffff",
+      "started_utc": "2026-11-15T21:00:05.537763+00:00",
+      "native_ioctl_duration_ms": null,
+      "reported_error": "RomCommandError(31, 'SCSI command failed; no automatic retry')",
+      "transport_details": {
+        "scsi_status": 0,
+        "data_transfer_length": 256,
+        "bytes_returned": 0,
+        "sense_info_length": 32,
+        "sense_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "nearby_TUR_within_3ms": [
+        {
+          "record_id": 22719285,
+          "time_utc": "2026-11-15T21:00:05.5355870Z",
+          "offset_ms": -2.176,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719286,
+          "time_utc": "2026-11-15T21:00:05.5361608Z",
+          "offset_ms": -1.603,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719287,
+          "time_utc": "2026-11-15T21:00:05.5365823Z",
+          "offset_ms": -1.181,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719288,
+          "time_utc": "2026-11-15T21:00:05.5371357Z",
+          "offset_ms": -0.628,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719289,
+          "time_utc": "2026-11-15T21:00:05.5375797Z",
+          "offset_ms": -0.184,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719290,
+          "time_utc": "2026-11-15T21:00:05.5380804Z",
+          "offset_ms": 0.317,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        }
+      ]
+    },
+    {
+      "trace": "analysis/hardware/mini-buffered-install-trace.jsonl",
+      "cdb": "fc7effffffffffffffffffffffffffff",
+      "started_utc": "2026-11-15T21:28:00.009604+00:00",
+      "native_ioctl_duration_ms": 0.205,
+      "reported_error": "RomCommandError(31, 'buffered SCSI command failed; no automatic retry')",
+      "transport_details": {
+        "backend": "spt-buffered",
+        "cdb_hex": "fc7effffffffffffffffffffffffffff",
+        "requested_bytes": 16,
+        "direction": "in",
+        "packet_bytes": 104,
+        "data_buffer_offset": 88,
+        "sense_info_offset": 56,
+        "timeout_seconds": 10,
+        "alignment_mask": 0,
+        "started_monotonic_ns": 171393531053700,
+        "transport": "spt-buffered",
+        "ioctl": 315396,
+        "scsi_status": 0,
+        "data_transfer_length": 16,
+        "bytes_returned": 0,
+        "sense_info_length": 32,
+        "sense_bytes_returned": 0,
+        "sense_hex": "",
+        "finished_monotonic_ns": 171393531258700,
+        "ioctl_ok": false,
+        "win32_error": 31
+      },
+      "nearby_TUR_within_3ms": [
+        {
+          "record_id": 22719550,
+          "time_utc": "2026-11-15T21:28:00.0074709Z",
+          "offset_ms": -2.134,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719551,
+          "time_utc": "2026-11-15T21:28:00.0080132Z",
+          "offset_ms": -1.591,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719552,
+          "time_utc": "2026-11-15T21:28:00.0084672Z",
+          "offset_ms": -1.137,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719553,
+          "time_utc": "2026-11-15T21:28:00.0090876Z",
+          "offset_ms": -0.517,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719554,
+          "time_utc": "2026-11-15T21:28:00.0094678Z",
+          "offset_ms": -0.137,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        },
+        {
+          "record_id": 22719555,
+          "time_utc": "2026-11-15T21:28:00.0100975Z",
+          "offset_ms": 0.493,
+          "data": {
+            "DeviceGUID": "{33a15f43-e12c-11f1-9e20-047c16d72f47}",
+            "DeviceNumber": "4",
+            "Vendor": "WL82    ",
+            "Model": "UBOOT1.00       ",
+            "FirmwareVersion": "1.00",
+            "SerialNumber": "NULL",
+            "DownLevelIrpStatus": "0xc0000185",
+            "SrbStatus": "196",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "CdbByteCount": "6",
+            "CdbBytes": "000000000000",
+            "NumberOfRetriesDone": "0"
+          }
+        }
+      ]
+    }
+  ],
+  "SRB_C4": {
+    "error": "0x04",
+    "queue_frozen": "0x40",
+    "autosense_valid": "0x80",
+    "applies_to_logged_TUR_not_unobserved_vendor_SRB": true
+  },
+  "MCN_probe": {
+    "run_phase": "MCN_pause_control_completed",
+    "windows": [
+      {
+        "name": "baseline",
+        "start_utc": "2026-11-15T21:37:16.320205+00:00",
+        "end_utc": "2026-11-15T21:37:32.321461+00:00",
+        "duration_seconds": 16.001256,
+        "events": 0,
+        "TUR_events": 0,
+        "signatures": [],
+        "record_ids": []
+      },
+      {
+        "name": "during",
+        "start_utc": "2026-11-15T21:37:32.325996+00:00",
+        "end_utc": "2026-11-15T21:37:56.355033+00:00",
+        "duration_seconds": 24.029037,
+        "events": 0,
+        "TUR_events": 0,
+        "signatures": [],
+        "record_ids": []
+      },
+      {
+        "name": "restored",
+        "start_utc": "2026-11-15T21:37:56.359066+00:00",
+        "end_utc": "2026-11-15T21:38:12.360548+00:00",
+        "duration_seconds": 16.001482,
+        "events": 4,
+        "TUR_events": 0,
+        "signatures": [
+          {
+            "event_id": 507,
+            "CdbBytes": "25000000000000000000",
+            "DownLevelIrpStatus": "0xc0000013",
+            "SrbStatus": "132",
+            "ScsiStatus": "2",
+            "SenseKey": "2",
+            "AdditionalSenseCode": "58",
+            "AdditionalSenseCodeQualifier": "0",
+            "count": 2
+          },
+          {
+            "event_id": 523,
+            "CdbBytes": null,
+            "DownLevelIrpStatus": null,
+            "SrbStatus": null,
+            "ScsiStatus": null,
+            "SenseKey": null,
+            "AdditionalSenseCode": null,
+            "AdditionalSenseCodeQualifier": null,
+            "count": 2
+          }
+        ],
+        "record_ids": [
+          22719666,
+          22719665,
+          22719664,
+          22719663
+        ]
+      }
+    ],
+    "identity_queries_during_pause": 239,
+    "NOR_counter_unchanged": true,
+    "explicit_reenable_verified": true,
+    "suppression_demonstrated": false,
+    "reason": "Baseline and disabled windows both contain zero TUR events; a zero-to-zero comparison cannot demonstrate suppression."
+  },
+  "conclusions": {
+    "three_failures_each_coincide_with_six_TUR_events": true,
+    "automatic_standard_SCSI_traffic_observed": true,
+    "TUR_queue_frozen_flag_observed": true,
+    "vendor_SRB_status_observed": false,
+    "USB_packet_trace_available": false,
+    "stale_CSW_proven": false,
+    "causal_mechanism_proven": false,
+    "buffered_backend_eliminated_failure": false,
+    "MCN_installation_reliability_proven": false,
+    "standard_requests_are_forwarded_to_ROM_by_HYW1": true
+  },
+  "primary_sources": [
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/srb/ns-srb-_scsi_request_block",
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddscsi/ni-ntddscsi-ioctl_scsi_pass_through",
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_mcn_control",
+    "https://github.com/microsoft/Windows-driver-samples/blob/main/storage/class/classpnp/src/autorun.c",
+    "https://learn.microsoft.com/en-us/windows-hardware/drivers/usbcon/how-to-capture-a-usb-event-trace"
+  ]
+}

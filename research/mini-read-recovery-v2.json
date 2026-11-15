@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "component": "ReadOnlyStateRecoveryTransport",
+  "hardware_execution": false,
+  "device_io_during_verification": false,
+  "source_sha256": {
+    "tools/recover_mini_read_v2.py": "43143f57a1da597d472ad6add3afd88882a11af38c2250901e493ad39bdcf6d1",
+    "tests/test_mini_read_recovery_v2.py": "cb811f4c1446f942caff11c9f13d6e65c27b4494158782337966379dccc160ff",
+    "tools/install_mini_app.py": "4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f",
+    "tools/recover_mini_read.py": "c54edb0a25d81d13ac68e49180811ea79e09bd7880deb6352f9c56d69345bd63",
+    "tools/build_mini_app_writer.py": "39941618458365ca9c151a33e468a8b83e531f700fd7bfb3aedb581dd61c2ec2",
+    "tools/probe_mini_app_writer.py": "b1c40b821b6bd685320d627139425b5b3d3b86a1004f2d856775323912c151be",
+    "tools/probe_mini_recovery.py": "401f501729e08ecb3efbd54e6d75157989deca5cd3c0c9629bcbf9b076042073",
+    "tools/mini_windows_spt.py": "604f55a337938ffaf7cd499e27fe39d1dcde17dbecdd16efe25be52a712acff0",
+    "docs/MINI_READ_RECOVERY_V2.md": "a6e645b9ae3fe5138a8cf053ac70a871a222d31c29f917c3a85c19bd6490e071"
+  },
+  "API": {
+    "module": "tools.recover_mini_read_v2",
+    "class": "ReadOnlyStateRecoveryTransport",
+    "required_arguments": [
+      "transport",
+      "log",
+      "reopen_factory"
+    ],
+    "bind": "bind_session(real_MiniAppInstallerSession)",
+    "max_recoveries": "explicit1..8;default8",
+    "summary": "summary()"
+  },
+  "policy": {
+    "eligible_error": "submitted RomCommandError errno31",
+    "eligible_opcodes": [
+      "FD7F",
+      "FC7E",
+      "FD88"
+    ],
+    "max_one_per_CDB_and_expected_state_witness": true,
+    "nested_recovery": false,
+    "same_transport_type_path_profile_slot": true,
+    "new_INQUIRY_and_HYW1_identity": true,
+    "FD7F": "requires exact128byte previous validated FD88 and all expectedfields; no reissue if counters changed",
+    "FC7E": "fresh audit exactly matches current installer expectedstate after acknowledged command; one pure statusquery",
+    "FD88": "return fresh validated audit directly to unchanged installer validator",
+    "post_mutation_audit": "only immediately after validated erase/PP status; status_polls delta1..65536; every other expectedfield exact",
+    "software_erase_program_retry": false,
+    "stage_arm_echo_finish_retry": false,
+    "jump_reset_retry": false,
+    "mutates_installer_expected": false,
+    "durable_log_failure_terminal": true
+  },
+  "verification": {
+    "new_test_methods": 20,
+    "combined_command": "python -B -X utf8 -m unittest tests.test_mini_read_recovery_v2 tests.test_mini_read_recovery tests.test_mini_app_install -q",
+    "combined_test_methods": 47,
+    "result": "PASS",
+    "fake_NOR_only": true,
+    "independent_review_agent": "mini_image",
+    "independent_review": "No blocker found; compared against frozen _read/_stage_echo/_erase/_program/_audit; 20tests independently passed."
+  },
+  "limitations": [
+    "Does not identify or repair the Windows error mechanism.",
+    "A lost FD7F response after target execution remains terminal.",
+    "Any error in recovery or any mutation reply error remains terminal.",
+    "No real device has used this wrapper as of this report.",
+    "Runner must preserve backend logging,pacing,slot lifecycle and perform independent final whole-NOR readback."
+  ]
+}
