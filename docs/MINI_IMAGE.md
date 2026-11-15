@@ -97,8 +97,9 @@ Il risultato sui file reali, con hash, segmenti e simboli, è in
 
 Il validatore controlla il contratto del file, mentre restano da provare il
 passaggio effettivo dal bootloader all'applicazione, la configurazione dei
-clock e l'integrazione IRQ/audio/DSP. Occorre inoltre costruire e verificare
-il contenitore applicativo MINI e i metadati richiesti dal suo aggiornamento.
+clock e l'integrazione IRQ/audio/DSP sul dispositivo. Il compositore descritto
+sotto copre l'area applicativa; i metadati e il trasporto dell'aggiornamento
+richiedono ancora una verifica distinta.
 
 Il bytecode recuperato dell'installer originale (`parse_identify` in
 `recovered/installer/tankg_install.constants.json`) ammette TANK-G/TANK-B e
@@ -107,3 +108,32 @@ non introduce supporto MINI in quei percorsi. Il collegamento BLE che ha letto
 `TANK MINI_009` non ha verificato un ingresso al bootloader o acquisito un backup
 completo. Trasporto di aggiornamento, backup individuale e ripristino richiedono
 ancora prove specifiche sul dispositivo.
+
+## Composizione dell'area applicativa sperimentale
+
+`tools/package_mini_probe.py` compone esclusivamente lo slice fisico
+`[0x4000,0x82000)` a partire da un ELF che passa il validatore e dal pacchetto
+MINI 009 fissato nel manifest. Non contiene il bootloader o i dati del singolo
+esemplare e non è un file FWSC. Il layout valido non dimostra avvio o recuperabilità.
+
+```powershell
+python tools/package_mini_probe.py --elf build/mini-boot/hyperrig-mini-bringup-probe.elf --output build/mini-boot/hyperrig-mini-bringup-probe.app-area.bin --report research/mini-package.json
+```
+
+I byte dei segmenti ELF vengono inseriti agli indirizzi **LMA in flash**, inclusa
+la sorgente dei dati inizializzati in RAM. BSS, mailbox noinit e stack non vengono
+serializzati. I vuoti e tutta la parte dell'eseguibile stock sostituita sono
+riempiti con `FF`, così il vecchio codice non rimane dietro al nuovo programma.
+
+`cfg_tool.bin` rimane all'offset originale `0x7CD58`; i suoi byte e tutti i record
+delle regioni MINI sono identici allo stock. Un programma che vi si sovrappone
+viene rifiutato. Cambiano soltanto lunghezza/CRC del file applicativo e CRC
+dell'area. Il trasformato SFC usa la chiave del pacchetto stock, non una chiave
+letta dall'esemplare. Il report riporta esplicitamente questa provenienza.
+
+Il verificatore riapre il file scritto, controlla ogni CRC, confronta tutti i
+segmenti con l'ELF e verifica i byte conservati e i riempimenti. Nove test
+aggiuntivi coprono indirizzi LMA, NOBITS, padding, corruzione, sovrapposizione
+alla configurazione (anche con ELF e CRC formalmente validi) e un eseguibile
+alterato che ha comunque CRC validi.
+I risultati e gli hash sono in [mini-package.json](../research/mini-package.json).

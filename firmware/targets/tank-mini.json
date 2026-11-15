@@ -110,13 +110,16 @@
     "identity": "TANK MINI_009",
     "transport": "vendor BLE AE40/AE41/AE42",
     "identity_reply_received": true,
-    "usb_present_during_observation": false,
     "complete_flash_backup_acquired": false,
-    "preset_backup_acquired": false,
-    "evidence": "research/hardware-observation.json"
+    "preset_backup_acquired": true,
+    "evidence": "research/hardware-observation.json",
+    "usb_mini_identified": false,
+    "preset_backup_bytes": 1942,
+    "preset_equal_reads": 2,
+    "preset_sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427"
   },
   "boot": {
-    "status": "diagnostic-ELFs-linked-startup-simulated",
+    "status": "three-diagnostic-ELFs-linked-startup-simulated",
     "entry": 33554720,
     "usable_ram_static_range": [
       29360128,
@@ -131,13 +134,22 @@
     "flashable": false,
     "evidence": [
       "research/mini-boot.json",
-      "research/mini-image.json"
+      "research/mini-image.json",
+      "research/mini-package.json"
     ],
     "host_dsp_audio_selftest": {
       "passed": true,
       "dsp_crc32": "f10b5e4c",
       "tx_crc32": "f0a44a06",
       "mmio_called": false
+    },
+    "host_runtime_dsp_selftest": {
+      "passed": true,
+      "tx_crc32": "f0a44a06",
+      "completed_blocks": 1,
+      "physical_irq_entered": false,
+      "mmio_called": false,
+      "buffers": "private RAM; no DMA peripheral"
     }
   },
   "audio_driver": {
@@ -152,5 +164,39 @@
       "validated analog/mute path"
     ],
     "evidence": "research/mini-audio-driver.json"
+  },
+  "platform": {
+    "status": "compiled-offline-tested",
+    "watchdog": "P33 feed/init separated",
+    "clock_decoder_original_instruction_cases": 640,
+    "hardware_clock_measured": false,
+    "instruction_cache_handover_verified": false,
+    "evidence": "research/mini-platform.json"
+  },
+  "codec": {
+    "status": "compiled-offline-tested",
+    "register_map_match": "Nuvoton NAU88L21",
+    "physical_identity_confirmed": false,
+    "stock_configuration_clock_limit_discrepancy": true,
+    "clock_48000_verified_on_device": false,
+    "evidence": "research/mini-codec.json"
+  },
+  "audio_runtime": {
+    "status": "IRQ-worker component compiled and tested with fake DMA",
+    "context_bytes_pi32v2": 1668,
+    "actual_irq_delivery_verified": false,
+    "actual_dma_ownership_verified": false,
+    "evidence": "research/mini-runtime.json"
+  },
+  "application_container": {
+    "status": "experimental offline application area",
+    "physical_range": [
+      16384,
+      532480
+    ],
+    "all_elf_load_bytes_and_jlfs_crcs_checked": true,
+    "installable_update_package": false,
+    "boot_verified_on_device": false,
+    "evidence": "research/mini-package.json"
   }
 }

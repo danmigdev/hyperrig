@@ -1,0 +1,207 @@
+{
+  "stock": {
+    "package_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+    "sdk_irq_mapping_source": "https://github.com/amitv87/fw-AC79_AIoT_SDK/blob/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/hwi.h",
+    "fragments": {
+      "irq11": {
+        "start": "0x1c0374a",
+        "end_exclusive": "0x1c037dc",
+        "sha256": "9cc16e1c57a4538cb98bfbe7d00fa9061604713994f5e7909c083bc464d8d4b5"
+      },
+      "half_callback": {
+        "start": "0x1c03eee",
+        "end_exclusive": "0x1c03f24",
+        "sha256": "56388cd47730f6884edaa16a18ab589b718b3823fc2faf66fd3c79cee27a0580"
+      },
+      "audio_task": {
+        "start": "0x1c03f24",
+        "end_exclusive": "0x1c03fb4",
+        "sha256": "319ae366143966b691e6e1782181c93afa55570fb09b5f71054220b8fd992d5b"
+      }
+    },
+    "stock_irq_frame_instructions": [
+      "[--sp] = {psr, rets, reti}",
+      "[--sp] = {r5-r0}",
+      "{r5-r0} = [sp++]",
+      "{psr, rets, reti} = [sp++]",
+      "csync",
+      "rti"
+    ],
+    "stock_half_mailbox": "0x01c1b22c",
+    "stock_semaphore_post": "0x02044d44",
+    "stock_semaphore_wait": "0x020456f8",
+    "stock_dsp_task_call": "0x01c03a18"
+  },
+  "host": {
+    "state_cases": 55,
+    "alternating_blocks": 512,
+    "hook_failure_cases": 7,
+    "irq_during_worker_cases": 7,
+    "sanitizers": "address,undefined",
+    "physical_mmio_accessed": false
+  },
+  "target": {
+    "context_bytes": 1668,
+    "ops_bytes": 56,
+    "snapshot_bytes": 64,
+    "interrupt_wrapper_bytes": 20,
+    "interrupt_stack_bytes_excluding_c_calls": 76,
+    "interrupt_frame_state_cases": 256,
+    "critical_flag_state_cases": 256,
+    "interrupt_instructions": [
+      "[--sp] = {psr, rets, reti}",
+      "[--sp] = {r15-r0}",
+      "call 0",
+      "{r15-r0} = [sp++]",
+      "{psr, rets, reti} = [sp++]",
+      "csync",
+      "rti"
+    ],
+    "compiler_interrupt_attribute_instructions": [
+      "[--sp] = {psr, rets, reti}",
+      "[--sp] = {r3-r0}",
+      "call 0",
+      "{r3-r0} = [sp++]",
+      "{psr, rets, reti} = [sp++]",
+      "rti"
+    ],
+    "compiler_call_flags": [
+      "-mllvm",
+      "-pi32v2-large-program"
+    ],
+    "cross_section_branch_relocations": [
+      {
+        "section": 1,
+        "offset": 134,
+        "type": 4,
+        "symbol": "memcpy"
+      },
+      {
+        "section": 1,
+        "offset": 160,
+        "type": 4,
+        "symbol": "memcpy"
+      },
+      {
+        "section": 1,
+        "offset": 234,
+        "type": 4,
+        "symbol": "fault_locked"
+      },
+      {
+        "section": 1,
+        "offset": 262,
+        "type": 4,
+        "symbol": "fault_locked"
+      },
+      {
+        "section": 1,
+        "offset": 584,
+        "type": 4,
+        "symbol": "hyperrig_mini_audio_rx_q"
+      },
+      {
+        "section": 1,
+        "offset": 658,
+        "type": 4,
+        "symbol": "hyperrig_mini_audio_tx_q"
+      },
+      {
+        "section": 1,
+        "offset": 858,
+        "type": 4,
+        "symbol": "memcpy"
+      },
+      {
+        "section": 1,
+        "offset": 906,
+        "type": 4,
+        "symbol": "hyperrig_mini_runtime_inspect"
+      },
+      {
+        "section": 3,
+        "offset": 178,
+        "type": 4,
+        "symbol": "hyperrig_mini_audio_irq"
+      },
+      {
+        "section": 5,
+        "offset": 6,
+        "type": 2,
+        "symbol": "hyperrig_mini_irq11_dispatch"
+      }
+    ],
+    "known_isr_callgraph_audit": {
+      "hyperrig_mini_irq11_dispatch": {
+        "bytes": 24,
+        "instructions": 8,
+        "sha256": "3e88e18062af2f4388bbb9b27d8a13c27c3cae2a1cf76a16e6880118ea307719"
+      },
+      "hyperrig_mini_runtime_ready": {
+        "bytes": 150,
+        "instructions": 56,
+        "sha256": "af11ec7108c368e5437093a6159764aa9f5c7f28214168ef9f9ec6bc2ee7989e"
+      },
+      "fault_locked": {
+        "bytes": 16,
+        "instructions": 7,
+        "sha256": "0c7f465774bb467d077920eac686dd72e7d05ea87acd6343dcf090ebf418c062"
+      },
+      "hyperrig_mini_runtime_enter_cpu0": {
+        "bytes": 16,
+        "instructions": 5,
+        "sha256": "86f8aca901393119486df0d8399bd0f87eccc3eb45752640a867fb486cb29c0d"
+      },
+      "hyperrig_mini_runtime_leave_cpu0": {
+        "bytes": 8,
+        "instructions": 3,
+        "sha256": "be65d043298cb09a0d44667acb2f36079942c345619ec1d06c6c5ac4f88c8d99"
+      },
+      "hyperrig_mini_audio_irq": {
+        "bytes": 74,
+        "instructions": 31,
+        "sha256": "748e457cde2695458541adbb411999355a2ba7b13b7b79478e43a923c30f6ef7"
+      }
+    },
+    "future_wake_hook_included_in_audit": false,
+    "hardware_loop_interrupt_delivery_verified": false,
+    "hidden_special_state_preservation_verified": false,
+    "critical_enter_instructions": [
+      "r0 = icfg",
+      "r1 = r0 & 0xFFFFFEFF",
+      "icfg = r1",
+      "csync",
+      "rts"
+    ],
+    "critical_leave_instructions": [
+      "csync",
+      "icfg = r1",
+      "rts"
+    ],
+    "unresolved_component_symbols": [
+      "hyperrig_mini_audio_irq",
+      "hyperrig_mini_audio_rx_q",
+      "hyperrig_mini_audio_tx_q",
+      "memcpy"
+    ],
+    "component_alloc_bytes": 1180
+  },
+  "hardware_execution_verified": false,
+  "real_dma_ownership_verified": false,
+  "dma_cache_coherence_verified": false,
+  "interrupt_latency_measured": false,
+  "dsp_deadline_measured": false,
+  "flashable": false,
+  "component": "build/mini-runtime/hyperrig_mini_runtime_component.pi32v2.o",
+  "component_sha256": "42d451c0ce1d5d94db39d0aeb24a67c47bc107f330cde280764f2929afcd66f3",
+  "sources_sha256": {
+    "firmware/mini/runtime/critical_pi32v2.c": "85521a6d417d9ebecc0b02854f01e6d0cf639538c3c91970edb60f1e46fca241",
+    "firmware/mini/runtime/hyperrig_mini_runtime.c": "3ca8a04aad6c3f17e9a312a8ae9bc0df569b22548defa1713ffeacef464b9db1",
+    "firmware/mini/runtime/hyperrig_mini_runtime.h": "4138477ebe6d58c74c12ef85130fb801d84d2910f5c914fda455fba5c3d45b84",
+    "firmware/mini/runtime/irq11_pi32v2.S": "e03d85737eae040ca435e5884a0597c2859c1368c5859dcfe6862bb53905daf1",
+    "firmware/mini/runtime/irq_dispatch.c": "920bdf24ef483e8e01d026181f93c5deb6104337e25918a72effbbed30c91c7d",
+    "firmware/mini/runtime/tests/runtime_test.c": "8e937e84ba284abf6f4224f53f727ba06461e580e5b6620f6a54b6dc7b4f093f"
+  },
+  "audio_dependency_sha256": "4d7f023877af6c8b1e0546bd33643115d3e1d08d3932b9a69fe0663232f52ad8",
+  "verifier_sha256": "9572857e80ec96e34c7956a0121732c35ae20f76246444c127c71e24ff1f26f3"
+}

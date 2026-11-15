@@ -32,11 +32,18 @@ scelto per questo progetto indipendente.
 - Driver audio MINI compilato, con conversione campioni e gestione dei mezzi
   buffer DMA verificate sul PC. Codec/clock a 48 kHz, mute e coerenza cache
   restano da verificare sul dispositivo.
-- Startup e linker MINI con due ELF diagnostici, controllo delle aree flash/RAM
+- Startup e linker MINI con tre ELF diagnostici, controllo delle aree flash/RAM
   e simulazione della copia dati/azzeramento BSS. Il probe DSP include la
   capture A2 e un'autoverifica numerica; **non è stato avviato sul pedale**.
-- Identità del pedale letto via BLE: `TANK MINI_009`. Backup totale e prova
-  del firmware HyperRig sul dispositivo ancora da eseguire.
+- Watchdog P33, lettura dei clock, manutenzione cache, bus codec PA1/PA2 e
+  coordinamento IRQ/worker ricostruiti; verifiche locali e oggetti pi32v2.
+  I contributi sono documentati separatamente con i limiti hardware ancora aperti.
+- Compositore dell'area applicativa MINI da ELF: directory e configurazione
+  originali conservate, vecchio codice rimosso e CRC verificati. Produce un
+  artefatto sperimentale offline, non un aggiornamento FWSC installabile.
+- Identità del pedale letta via BLE: `TANK MINI_009`. Backup dei preset acquisito
+  con due letture identiche; backup totale e prova di HyperRig sul dispositivo
+  ancora da eseguire.
 - Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
   APK Android `com.hyperrig.app`, ricostruito e firmato localmente. Sono in
   `build/hyperrig/`: **queste copie G/B non sono il port MINI**.
@@ -55,6 +62,9 @@ originale. Il dettaglio delle ricerche è in [source-audit.json](research/source
 - [Driver audio MINI e conversione dei campioni](docs/MINI_AUDIO_DRIVER.md).
 - [Startup, linker e programmi diagnostici MINI](docs/MINI_BOOT.md).
 - [Validazione ELF e contenitore stock MINI](docs/MINI_IMAGE.md).
+- [Watchdog, clock e cache MINI](docs/MINI_PLATFORM.md).
+- [Bus codec, mute e vincoli del campionamento](docs/MINI_CODEC.md).
+- [Interrupt, worker audio e gestione dei ritardi](docs/MINI_RUNTIME.md).
 - [Applicazioni e firmware rinominati HyperRig](docs/REBRANDING.md).
 - [Provenienza e licenze](docs/PROVENIENZA.md).
 - [Versioni esatte degli strumenti](research/sources.lock.json).
@@ -105,8 +115,20 @@ python tools/build_mini_boot.py --dsp
 python tools/check_mini_image.py --elf build/mini-boot/hyperrig-mini-boot-probe.elf --elf build/mini-boot/hyperrig-mini-dsp-link-probe.elf
 ```
 
-Questi comandi producono ELF e prove locali. Non generano un aggiornamento
-FWSC installabile e non inviano comandi al dispositivo.
+Per includere anche i tre componenti MINI e provare il worker con il DSP:
+
+```powershell
+python tools/verify_mini_platform.py
+python tools/verify_mini_codec.py
+python tools/verify_mini_runtime.py
+python tools/build_mini_boot.py --bringup
+python tools/package_mini_probe.py --elf build/mini-boot/hyperrig-mini-bringup-probe.elf --output build/mini-boot/hyperrig-mini-bringup-probe.app-area.bin --report research/mini-package.json
+```
+
+Questi comandi producono ELF, un'area applicativa sperimentale e prove locali.
+Non generano un aggiornamento FWSC installabile e non inviano comandi al
+dispositivo. Il probe integrato usa RAM fittizia: codec, clock e DMA reali
+restano inattivi.
 
 ## Materiale locale recuperato
 
@@ -132,9 +154,11 @@ L'esemplare online ha risposto `TANK MINI_009` tramite il servizio BLE proprieta
 AE40, caratteristiche AE41/AE42. La prova è registrata in
 [hardware-observation.json](research/hardware-observation.json). La CLI qui sotto
 usa RtMidi: su questo Windows il pedale Bluetooth non compare fra le sue porte.
-L'identificazione BLE è stata una prova separata, non un supporto BLE già
-integrato nella CLI. Il successivo tentativo di backup preset via BLE non è
-riuscito ad attivare le notifiche e non ha prodotto un backup.
+La prova BLE è separata dal supporto RtMidi della CLI. Dopo un primo errore
+nell'abilitazione delle notifiche, una nuova connessione ha confermato l'identità
+e acquisito i 1.942 byte dei preset, con due letture identiche e struttura valida.
+Il backup locale è in `artifacts/my-mini-presets/ble-20261115/`; hash e limiti
+sono registrati nell'osservazione hardware. Non è un backup completo della flash.
 
 Per un collegamento USB-MIDI, elencare le porte e scegliere gli indici corretti:
 

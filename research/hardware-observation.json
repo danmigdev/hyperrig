@@ -15,12 +15,33 @@
       "hex": "0059111b000054414e4b204d494e495f30303900000000000000000000000000008c"
     }
   ],
-  "usb_present": false,
   "rtmidi_exposes_ble_port": false,
-  "preset_backup_acquired": false,
+  "preset_backup_acquired": true,
   "complete_flash_backup_acquired": false,
-  "backup_failure_stage": "notification subscription; no preset data received",
-  "backup_error": "WinError -2147023673 during start_notify",
   "firmware_write_performed": false,
-  "limitation": "Identity string confirmed; no full-flash hash comparison, hardware revision or flash geometry verification."
+  "limitation": "Identity and stable preset bank confirmed; no full-flash hash comparison, hardware revision or flash geometry verification. No HyperRig code has run on the device.",
+  "usb_mini_identified": false,
+  "preset_backup": {
+    "bytes": 1942,
+    "equal_reads": 2,
+    "sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+    "artifact": "artifacts/my-mini-presets/ble-20261115/presets.bin",
+    "scope": "preset bank only; no full flash or recovery image",
+    "structure_verified": true
+  },
+  "earlier_attempt": {
+    "failure_stage": "notification subscription; no preset data received",
+    "error": "WinError -2147023673 during start_notify"
+  },
+  "latest_readonly_check": {
+    "date": "2026-11-15",
+    "identity_confirmed_again": true,
+    "vendor_ble_notifications_worked": true,
+    "midi_inputs": [],
+    "midi_outputs": [
+      "Microsoft GS Wavetable Synth 0"
+    ],
+    "rom_usb_4c4a_8057_identified": false,
+    "no_usb_mode_switch_requested": true
+  }
 }

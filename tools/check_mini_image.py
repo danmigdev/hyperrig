@@ -250,7 +250,7 @@ def main(argv=None):
                   "remaining_for_device_boot": ["Validate bootloader-to-application handoff and board clock setup.",
                        "Integrate and verify IRQ/audio/DSP scheduling on the MINI.",
                        "Verify update transport and a complete unit-specific backup/recovery route.",
-                       "Construct and independently validate the MINI application container and update metadata."]}
+                       "Validate the composed MINI application with the board updater metadata/transport before installation."]}
     except (ValueError, OSError, struct.error) as error:
         result = {"project": "HyperRig", "target": "tank-mini", "flashable": False, "error": str(error)}
         code = 2

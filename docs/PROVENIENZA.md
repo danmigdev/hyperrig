@@ -13,6 +13,7 @@ la paternità del codice recuperato.
 | [ghidra-jieli](https://github.com/virtualabs/ghidra-jieli) | Specifica processore Ghidra | Apache-2.0; copia nella distribuzione Ghidra locale |
 | [Ghidra](https://github.com/NationalSecurityAgency/ghidra) | Decompilatore | Distribuzione 12.2 verificata con il digest GitHub |
 | [tankmini-linux](https://github.com/viniciusapl97/tankmini-linux) | Documentazione del protocollo e vettori catturati | MIT; riferimento per la nuova implementazione Python |
+| [m-bootloader](https://github.com/jvitkauskas/m-bootloader) | Specifica AC791N/ROM, registri P33 e cache | MIT; solo riferimento SoC, nessun binario FM1/SMK37 usato sul MINI |
 | [SDK AC79 mirror](https://github.com/amitv87/fw-AC79_AIoT_SDK) | Header di riferimento e LICENSE, incluso `iis.h` | Origine ufficiale Gitee non risolvibile dalla rete locale; mirror e commit registrati |
 | [Toolchain JieLi](https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz) | Clang, linker e objdump pi32v2 | Usati localmente come strumenti via WSL; archivio verificato e ignorato da Git |
 | [Apktool](https://github.com/iBotPeaches/Apktool) | Decodifica risorse/Smali e ricostruzione APK | Versione 3.0.3 verificata con digest della release |

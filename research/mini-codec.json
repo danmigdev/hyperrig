@@ -1,0 +1,143 @@
+{
+  "original_mini_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+  "codec_table_address": "0x02035e35",
+  "codec_table_sha256": "1032b05743d45148e6aecd2bdc6834ab54804d154362c545d9949a49461c415d",
+  "bus_regions": [
+    {
+      "start": "0x2006960",
+      "end_exclusive": "0x2006a7c",
+      "sha256": "d2bceccf6289f50b07cbda10522e2f6d8ddd43b663f20aad5c49785099fc6da6"
+    },
+    {
+      "start": "0x2006b8c",
+      "end_exclusive": "0x2006e08",
+      "sha256": "44c465b2ae60fad06b4fa988bf0c44d04ea424490a64d20a3b019d3a0f571091"
+    }
+  ],
+  "ack_trace_cases": 278,
+  "nack_trace_cases": 110,
+  "replay_nack_cases": 110,
+  "timing_error_cases": 148,
+  "read_error_cases": 2,
+  "delay_arithmetic_cases": 240,
+  "gpio_mmio_cases": 128,
+  "mute_cases": 9,
+  "ack_trace_sha256": "f3e7947dff354be060a5d3b4d21c37c63976856cce97155566ad0e92c6280865",
+  "decoded_stock_instruction_count": 323,
+  "derived_clock_plans": [
+    {
+      "sample_rate": 44100,
+      "mclk_hz": 11289600,
+      "bclk_hz": 2822400,
+      "converter_clock_hz": 5644800,
+      "hardware_verified": false
+    },
+    {
+      "sample_rate": 48000,
+      "mclk_hz": 12288000,
+      "bclk_hz": 3072000,
+      "converter_clock_hz": 6144000,
+      "hardware_verified": false
+    }
+  ],
+  "sanitizers": {
+    "exact_record_cases": 1536,
+    "asan": true,
+    "ubsan": true
+  },
+  "target_objects": {
+    "hyperrig_mini_codec.pi32v2.o": {
+      "sha256": "c6c2ac2537448e96934eb9784c8720b9a1e8e73f05a9c424e97feda68398963c",
+      "section_bytes": {
+        ".text": 1486,
+        ".rodata": 88
+      },
+      "undefined_symbols": []
+    },
+    "spin_pi32v2.o": {
+      "sha256": "03ef6cccab1a292d0b3a1f18f559297fb6d385f9553e29b0243960e92ff10b01",
+      "section_bytes": {
+        ".text": 14
+      },
+      "undefined_symbols": [],
+      "instructions": [
+        "r1 = 0x0 - r1",
+        "goto 4",
+        "nop",
+        "r1 = r1 + 1",
+        "if (r1 != 0) goto -6",
+        "rts"
+      ]
+    }
+  },
+  "bus": {
+    "sda": "PA1",
+    "scl": "PA2",
+    "address_byte": "0x36",
+    "i2c_7bit_address": "0x1b",
+    "electrical_mode": "stock drives high/low; releases SDA only for ACK",
+    "clock_stretching": false,
+    "multi_master": false,
+    "delay_formula": "floor(sys_hz / ((mode40200 & 1) ? 8000000 : 4000000)) * units; units in {3,6}",
+    "delay_microseconds_verified": false
+  },
+  "codec_identity": {
+    "register_map_match": "Nuvoton NAU88L21",
+    "physical_identity_verified": false,
+    "distinctive_registers": [
+      "0x34 DACR_CTRL",
+      "0x35 ADC_DGAIN_CTRL1",
+      "0x4b CLASSG_CTRL",
+      "0x7e PGA_GAIN"
+    ],
+    "i2s": "slave, I2S, 32-bit words according to matched register map",
+    "stock_adc_osr": 256,
+    "stock_dac_osr": 256,
+    "stock_rate_conflict": "OSR256 at 44100/48000 exceeds published 6144000 Hz converter limit"
+  },
+  "primary_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.12/sound/soc/codecs/nau8821.h",
+      "sha256": "d6b09cf9face0517f528abd0805091f227001b17e857c5c097ac5b2cea38899c",
+      "used_for": "Nuvoton-authored register fields, 16-bit addressing/data, I2S and mute masks"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.12/sound/soc/codecs/nau8821.c",
+      "sha256": "91320977f58094a8dafe1ff31364324349c935f95ce6c5bc898b8f92ebd99309",
+      "used_for": "OSR encodings/divisors and maximum converter clock; no Linux driver code copied"
+    },
+    {
+      "url": "https://www.nuvoton.com/export/resource-files/en-us--DS_NAU88L21_DataSheet_EN_Rev3.7.pdf",
+      "used_for": "manufacturer section6 pp28-30: MCLK256fs, CLK_ADC<=6.144MHz; revision3.7,2026-02-09"
+    },
+    {
+      "url": "https://www.nuvoton.com.cn/export/resource-files/en-us--DS_NAU88L21_DataSheet_EN_Rev3.5.pdf",
+      "used_for": "manufacturer section7.3 p34: 7-bit0x1b, MSB-first 16-bit register/value"
+    }
+  ],
+  "deliberate_policy_changes": [
+    "STOP attempted on NACK/error",
+    "replay stops at first error",
+    "zero/negative-equivalent delay clocks rejected",
+    "mute shadow invalidated on failed write"
+  ],
+  "hardware_execution_verified": false,
+  "clock_48000_measured": false,
+  "analog_mute_verified": false,
+  "limitations": [
+    "physical codec ID/board revision unconfirmed",
+    "GPIO helper timing and locking not emulated",
+    "loop trip counts are not calibrated microseconds",
+    "stock converter-clock discrepancy unresolved",
+    "OSR128 plan changes filters/latency and is never automatically sent",
+    "digital mute ACK does not prove analog output or ramp settling",
+    "no readback or clock stretching"
+  ],
+  "sources_sha256": {
+    "firmware/mini/codec/hyperrig_mini_codec.c": "059e130d4f965a0a878d91ec8884fb11be5a4edb8b510857816fa1b151f96229",
+    "firmware/mini/codec/hyperrig_mini_codec.h": "d91a4d5e0f909254c970d2a8e57773b36dc9d8a15a8ba88c2e36415824b914d7",
+    "firmware/mini/codec/spin_pi32v2.S": "8dfea293fd17338544bd7c39b6e6535c2ba4eb63eeb4fcc4ed523b1564fb6d22",
+    "firmware/mini/codec/tests/sanitize.c": "2ff960e6b5f8efc4328c244b464a6d114a55886010ffe1bb4dcc7bf1cfdeb872"
+  },
+  "verifier_sha256": "1a1795f3b6604118bf12447beaede55428a96ccbe48746c5e340358b9f0b1484"
+}

@@ -30,6 +30,13 @@ non di etichettare un'immagine G/B come compatibile.
 12. Startup/linker e due ELF diagnostici con simulazione della copia RAM/BSS:
     [MINI_BOOT.md](MINI_BOOT.md). Validatore ELF/container e dieci test contro
     layout, segmenti e copie incoerenti: [MINI_IMAGE.md](MINI_IMAGE.md).
+13. Componenti platform, codec e runtime ricostruiti in parallelo:
+    [MINI_PLATFORM.md](MINI_PLATFORM.md), [MINI_CODEC.md](MINI_CODEC.md),
+    [MINI_RUNTIME.md](MINI_RUNTIME.md). Il probe `--bringup` collega i tre
+    componenti e verifica sul PC il worker con il motore A2 e RAM fittizia.
+14. Area applicativa MINI sperimentale composta dall'ELF con CRC verificati,
+    preservando directory delle regioni e `cfg_tool.bin`. Non è un FWSC.
+15. Backup preset BLE di 1.942 byte acquisito e validato con due letture uguali.
 
 ## Tre ingressi candidati per i footswitch
 
@@ -83,11 +90,13 @@ ma questo non rende il firmware stock MINI capace di eseguire il motore UltraRig
 5. Misurare underrun, latenza, RAM, clock stabile, consumi e comportamento al boot.
 6. Solo dopo questi riscontri, preparare e provare installazione e ripristino.
 
-L'identificazione BLE è l'unica verifica riuscita sull'esemplare. Non era
-presente un collegamento USB; RtMidi non esponeva la porta BLE. La lettura
-identità sul servizio proprietario è riuscita, mentre il tentativo successivo
-di backup preset è fallito all'abilitazione delle notifiche. Non è stato
-acquisito alcun backup completo, né installato alcun firmware.
+Sul dispositivo sono riuscite identificazione e lettura dei preset via BLE.
+Una nuova connessione ha superato il precedente errore di sottoscrizione e
+restituito due banche identiche: 1.942 byte, SHA-256
+`c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427`.
+RtMidi continua a non esporre il MINI; non è stata identificata una sua
+interfaccia USB utilizzabile. Il backup completo e il recupero tramite ROM
+restano da verificare. Nessun codice HyperRig è stato eseguito sul pedale.
 
 ```powershell
 python -m hyperrig port-status

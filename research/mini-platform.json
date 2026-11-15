@@ -1,0 +1,155 @@
+{
+  "stock_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+  "application_sha256": "bc46bc604d42067449cdf5b8200f8ebbafd668b722243e3db1b033289e49bdea",
+  "native_fragments": {
+    "watchdog_feed": {
+      "start": "0x2000974",
+      "end_exclusive": "0x200098a",
+      "sha256": "74a8394f96a8f31d00d5853732206b61f96ab5c7b67349d57bfcfd883cd37f30"
+    },
+    "watchdog_write": {
+      "start": "0x2002b88",
+      "end_exclusive": "0x2002b96",
+      "sha256": "b5146ecbbf1d98f607495d3b1ab7dd9e061a424ae1a02d27ba0c199ff11a5c6f"
+    },
+    "watchdog_setup": {
+      "start": "0x2002d42",
+      "end_exclusive": "0x2002d6c",
+      "sha256": "f50621edc7b1ce7385aed971fac5c106f5cc54e25ed017e32871310cf453028a"
+    },
+    "p33_byte": {
+      "start": "0x1c00fc8",
+      "end_exclusive": "0x1c00fe2",
+      "sha256": "51b8559ad19172fe937e3baacdf5d5ca8c1e543edc81a426319d1278e238eae3"
+    },
+    "p33_write": {
+      "start": "0x1c0104e",
+      "end_exclusive": "0x1c0108c",
+      "sha256": "d8bf3394c07608821caa0c39d71ed700c08aaf0ed975b167becfeb593ce1052c"
+    },
+    "p33_or": {
+      "start": "0x1c010b4",
+      "end_exclusive": "0x1c010fe",
+      "sha256": "a03d44c3f125bdaf05023b58701e323137c1ca0846aa37b46d0510d1d90ff41e"
+    },
+    "cache_flush_invalidate": {
+      "start": "0x1c00d80",
+      "end_exclusive": "0x1c00db2",
+      "sha256": "f257f25d080eb85975e3a4b34a14f085321462118ccddc9d8313ef77c76a4323"
+    },
+    "cache_global_maintenance_not_ported": {
+      "start": "0x1c00db2",
+      "end_exclusive": "0x1c00e8c",
+      "sha256": "16459de4d411c37caff1b6e56ecab2a5f01d902243d1406fdb7c7d45a2ecc058"
+    },
+    "cache_partition_init": {
+      "start": "0x1c00e8c",
+      "end_exclusive": "0x1c00f9c",
+      "sha256": "1c0e616e05558e3461d529ff4668a17b173bbc1d007f046fe52127dcdac3aa0c"
+    },
+    "clock_read_decode": {
+      "start": "0x2002d76",
+      "end_exclusive": "0x2002ec8",
+      "sha256": "de019096c01b9801c0e23aea0ffdfe5d993bd25028277fd9a1d63590f896a9d3"
+    },
+    "clock_switch_sfc_guard": {
+      "start": "0x1c03352",
+      "end_exclusive": "0x1c033ec",
+      "sha256": "39122f0d4df5d43394aaf7e9862f262ae2c5e568c760a62a434f7648e733b2cb"
+    }
+  },
+  "watchdog_setup_commands_decoded": [
+    [
+      0,
+      128,
+      0
+    ],
+    [
+      0,
+      128,
+      12
+    ],
+    [
+      32,
+      128,
+      32
+    ],
+    [
+      32,
+      128,
+      64
+    ],
+    [
+      32,
+      23,
+      64
+    ],
+    [
+      32,
+      128,
+      16
+    ]
+  ],
+  "clock_instruction_cases": 640,
+  "clock_result_sha256": "be8ea2baaf5cf49867fe73be09e49b2bf036a73e626cdf502779df55b3aded01",
+  "parallel_issue": "B reads pre-A registers; compiler-established ISA semantics",
+  "hardware_frequency_measured": false,
+  "sanitizers": {
+    "passed": true,
+    "watchdog_transactions": 7,
+    "watchdog_timeout_points": 18,
+    "cache_timeout_points": 65,
+    "cache_full_spans": 2,
+    "snapshot_read_only": true,
+    "address_sanitizer": true,
+    "undefined_behavior_sanitizer": true
+  },
+  "pi32v2_object_sha256": "da2d59cae063de7ed7c15f560a199f16c327eba996538561d1a4fb578349caff",
+  "target_codegen_flags": [
+    "-mllvm",
+    "-pi32v2-large-program"
+  ],
+  "allocated_section_bytes": {
+    ".text": 572,
+    ".ramtext": 606,
+    ".rodata": 20
+  },
+  "sources_sha256": {
+    "firmware/mini/platform/hyperrig_mini_platform.c": "8d09e9b032cf1ad4a71fc8733f286298741eb0db39c38e7d02745441d5c69814",
+    "firmware/mini/platform/target_io.c": "ee89d206c5c48a882854521057633bf5e721b0d0d9b5531caa9cfc0c476804c1",
+    "firmware/mini/platform/test_platform.c": "62b4fe173c5489ce8c7863c855121c59cd06cd26c0063be430de8a9751d2bfd8",
+    "firmware/mini/platform/hyperrig_mini_platform.h": "43dda9d017d83764306d5b33f073722c798d10642e442e3f4933592fa0aaa7f8"
+  },
+  "verifier_sha256": "5a22de6e24a1163ee68ccb78a2d617100106edd4e52ef7b4e2a919acf88c250a",
+  "sdk_commit": "ffbb2a8d925682ba6880d643a83a63ee0691ec09",
+  "sdk_reference_sha256": {
+    "apps__common__example__peripheral__wdt__main.c": "a6a6f7a6c7d8c6c3cec0a5140c5138406f55e9d019bc4181ea5deaace12f3567",
+    "apps__common__system__system_vdd_clock.c": "92f6f28943905fbbef251394f020faa3b0182e6348ba2e2eda1ced7f43438793",
+    "include_lib__driver__cpu__wl82__asm__cache.h": "84da2fbb6c7833e4f03520790fa03efe5ef611c4d6f17a9a88f53b9be6dabb4c",
+    "include_lib__driver__cpu__wl82__asm__clock.h": "60bde8b1d8bce0c282520094f85886417a42674ab2dba15e17fdfc572aaf5d72",
+    "include_lib__driver__cpu__wl82__asm__csfr.h": "62858489d6a3e68e24b8868175827df1c83c716238b7789be81c74758e1963c6",
+    "include_lib__driver__cpu__wl82__asm__p33.h": "e031b50b342a9beac188ac76ef258996ee7ebeeab4221dd1330d1022ae2aaa03",
+    "include_lib__driver__cpu__wl82__asm__sfc_norflash_api.h": "8c97f45fe8631b2b021ac35102f65e17c2d284ab8bffd3bb94c876673836ee7b",
+    "include_lib__driver__cpu__wl82__asm__wdt.h": "aa6eb10440ac743e7bc061bd4686586c5f3f9cb18fead109eec9ea130e3ead94",
+    "include_lib__driver__cpu__wl82__clock_hw.h": "ae1ea1b672b3855f6b0e2378d9ee1583e1b87614ed617db3d41f001681f855ae"
+  },
+  "soc_reference": {
+    "repository": "https://github.com/jvitkauskas/m-bootloader",
+    "commit": "3ac7651a019fa44daba061b05654278496477b64",
+    "hardware_scope": "FM1/SMK37 AC791N; not MINI validation",
+    "spec_sha256": "d86ae060b1db368a8aba421e21903b3b9c7517943bcf2667ee170a5a96a2863c"
+  },
+  "hardware_executed": false,
+  "clock_or_sfc_reconfigured": false,
+  "dma_coherence_validated": false,
+  "watchdog_deadline_measured": false,
+  "flashable": false,
+  "limitations": [
+    "P33 mode and clock inherited; unknown modes rejected",
+    "poll counts are not time units",
+    "cache ownership and MMU mapping require target proof",
+    "copied RAM code instruction visibility not established",
+    "CPU/audio frequencies are not measured",
+    "cache partition and PLL switch code deliberately not called or ported"
+  ]
+}

@@ -1,9 +1,11 @@
 # Avvio e linker HyperRig per TANK MINI
 
-Sono disponibili **due ELF di verifica per pi32v2**, con entry, copia RAM,
+Sono disponibili **tre ELF di verifica per pi32v2**, con entry, copia RAM,
 azzeramento BSS e stack dedicati. Il secondo collega anche il motore capture
-HyperRig, la capture A2 originale e l'adattatore audio. Non sono stati avviati sul pedale e non
-sono pacchetti installabili. `research/mini-boot.json` mantiene esplicitamente
+HyperRig, la capture A2 originale e l'adattatore audio. Il terzo aggiunge
+platform, codec e worker, con un'autoverifica RAM del percorso audio.
+Non sono stati avviati sul pedale e non sono pacchetti installabili.
+`research/mini-boot.json` mantiene esplicitamente
 `boot_validated_on_device=false` e `flashable=false`.
 
 ## Contratto osservato nel firmware stock
@@ -121,6 +123,38 @@ flash (capture inclusa), 216.768 byte BSS, 52 byte `.noinit`, quattro byte di
 dati inizializzati e 12 KiB di stack riservati. Restano spazi liberi nel layout,
 ma latenza, stack effettivo e comportamento del target non sono misurati.
 
+## Probe integrato del worker audio
+
+`--bringup` aggiunge un terzo ELF, `hyperrig-mini-bringup-probe.elf`, che collega
+runtime IRQ/worker, platform e codec. L'autoverifica usa lo stesso ingresso
+zero e gli stessi CRC del probe DSP, facendo passare la prova audio attraverso
+`hyperrig_mini_runtime_ready` e `hyperrig_mini_runtime_work`. Il motore A2 viene
+eseguito nel worker; l'evento simulato non entra nel wrapper hardware IRQ11.
+
+`runtime_probe.c` fornisce callback controllate per esclusione, possesso dei
+buffer e sincronizzazione di **array RAM privati senza periferica DMA**.
+Verifica un evento, un blocco completato, due transazioni RX/TX, bilanciamento
+delle callback e assenza di lavoro pendente. Quelle callback non sono una
+soluzione per la coerenza del DMA reale e non possono essere usate per abilitarlo.
+
+Anche questa applicazione C viene eseguita sull'host sotto ASan/UBSan. Il suo
+CRC TX atteso resta `f0a44a06`; il risultato e l'hash dell'eseguibile host sono
+nel report. Gli oggetti platform e codec vengono collegati, ma nessuna loro
+operazione MMIO viene chiamata. PLL, watchdog, codec e percorso analogico non
+sono inizializzati dal probe.
+
+La build rifiuta sorgenti o oggetti diversi dagli hash dei report dei
+componenti, per evitare una prova host aggiornata accanto a codice target
+vecchio. Le unità che attraversano il confine flash/RAM usano
+`-mllvm -pi32v2-large-program`: la chiamata ordinaria della toolchain non
+copre sempre la distanza fra `0x0200....` e `0x01C0....`. Le chiamate estese
+`call.xl` risolvono il link senza spostare arbitrariamente RAM o stack.
+
+Il nuovo ELF contiene funzioni `.ramtext`, copiate dallo startup. La simulazione
+verifica i byte copiati, ma non dimostra la visibilità delle nuove istruzioni
+alle cache del processore. L'handover cache/MMU e l'esecuzione dalla RAM devono
+essere verificati prima di considerare questo programma avviabile sul MINI.
+
 ## IRQ e cache: cosa è ricostruito
 
 `irq.c` espone registrazione e rimozione dei soli IRQ fisici 0–65. Il codice
@@ -152,6 +186,15 @@ python tools/build_native.py
 python tools/verify_mini_audio.py
 python tools/build_mini_boot.py --dsp
 python tools/check_mini_image.py --elf build/mini-boot/hyperrig-mini-boot-probe.elf --elf build/mini-boot/hyperrig-mini-dsp-link-probe.elf
+```
+
+Per il terzo probe:
+
+```powershell
+python tools/verify_mini_platform.py
+python tools/verify_mini_codec.py
+python tools/verify_mini_runtime.py
+python tools/build_mini_boot.py --bringup
 ```
 
 Servono WSL Ubuntu, la toolchain JieLi già fissata dal bootstrap, firmware

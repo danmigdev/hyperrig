@@ -2,6 +2,9 @@
 #include "boot_probe.h"
 #include "hyperrig/hyperrig_engine.h"
 #include "hyperrig_mini_audio.h"
+#ifdef HYPERRIG_MINI_RUNTIME_PROBE
+#include "runtime_probe.h"
+#endif
 
 extern const unsigned char hyperrig_probe_capture[], hyperrig_probe_capture_end[];
 static unsigned char model_arena[16384] __attribute__((aligned(8)));
@@ -65,7 +68,11 @@ int hyperrig_mini_application_probe(void)
         rx[i] = 0;
         tx[i] = UINT32_C(0xa5a5a5a5);
     }
+#ifdef HYPERRIG_MINI_RUNTIME_PROBE
+    status = hyperrig_mini_runtime_memory_probe(rx, tx, process, &engine);
+#else
     status = hyperrig_mini_audio_process_half(rx, tx, 0, 30, 31, process, &engine);
+#endif
     hyperrig_mini_probe.audio_status = status;
     if (status) return status;
     crc = UINT32_MAX;

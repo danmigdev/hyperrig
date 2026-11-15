@@ -30,6 +30,45 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def verify_recorded_hashes(expected, root=ROOT):
+    """Refuse linking old target objects while host tests use newer sources."""
+    if not isinstance(expected, dict) or not expected:
+        raise ValueError("component report has no recorded inputs")
+    for name, digest in expected.items():
+        path = (root / name).resolve()
+        if not path.is_relative_to(root.resolve()) or not path.is_file() or sha(path.read_bytes()) != digest:
+            raise ValueError(f"component input changed or missing: {name}; rerun its verifier/build")
+
+
+def check_dependencies(dsp, bringup):
+    specs = []
+    if dsp:
+        specs += [("analysis/native/verification.json", "reconstruction_source_sha256", None,
+                   {"build/native/hyperrig_dsp.pi32v2.o": "pi32v2_object_sha256"}),
+                  ("research/mini-audio-driver.json", "sources_sha256", "tools/verify_mini_audio.py",
+                   {"build/mini-audio/hyperrig_mini_audio.pi32v2.o": "pi32v2_object_sha256"})]
+    if bringup:
+        specs += [("research/mini-platform.json", "sources_sha256", "tools/verify_mini_platform.py",
+                   {"build/mini-platform/hyperrig_mini_platform.pi32v2.o": "pi32v2_object_sha256"}),
+                  ("research/mini-runtime.json", "sources_sha256", "tools/verify_mini_runtime.py",
+                   {"build/mini-runtime/hyperrig_mini_runtime_component.pi32v2.o": "component_sha256"}),
+                  ("research/mini-codec.json", "sources_sha256", "tools/verify_mini_codec.py", {})]
+    checked = {}
+    for report_path, source_key, verifier, objects in specs:
+        raw = (ROOT / report_path).read_bytes()
+        report = json.loads(raw)
+        expected = dict(report[source_key])
+        if verifier:
+            expected[verifier] = report["verifier_sha256"]
+        expected.update({path: report[key] for path, key in objects.items()})
+        if report_path.endswith("mini-codec.json"):
+            expected.update({"build/mini-codec/" + name: data["sha256"]
+                             for name, data in report["target_objects"].items()})
+        verify_recorded_hashes(expected)
+        checked[report_path] = {"sha256": sha(raw), "verified_sources_and_objects": len(expected)}
+    return checked
+
+
 def elf_layout(raw):
     header = struct.unpack_from("<HHIIIIIHHHHHH", raw, 16)
     phdrs = [struct.unpack_from("<8I", raw, header[4] + header[8] * i) for i in range(header[9])]
@@ -181,7 +220,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--distro", default="Ubuntu")
     parser.add_argument("--dsp", action="store_true", help="also link DSP/audio/A2 and run the RAM-only C probe on the host")
+    parser.add_argument("--bringup", action="store_true",
+                        help="also link platform/codec/runtime and verify runtime-to-DSP with fake DMA; no MMIO")
     args = parser.parse_args()
+    args.dsp = args.dsp or args.bringup
+    dependency_reports = check_dependencies(args.dsp, args.bringup)
     evidence = stock_evidence()
     prefix = ["wsl.exe", "--distribution", args.distro, "--exec"] if os.name == "nt" else []
     compiler = "tools/vendor/jieli-linux-toolchains-20260730.1/pi32v2/bin/clang"
@@ -207,14 +250,29 @@ def main():
         run([compiler, "-target", "pi32v2", "-mcpu=r3", "-std=c99", "-Os", "-ffreestanding", "-fno-builtin",
              "-Wall", "-Wextra", "-Werror", "-Ifirmware/mini/boot", "-Ifirmware/mini/audio", "-Ifirmware/include", "-c",
              "firmware/mini/boot/" + name, "-o", "build/mini-boot/" + name + ".o"])
+    if args.bringup:
+        for name in ("runtime_probe.c", "dsp_probe.c"):
+            run([compiler, "-target", "pi32v2", "-mcpu=r3", "-std=c99", "-Os", "-ffreestanding", "-fno-builtin",
+                 "-Wall", "-Wextra", "-Werror", "-mllvm", "-pi32v2-large-program", "-DHYPERRIG_MINI_RUNTIME_PROBE",
+                 "-Ifirmware/mini/boot", "-Ifirmware/mini/audio", "-Ifirmware/include", "-c",
+                 "firmware/mini/boot/" + name, "-o", "build/mini-boot/bringup-" + name + ".o"])
     artifacts = []
-    for dsp in ([False, True] if args.dsp else [False]):
-        name = "hyperrig-mini-dsp-link-probe" if dsp else "hyperrig-mini-boot-probe"
+    variants = ["boot"] + (["dsp"] if args.dsp else []) + (["bringup"] if args.bringup else [])
+    bringup_objects = ["build/mini-runtime/hyperrig_mini_runtime_component.pi32v2.o",
+                       "build/mini-platform/hyperrig_mini_platform.pi32v2.o",
+                       "build/mini-codec/hyperrig_mini_codec.pi32v2.o", "build/mini-codec/spin_pi32v2.o"]
+    for variant in variants:
+        dsp = variant != "boot"
+        name = {"boot": "hyperrig-mini-boot-probe", "dsp": "hyperrig-mini-dsp-link-probe",
+                "bringup": "hyperrig-mini-bringup-probe"}[variant]
         relative = "build/mini-boot/" + name
         objects = ["build/mini-boot/" + name + ".o" for name in sources[:4]]
         if dsp:
-            objects += ["build/mini-boot/capture.S.o", "build/mini-boot/dsp_probe.c.o",
+            probe = "bringup-dsp_probe.c.o" if variant == "bringup" else "dsp_probe.c.o"
+            objects += ["build/mini-boot/capture.S.o", "build/mini-boot/" + probe,
                         "build/native/hyperrig_dsp.pi32v2.o", "build/mini-audio/hyperrig_mini_audio.pi32v2.o"]
+        if variant == "bringup":
+            objects += ["build/mini-boot/bringup-runtime_probe.c.o", *bringup_objects]
         # Vendor ld defaults to p_align=0x500, which violates standard ELF.
         # Explicit power-of-two pages also make offset/VMA congruence auditable.
         run([linker, "-z", "max-page-size=0x20", "-z", "common-page-size=0x20", "-T", "firmware/mini/boot/mini.ld",
@@ -226,13 +284,16 @@ def main():
         (ROOT / (relative + ".asm")).write_text(run([objdump, "-d", relative + ".elf"]), encoding="utf-8", newline="\n")
         artifacts.append({"file": relative + ".elf", "sha256": sha(raw), "elf_check": checked,
                           "startup_simulations": simulations, "target_c_executed": False,
-                          "dsp_linked": dsp, "audio_adapter_linked": dsp, "flashable": False})
+                          "dsp_linked": dsp, "audio_adapter_linked": dsp,
+                          "runtime_worker_linked": variant == "bringup",
+                          "platform_codec_linked_but_inactive": variant == "bringup", "flashable": False})
         print(f"{name}: linked; ELF layout + two startup instruction simulations passed.", flush=True)
     report = {"project": "HyperRig", "target": "TANK MINI", "stock": evidence, "artifacts": artifacts,
+              "checked_dependency_reports": dependency_reports,
               "source_sha256": {str(p.relative_to(ROOT)).replace("\\", "/"): sha(p.read_bytes())
                                 for p in sorted((ROOT / "firmware/mini/boot").iterdir()) if p.is_file()},
               "boot_validated_on_device": False, "flashable": False,
-              "unimplemented": ["boot-ROM handover validation", "clock/watchdog/board init", "DMA cache coherence",
+              "unimplemented": ["boot-ROM handover validation", "on-device clock/watchdog/board init", "DMA cache coherence",
                                 "peripheral pin/codec/mute validation", "CPU1 scheduler/start", "recovery installation"]}
     if args.dsp:
         report["dsp_object_sha256"] = sha((ROOT / "build/native/hyperrig_dsp.pi32v2.o").read_bytes())
@@ -254,6 +315,21 @@ def main():
                                        "target_c_executed": False, "mmio_called": False,
                                        "executable_sha256": sha((directory / "probe-host-sanitize").read_bytes())})
         print("Host C probe: ASan/UBSan passed; DSP CRC f10b5e4c, RAM audio TX CRC f0a44a06.", flush=True)
+        if args.bringup:
+            host_runtime_sources = ["firmware/mini/boot/runtime_probe.c",
+                                    "firmware/mini/runtime/hyperrig_mini_runtime.c"]
+            run(["gcc", "-std=c99", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
+                 "-DHYPERRIG_MINI_RUNTIME_PROBE", "-Ifirmware/mini/boot", "-Ifirmware/mini/audio", "-Ifirmware/include",
+                 "-fsanitize=address,undefined", "-fno-sanitize-recover=all", "-Wl,-z,noexecstack",
+                 *host_sources, *host_runtime_sources, "-o", "build/mini-boot/bringup-host-sanitize"])
+            report["host_runtime_c_probe"] = json.loads(run(["build/mini-boot/bringup-host-sanitize"]))
+            report["host_runtime_c_probe"].update({"address_sanitizer": True, "undefined_behavior_sanitizer": True,
+                "target_c_executed": False, "mmio_called": False, "hardware_irq_entered": False,
+                "ram_event_worker_dsp_path": True, "completed_blocks": 1,
+                "ownership_callbacks": "private RAM arrays, never claimed for real DMA",
+                "executable_sha256": sha((directory / "bringup-host-sanitize").read_bytes())})
+            report["bringup_objects_sha256"] = {path: sha((ROOT / path).read_bytes()) for path in bringup_objects}
+            print("Host runtime probe: event -> worker -> A2 -> TX CRC f0a44a06; ASan/UBSan passed, no MMIO.", flush=True)
     report["source_sha256"]["tools/build_mini_boot.py"] = sha(Path(__file__).read_bytes())
     (ROOT / "research/mini-boot.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
     print("Evidence: research/mini-boot.json. No boot on a device or flashable image is claimed.")

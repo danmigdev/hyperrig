@@ -159,6 +159,8 @@
       "target_c_executed": false,
       "dsp_linked": false,
       "audio_adapter_linked": false,
+      "runtime_worker_linked": false,
+      "platform_codec_linked_but_inactive": false,
       "flashable": false
     },
     {
@@ -257,27 +259,153 @@
       "target_c_executed": false,
       "dsp_linked": true,
       "audio_adapter_linked": true,
+      "runtime_worker_linked": false,
+      "platform_codec_linked_but_inactive": false,
+      "flashable": false
+    },
+    {
+      "file": "build/mini-boot/hyperrig-mini-bringup-probe.elf",
+      "sha256": "c5149a19f7eea6c76c73270c4e563db0307622bd4cab85c194bef5fa5cb4698d",
+      "elf_check": {
+        "file_format": "ELF32-pi32v2",
+        "sha256": "c5149a19f7eea6c76c73270c4e563db0307622bd4cab85c194bef5fa5cb4698d",
+        "bytes": 22776,
+        "elf_type": 2,
+        "machine": 241,
+        "entry": 33554720,
+        "elf_flags": 0,
+        "layout_valid": true,
+        "flashable": false,
+        "boot_verified_on_device": false,
+        "status": "linked-application-layout-only",
+        "load_segments": [
+          {
+            "index": 0,
+            "offset": 192,
+            "vaddr": 33554720,
+            "lma": 33554720,
+            "file_bytes": 15564,
+            "memory_bytes": 15564,
+            "flags": 5,
+            "region": "flash"
+          },
+          {
+            "index": 1,
+            "offset": 15776,
+            "vaddr": 29360128,
+            "lma": 33570284,
+            "file_bytes": 844,
+            "memory_bytes": 844,
+            "flags": 7,
+            "region": "ram"
+          },
+          {
+            "index": 2,
+            "offset": 16640,
+            "vaddr": 29360992,
+            "lma": 33571168,
+            "file_bytes": 0,
+            "memory_bytes": 218516,
+            "flags": 6,
+            "region": "ram"
+          },
+          {
+            "index": 3,
+            "offset": 16624,
+            "vaddr": 29871408,
+            "lma": 34081584,
+            "file_bytes": 0,
+            "memory_bytes": 12288,
+            "flags": 6,
+            "region": "ram"
+          }
+        ],
+        "linker_symbols": {
+          "__ram_start": 29360128,
+          "__ram_end": 29360972,
+          "__ram_load_start": 33570284,
+          "__ram_load_end": 33571128,
+          "__bss_start": 29360992,
+          "__bss_end": 29579456,
+          "__stack_bottom": 29871408,
+          "__stack_top": 29879600,
+          "__ssp_bottom": 29879600,
+          "__ssp_top": 29883696,
+          "__boot_reserved_start": 29883696,
+          "__boot_reserved_end": 29884416,
+          "__flash_image_end": 33571128,
+          "__noinit_start": 29579456,
+          "__noinit_end": 29579508,
+          "__ram_region_start": 29360128,
+          "__ram_region_end": 29883696
+        },
+        "file_backed_flash_bytes": 16408,
+        "limit": "Linking and layout checks do not establish startup, clock, interrupts, audio or update/recovery behavior."
+      },
+      "startup_simulations": {
+        "boot_descriptor": {
+          "steps": 109892,
+          "whole_ram_result_sha256": "dd6577ca92bbcf2307ae17199eec7b4e13c08bf64d2febeccdf817b9a32a3524",
+          "stopped_before_c_entry": true,
+          "irq_disabled": true
+        },
+        "null_debug_descriptor": {
+          "steps": 109880,
+          "whole_ram_result_sha256": "495fc9a3844b62612a4b214890e1ffd3a87ee5d54385881c2a24bf85d9388f14",
+          "stopped_before_c_entry": true,
+          "irq_disabled": true
+        }
+      },
+      "target_c_executed": false,
+      "dsp_linked": true,
+      "audio_adapter_linked": true,
+      "runtime_worker_linked": true,
+      "platform_codec_linked_but_inactive": true,
       "flashable": false
     }
   ],
+  "checked_dependency_reports": {
+    "analysis/native/verification.json": {
+      "sha256": "d0e460d71903a9d0662b992bf95469f838535de8002b3b91e4dd040578da32fc",
+      "verified_sources_and_objects": 13
+    },
+    "research/mini-audio-driver.json": {
+      "sha256": "383bf7ec9f59d92e669ae09a24083c1bd046147d13630da1b4151435bf721c25",
+      "verified_sources_and_objects": 5
+    },
+    "research/mini-platform.json": {
+      "sha256": "83dc6dc96f0ed9c97a280cb7a89ef33bc411e5baab67eaa16fb5aa016fb34768",
+      "verified_sources_and_objects": 6
+    },
+    "research/mini-runtime.json": {
+      "sha256": "9120421450dfe0270da207c65799b98702136ce2a1695ba08bab10eaec7e1072",
+      "verified_sources_and_objects": 8
+    },
+    "research/mini-codec.json": {
+      "sha256": "c5eef774b61a33a00a73b3e3e19f4fbd5f305b4f3b1f60208437d557c2cfb5bc",
+      "verified_sources_and_objects": 7
+    }
+  },
   "source_sha256": {
     "firmware/mini/boot/boot_probe.c": "e0181764700cf74631eb0dd5edcd96e352d39b686c706279f0833a9ec4c2ac02",
     "firmware/mini/boot/boot_probe.h": "4b26097445ba2d928738109c1f608d1056681853b8c83ae26538909e8b319141",
     "firmware/mini/boot/capture.S": "9c790f56dec0af159f7d2b6ed3393526785d217026695ffc64002101b4920026",
-    "firmware/mini/boot/dsp_probe.c": "2458686f4d313c52b596d81b30112882b1ccca7dda38db2f30ad2abe72d97333",
+    "firmware/mini/boot/dsp_probe.c": "2e06f529957f944ccf0e172052d07e8d7692a9faed84b675d00fc4d8ab5e6b14",
     "firmware/mini/boot/irq.c": "66fe7e52006b332525581d38cabf515b540c342f7b1671a5311e3786d84742c3",
     "firmware/mini/boot/irq.h": "830dfc7485d3cd6c6d7208a39a2df2af6496c2b95e01c1ab6a63bc51b6a6d1c9",
     "firmware/mini/boot/mini.ld": "0272e3866e8dd630c8d0da4525c5e4d0f05acf7fee789f41d48dd22d84056760",
     "firmware/mini/boot/probe_host.c": "65ac7098517f5abb88914a9be9a7e8965a816f3ba813c774c14ae3ad35c49b6e",
     "firmware/mini/boot/runtime.c": "a0fe564e1785238960f4810bb1684066bfd4d33f5337d98d74803b702c066973",
+    "firmware/mini/boot/runtime_probe.c": "32d0ab9c6854a3ebf0fa70ce870967190a5937681964ee3cc29121e32932f679",
+    "firmware/mini/boot/runtime_probe.h": "721690c5fb8f4b02bd872f214bf8867e3a762329773005fb5aff4891230a744a",
     "firmware/mini/boot/startup.S": "c61ace50e7a74dc6dcbb69bf1cb38feee14a2db3dd53614c30ff52ae0d35e653",
-    "tools/build_mini_boot.py": "2e19bcf6aadf4df1d8569b17d71769d4da24cb7d069c9b34bdbb13d832e7ddaa"
+    "tools/build_mini_boot.py": "92e5dfb65c66aabb3d42dd7941ba517fc6f073358b06a19390499c9156de566c"
   },
   "boot_validated_on_device": false,
   "flashable": false,
   "unimplemented": [
     "boot-ROM handover validation",
-    "clock/watchdog/board init",
+    "on-device clock/watchdog/board init",
     "DMA cache coherence",
     "peripheral pin/codec/mute validation",
     "CPU1 scheduler/start",
@@ -303,6 +431,32 @@
     "undefined_behavior_sanitizer": true,
     "target_c_executed": false,
     "mmio_called": false,
-    "executable_sha256": "a999319de7b57566dc9a2933821d496738200a0ff410b7855919adea15644d2d"
+    "executable_sha256": "9bb2e81f5dcc1f71224f8584e70a2b6ccdd518169c7658526486cc02a76a0756"
+  },
+  "host_runtime_c_probe": {
+    "host_c_probe_passed": true,
+    "application_status": 0,
+    "model_bytes": 7055,
+    "engine_bytes": 115383,
+    "rendered_frames": 64,
+    "dsp_crc32": "f10b5e4c",
+    "audio_status": 0,
+    "audio_frames": 64,
+    "tx_crc32": "f0a44a06",
+    "address_sanitizer": true,
+    "undefined_behavior_sanitizer": true,
+    "target_c_executed": false,
+    "mmio_called": false,
+    "hardware_irq_entered": false,
+    "ram_event_worker_dsp_path": true,
+    "completed_blocks": 1,
+    "ownership_callbacks": "private RAM arrays, never claimed for real DMA",
+    "executable_sha256": "739078533d21bf75f56b25f1e3667019df6ea1dd49c0a0f1a1972430441139af"
+  },
+  "bringup_objects_sha256": {
+    "build/mini-runtime/hyperrig_mini_runtime_component.pi32v2.o": "42d451c0ce1d5d94db39d0aeb24a67c47bc107f330cde280764f2929afcd66f3",
+    "build/mini-platform/hyperrig_mini_platform.pi32v2.o": "da2d59cae063de7ed7c15f560a199f16c327eba996538561d1a4fb578349caff",
+    "build/mini-codec/hyperrig_mini_codec.pi32v2.o": "c6c2ac2537448e96934eb9784c8720b9a1e8e73f05a9c424e97feda68398963c",
+    "build/mini-codec/spin_pi32v2.o": "03ef6cccab1a292d0b3a1f18f559297fb6d385f9553e29b0243960e92ff10b01"
   }
 }

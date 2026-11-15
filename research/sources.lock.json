@@ -19,6 +19,11 @@
     "tankmini-linux": {
       "url": "https://github.com/viniciusapl97/tankmini-linux.git",
       "commit": "d19741c61dff7b5f937ee66dc8d27839acd65433"
+    },
+    "m-bootloader": {
+      "url": "https://github.com/jvitkauskas/m-bootloader.git",
+      "commit": "3ac7651a019fa44daba061b05654278496477b64",
+      "usage": "AC791N SoC/ROM reference only; FM1/SMK37 board binaries are not MINI firmware"
     }
   },
   "ghidra": {

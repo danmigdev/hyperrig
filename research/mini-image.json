@@ -4,7 +4,7 @@
   "flashable": false,
   "validator": {
     "source": "tools/check_mini_image.py",
-    "sha256": "5c60193f1bd9f1c0ba7610af52058f1cf2de38acd321f2fc5de88dd8453ebdaf"
+    "sha256": "694ac9d5fc58c56069d0add87d44ca9b76d5b3627a1a52c1f97f6bd08c1010e8"
   },
   "stock": {
     "file_format": "FWSC",
@@ -346,6 +346,83 @@
       },
       "file_backed_flash_bytes": 11984,
       "limit": "Linking and layout checks do not establish startup, clock, interrupts, audio or update/recovery behavior."
+    },
+    {
+      "artifact": "hyperrig-mini-bringup-probe.elf",
+      "file_format": "ELF32-pi32v2",
+      "sha256": "c5149a19f7eea6c76c73270c4e563db0307622bd4cab85c194bef5fa5cb4698d",
+      "bytes": 22776,
+      "elf_type": 2,
+      "machine": 241,
+      "entry": 33554720,
+      "elf_flags": 0,
+      "layout_valid": true,
+      "flashable": false,
+      "boot_verified_on_device": false,
+      "status": "linked-application-layout-only",
+      "load_segments": [
+        {
+          "index": 0,
+          "offset": 192,
+          "vaddr": 33554720,
+          "lma": 33554720,
+          "file_bytes": 15564,
+          "memory_bytes": 15564,
+          "flags": 5,
+          "region": "flash"
+        },
+        {
+          "index": 1,
+          "offset": 15776,
+          "vaddr": 29360128,
+          "lma": 33570284,
+          "file_bytes": 844,
+          "memory_bytes": 844,
+          "flags": 7,
+          "region": "ram"
+        },
+        {
+          "index": 2,
+          "offset": 16640,
+          "vaddr": 29360992,
+          "lma": 33571168,
+          "file_bytes": 0,
+          "memory_bytes": 218516,
+          "flags": 6,
+          "region": "ram"
+        },
+        {
+          "index": 3,
+          "offset": 16624,
+          "vaddr": 29871408,
+          "lma": 34081584,
+          "file_bytes": 0,
+          "memory_bytes": 12288,
+          "flags": 6,
+          "region": "ram"
+        }
+      ],
+      "linker_symbols": {
+        "__ram_start": 29360128,
+        "__ram_end": 29360972,
+        "__ram_load_start": 33570284,
+        "__ram_load_end": 33571128,
+        "__bss_start": 29360992,
+        "__bss_end": 29579456,
+        "__stack_bottom": 29871408,
+        "__stack_top": 29879600,
+        "__ssp_bottom": 29879600,
+        "__ssp_top": 29883696,
+        "__boot_reserved_start": 29883696,
+        "__boot_reserved_end": 29884416,
+        "__flash_image_end": 33571128,
+        "__noinit_start": 29579456,
+        "__noinit_end": 29579508,
+        "__ram_region_start": 29360128,
+        "__ram_region_end": 29883696
+      },
+      "file_backed_flash_bytes": 16408,
+      "limit": "Linking and layout checks do not establish startup, clock, interrupts, audio or update/recovery behavior."
     }
   ],
   "hardware_writes": false,
@@ -353,6 +430,6 @@
     "Validate bootloader-to-application handoff and board clock setup.",
     "Integrate and verify IRQ/audio/DSP scheduling on the MINI.",
     "Verify update transport and a complete unit-specific backup/recovery route.",
-    "Construct and independently validate the MINI application container and update metadata."
+    "Validate the composed MINI application with the board updater metadata/transport before installation."
   ]
 }

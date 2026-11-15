@@ -1,0 +1,60 @@
+{
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "status": "experimental-offline-application-area",
+  "source_stock_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+  "source_elf_sha256": "c5149a19f7eea6c76c73270c4e563db0307622bd4cab85c194bef5fa5cb4698d",
+  "app_area_sha256": "0dcdeeba6825badc9468f51eaed5628f17335e6eb87520c8112e568ba6fbf731",
+  "bytes": 516096,
+  "physical_range": [
+    16384,
+    532480
+  ],
+  "entry": 33554720,
+  "app_payload_bytes": 16408,
+  "app_payload_sha256": "2a47c2c350b07716288d5ff3410704bf5ba36fbb35727a9a9fddfcc9b791f9d4",
+  "cfg_tool_sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+  "preserved_directory_records": [
+    "cfg_tool.bin",
+    "VM",
+    "PRCT",
+    "BTIF",
+    "USR"
+  ],
+  "sfc_key_source": "pinned stock package 0x980f; not measured on this unit",
+  "checks": {
+    "all_jlfs_crcs_valid": true,
+    "all_elf_load_bytes_match": true,
+    "initialized_ram_uses_lma": true,
+    "nobits_not_serialized": true,
+    "old_executable_removed": true,
+    "mini_region_records_identical": true,
+    "cfg_tool_identical": true,
+    "erased_alignment_and_payload_gaps": true
+  },
+  "boot_verified_on_device": false,
+  "installable_update_package": false,
+  "complete_flash_backup": false,
+  "hardware_write_performed": false,
+  "omitted_physical_ranges": {
+    "boot": [
+      0,
+      16384
+    ],
+    "VM_BTIF_USR_key": [
+      532480,
+      1048576
+    ]
+  },
+  "remaining": [
+    "Verify actual unit backup and recovery transport.",
+    "Verify clock/watchdog/cache and bootloader handoff on the MINI.",
+    "Integrate and measure real codec/DMA/IRQ/DSP execution.",
+    "Validate MINI updater metadata and address semantics before any installation."
+  ],
+  "artifact": "hyperrig-mini-bringup-probe.app-area.bin",
+  "builder": {
+    "source": "tools/package_mini_probe.py",
+    "sha256": "abcc58bb673241c0b89499fc49fcc1e42a1795a106b0021b773970f273bb654c"
+  }
+}
