@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "target": "tank-mini",
+  "architecture": "standalone-ultrarig-port",
+  "identity_prefix": "tankm_fw",
+  "firmware_version": null,
+  "image_sha256": null,
+  "capabilities": {"identity": true, "read": false, "write": false, "panel": false},
+  "panel": {"switch_count": 3, "switch_pins": null, "led_mapping": null, "knob_mapping": null},
+  "usb": {"class": "CDC-ACM", "vendor_id": 13908, "product_id": 20821, "baud_rate": 115200},
+  "ble": {
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "pair": "6e400004-b5a3-f393-e0a9-e50e24dcca9e"
+  },
+  "hardware_verified": false,
+  "write_validation": null
+}

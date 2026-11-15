@@ -52,7 +52,7 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   sei blocchi e ripetizione dopo reset con CRC corretti; stack privato e arena
   integri. È una prova distinta dalla capture originale a 23 layer e dall'audio.
 - Identità `TANK MINI_009` confermata via BLE e USB. Ritorno dalla ROM al
-  firmware stock verificato tre volte, con preset invariati. **Backup completo
+  firmware stock verificato quattro volte, con preset invariati. **Backup completo
   della NOR: due copie da 1 MiB identiche**, CRC validi e firmware corrispondente
   allo stock 009. Nessuna scrittura flash effettuata; recupero da un'applicazione
   corrotta ancora da verificare.
@@ -77,6 +77,7 @@ originale. Il dettaglio delle ricerche è in [source-audit.json](research/source
 - [Startup, linker e programmi diagnostici MINI](docs/MINI_BOOT.md).
 - [Prima esecuzione fisica del probe ROM HyperRig](docs/MINI_ROM_PROBE.md).
 - [Motore A2L sintetico verificato sul MINI in RAM](docs/MINI_ROM_ENGINE.md).
+- [Diagnostico codec in RAM: NACK e ripristino verificato](docs/MINI_ROM_CODEC.md).
 - [Port dell'applicazione UltraRig completa](docs/MINI_ULTRARIG_PORT.md).
 - [Editor HyperRig per il target MINI](docs/MINI_APP.md).
 - [Protocollo ROM, verifica RAM e ritorno allo stock](docs/MINI_RECOVERY.md).

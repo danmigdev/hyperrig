@@ -1,0 +1,1626 @@
+{
+  "project": "HyperRig",
+  "scope": "Integral original G firmware port; MINI stock is hardware evidence only",
+  "sources": {
+    "G_container_path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_g_app.bin",
+    "G_container_sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+    "G_decoded_sha256": "2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334",
+    "MINI_fwsc_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+    "MINI_decoded_sha256": "2ef41cf7149de62612120d0575d395367b2411f490cb2402ed3f244d12839cb6"
+  },
+  "address_space": "Preimages are decoded app-area bytes, not encrypted raw NOR bytes. Logical flash is app-area offset +0x4000.",
+  "g_regions": [
+    {
+      "name": "G board-specific preamble",
+      "cpu_start": "0x20053a4",
+      "cpu_end_exclusive": "0x20053c6",
+      "app_area_offset": "0x53a4",
+      "app_bin_offset": "0x5284",
+      "logical_flash_offset": "0x93a4",
+      "bytes": 34,
+      "sha256": "e99c3604f0868260b41a9d3b7c06bb7ff3a931a8cfc2d91751640425e3a6a347",
+      "preimage_hex": "482041214621bfeaf5fa48214121bfeaf1fa48254121bfeaedfa40294120bfeae9fa",
+      "instructions": [
+        {
+          "address": "0x20053a4",
+          "bytes": 2,
+          "text": "r0 = 32"
+        },
+        {
+          "address": "0x20053a6",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x20053a8",
+          "bytes": 2,
+          "text": "r6 = 1"
+        },
+        {
+          "address": "0x20053aa",
+          "bytes": 4,
+          "text": "call -2582",
+          "direct_target": "0x2004998"
+        },
+        {
+          "address": "0x20053ae",
+          "bytes": 2,
+          "text": "r0 = 33"
+        },
+        {
+          "address": "0x20053b0",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x20053b2",
+          "bytes": 4,
+          "text": "call -2590",
+          "direct_target": "0x2004998"
+        },
+        {
+          "address": "0x20053b6",
+          "bytes": 2,
+          "text": "r0 = 37"
+        },
+        {
+          "address": "0x20053b8",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x20053ba",
+          "bytes": 4,
+          "text": "call -2598",
+          "direct_target": "0x2004998"
+        },
+        {
+          "address": "0x20053be",
+          "bytes": 2,
+          "text": "r0 = 9"
+        },
+        {
+          "address": "0x20053c0",
+          "bytes": 2,
+          "text": "r1 = 0"
+        },
+        {
+          "address": "0x20053c2",
+          "bytes": 4,
+          "text": "call -2606",
+          "direct_target": "0x2004998"
+        }
+      ]
+    },
+    {
+      "name": "G ALNK clock pre-enable",
+      "cpu_start": "0x20053c6",
+      "cpu_end_exclusive": "0x20053d0",
+      "app_area_offset": "0x53c6",
+      "app_bin_offset": "0x52a6",
+      "logical_flash_offset": "0x93c6",
+      "bytes": 10,
+      "sha256": "fa8d88b1d017bb71260d82fb8c61f9c3d33c8a0cd13db74cef1e851997f662d2",
+      "preimage_hex": "c0ff1400010000ef000f",
+      "instructions": [
+        {
+          "address": "0x20053c6",
+          "bytes": 6,
+          "text": "r0 = 65556"
+        },
+        {
+          "address": "0x20053cc",
+          "bytes": 4,
+          "text": "[r0+0] |= 0x200"
+        }
+      ]
+    },
+    {
+      "name": "G iis_platform_data setup",
+      "cpu_start": "0x20053d0",
+      "cpu_end_exclusive": "0x20053ee",
+      "app_area_offset": "0x53d0",
+      "app_bin_offset": "0x52b0",
+      "logical_flash_offset": "0x93d0",
+      "bytes": 30,
+      "sha256": "f5b440172fb2c89e6815fabbe0f3fae9c058bb4eba67afb3c99685e168d50a09",
+      "preimage_hex": "402201e1d47698409e419c42402398439e449c6618850085840760209867",
+      "instructions": [
+        {
+          "address": "0x20053d0",
+          "bytes": 2,
+          "text": "r0 = 2"
+        },
+        {
+          "address": "0x20053d2",
+          "bytes": 4,
+          "text": "r1 = r7 + 1748"
+        },
+        {
+          "address": "0x20053d6",
+          "bytes": 2,
+          "text": "b[r1+0] = r0"
+        },
+        {
+          "address": "0x20053d8",
+          "bytes": 2,
+          "text": "b[r1+1] = r6"
+        },
+        {
+          "address": "0x20053da",
+          "bytes": 2,
+          "text": "b[r1+2] = r4"
+        },
+        {
+          "address": "0x20053dc",
+          "bytes": 2,
+          "text": "r0 = 3"
+        },
+        {
+          "address": "0x20053de",
+          "bytes": 2,
+          "text": "b[r1+3] = r0"
+        },
+        {
+          "address": "0x20053e0",
+          "bytes": 2,
+          "text": "b[r1+4] = r6"
+        },
+        {
+          "address": "0x20053e2",
+          "bytes": 2,
+          "text": "h[r1+12] = r4"
+        },
+        {
+          "address": "0x20053e4",
+          "bytes": 2,
+          "text": "r0 = r1 + 5"
+        },
+        {
+          "address": "0x20053e6",
+          "bytes": 2,
+          "text": "rep 2 6 {"
+        },
+        {
+          "address": "0x20053e8",
+          "bytes": 2,
+          "text": "b[r0++=1] = r4"
+        },
+        {
+          "address": "0x20053ea",
+          "bytes": 2,
+          "text": "r0 = 128"
+        },
+        {
+          "address": "0x20053ec",
+          "bytes": 2,
+          "text": "h[r1+14] = r0"
+        }
+      ]
+    },
+    {
+      "name": "G IRQ11, driver, rate and channel start calls",
+      "cpu_start": "0x20053f6",
+      "cpu_end_exclusive": "0x2005422",
+      "app_area_offset": "0x53f6",
+      "app_bin_offset": "0x52d6",
+      "logical_flash_offset": "0x93f6",
+      "bytes": 44,
+      "sha256": "6089e78f15e0a03c0e3aa7a91f44ebef6350a2acdaefd7d8d23cf3ad03c8eede",
+      "preimage_hex": "c2ff7832c001402b41264320bfead3d8bfea96fc41e00904d8ec7b01bfea8dfe41e00a04d8ec7b01bfeab9fe",
+      "instructions": [
+        {
+          "address": "0x20053f6",
+          "bytes": 6,
+          "text": "r2 = 29373048"
+        },
+        {
+          "address": "0x20053fc",
+          "bytes": 2,
+          "text": "r0 = 11"
+        },
+        {
+          "address": "0x20053fe",
+          "bytes": 2,
+          "text": "r1 = 6"
+        },
+        {
+          "address": "0x2005400",
+          "bytes": 2,
+          "text": "r3 = 0"
+        },
+        {
+          "address": "0x2005402",
+          "bytes": 4,
+          "text": "call -20058",
+          "direct_target": "0x20005ac"
+        },
+        {
+          "address": "0x2005406",
+          "bytes": 4,
+          "text": "call -1748",
+          "direct_target": "0x2004d36"
+        },
+        {
+          "address": "0x200540a",
+          "bytes": 4,
+          "text": "r1 = 1033"
+        },
+        {
+          "address": "0x200540e",
+          "bytes": 4,
+          "text": "[r7+r1<<2] = r0"
+        },
+        {
+          "address": "0x2005412",
+          "bytes": 4,
+          "text": "call -742",
+          "direct_target": "0x2005130"
+        },
+        {
+          "address": "0x2005416",
+          "bytes": 4,
+          "text": "r1 = 1034"
+        },
+        {
+          "address": "0x200541a",
+          "bytes": 4,
+          "text": "[r7+r1<<2] = r0"
+        },
+        {
+          "address": "0x200541e",
+          "bytes": 4,
+          "text": "call -654",
+          "direct_target": "0x2005194"
+        }
+      ]
+    },
+    {
+      "name": "G nominal 48000 setter and ALNK0 clock fields",
+      "cpu_start": "0x2005148",
+      "cpu_end_exclusive": "0x2005194",
+      "app_area_offset": "0x5148",
+      "app_bin_offset": "0x5028",
+      "logical_flash_offset": "0x9148",
+      "bytes": 76,
+      "sha256": "89565bd04cc5b0ce31af1afb899a5081c76ad18a8d1360f3ecbf0cc685cc5b3a",
+      "preimage_hex": "40e01504c2ff80bb0000d8ec1b20c02bd8ec1a000a4540208258c2ffa419010000ef002722e1702600ef802f43e01f04d8ec1a131b4c73e11c309b4c1b4c73e1e03033279b4cc0ef002f8000",
+      "instructions": [
+        {
+          "address": "0x2005148",
+          "bytes": 4,
+          "text": "r0 = 1045"
+        },
+        {
+          "address": "0x200514c",
+          "bytes": 6,
+          "text": "r2 = 48000"
+        },
+        {
+          "address": "0x2005152",
+          "bytes": 4,
+          "text": "[r1+r0<<2] = r2"
+        },
+        {
+          "address": "0x2005156",
+          "bytes": 2,
+          "text": "r0 += 11"
+        },
+        {
+          "address": "0x2005158",
+          "bytes": 4,
+          "text": "r0 = [r1+r0<<2]"
+        },
+        {
+          "address": "0x200515c",
+          "bytes": 2,
+          "text": "r2 = b[r0+5] (u)"
+        },
+        {
+          "address": "0x200515e",
+          "bytes": 2,
+          "text": "r0 = 0"
+        },
+        {
+          "address": "0x2005160",
+          "bytes": 2,
+          "text": "if (r2 != 0) goto 48",
+          "direct_target": "0x2005192"
+        },
+        {
+          "address": "0x2005162",
+          "bytes": 6,
+          "text": "r2 = 72100"
+        },
+        {
+          "address": "0x2005168",
+          "bytes": 4,
+          "text": "[r2+0] |= 0x2000000"
+        },
+        {
+          "address": "0x200516c",
+          "bytes": 4,
+          "text": "r2 = r2 + -6544"
+        },
+        {
+          "address": "0x2005170",
+          "bytes": 4,
+          "text": "[r2+0] |= 0x100"
+        },
+        {
+          "address": "0x2005174",
+          "bytes": 4,
+          "text": "r3 = 1055"
+        },
+        {
+          "address": "0x2005178",
+          "bytes": 4,
+          "text": "r1 = [r1+r3<<2]"
+        },
+        {
+          "address": "0x200517c",
+          "bytes": 2,
+          "text": "r3 = b[r1+12] (u)"
+        },
+        {
+          "address": "0x200517e",
+          "bytes": 4,
+          "text": "r3 = r3 & 0xFFFFFFE3"
+        },
+        {
+          "address": "0x2005182",
+          "bytes": 2,
+          "text": "b[r1+12] = r3"
+        },
+        {
+          "address": "0x2005184",
+          "bytes": 2,
+          "text": "r3 = b[r1+12] (u)"
+        },
+        {
+          "address": "0x2005186",
+          "bytes": 4,
+          "text": "r3 = r3 & 0xFFFFFF1F"
+        },
+        {
+          "address": "0x200518a",
+          "bytes": 2,
+          "text": "r3 |= 128"
+        },
+        {
+          "address": "0x200518c",
+          "bytes": 2,
+          "text": "b[r1+12] = r3"
+        },
+        {
+          "address": "0x200518e",
+          "bytes": 4,
+          "text": "[r2+0] &= 0xFFFFFDFF"
+        },
+        {
+          "address": "0x2005192",
+          "bytes": 2,
+          "text": "rts"
+        }
+      ]
+    },
+    {
+      "name": "G channel-start call: post-start hook site",
+      "cpu_start": "0x200541e",
+      "cpu_end_exclusive": "0x2005422",
+      "app_area_offset": "0x541e",
+      "app_bin_offset": "0x52fe",
+      "logical_flash_offset": "0x941e",
+      "bytes": 4,
+      "sha256": "604757fa3c1893a91aaa16296e5f7d4000bde0a6b1ee89e14e86cca3370cfcae",
+      "preimage_hex": "bfeab9fe",
+      "instructions": [
+        {
+          "address": "0x200541e",
+          "bytes": 4,
+          "text": "call -654",
+          "direct_target": "0x2005194"
+        }
+      ]
+    },
+    {
+      "name": "G GPIO bank resolver",
+      "cpu_start": "0x2001864",
+      "cpu_end_exclusive": "0x200187c",
+      "app_area_offset": "0x1864",
+      "app_bin_offset": "0x1744",
+      "logical_flash_offset": "0x5864",
+      "bytes": 24,
+      "sha256": "2ed6531d906ca160522464e9f69fa60081e82f20a48d2cb2f4da06c3305dcb7f",
+      "preimage_hex": "0116103fb1ec90c090a400a2c1ffa4a20302d8ec02018000",
+      "instructions": [
+        {
+          "address": "0x2001864",
+          "bytes": 2,
+          "text": "r1 = r0"
+        },
+        {
+          "address": "0x2001866",
+          "bytes": 2,
+          "text": "r0 = -1"
+        },
+        {
+          "address": "0x2001868",
+          "bytes": 4,
+          "text": "if (r1 <= 144) {"
+        },
+        {
+          "address": "0x200186c",
+          "bytes": 2,
+          "text": "r0 = r1 >> 4"
+        },
+        {
+          "address": "0x200186e",
+          "bytes": 2,
+          "text": "r0 = r0 << 2"
+        },
+        {
+          "address": "0x2001870",
+          "bytes": 6,
+          "text": "r1 = 33792676"
+        },
+        {
+          "address": "0x2001876",
+          "bytes": 4,
+          "text": "r0 = [r0+r1]"
+        },
+        {
+          "address": "0x200187a",
+          "bytes": 2,
+          "text": "rts"
+        }
+      ]
+    },
+    {
+      "name": "G nominal timing helper",
+      "cpu_start": "0x2002bd8",
+      "cpu_end_exclusive": "0x2002bec",
+      "app_area_offset": "0x2bd8",
+      "app_bin_offset": "0x2ab8",
+      "logical_flash_offset": "0x6bd8",
+      "bytes": 20,
+      "sha256": "30c0c12cfb3add81653bb701a656a0321550a10607d56f7731eb96a41971ea7f",
+      "preimage_hex": "c0ff80f1c101006be0e17a0f4126f4e100018000",
+      "instructions": [
+        {
+          "address": "0x2002bd8",
+          "bytes": 6,
+          "text": "r0 = 29487488"
+        },
+        {
+          "address": "0x2002bde",
+          "bytes": 2,
+          "text": "r0 = [r0+44]"
+        },
+        {
+          "address": "0x2002be0",
+          "bytes": 4,
+          "text": "r0 = r0 * 0x3E8"
+        },
+        {
+          "address": "0x2002be4",
+          "bytes": 2,
+          "text": "r1 = 6"
+        },
+        {
+          "address": "0x2002be6",
+          "bytes": 4,
+          "text": "r0 = r0 / r1 (u)"
+        },
+        {
+          "address": "0x2002bea",
+          "bytes": 2,
+          "text": "rts"
+        }
+      ]
+    },
+    {
+      "name": "G panel serializer conflicts with MINI codec bus",
+      "cpu_start": "0x2015858",
+      "cpu_end_exclusive": "0x20158c2",
+      "app_area_offset": "0x15858",
+      "app_bin_offset": "0x15738",
+      "logical_flash_offset": "0x19858",
+      "bytes": 106,
+      "sha256": "a85c786d7bb390a36e3fd4ca98e979666e3b49575c669e344ac22770bd9d15cf",
+      "preimage_hex": "7704c3ff80f1c101d0ec3818021660e0a04af1f808fec4ef0f40c5ef0f4000ef0f40c2ef0f40c0ef0140453c46210493b822c8e16075c0606197406041e10800b82317ea00021016c060618e00ef0440618b618afd3f406075feeaff3020c060c0ef0240d0ec39285704",
+      "instructions": [
+        {
+          "address": "0x2015858",
+          "bytes": 2,
+          "text": "[--sp] = {rets, r7-r4}"
+        },
+        {
+          "address": "0x201585a",
+          "bytes": 6,
+          "text": "r3 = 29487488"
+        },
+        {
+          "address": "0x2015860",
+          "bytes": 4,
+          "text": "r1 = [r3+136]"
+        },
+        {
+          "address": "0x2015864",
+          "bytes": 2,
+          "text": "r2 = r0"
+        },
+        {
+          "address": "0x2015866",
+          "bytes": 4,
+          "text": "r4 = 0x50000"
+        },
+        {
+          "address": "0x201586a",
+          "bytes": 4,
+          "text": "if (r1 != -1) goto 16",
+          "direct_target": "0x201587e"
+        },
+        {
+          "address": "0x201586e",
+          "bytes": 4,
+          "text": "[r4+16] &= 0xFFFFFFF0"
+        },
+        {
+          "address": "0x2015872",
+          "bytes": 4,
+          "text": "[r4+20] &= 0xFFFFFFF0"
+        },
+        {
+          "address": "0x2015876",
+          "bytes": 4,
+          "text": "[r4+0] |= 0xF"
+        },
+        {
+          "address": "0x201587a",
+          "bytes": 4,
+          "text": "[r4+8] &= 0xFFFFFFF0"
+        },
+        {
+          "address": "0x201587e",
+          "bytes": 4,
+          "text": "[r4+0] &= 0xFFFFFFFE"
+        },
+        {
+          "address": "0x2015882",
+          "bytes": 2,
+          "text": "r5 = 28"
+        },
+        {
+          "address": "0x2015884",
+          "bytes": 2,
+          "text": "r6 = 1"
+        },
+        {
+          "address": "0x2015886",
+          "bytes": 2,
+          "text": "goto 38",
+          "direct_target": "0x20158ae"
+        },
+        {
+          "address": "0x2015888",
+          "bytes": 2,
+          "text": "r0 &= 4294967291"
+        },
+        {
+          "address": "0x201588a",
+          "bytes": 4,
+          "text": "r7 = r6 << r5"
+        },
+        {
+          "address": "0x201588e",
+          "bytes": 2,
+          "text": "[r4+0] = r0"
+        },
+        {
+          "address": "0x2015890",
+          "bytes": 2,
+          "text": "call -82",
+          "direct_target": "0x2015840"
+        },
+        {
+          "address": "0x2015892",
+          "bytes": 2,
+          "text": "r0 = [r4+0]"
+        },
+        {
+          "address": "0x2015894",
+          "bytes": 4,
+          "text": "r1 = r0 | 0x8"
+        },
+        {
+          "address": "0x2015898",
+          "bytes": 2,
+          "text": "r0 &= 4294967287"
+        },
+        {
+          "address": "0x201589a",
+          "bytes": 4,
+          "text": "if ((r7 & r2) == 0) {"
+        },
+        {
+          "address": "0x201589e",
+          "bytes": 2,
+          "text": "r0 = r1"
+        },
+        {
+          "address": "0x20158a0",
+          "bytes": 2,
+          "text": "[r4+0] = r0"
+        },
+        {
+          "address": "0x20158a2",
+          "bytes": 2,
+          "text": "call -100",
+          "direct_target": "0x2015840"
+        },
+        {
+          "address": "0x20158a4",
+          "bytes": 4,
+          "text": "[r4+0] |= 0x4"
+        },
+        {
+          "address": "0x20158a8",
+          "bytes": 2,
+          "text": "call -106",
+          "direct_target": "0x2015840"
+        },
+        {
+          "address": "0x20158aa",
+          "bytes": 2,
+          "text": "call -108",
+          "direct_target": "0x2015840"
+        },
+        {
+          "address": "0x20158ac",
+          "bytes": 2,
+          "text": "r5 += -1"
+        },
+        {
+          "address": "0x20158ae",
+          "bytes": 2,
+          "text": "r0 = [r4+0]"
+        },
+        {
+          "address": "0x20158b0",
+          "bytes": 4,
+          "text": "ifs (r5 > -1) goto -44",
+          "direct_target": "0x2015888"
+        },
+        {
+          "address": "0x20158b4",
+          "bytes": 2,
+          "text": "r0 |= 1"
+        },
+        {
+          "address": "0x20158b6",
+          "bytes": 2,
+          "text": "[r4+0] = r0"
+        },
+        {
+          "address": "0x20158b8",
+          "bytes": 4,
+          "text": "[r4+0] &= 0xFFFFFFFD"
+        },
+        {
+          "address": "0x20158bc",
+          "bytes": 4,
+          "text": "[r3+136] = r2"
+        },
+        {
+          "address": "0x20158c0",
+          "bytes": 2,
+          "text": "{pc, r7-r4} = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "G panel serializer caller and cache check",
+      "cpu_start": "0x201755c",
+      "cpu_end_exclusive": "0x2017570",
+      "app_area_offset": "0x1755c",
+      "app_bin_offset": "0x1743c",
+      "logical_flash_offset": "0x1b55c",
+      "bytes": 20,
+      "sha256": "fdb47c15b202e0ce89c2e3489f8945a4da85af093fdd1b54b34037a498c7895b",
+      "preimage_hex": "d0ece81890e1700801e80200bfea76f1229d5f04",
+      "instructions": [
+        {
+          "address": "0x201755c",
+          "bytes": 4,
+          "text": "r1 = [r14+136]"
+        },
+        {
+          "address": "0x2017560",
+          "bytes": 4,
+          "text": "r0 = r7 | r8"
+        },
+        {
+          "address": "0x2017564",
+          "bytes": 4,
+          "text": "if (r0 == r1) goto 4",
+          "direct_target": "0x201756c"
+        },
+        {
+          "address": "0x2017568",
+          "bytes": 4,
+          "text": "call -7444",
+          "direct_target": "0x2015858"
+        },
+        {
+          "address": "0x201756c",
+          "bytes": 2,
+          "text": "sp += 244"
+        },
+        {
+          "address": "0x201756e",
+          "bytes": 2,
+          "text": "{pc, r15-r4} = [sp++]"
+        }
+      ]
+    }
+  ],
+  "mini_regions": [
+    {
+      "name": "MINI codec bus GPIO initialization",
+      "cpu_start": "0x2006960",
+      "cpu_end_exclusive": "0x20069bc",
+      "app_area_offset": "0x6960",
+      "app_bin_offset": "0x6840",
+      "logical_flash_offset": "0xa960",
+      "bytes": 92,
+      "sha256": "fc538a6ee68b17c31fffaa1e3538e805e9c697e1e62988567f3bf87914a0c13c",
+      "preimage_hex": "100440224120bfea9ff940224120bfea18fa40224121bfeacef840224120bfea02f340214120bfea8ff940214120bfea08fa40214121bfeabef840214121bfeaf2f240224121bfeaeef240224121bfea7dfa40214121bfea79fa0004",
+      "instructions": [
+        {
+          "address": "0x2006960",
+          "bytes": 2,
+          "text": "[--sp] = rets"
+        },
+        {
+          "address": "0x2006962",
+          "bytes": 2,
+          "text": "r0 = 2"
+        },
+        {
+          "address": "0x2006964",
+          "bytes": 2,
+          "text": "r1 = 0"
+        },
+        {
+          "address": "0x2006966",
+          "bytes": 4,
+          "text": "call -3266",
+          "direct_target": "0x2005ca8"
+        },
+        {
+          "address": "0x200696a",
+          "bytes": 2,
+          "text": "r0 = 2"
+        },
+        {
+          "address": "0x200696c",
+          "bytes": 2,
+          "text": "r1 = 0"
+        },
+        {
+          "address": "0x200696e",
+          "bytes": 4,
+          "text": "call -3024",
+          "direct_target": "0x2005da2"
+        },
+        {
+          "address": "0x2006972",
+          "bytes": 2,
+          "text": "r0 = 2"
+        },
+        {
+          "address": "0x2006974",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x2006976",
+          "bytes": 4,
+          "text": "call -3684",
+          "direct_target": "0x2005b16"
+        },
+        {
+          "address": "0x200697a",
+          "bytes": 2,
+          "text": "r0 = 2"
+        },
+        {
+          "address": "0x200697c",
+          "bytes": 2,
+          "text": "r1 = 0"
+        },
+        {
+          "address": "0x200697e",
+          "bytes": 4,
+          "text": "call -6652",
+          "direct_target": "0x2004f86"
+        },
+        {
+          "address": "0x2006982",
+          "bytes": 2,
+          "text": "r0 = 1"
+        },
+        {
+          "address": "0x2006984",
+          "bytes": 2,
+          "text": "r1 = 0"
+        },
+        {
+          "address": "0x2006986",
+          "bytes": 4,
+          "text": "call -3298",
+          "direct_target": "0x2005ca8"
+        },
+        {
+          "address": "0x200698a",
+          "bytes": 2,
+          "text": "r0 = 1"
+        },
+        {
+          "address": "0x200698c",
+          "bytes": 2,
+          "text": "r1 = 0"
+        },
+        {
+          "address": "0x200698e",
+          "bytes": 4,
+          "text": "call -3056",
+          "direct_target": "0x2005da2"
+        },
+        {
+          "address": "0x2006992",
+          "bytes": 2,
+          "text": "r0 = 1"
+        },
+        {
+          "address": "0x2006994",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x2006996",
+          "bytes": 4,
+          "text": "call -3716",
+          "direct_target": "0x2005b16"
+        },
+        {
+          "address": "0x200699a",
+          "bytes": 2,
+          "text": "r0 = 1"
+        },
+        {
+          "address": "0x200699c",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x200699e",
+          "bytes": 4,
+          "text": "call -6684",
+          "direct_target": "0x2004f86"
+        },
+        {
+          "address": "0x20069a2",
+          "bytes": 2,
+          "text": "r0 = 2"
+        },
+        {
+          "address": "0x20069a4",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x20069a6",
+          "bytes": 4,
+          "text": "call -6692",
+          "direct_target": "0x2004f86"
+        },
+        {
+          "address": "0x20069aa",
+          "bytes": 2,
+          "text": "r0 = 2"
+        },
+        {
+          "address": "0x20069ac",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x20069ae",
+          "bytes": 4,
+          "text": "call -2822",
+          "direct_target": "0x2005eac"
+        },
+        {
+          "address": "0x20069b2",
+          "bytes": 2,
+          "text": "r0 = 1"
+        },
+        {
+          "address": "0x20069b4",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x20069b6",
+          "bytes": 4,
+          "text": "call -2830",
+          "direct_target": "0x2005eac"
+        },
+        {
+          "address": "0x20069ba",
+          "bytes": 2,
+          "text": "pc = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "MINI codec address/write and 22-record initializer",
+      "cpu_start": "0x2006dce",
+      "cpu_end_exclusive": "0x2006e08",
+      "app_area_offset": "0x6dce",
+      "app_bin_offset": "0x6cae",
+      "logical_flash_offset": "0xadce",
+      "bytes": 58,
+      "sha256": "f94033ea0d5b4f3aba0b15b758c2b2b2036c383dbbc22ba29a44c4b3f0458d94",
+      "preimage_hex": "74040416bfeaf3fd4836bfea47ff004641244016419d30e80400518854047504bfeab7fd4420c5ff355e03020483481d7187c42484fcfbaf5504",
+      "instructions": [
+        {
+          "address": "0x2006dce",
+          "bytes": 2,
+          "text": "[--sp] = {rets, r4}"
+        },
+        {
+          "address": "0x2006dd0",
+          "bytes": 2,
+          "text": "r4 = r0"
+        },
+        {
+          "address": "0x2006dd2",
+          "bytes": 4,
+          "text": "call -1050",
+          "direct_target": "0x20069bc"
+        },
+        {
+          "address": "0x2006dd6",
+          "bytes": 2,
+          "text": "r0 = 54"
+        },
+        {
+          "address": "0x2006dd8",
+          "bytes": 4,
+          "text": "call -370",
+          "direct_target": "0x2006c6a"
+        },
+        {
+          "address": "0x2006ddc",
+          "bytes": 2,
+          "text": "if (r0 == 0) goto 12",
+          "direct_target": "0x2006dea"
+        },
+        {
+          "address": "0x2006dde",
+          "bytes": 2,
+          "text": "r1 = 4"
+        },
+        {
+          "address": "0x2006de0",
+          "bytes": 2,
+          "text": "r0 = r4"
+        },
+        {
+          "address": "0x2006de2",
+          "bytes": 2,
+          "text": "call -198",
+          "direct_target": "0x2006d1e"
+        },
+        {
+          "address": "0x2006de4",
+          "bytes": 4,
+          "text": "if (r0 == 4) {"
+        },
+        {
+          "address": "0x2006de8",
+          "bytes": 2,
+          "text": "call -176",
+          "direct_target": "0x2006d3a"
+        },
+        {
+          "address": "0x2006dea",
+          "bytes": 2,
+          "text": "{pc, r4} = [sp++]"
+        },
+        {
+          "address": "0x2006dec",
+          "bytes": 2,
+          "text": "[--sp] = {rets, r5, r4}"
+        },
+        {
+          "address": "0x2006dee",
+          "bytes": 4,
+          "text": "call -1170",
+          "direct_target": "0x2006960"
+        },
+        {
+          "address": "0x2006df2",
+          "bytes": 2,
+          "text": "r4 = 0"
+        },
+        {
+          "address": "0x2006df4",
+          "bytes": 6,
+          "text": "r5 = 33775157"
+        },
+        {
+          "address": "0x2006dfa",
+          "bytes": 2,
+          "text": "goto 6",
+          "direct_target": "0x2006e02"
+        },
+        {
+          "address": "0x2006dfc",
+          "bytes": 2,
+          "text": "r0 = r4 + r5"
+        },
+        {
+          "address": "0x2006dfe",
+          "bytes": 2,
+          "text": "call -50",
+          "direct_target": "0x2006dce"
+        },
+        {
+          "address": "0x2006e00",
+          "bytes": 2,
+          "text": "r4 += 4"
+        },
+        {
+          "address": "0x2006e02",
+          "bytes": 4,
+          "text": "if (r4 <= 87) goto -10",
+          "direct_target": "0x2006dfc"
+        },
+        {
+          "address": "0x2006e06",
+          "bytes": 2,
+          "text": "{pc, r5, r4} = [sp++]"
+        }
+      ]
+    },
+    {
+      "name": "MINI dual ALNK clock selector",
+      "cpu_start": "0x2006e36",
+      "cpu_end_exclusive": "0x2006e58",
+      "app_area_offset": "0x6e36",
+      "app_bin_offset": "0x6d16",
+      "logical_flash_offset": "0xae36",
+      "bytes": 34,
+      "sha256": "574e63490b697844b039d90b1d282bde3a87ec7277113d26a223d514ee7820aa",
+      "preimage_hex": "c1ff1400010000f80702804a106070e1700e40e1a00e0483106070e1700e90608000",
+      "instructions": [
+        {
+          "address": "0x2006e36",
+          "bytes": 6,
+          "text": "r1 = 65556"
+        },
+        {
+          "address": "0x2006e3c",
+          "bytes": 4,
+          "text": "if (r0 == 1) goto 14",
+          "direct_target": "0x2006e4e"
+        },
+        {
+          "address": "0x2006e40",
+          "bytes": 2,
+          "text": "if (r0 != 0) goto 20",
+          "direct_target": "0x2006e56"
+        },
+        {
+          "address": "0x2006e42",
+          "bytes": 2,
+          "text": "r0 = [r1+0]"
+        },
+        {
+          "address": "0x2006e44",
+          "bytes": 4,
+          "text": "r0 = r0 & 0xFFFFF0FF"
+        },
+        {
+          "address": "0x2006e48",
+          "bytes": 4,
+          "text": "r0 = r0 | 0x500"
+        },
+        {
+          "address": "0x2006e4c",
+          "bytes": 2,
+          "text": "goto 6",
+          "direct_target": "0x2006e54"
+        },
+        {
+          "address": "0x2006e4e",
+          "bytes": 2,
+          "text": "r0 = [r1+0]"
+        },
+        {
+          "address": "0x2006e50",
+          "bytes": 4,
+          "text": "r0 = r0 & 0xFFFFF0FF"
+        },
+        {
+          "address": "0x2006e54",
+          "bytes": 2,
+          "text": "[r1+0] = r0"
+        },
+        {
+          "address": "0x2006e56",
+          "bytes": 2,
+          "text": "rts"
+        }
+      ]
+    },
+    {
+      "name": "MINI codec init call before audio task",
+      "cpu_start": "0x200717c",
+      "cpu_end_exclusive": "0x200718c",
+      "app_area_offset": "0x717c",
+      "app_bin_offset": "0x705c",
+      "logical_flash_offset": "0xb17c",
+      "bytes": 16,
+      "sha256": "8eaf698b4fb84643e9c34d3ef46f74c142a2a5f0bf1292e8dcf227f6d7783107",
+      "preimage_hex": "7504e29d402a80ff3ece0300bfea30fe",
+      "instructions": [
+        {
+          "address": "0x200717c",
+          "bytes": 2,
+          "text": "[--sp] = {rets, r5, r4}"
+        },
+        {
+          "address": "0x200717e",
+          "bytes": 2,
+          "text": "sp += -12"
+        },
+        {
+          "address": "0x2007180",
+          "bytes": 2,
+          "text": "r0 = 10"
+        },
+        {
+          "address": "0x2007182",
+          "bytes": 6,
+          "text": "call 249406",
+          "direct_target": "0x2043fc6"
+        },
+        {
+          "address": "0x2007188",
+          "bytes": 4,
+          "text": "call -928",
+          "direct_target": "0x2006dec"
+        }
+      ]
+    },
+    {
+      "name": "MINI PA9 sequence around codec/ALNK start",
+      "cpu_start": "0x2007214",
+      "cpu_end_exclusive": "0x2007244",
+      "app_area_offset": "0x7214",
+      "app_bin_offset": "0x70f4",
+      "logical_flash_offset": "0xb214",
+      "bytes": 48,
+      "sha256": "227d69a0b9fe07328796b487b913df31d4c41ec07248a5f194b93b1f81be7eb2",
+      "preimage_hex": "40294120bfeab5eec0ff6079feff04820000c021f05d5188c0ff6079feff04820000c021f05d40294121bfeaa2ee0004",
+      "instructions": [
+        {
+          "address": "0x2007214",
+          "bytes": 2,
+          "text": "r0 = 9"
+        },
+        {
+          "address": "0x2007216",
+          "bytes": 2,
+          "text": "r1 = 0"
+        },
+        {
+          "address": "0x2007218",
+          "bytes": 4,
+          "text": "call -8854",
+          "direct_target": "0x2004f86"
+        },
+        {
+          "address": "0x200721c",
+          "bytes": 6,
+          "text": "r0 = 4294867296"
+        },
+        {
+          "address": "0x2007222",
+          "bytes": 2,
+          "text": "goto 4",
+          "direct_target": "0x2007228"
+        },
+        {
+          "address": "0x2007224",
+          "bytes": 2,
+          "text": "nop"
+        },
+        {
+          "address": "0x2007226",
+          "bytes": 2,
+          "text": "r0 += 1"
+        },
+        {
+          "address": "0x2007228",
+          "bytes": 2,
+          "text": "if (r0 != 0) goto -6",
+          "direct_target": "0x2007224"
+        },
+        {
+          "address": "0x200722a",
+          "bytes": 2,
+          "text": "call -176",
+          "direct_target": "0x200717c"
+        },
+        {
+          "address": "0x200722c",
+          "bytes": 6,
+          "text": "r0 = 4294867296"
+        },
+        {
+          "address": "0x2007232",
+          "bytes": 2,
+          "text": "goto 4",
+          "direct_target": "0x2007238"
+        },
+        {
+          "address": "0x2007234",
+          "bytes": 2,
+          "text": "nop"
+        },
+        {
+          "address": "0x2007236",
+          "bytes": 2,
+          "text": "r0 += 1"
+        },
+        {
+          "address": "0x2007238",
+          "bytes": 2,
+          "text": "if (r0 != 0) goto -6",
+          "direct_target": "0x2007234"
+        },
+        {
+          "address": "0x200723a",
+          "bytes": 2,
+          "text": "r0 = 9"
+        },
+        {
+          "address": "0x200723c",
+          "bytes": 2,
+          "text": "r1 = 1"
+        },
+        {
+          "address": "0x200723e",
+          "bytes": 4,
+          "text": "call -8892",
+          "direct_target": "0x2004f86"
+        },
+        {
+          "address": "0x2007242",
+          "bytes": 2,
+          "text": "pc = [sp++]"
+        }
+      ]
+    }
+  ],
+  "shared_alnk": {
+    "controller_base": "0x00012e00",
+    "irq": 11,
+    "G_pin_group_index": 0,
+    "MINI_pin_group_index": 1,
+    "G_table_row": [
+      7,
+      8,
+      9,
+      10,
+      4,
+      5,
+      6
+    ],
+    "MINI_table_row": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "clock_gpio_numbers": [
+      4,
+      5,
+      6
+    ],
+    "tx0_gpio": 7,
+    "rx1_gpio": 8,
+    "channels": {
+      "TX": 0,
+      "RX": 1
+    },
+    "data_bits": 24,
+    "slot_bits": 32,
+    "buffer_bytes_per_channel": 1024,
+    "half_frames": 64,
+    "length_register": 128,
+    "G_con0_before_enable_derived": "0x0180",
+    "MINI_con0_before_enable": "0x0180",
+    "G_con1_after_enable_derived": "0x00d5",
+    "MINI_con1_after_enable": "0x00d5",
+    "G_con3_derived": "0x83",
+    "MINI_con3_44100_or_48000": "0x83",
+    "electrical_frame_measurement": false,
+    "pin_table_patch_needed": false
+  },
+  "clock_comparison": {
+    "G_label": 48000,
+    "MINI_stock_label": 44100,
+    "G_master_CLK_CON2": "(old | 0x100) & ~0x200",
+    "MINI_48000_CLK_CON2": "(old & ~0xf00) | 0x500",
+    "ALNK0_bits_9_8_in_both_48000_paths": 1,
+    "difference_bits_11_10": "MINI also selects ALNK1; G preserves it. ALNK0 is used here.",
+    "G_explicit_PLL_CON1_output_enable": "0x02000000",
+    "automatic_clock_patch_recommended": false,
+    "physical_48000_verified": false,
+    "nominal_divider_hypothesis": "160000000/(13*256) = 48076.923 Hz, not measured"
+  },
+  "codec": {
+    "MINI_bus": {
+      "SDA": "PA1",
+      "SCL": "PA2",
+      "address_byte": "0x36",
+      "wire_record": "16-bit register then 16-bit data, big endian",
+      "mode": "stock drives high and low; SDA released for ACK only"
+    },
+    "table": {
+      "name": "MINI codec 22-record script",
+      "cpu_start": "0x2035e35",
+      "cpu_end_exclusive": "0x2035e8d",
+      "app_area_offset": "0x35e35",
+      "app_bin_offset": "0x35d15",
+      "logical_flash_offset": "0x39e35",
+      "bytes": 88,
+      "sha256": "1032b05743d45148e6aecd2bdc6834ab54804d154362c545d9949a49461c415d",
+      "preimage_hex": "0000ffff0066006000010fd000030000001d0002001c000e00720170002b0003002c00810073330c007671400034cfcf0035cfcf004b2007006a100300770000007e0a0a007fc03f0032000000800720000dc00000311004"
+    },
+    "records": [
+      {
+        "register": "0x0000",
+        "value": "0xffff"
+      },
+      {
+        "register": "0x0066",
+        "value": "0x0060"
+      },
+      {
+        "register": "0x0001",
+        "value": "0x0fd0"
+      },
+      {
+        "register": "0x0003",
+        "value": "0x0000"
+      },
+      {
+        "register": "0x001d",
+        "value": "0x0002"
+      },
+      {
+        "register": "0x001c",
+        "value": "0x000e"
+      },
+      {
+        "register": "0x0072",
+        "value": "0x0170"
+      },
+      {
+        "register": "0x002b",
+        "value": "0x0003"
+      },
+      {
+        "register": "0x002c",
+        "value": "0x0081"
+      },
+      {
+        "register": "0x0073",
+        "value": "0x330c"
+      },
+      {
+        "register": "0x0076",
+        "value": "0x7140"
+      },
+      {
+        "register": "0x0034",
+        "value": "0xcfcf"
+      },
+      {
+        "register": "0x0035",
+        "value": "0xcfcf"
+      },
+      {
+        "register": "0x004b",
+        "value": "0x2007"
+      },
+      {
+        "register": "0x006a",
+        "value": "0x1003"
+      },
+      {
+        "register": "0x0077",
+        "value": "0x0000"
+      },
+      {
+        "register": "0x007e",
+        "value": "0x0a0a"
+      },
+      {
+        "register": "0x007f",
+        "value": "0xc03f"
+      },
+      {
+        "register": "0x0032",
+        "value": "0x0000"
+      },
+      {
+        "register": "0x0080",
+        "value": "0x0720"
+      },
+      {
+        "register": "0x000d",
+        "value": "0xc000"
+      },
+      {
+        "register": "0x0031",
+        "value": "0x1004"
+      }
+    ],
+    "same_table_occurs_in_G": false,
+    "first_8_table_bytes_occur_in_G": false,
+    "G_audio_start_scope": "No MINI codec replay in the decoded G setup path; absence of a byte pattern is not proof about every G path.",
+    "register_map_compatible_with": "NAU88L21/NAU88L21C",
+    "physical_identity_confirmed": false,
+    "stock_osr": 256,
+    "rate_policy": "Do not silently replace stock OSR or claim 48 kHz qualified from register ACK alone."
+  },
+  "board_gpio": {
+    "G_audio_start": {
+      "PC0": 1,
+      "PC1": 1,
+      "PC5": 1,
+      "PA9": 0
+    },
+    "G_gpio_bank_table_cpu": "0x0203a2a4",
+    "G_port_a": "0x50000",
+    "G_port_c": "0x50080",
+    "MINI_sequence": [
+      "PA9=0",
+      "100000 nop-loop iterations",
+      "codec init then ALNK start",
+      "100000 nop-loop iterations",
+      "PA9=1"
+    ],
+    "G_PC0_PC1_PC5_electrical_roles_known": false,
+    "PA9_analog_mute_identity_proven": false,
+    "delay_microseconds_calibrated": false
+  },
+  "patch_requirements": [
+    {
+      "site": "G panel serializer call",
+      "cpu": "0x02017568",
+      "span_bytes": 4,
+      "action": "Replace or suppress the G PA0..PA3 serializer before enabling the MINI codec bus. See the separate panel port audit.",
+      "preimage_hex": "bfea76f1",
+      "requirements": [
+        "The runtime writer toggles PA2 and finally pulls PA1 low; this is a proven conflict, not merely unresolved ownership.",
+        "An app-level command filter does not disable the firmware panel task.",
+        "A diagnostic no-op alone does not provide the final MINI panel functionality."
+      ]
+    },
+    {
+      "site": "G board-specific preamble",
+      "cpu": "0x020053a4",
+      "span_bytes": 34,
+      "action": "Replace G-specific PC0/PC1/PC5 writes with MINI board initialization/codec-bus hook; retain r6=1 and normal callee-saved ABI.",
+      "requirements": [
+        "Keep PA9 low until codec transaction and audio start policy succeeds.",
+        "Use a G-owned/decoded system clock for bus delays; never reference MINI RAM global0x01c1e32c.",
+        "Resolve PA1/PA2 ownership and GPIO locking against G panel/background tasks.",
+        "New code/data placement and error branch must be linked and verified before patching."
+      ]
+    },
+    {
+      "site": "G channel-start call: post-start hook site",
+      "cpu": "0x0200541e",
+      "span_bytes": 4,
+      "action": "Preserve original G0x02005194 channel start, then perform the MINI post-start delay/PA9 transition only on successful board setup.",
+      "requirements": [
+        "Retain all original G DSP/RTOS/IRQ processing.",
+        "Define failure cleanup before enabling an analog output."
+      ]
+    },
+    {
+      "site": "G nominal 48000 setter and ALNK0 clock fields",
+      "cpu": "0x02005148",
+      "span_bytes": 76,
+      "action": "Inspection point only: preserve G ALNK0 rate selection; difference0x100/0x500 is not an ALNK0 mismatch."
+    }
+  ],
+  "panel": {
+    "physical_mapping_complete": false,
+    "known_requirement": "G four-switch/knob assumptions must be mapped to MINI independently; app logical IDs do not identify GPIO.",
+    "proven_codec_bus_conflict": {
+      "writer": "0x02015858",
+      "caller": {
+        "name": "G panel serializer call",
+        "cpu_start": "0x2017568",
+        "cpu_end_exclusive": "0x201756c",
+        "app_area_offset": "0x17568",
+        "app_bin_offset": "0x17448",
+        "logical_flash_offset": "0x1b568",
+        "bytes": 4,
+        "sha256": "f95f9c06e0f7e7cfd7f21455f487665a046508b816c02f45625ae757c87cdd98",
+        "preimage_hex": "bfea76f1",
+        "instructions": [
+          {
+            "address": "0x2017568",
+            "bytes": 4,
+            "text": "call -7444",
+            "direct_target": "0x2015858"
+          }
+        ]
+      },
+      "gpio_bank": "0x00050000",
+      "pins": [
+        "PA0",
+        "PA1",
+        "PA2",
+        "PA3"
+      ],
+      "serializer_bits": 29,
+      "clock": "PA2",
+      "inverted_data": "PA3",
+      "final_line_actions": [
+        "PA0 high",
+        "PA1 low"
+      ],
+      "cache_address": "0x01c1f208",
+      "audio_overlap": [
+        "PA1=SDA",
+        "PA2=SCL"
+      ]
+    },
+    "separate_panel_audit": "research/mini-panel-port.json",
+    "remaining_audio_conflicts": [
+      "Other full-firmware GPIO/clock owners and lock policy",
+      "PC0/PC1/PC5 roles on MINI"
+    ]
+  },
+  "primary_clock_reference": {
+    "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/clock_hw.h",
+    "sha256": "ae1ea1b672b3855f6b0e2378d9ee1583e1b87614ed617db3d41f001681f855ae",
+    "scope": "ALNK0 SEL/EN8/9 and ALNK1 SEL/EN10/11 names in #if0; corroborated by the pinned SDK iis_set_sample_rate bitcode.",
+    "documentary_only": true
+  },
+  "existing_evidence": [
+    "research/audio-map.json",
+    "research/mini-codec.json",
+    "research/mini-clock.json"
+  ],
+  "firmware_patched": false,
+  "hardware_accessed": false,
+  "verifier_sha256": "73520cfc16c6b258e597e6040dee20bf5fd9e77a51ab6008a0ca94ea4bb1b74c"
+}

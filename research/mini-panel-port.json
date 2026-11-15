@@ -1,0 +1,2708 @@
+{
+  "project": "HyperRig",
+  "scope": "Whole original UltraRig-G application port: physical panel adaptation only",
+  "sources": {
+    "G_container_path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_g_app.bin",
+    "G_container_sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+    "G_decoded_sha256": "2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334",
+    "MINI_fwsc_path": "artifacts/tank-mini/TANK-MINI.fwsc",
+    "MINI_fwsc_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+    "MINI_decoded_sha256": "2ef41cf7149de62612120d0575d395367b2411f490cb2402ed3f244d12839cb6",
+    "GPIO_header_path": "upstream/ac79-sdk-reference/include_lib/driver/cpu/wl82/asm/WL82.h",
+    "GPIO_header_sha256": "6f5a44f39282f66203d837a1c74c9d8197d2856547356fce8ed0d191318ff645",
+    "GPIO_header_url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/WL82.h"
+  },
+  "address_note": "Patch CPU addresses are FLASH LOAD addresses in decoded app area. Copied IRQ/data also list their runtime VMA; raw NOR is encrypted.",
+  "patches": [
+    {
+      "name": "mini_panel_serial_writer_disabled",
+      "cpu_address": 33642584,
+      "area_offset": 88152,
+      "physical_address": 104536,
+      "bytes": 12,
+      "before_hex": "7704c3ff80f1c101d0ec3818",
+      "after_hex": "c1ff08f2c101906080000000",
+      "rationale": "Replace entry by RAM-cache store and normal return; no PA0..3 access. LED driver is pending."
+    },
+    {
+      "name": "mini_panel_input_banks",
+      "cpu_address": 33777104,
+      "area_offset": 222672,
+      "physical_address": 239056,
+      "bytes": 12,
+      "before_hex": "c0010500c0010500c0010500",
+      "after_hex": "000005000000050000000500",
+      "rationale": "First three physical inputs use port A; inaccessible G slots 3/4 are retained in the file."
+    },
+    {
+      "name": "mini_panel_input_bits",
+      "cpu_address": 33774064,
+      "area_offset": 219632,
+      "physical_address": 236016,
+      "bytes": 3,
+      "before_hex": "060708",
+      "after_hex": "0a0003",
+      "rationale": "MINI stock scan order PA10, PA0, PA3; active low. Physical label order is unmeasured."
+    },
+    {
+      "name": "mini_panel_init_three",
+      "cpu_address": 33642908,
+      "area_offset": 88476,
+      "physical_address": 104860,
+      "bytes": 4,
+      "before_hex": "80f8e20b",
+      "after_hex": "80f8e207",
+      "rationale": "Limit the same loop to three physical MINI switches; retain branch/register fields."
+    },
+    {
+      "name": "mini_panel_poll_three",
+      "cpu_address": 33643216,
+      "area_offset": 88784,
+      "physical_address": 105168,
+      "bytes": 4,
+      "before_hex": "84f8cb0b",
+      "after_hex": "84f8cb07",
+      "rationale": "Limit the same loop to three physical MINI switches; retain branch/register fields."
+    },
+    {
+      "name": "mini_panel_irq_three",
+      "cpu_address": 33921720,
+      "area_offset": 367288,
+      "physical_address": 383672,
+      "bytes": 4,
+      "before_hex": "84f8c10b",
+      "after_hex": "84f8c107",
+      "rationale": "Limit the same loop to three physical MINI switches; retain branch/register fields."
+    },
+    {
+      "name": "mini_panel_logical_default",
+      "cpu_address": 34036084,
+      "area_offset": 481652,
+      "physical_address": 498036,
+      "bytes": 4,
+      "before_hex": "04030100",
+      "after_hex": "00010203",
+      "rationale": "Logical A/B/C map to physical scan indices 0/1/2; D maps to an inactive, valid state slot 3."
+    },
+    {
+      "name": "mini_panel_restore_fixed_map",
+      "cpu_address": 33570610,
+      "area_offset": 16178,
+      "physical_address": 32562,
+      "bytes": 4,
+      "before_hex": "d8ee0021",
+      "after_hex": "12160000",
+      "rationale": "Configuration restore uses its index as mapping value; a persisted G permutation cannot replace MINI wiring."
+    },
+    {
+      "name": "mini_panel_skip_G_analog_init",
+      "cpu_address": 33642946,
+      "area_offset": 88514,
+      "physical_address": 104898,
+      "bytes": 4,
+      "before_hex": "bfeabaf5",
+      "after_hex": "c0ea1b00",
+      "rationale": "Skip G PB1/PC6..8 initialization and initial ADC samples; preserve prior RAM initialization and following epilogue."
+    },
+    {
+      "name": "mini_panel_G_analog_scan_disabled",
+      "cpu_address": 33643008,
+      "area_offset": 88576,
+      "physical_address": 104960,
+      "bytes": 2,
+      "before_hex": "4121",
+      "after_hex": "4120",
+      "rationale": "Keep state+832 zero: gates panel ADC/mux block and CE8E -> CDE0 initialization path. Knobs/expression pending."
+    }
+  ],
+  "patched_decoded_area_sha256_for_test_only": "06efbae423ba14771638bf95c1538028d9061937b5e151e6e61dba7d98f077e4",
+  "copied_RAM": {
+    "source": 33908608,
+    "destination": 29360128,
+    "bytes": 131852,
+    "IRQ_limit_VMA": 29373240,
+    "IRQ_limit_LMA": 33921720,
+    "logical_map_VMA": 29487604,
+    "logical_map_LMA": 34036084
+  },
+  "original_startup_zeroing": {
+    "start": 29491980,
+    "bytes": 97604,
+    "end_exclusive": 29589584,
+    "inactive_raw_slots": [
+      29519523,
+      29519524,
+      29519538,
+      29519539
+    ],
+    "evidence": [
+      {
+        "address": 33554844,
+        "bytes": "c3ff0c03c201",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 3,
+          "n": 29491980
+        },
+        "assembly": "r3 = 29491980"
+      },
+      {
+        "address": 33554850,
+        "bytes": "4120",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 1,
+          "n": 0
+        },
+        "assembly": "r1 = 0"
+      },
+      {
+        "address": 33554852,
+        "bytes": "c2ff447d0100",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 2,
+          "n": 97604
+        },
+        "assembly": "r2 = 97604"
+      },
+      {
+        "address": 33554858,
+        "bytes": "a2a2",
+        "instruction": "lsr.rri",
+        "fields": {
+          "d": 2,
+          "s": 2,
+          "n": 2
+        },
+        "assembly": "r2 = r2 >> 2"
+      },
+      {
+        "address": 33554860,
+        "bytes": "0203",
+        "instruction": "rep",
+        "fields": {
+          "r": 2,
+          "n": 0
+        },
+        "assembly": "rep 2 r2 {"
+      },
+      {
+        "address": 33554862,
+        "bytes": "b105",
+        "instruction": "st.w.pin",
+        "fields": {
+          "d": 1,
+          "b": 3,
+          "n": 0
+        },
+        "assembly": "[r3++=4] = r1"
+      },
+      {
+        "address": 33554864,
+        "bytes": "f25d",
+        "instruction": "bnez",
+        "fields": {
+          "r": 2,
+          "n": 253
+        },
+        "assembly": "if (r2 != 0) goto -6",
+        "direct_target": 33554860
+      }
+    ]
+  },
+  "serial_writer": {
+    "entry": 33642584,
+    "end_exclusive": 33642690,
+    "data_bits": 29,
+    "signal_roles_inferred": {
+      "PA0": "latch",
+      "PA1": "active-low enable",
+      "PA2": "clock",
+      "PA3": "serial data"
+    },
+    "chip_is_74HC595_electrically_proven": false,
+    "known_MINI_conflict": "PA1 codec SDA and PA2 codec SCL; PA0 and PA3 MINI switches",
+    "caller": [
+      {
+        "address": 33650012,
+        "bytes": "d0ece818",
+        "instruction": "ld.w.l",
+        "fields": {
+          "r": 1,
+          "s": 14,
+          "n": 34
+        },
+        "assembly": "r1 = [r14+136]"
+      },
+      {
+        "address": 33650016,
+        "bytes": "90e17008",
+        "instruction": "or.rrr",
+        "fields": {
+          "r": 0,
+          "s": 7,
+          "t": 8
+        },
+        "assembly": "r0 = r7 | r8"
+      },
+      {
+        "address": 33650020,
+        "bytes": "01e80200",
+        "instruction": "beq.rr",
+        "fields": {
+          "r": 0,
+          "s": 1,
+          "n": 2
+        },
+        "assembly": "if (r0 == r1) goto 4",
+        "direct_target": 33650028
+      },
+      {
+        "address": 33650024,
+        "bytes": "bfea76f1",
+        "instruction": "call.l",
+        "fields": {
+          "n": 4190582
+        },
+        "assembly": "call -7444",
+        "direct_target": 33642584
+      },
+      {
+        "address": 33650028,
+        "bytes": "229d",
+        "instruction": "add.sp_i",
+        "fields": {
+          "n": 61
+        },
+        "assembly": "sp += 244"
+      },
+      {
+        "address": 33650030,
+        "bytes": "5f04",
+        "instruction": "pop.pc_rl",
+        "fields": {
+          "l": 15
+        },
+        "assembly": "{pc, r15-r4} = [sp++]"
+      }
+    ],
+    "original": [
+      {
+        "address": 33642584,
+        "bytes": "7704",
+        "instruction": "push.rets_rl",
+        "fields": {
+          "l": 7
+        },
+        "assembly": "[--sp] = {rets, r7-r4}"
+      },
+      {
+        "address": 33642586,
+        "bytes": "c3ff80f1c101",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 3,
+          "n": 29487488
+        },
+        "assembly": "r3 = 29487488"
+      },
+      {
+        "address": 33642592,
+        "bytes": "d0ec3818",
+        "instruction": "ld.w.l",
+        "fields": {
+          "r": 1,
+          "s": 3,
+          "n": 34
+        },
+        "assembly": "r1 = [r3+136]"
+      },
+      {
+        "address": 33642596,
+        "bytes": "0216",
+        "instruction": "mov.rr",
+        "fields": {
+          "x": 2,
+          "y": 0
+        },
+        "assembly": "r2 = r0"
+      },
+      {
+        "address": 33642598,
+        "bytes": "60e0a04a",
+        "instruction": "li.modimm",
+        "fields": {
+          "r": 4,
+          "n": 2720
+        },
+        "assembly": "r4 = 0x50000"
+      },
+      {
+        "address": 33642602,
+        "bytes": "f1f808fe",
+        "instruction": "bne.ri",
+        "fields": {
+          "r": 1,
+          "i": 1023,
+          "n": 8
+        },
+        "assembly": "if (r1 != -1) goto 16",
+        "direct_target": 33642622
+      },
+      {
+        "address": 33642606,
+        "bytes": "c4ef0f40",
+        "instruction": "rmw.and.nmodimm",
+        "fields": {
+          "r": 4,
+          "n": 4,
+          "m": 15
+        },
+        "assembly": "[r4+16] &= 0xFFFFFFF0"
+      },
+      {
+        "address": 33642610,
+        "bytes": "c5ef0f40",
+        "instruction": "rmw.and.nmodimm",
+        "fields": {
+          "r": 4,
+          "n": 5,
+          "m": 15
+        },
+        "assembly": "[r4+20] &= 0xFFFFFFF0"
+      },
+      {
+        "address": 33642614,
+        "bytes": "00ef0f40",
+        "instruction": "rmw.or.modimm",
+        "fields": {
+          "r": 4,
+          "n": 0,
+          "m": 15
+        },
+        "assembly": "[r4+0] |= 0xF"
+      },
+      {
+        "address": 33642618,
+        "bytes": "c2ef0f40",
+        "instruction": "rmw.and.nmodimm",
+        "fields": {
+          "r": 4,
+          "n": 2,
+          "m": 15
+        },
+        "assembly": "[r4+8] &= 0xFFFFFFF0"
+      },
+      {
+        "address": 33642622,
+        "bytes": "c0ef0140",
+        "instruction": "rmw.and.nmodimm",
+        "fields": {
+          "r": 4,
+          "n": 0,
+          "m": 1
+        },
+        "assembly": "[r4+0] &= 0xFFFFFFFE"
+      },
+      {
+        "address": 33642626,
+        "bytes": "453c",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 5,
+          "n": 28
+        },
+        "assembly": "r5 = 28"
+      },
+      {
+        "address": 33642628,
+        "bytes": "4621",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 6,
+          "n": 1
+        },
+        "assembly": "r6 = 1"
+      },
+      {
+        "address": 33642630,
+        "bytes": "0493",
+        "instruction": "goto.s",
+        "fields": {
+          "n": 19
+        },
+        "assembly": "goto 38",
+        "direct_target": 33642670
+      },
+      {
+        "address": 33642632,
+        "bytes": "b822",
+        "instruction": "and.invbit",
+        "fields": {
+          "r": 0,
+          "b": 2
+        },
+        "assembly": "r0 &= 4294967291"
+      },
+      {
+        "address": 33642634,
+        "bytes": "c8e16075",
+        "instruction": "lsl.rrr",
+        "fields": {
+          "r": 7,
+          "s": 6,
+          "t": 5
+        },
+        "assembly": "r7 = r6 << r5"
+      },
+      {
+        "address": 33642638,
+        "bytes": "c060",
+        "instruction": "st.w",
+        "fields": {
+          "d": 0,
+          "b": 4,
+          "n": 0
+        },
+        "assembly": "[r4+0] = r0"
+      },
+      {
+        "address": 33642640,
+        "bytes": "6197",
+        "instruction": "call.s",
+        "fields": {
+          "n": 215
+        },
+        "assembly": "call -82",
+        "direct_target": 33642560
+      },
+      {
+        "address": 33642642,
+        "bytes": "4060",
+        "instruction": "ld.w",
+        "fields": {
+          "d": 0,
+          "b": 4,
+          "n": 0
+        },
+        "assembly": "r0 = [r4+0]"
+      },
+      {
+        "address": 33642644,
+        "bytes": "41e10800",
+        "instruction": "or.modimm.rri",
+        "fields": {
+          "r": 1,
+          "s": 0,
+          "n": 8
+        },
+        "assembly": "r1 = r0 | 0x8"
+      },
+      {
+        "address": 33642648,
+        "bytes": "b823",
+        "instruction": "and.invbit",
+        "fields": {
+          "r": 0,
+          "b": 3
+        },
+        "assembly": "r0 &= 4294967287"
+      },
+      {
+        "address": 33642650,
+        "bytes": "17ea0002",
+        "instruction": "if.eq.and.rr",
+        "fields": {
+          "r": 7,
+          "s": 2,
+          "t": 0,
+          "e": 0
+        },
+        "assembly": "if ((r7 & r2) == 0) {"
+      },
+      {
+        "address": 33642654,
+        "bytes": "1016",
+        "instruction": "mov.rr",
+        "fields": {
+          "x": 0,
+          "y": 1
+        },
+        "assembly": "r0 = r1"
+      },
+      {
+        "address": 33642656,
+        "bytes": "c060",
+        "instruction": "st.w",
+        "fields": {
+          "d": 0,
+          "b": 4,
+          "n": 0
+        },
+        "assembly": "[r4+0] = r0"
+      },
+      {
+        "address": 33642658,
+        "bytes": "618e",
+        "instruction": "call.s",
+        "fields": {
+          "n": 206
+        },
+        "assembly": "call -100",
+        "direct_target": 33642560
+      },
+      {
+        "address": 33642660,
+        "bytes": "00ef0440",
+        "instruction": "rmw.or.modimm",
+        "fields": {
+          "r": 4,
+          "n": 0,
+          "m": 4
+        },
+        "assembly": "[r4+0] |= 0x4"
+      },
+      {
+        "address": 33642664,
+        "bytes": "618b",
+        "instruction": "call.s",
+        "fields": {
+          "n": 203
+        },
+        "assembly": "call -106",
+        "direct_target": 33642560
+      },
+      {
+        "address": 33642666,
+        "bytes": "618a",
+        "instruction": "call.s",
+        "fields": {
+          "n": 202
+        },
+        "assembly": "call -108",
+        "direct_target": 33642560
+      },
+      {
+        "address": 33642668,
+        "bytes": "fd3f",
+        "instruction": "add.ri.neg7",
+        "fields": {
+          "r": 5,
+          "n": 127
+        },
+        "assembly": "r5 += -1"
+      },
+      {
+        "address": 33642670,
+        "bytes": "4060",
+        "instruction": "ld.w",
+        "fields": {
+          "d": 0,
+          "b": 4,
+          "n": 0
+        },
+        "assembly": "r0 = [r4+0]"
+      },
+      {
+        "address": 33642672,
+        "bytes": "75feeaff",
+        "instruction": "bgts.ri",
+        "fields": {
+          "r": 5,
+          "i": 1023,
+          "n": 490
+        },
+        "assembly": "ifs (r5 > -1) goto -44",
+        "direct_target": 33642632
+      },
+      {
+        "address": 33642676,
+        "bytes": "3020",
+        "instruction": "or.bit",
+        "fields": {
+          "r": 0,
+          "b": 0
+        },
+        "assembly": "r0 |= 1"
+      },
+      {
+        "address": 33642678,
+        "bytes": "c060",
+        "instruction": "st.w",
+        "fields": {
+          "d": 0,
+          "b": 4,
+          "n": 0
+        },
+        "assembly": "[r4+0] = r0"
+      },
+      {
+        "address": 33642680,
+        "bytes": "c0ef0240",
+        "instruction": "rmw.and.nmodimm",
+        "fields": {
+          "r": 4,
+          "n": 0,
+          "m": 2
+        },
+        "assembly": "[r4+0] &= 0xFFFFFFFD"
+      },
+      {
+        "address": 33642684,
+        "bytes": "d0ec3928",
+        "instruction": "st.w.l",
+        "fields": {
+          "r": 3,
+          "n": 34,
+          "s": 2
+        },
+        "assembly": "[r3+136] = r2"
+      },
+      {
+        "address": 33642688,
+        "bytes": "5704",
+        "instruction": "pop.pc_rl",
+        "fields": {
+          "l": 7
+        },
+        "assembly": "{pc, r7-r4} = [sp++]"
+      }
+    ],
+    "replacement": [
+      {
+        "address": 33642584,
+        "bytes": "c1ff08f2c101",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 1,
+          "n": 29487624
+        },
+        "assembly": "r1 = 29487624"
+      },
+      {
+        "address": 33642590,
+        "bytes": "9060",
+        "instruction": "st.w",
+        "fields": {
+          "d": 0,
+          "b": 1,
+          "n": 0
+        },
+        "assembly": "[r1+0] = r0"
+      },
+      {
+        "address": 33642592,
+        "bytes": "8000",
+        "instruction": "rts",
+        "fields": {},
+        "assembly": "rts"
+      },
+      {
+        "address": 33642594,
+        "bytes": "0000",
+        "instruction": "nop",
+        "fields": {},
+        "assembly": "nop"
+      }
+    ],
+    "return_value_used_by_proven_caller": false,
+    "cache_word": 29487624,
+    "replacement_mutations": [
+      "one ordinary RAM word store",
+      "caller-saved r1"
+    ],
+    "remaining_original_body_unreachable_from_entry": true
+  },
+  "inputs": {
+    "G_bank_table": 33777104,
+    "G_bit_table": 33774064,
+    "G_pins": [
+      "PH6",
+      "PH7",
+      "PH8",
+      "PH9",
+      "PA10"
+    ],
+    "MINI_stock_scan_order": [
+      "PA10",
+      "PA0",
+      "PA3"
+    ],
+    "active_low_derived_from_stock_and_G": true,
+    "MINI_board_label_order_verified": false,
+    "policy_logical_A_B_C": [
+      "PA10",
+      "PA0",
+      "PA3"
+    ],
+    "logical_D": "state slot 3, initially released, no physical scanner",
+    "G_default_logical_map": [
+      4,
+      3,
+      1,
+      0
+    ],
+    "new_logical_map": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "four_action_slots_and_protocol_shape_retained": true,
+    "config_restore_forces_identity_mapping": true,
+    "init": [
+      {
+        "address": 33642842,
+        "bytes": "4020",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 0
+        },
+        "assembly": "r0 = 0"
+      },
+      {
+        "address": 33642844,
+        "bytes": "41e0e001",
+        "instruction": "li.s16",
+        "fields": {
+          "r": 1,
+          "n": 480
+        },
+        "assembly": "r1 = 480"
+      },
+      {
+        "address": 33642848,
+        "bytes": "4221",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 2,
+          "n": 1
+        },
+        "assembly": "r2 = 1"
+      },
+      {
+        "address": 33642850,
+        "bytes": "049c",
+        "instruction": "goto.s",
+        "fields": {
+          "n": 28
+        },
+        "assembly": "goto 56",
+        "direct_target": 33642908
+      },
+      {
+        "address": 33642852,
+        "bytes": "03e1c0fd",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 3,
+          "s": 15,
+          "n": 3520
+        },
+        "assembly": "r3 = r15 + 3520"
+      },
+      {
+        "address": 33642856,
+        "bytes": "d8ec3a30",
+        "instruction": "ld.w.idxs",
+        "fields": {
+          "r": 3,
+          "s": 3,
+          "t": 0
+        },
+        "assembly": "r3 = [r3+r0<<2]"
+      },
+      {
+        "address": 33642860,
+        "bytes": "b4e0004f",
+        "instruction": "add.rrr.l",
+        "fields": {
+          "r": 4,
+          "s": 0,
+          "t": 15
+        },
+        "assembly": "r4 = r0 + r15"
+      },
+      {
+        "address": 33642864,
+        "bytes": "d8ee4041",
+        "instruction": "ld.bu.idx",
+        "fields": {
+          "r": 4,
+          "s": 4,
+          "t": 1
+        },
+        "assembly": "r4 = b[r4+r1] (u)"
+      },
+      {
+        "address": 33642868,
+        "bytes": "66e80c34",
+        "instruction": "rmw.or.bitr",
+        "fields": {
+          "r": 3,
+          "n": 3,
+          "s": 4
+        },
+        "assembly": "[r3+12] |= 1 << r4"
+      },
+      {
+        "address": 33642872,
+        "bytes": "66e80834",
+        "instruction": "rmw.or.bitr",
+        "fields": {
+          "r": 3,
+          "n": 2,
+          "s": 4
+        },
+        "assembly": "[r3+8] |= 1 << r4"
+      },
+      {
+        "address": 33642876,
+        "bytes": "66e81734",
+        "instruction": "rmw.and.invbitr",
+        "fields": {
+          "r": 3,
+          "n": 5,
+          "s": 4
+        },
+        "assembly": "[r3+20] &= ~(1 << r4)"
+      },
+      {
+        "address": 33642880,
+        "bytes": "66e81034",
+        "instruction": "rmw.or.bitr",
+        "fields": {
+          "r": 3,
+          "n": 4,
+          "s": 4
+        },
+        "assembly": "[r3+16] |= 1 << r4"
+      },
+      {
+        "address": 33642884,
+        "bytes": "c324",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 3,
+          "n": 4
+        },
+        "assembly": "r3 += 4"
+      },
+      {
+        "address": 33642886,
+        "bytes": "05e1acd7",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 5,
+          "s": 13,
+          "n": 1964
+        },
+        "assembly": "r5 = r13 + 1964"
+      },
+      {
+        "address": 33642890,
+        "bytes": "d8ec5b30",
+        "instruction": "st.w.idxs",
+        "fields": {
+          "r": 5,
+          "s": 0,
+          "t": 3
+        },
+        "assembly": "[r5+r0<<2] = r3"
+      },
+      {
+        "address": 33642894,
+        "bytes": "c8e12034",
+        "instruction": "lsl.rrr",
+        "fields": {
+          "r": 3,
+          "s": 2,
+          "t": 4
+        },
+        "assembly": "r3 = r2 << r4"
+      },
+      {
+        "address": 33642898,
+        "bytes": "04e1c0d7",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 4,
+          "s": 13,
+          "n": 1984
+        },
+        "assembly": "r4 = r13 + 1984"
+      },
+      {
+        "address": 33642902,
+        "bytes": "d8ec4b30",
+        "instruction": "st.w.idxs",
+        "fields": {
+          "r": 4,
+          "s": 0,
+          "t": 3
+        },
+        "assembly": "[r4+r0<<2] = r3"
+      },
+      {
+        "address": 33642906,
+        "bytes": "c021",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 0,
+          "n": 1
+        },
+        "assembly": "r0 += 1"
+      },
+      {
+        "address": 33642908,
+        "bytes": "80f8e20b",
+        "instruction": "bne.ri",
+        "fields": {
+          "r": 0,
+          "i": 5,
+          "n": 482
+        },
+        "assembly": "if (r0 != 5) goto -60",
+        "direct_target": 33642852
+      }
+    ],
+    "main_poll": [
+      {
+        "address": 33643096,
+        "bytes": "c014",
+        "instruction": "li.zero_hi",
+        "fields": {
+          "r": 0
+        },
+        "assembly": "r8 = 0"
+      },
+      {
+        "address": 33643098,
+        "bytes": "4ce0e001",
+        "instruction": "li.s16",
+        "fields": {
+          "r": 12,
+          "n": 480
+        },
+        "assembly": "r12 = 480"
+      },
+      {
+        "address": 33643102,
+        "bytes": "4be01f06",
+        "instruction": "li.s16",
+        "fields": {
+          "r": 11,
+          "n": 1567
+        },
+        "assembly": "r11 = 1567"
+      },
+      {
+        "address": 33643106,
+        "bytes": "49e01006",
+        "instruction": "li.s16",
+        "fields": {
+          "r": 9,
+          "n": 1552
+        },
+        "assembly": "r9 = 1552"
+      },
+      {
+        "address": 33643110,
+        "bytes": "4420",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 4,
+          "n": 0
+        },
+        "assembly": "r4 = 0"
+      },
+      {
+        "address": 33643112,
+        "bytes": "1493",
+        "instruction": "goto.s",
+        "fields": {
+          "n": 51
+        },
+        "assembly": "goto 102",
+        "direct_target": 33643216
+      },
+      {
+        "address": 33643114,
+        "bytes": "b4e0400f",
+        "instruction": "add.rrr.l",
+        "fields": {
+          "r": 0,
+          "s": 4,
+          "t": 15
+        },
+        "assembly": "r0 = r4 + r15"
+      },
+      {
+        "address": 33643118,
+        "bytes": "d8ee000c",
+        "instruction": "ld.bu.idx",
+        "fields": {
+          "r": 0,
+          "s": 0,
+          "t": 12
+        },
+        "assembly": "r0 = b[r0+r12] (u)"
+      },
+      {
+        "address": 33643122,
+        "bytes": "4521",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 5,
+          "n": 1
+        },
+        "assembly": "r5 = 1"
+      },
+      {
+        "address": 33643124,
+        "bytes": "c8e15020",
+        "instruction": "lsl.rrr",
+        "fields": {
+          "r": 2,
+          "s": 5,
+          "t": 0
+        },
+        "assembly": "r2 = r5 << r0"
+      },
+      {
+        "address": 33643128,
+        "bytes": "01e1c0fd",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 1,
+          "s": 15,
+          "n": 3520
+        },
+        "assembly": "r1 = r15 + 3520"
+      },
+      {
+        "address": 33643132,
+        "bytes": "d8ec1a14",
+        "instruction": "ld.w.idxs",
+        "fields": {
+          "r": 1,
+          "s": 1,
+          "t": 4
+        },
+        "assembly": "r1 = [r1+r4<<2]"
+      },
+      {
+        "address": 33643136,
+        "bytes": "1161",
+        "instruction": "ld.w",
+        "fields": {
+          "d": 1,
+          "b": 1,
+          "n": 1
+        },
+        "assembly": "r1 = [r1+4]"
+      },
+      {
+        "address": 33643138,
+        "bytes": "12ea8001",
+        "instruction": "if.ne.and.rr",
+        "fields": {
+          "r": 2,
+          "s": 1,
+          "t": 0,
+          "e": 0
+        },
+        "assembly": "if ((r2 & r1) != 0) {"
+      },
+      {
+        "address": 33643142,
+        "bytes": "4520",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 5,
+          "n": 0
+        },
+        "assembly": "r5 = 0"
+      },
+      {
+        "address": 33643144,
+        "bytes": "b4e0407d",
+        "instruction": "add.rrr.l",
+        "fields": {
+          "r": 7,
+          "s": 4,
+          "t": 13
+        },
+        "assembly": "r7 = r4 + r13"
+      },
+      {
+        "address": 33643148,
+        "bytes": "d8ee703b",
+        "instruction": "ld.bu.idx",
+        "fields": {
+          "r": 3,
+          "s": 7,
+          "t": 11
+        },
+        "assembly": "r3 = b[r7+r11] (u)"
+      },
+      {
+        "address": 33643152,
+        "bytes": "02e11a76",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 2,
+          "s": 7,
+          "n": 1562
+        },
+        "assembly": "r2 = r7 + 1562"
+      },
+      {
+        "address": 33643156,
+        "bytes": "03e81950",
+        "instruction": "beq.rr",
+        "fields": {
+          "r": 5,
+          "s": 3,
+          "n": 25
+        },
+        "assembly": "if (r5 == r3) goto 50",
+        "direct_target": 33643210
+      },
+      {
+        "address": 33643160,
+        "bytes": "2b40",
+        "instruction": "ld.bu",
+        "fields": {
+          "d": 3,
+          "b": 2,
+          "n": 0
+        },
+        "assembly": "r3 = b[r2+0] (u)"
+      },
+      {
+        "address": 33643162,
+        "bytes": "c321",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 3,
+          "n": 1
+        },
+        "assembly": "r3 += 1"
+      },
+      {
+        "address": 33643164,
+        "bytes": "36d7",
+        "instruction": "ext.b0.u.p",
+        "fields": {
+          "d": 6,
+          "s": 3
+        },
+        "assembly": "r6 = r3.b0 (u)  #"
+      },
+      {
+        "address": 33643166,
+        "bytes": "ab40",
+        "instruction": "st.b",
+        "fields": {
+          "d": 3,
+          "b": 2,
+          "n": 0
+        },
+        "assembly": "b[r2+0] = r3"
+      },
+      {
+        "address": 33643168,
+        "bytes": "86f91508",
+        "instruction": "blt.ri",
+        "fields": {
+          "r": 6,
+          "i": 4,
+          "n": 21
+        },
+        "assembly": "if (r6 < 4) goto 42",
+        "direct_target": 33643214
+      },
+      {
+        "address": 33643172,
+        "bytes": "94e11260",
+        "instruction": "and.bit.rrr",
+        "fields": {
+          "r": 6,
+          "s": 1,
+          "t": 0
+        },
+        "assembly": "r6 = r1 & (1 << r0)"
+      },
+      {
+        "address": 33643176,
+        "bytes": "4020",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 0
+        },
+        "assembly": "r0 = 0"
+      },
+      {
+        "address": 33643178,
+        "bytes": "a840",
+        "instruction": "st.b",
+        "fields": {
+          "d": 0,
+          "b": 2,
+          "n": 0
+        },
+        "assembly": "b[r2+0] = r0"
+      },
+      {
+        "address": 33643180,
+        "bytes": "80ffb0edbeff",
+        "instruction": "call.xl",
+        "fields": {
+          "n": 2145351384
+        },
+        "assembly": "call -4264528",
+        "direct_target": 29378658
+      },
+      {
+        "address": 33643186,
+        "bytes": "02d6",
+        "instruction": "mov.rr.p",
+        "fields": {
+          "x": 2,
+          "y": 0
+        },
+        "assembly": "r2 = r0  #"
+      },
+      {
+        "address": 33643188,
+        "bytes": "032a",
+        "instruction": "ld.w.sp",
+        "fields": {
+          "r": 3,
+          "n": 10
+        },
+        "assembly": "r3 = [sp+40]"
+      },
+      {
+        "address": 33643190,
+        "bytes": "4015",
+        "instruction": "mov.pair",
+        "fields": {
+          "d": 0,
+          "s": 2
+        },
+        "assembly": "r1_r0 = r5_r4"
+      },
+      {
+        "address": 33643192,
+        "bytes": "bfeaa4f8",
+        "instruction": "call.l",
+        "fields": {
+          "n": 4192420
+        },
+        "assembly": "call -3768",
+        "direct_target": 33639428
+      },
+      {
+        "address": 33643196,
+        "bytes": "4021",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 1
+        },
+        "assembly": "r0 = 1"
+      },
+      {
+        "address": 33643198,
+        "bytes": "0641",
+        "instruction": "beqz",
+        "fields": {
+          "r": 6,
+          "n": 1
+        },
+        "assembly": "if (r6 == 0) goto 2",
+        "direct_target": 33643202
+      },
+      {
+        "address": 33643200,
+        "bytes": "4020",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 0
+        },
+        "assembly": "r0 = 0"
+      },
+      {
+        "address": 33643202,
+        "bytes": "d8ee7109",
+        "instruction": "st.b.idx",
+        "fields": {
+          "r": 7,
+          "s": 9,
+          "t": 0
+        },
+        "assembly": "b[r7+r9] = r0"
+      },
+      {
+        "address": 33643206,
+        "bytes": "02e11576",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 2,
+          "s": 7,
+          "n": 1557
+        },
+        "assembly": "r2 = r7 + 1557"
+      },
+      {
+        "address": 33643210,
+        "bytes": "52ee2080",
+        "instruction": "st.b.l",
+        "fields": {
+          "r": 2,
+          "n": 0,
+          "s": 8
+        },
+        "assembly": "b[r2+0] = r8"
+      },
+      {
+        "address": 33643214,
+        "bytes": "c421",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 4,
+          "n": 1
+        },
+        "assembly": "r4 += 1"
+      },
+      {
+        "address": 33643216,
+        "bytes": "84f8cb0b",
+        "instruction": "bne.ri",
+        "fields": {
+          "r": 4,
+          "i": 5,
+          "n": 459
+        },
+        "assembly": "if (r4 != 5) goto -106",
+        "direct_target": 33643114
+      }
+    ],
+    "irq_poll": [
+      {
+        "address": 29373094,
+        "bytes": "50eeaa02",
+        "instruction": "ld.bu.l",
+        "fields": {
+          "r": 0,
+          "s": 10,
+          "n": 42
+        },
+        "assembly": "r0 = b[r10+42] (u)"
+      },
+      {
+        "address": 29373098,
+        "bytes": "2048",
+        "instruction": "beqz",
+        "fields": {
+          "r": 0,
+          "n": 72
+        },
+        "assembly": "if (r0 == 0) goto 144",
+        "direct_target": 29373244
+      },
+      {
+        "address": 29373100,
+        "bytes": "00e130a3",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 0,
+          "s": 10,
+          "n": 816
+        },
+        "assembly": "r0 = r10 + 816"
+      },
+      {
+        "address": 29373104,
+        "bytes": "c0eb0100",
+        "instruction": "rmw.add.s12",
+        "fields": {
+          "r": 0,
+          "n": 0,
+          "m": 1
+        },
+        "assembly": "[r0+0] += 1"
+      },
+      {
+        "address": 29373108,
+        "bytes": "8414",
+        "instruction": "li.zero_pair",
+        "fields": {
+          "p": 2
+        },
+        "assembly": "r5_r4 = 0"
+      },
+      {
+        "address": 29373110,
+        "bytes": "c9ff80f1c101",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 9,
+          "n": 29487488
+        },
+        "assembly": "r9 = 29487488"
+      },
+      {
+        "address": 29373116,
+        "bytes": "149d",
+        "instruction": "goto.s",
+        "fields": {
+          "n": 61
+        },
+        "assembly": "goto 122",
+        "direct_target": 29373240
+      },
+      {
+        "address": 29373118,
+        "bytes": "00e1aca7",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 0,
+          "s": 10,
+          "n": 1964
+        },
+        "assembly": "r0 = r10 + 1964"
+      },
+      {
+        "address": 29373122,
+        "bytes": "d8ec0a04",
+        "instruction": "ld.w.idxs",
+        "fields": {
+          "r": 0,
+          "s": 0,
+          "t": 4
+        },
+        "assembly": "r0 = [r0+r4<<2]"
+      },
+      {
+        "address": 29373126,
+        "bytes": "00f1c0a7",
+        "instruction": "add.s14.rri.p",
+        "fields": {
+          "d": 0,
+          "s": 10,
+          "n": 1984
+        },
+        "assembly": "r0 = r10 + 1984  #"
+      },
+      {
+        "address": 29373130,
+        "bytes": "0160",
+        "instruction": "ld.w",
+        "fields": {
+          "d": 1,
+          "b": 0,
+          "n": 0
+        },
+        "assembly": "r1 = [r0+0]"
+      },
+      {
+        "address": 29373132,
+        "bytes": "d8ec0a24",
+        "instruction": "ld.w.idxs",
+        "fields": {
+          "r": 2,
+          "s": 0,
+          "t": 4
+        },
+        "assembly": "r2 = [r0+r4<<2]"
+      },
+      {
+        "address": 29373136,
+        "bytes": "4020",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 0
+        },
+        "assembly": "r0 = 0"
+      },
+      {
+        "address": 29373138,
+        "bytes": "4621",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 6,
+          "n": 1
+        },
+        "assembly": "r6 = 1"
+      },
+      {
+        "address": 29373140,
+        "bytes": "12ea8001",
+        "instruction": "if.ne.and.rr",
+        "fields": {
+          "r": 2,
+          "s": 1,
+          "t": 0,
+          "e": 0
+        },
+        "assembly": "if ((r2 & r1) != 0) {"
+      },
+      {
+        "address": 29373144,
+        "bytes": "4620",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 6,
+          "n": 0
+        },
+        "assembly": "r6 = 0"
+      },
+      {
+        "address": 29373146,
+        "bytes": "b4e0401a",
+        "instruction": "add.rrr.l",
+        "fields": {
+          "r": 1,
+          "s": 4,
+          "t": 10
+        },
+        "assembly": "r1 = r4 + r10"
+      },
+      {
+        "address": 29373150,
+        "bytes": "07e11016",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 7,
+          "s": 1,
+          "n": 1552
+        },
+        "assembly": "r7 = r1 + 1552"
+      },
+      {
+        "address": 29373154,
+        "bytes": "7940",
+        "instruction": "ld.bu",
+        "fields": {
+          "d": 1,
+          "b": 7,
+          "n": 0
+        },
+        "assembly": "r1 = b[r7+0] (u)"
+      },
+      {
+        "address": 29373156,
+        "bytes": "01e82560",
+        "instruction": "beq.rr",
+        "fields": {
+          "r": 6,
+          "s": 1,
+          "n": 37
+        },
+        "assembly": "if (r6 == r1) goto 74",
+        "direct_target": 29373234
+      },
+      {
+        "address": 29373160,
+        "bytes": "7845",
+        "instruction": "ld.bu",
+        "fields": {
+          "d": 0,
+          "b": 7,
+          "n": 5
+        },
+        "assembly": "r0 = b[r7+5] (u)"
+      },
+      {
+        "address": 29373162,
+        "bytes": "c021",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 0,
+          "n": 1
+        },
+        "assembly": "r0 += 1"
+      },
+      {
+        "address": 29373164,
+        "bytes": "0117",
+        "instruction": "ext.b0.u",
+        "fields": {
+          "d": 1,
+          "s": 0
+        },
+        "assembly": "r1 = r0.b0 (u)"
+      },
+      {
+        "address": 29373166,
+        "bytes": "81f9203c",
+        "instruction": "blt.ri",
+        "fields": {
+          "r": 1,
+          "i": 30,
+          "n": 32
+        },
+        "assembly": "if (r1 < 30) goto 64",
+        "direct_target": 29373234
+      },
+      {
+        "address": 29373170,
+        "bytes": "50eeabb2",
+        "instruction": "ld.bu.l",
+        "fields": {
+          "r": 11,
+          "s": 10,
+          "n": 43
+        },
+        "assembly": "r11 = b[r10+43] (u)"
+      },
+      {
+        "address": 29373174,
+        "bytes": "50eeac02",
+        "instruction": "ld.bu.l",
+        "fields": {
+          "r": 0,
+          "s": 10,
+          "n": 44
+        },
+        "assembly": "r0 = b[r10+44] (u)"
+      },
+      {
+        "address": 29373178,
+        "bytes": "b4e0b200",
+        "instruction": "sub.rrr.l",
+        "fields": {
+          "r": 0,
+          "s": 11,
+          "t": 0
+        },
+        "assembly": "r0 = r11 - r0"
+      },
+      {
+        "address": 29373182,
+        "bytes": "0017",
+        "instruction": "ext.b0.u",
+        "fields": {
+          "d": 0,
+          "s": 0
+        },
+        "assembly": "r0 = r0.b0 (u)"
+      },
+      {
+        "address": 29373184,
+        "bytes": "00fc181e",
+        "instruction": "bgt.ri",
+        "fields": {
+          "r": 0,
+          "i": 15,
+          "n": 24
+        },
+        "assembly": "if (r0 > 15) goto 48",
+        "direct_target": 29373236
+      },
+      {
+        "address": 29373188,
+        "bytes": "70e1f0b0",
+        "instruction": "and.nmodimm.rri",
+        "fields": {
+          "r": 0,
+          "s": 11,
+          "n": 240
+        },
+        "assembly": "r0 = r11 & 0xFFFFFF0F"
+      },
+      {
+        "address": 29373192,
+        "bytes": "e0e10c00",
+        "instruction": "mul.modimm.rri",
+        "fields": {
+          "r": 0,
+          "s": 0,
+          "n": 12
+        },
+        "assembly": "r0 = r0 * 0xC"
+      },
+      {
+        "address": 29373196,
+        "bytes": "b4e000ca",
+        "instruction": "add.rrr.l",
+        "fields": {
+          "r": 12,
+          "s": 0,
+          "t": 10
+        },
+        "assembly": "r12 = r0 + r10"
+      },
+      {
+        "address": 29373200,
+        "bytes": "80ff4c150000",
+        "instruction": "call.xl",
+        "fields": {
+          "n": 2726
+        },
+        "assembly": "call 5452",
+        "direct_target": 29378658
+      },
+      {
+        "address": 29373206,
+        "bytes": "11e1bcc2",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 1,
+          "s": 12,
+          "n": 4796
+        },
+        "assembly": "r1 = r12 + 4796"
+      },
+      {
+        "address": 29373210,
+        "bytes": "9060",
+        "instruction": "st.w",
+        "fields": {
+          "d": 0,
+          "b": 1,
+          "n": 0
+        },
+        "assembly": "[r1+0] = r0"
+      },
+      {
+        "address": 29373212,
+        "bytes": "d0ec9801",
+        "instruction": "ld.w.l",
+        "fields": {
+          "r": 0,
+          "s": 9,
+          "n": 6
+        },
+        "assembly": "r0 = [r9+24]"
+      },
+      {
+        "address": 29373216,
+        "bytes": "9061",
+        "instruction": "st.w",
+        "fields": {
+          "d": 0,
+          "b": 1,
+          "n": 1
+        },
+        "assembly": "[r1+4] = r0"
+      },
+      {
+        "address": 29373218,
+        "bytes": "9d48",
+        "instruction": "st.b",
+        "fields": {
+          "d": 5,
+          "b": 1,
+          "n": 8
+        },
+        "assembly": "b[r1+8] = r5"
+      },
+      {
+        "address": 29373220,
+        "bytes": "9e49",
+        "instruction": "st.b",
+        "fields": {
+          "d": 6,
+          "b": 1,
+          "n": 9
+        },
+        "assembly": "b[r1+9] = r6"
+      },
+      {
+        "address": 29373222,
+        "bytes": "00e101b0",
+        "instruction": "add.s14.rri",
+        "fields": {
+          "r": 0,
+          "s": 11,
+          "n": 1
+        },
+        "assembly": "r0 = r11 + 1"
+      },
+      {
+        "address": 29373226,
+        "bytes": "52eeab02",
+        "instruction": "st.b.l",
+        "fields": {
+          "r": 10,
+          "n": 43,
+          "s": 0
+        },
+        "assembly": "b[r10+43] = r0"
+      },
+      {
+        "address": 29373230,
+        "bytes": "fe40",
+        "instruction": "st.b",
+        "fields": {
+          "d": 6,
+          "b": 7,
+          "n": 0
+        },
+        "assembly": "b[r7+0] = r6"
+      },
+      {
+        "address": 29373232,
+        "bytes": "4020",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 0
+        },
+        "assembly": "r0 = 0"
+      },
+      {
+        "address": 29373234,
+        "bytes": "f845",
+        "instruction": "st.b",
+        "fields": {
+          "d": 0,
+          "b": 7,
+          "n": 5
+        },
+        "assembly": "b[r7+5] = r0"
+      },
+      {
+        "address": 29373236,
+        "bytes": "c521",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 5,
+          "n": 1
+        },
+        "assembly": "r5 += 1"
+      },
+      {
+        "address": 29373238,
+        "bytes": "c421",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 4,
+          "n": 1
+        },
+        "assembly": "r4 += 1"
+      },
+      {
+        "address": 29373240,
+        "bytes": "84f8c10b",
+        "instruction": "bne.ri",
+        "fields": {
+          "r": 4,
+          "i": 5,
+          "n": 449
+        },
+        "assembly": "if (r4 != 5) goto -126",
+        "direct_target": 29373118
+      }
+    ],
+    "dispatcher": [
+      {
+        "address": 33639428,
+        "bytes": "7904",
+        "instruction": "push.rets_rl",
+        "fields": {
+          "l": 9
+        },
+        "assembly": "[--sp] = {rets, r9-r4}"
+      },
+      {
+        "address": 33639430,
+        "bytes": "c8ff9068c201",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 8,
+          "n": 29517968
+        },
+        "assembly": "r8 = 29517968"
+      },
+      {
+        "address": 33639436,
+        "bytes": "b4e00048",
+        "instruction": "add.rrr.l",
+        "fields": {
+          "r": 4,
+          "s": 0,
+          "t": 8
+        },
+        "assembly": "r4 = r0 + r8"
+      },
+      {
+        "address": 33639440,
+        "bytes": "46e01f06",
+        "instruction": "li.s16",
+        "fields": {
+          "r": 6,
+          "n": 1567
+        },
+        "assembly": "r6 = 1567"
+      },
+      {
+        "address": 33639444,
+        "bytes": "d8ee4056",
+        "instruction": "ld.bu.idx",
+        "fields": {
+          "r": 5,
+          "s": 4,
+          "t": 6
+        },
+        "assembly": "r5 = b[r4+r6] (u)"
+      },
+      {
+        "address": 33639448,
+        "bytes": "1717",
+        "instruction": "ext.b0.u",
+        "fields": {
+          "d": 7,
+          "s": 1
+        },
+        "assembly": "r7 = r1.b0 (u)"
+      },
+      {
+        "address": 33639450,
+        "bytes": "07e85e50",
+        "instruction": "beq.rr",
+        "fields": {
+          "r": 5,
+          "s": 7,
+          "n": 94
+        },
+        "assembly": "if (r5 == r7) goto 188",
+        "direct_target": 33639642
+      },
+      {
+        "address": 33639454,
+        "bytes": "d8ee4116",
+        "instruction": "st.b.idx",
+        "fields": {
+          "r": 4,
+          "s": 6,
+          "t": 1
+        },
+        "assembly": "b[r4+r6] = r1"
+      },
+      {
+        "address": 33639458,
+        "bytes": "50ee8a44",
+        "instruction": "ld.bu.l",
+        "fields": {
+          "r": 4,
+          "s": 8,
+          "n": 74
+        },
+        "assembly": "r4 = b[r8+74] (u)"
+      },
+      {
+        "address": 33639462,
+        "bytes": "2459",
+        "instruction": "beqz",
+        "fields": {
+          "r": 4,
+          "n": 89
+        },
+        "assembly": "if (r4 == 0) goto 178",
+        "direct_target": 33639642
+      },
+      {
+        "address": 33639464,
+        "bytes": "153f",
+        "instruction": "li.neg5",
+        "fields": {
+          "r": 5,
+          "n": 31
+        },
+        "assembly": "r5 = -1"
+      },
+      {
+        "address": 33639466,
+        "bytes": "4720",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 7,
+          "n": 0
+        },
+        "assembly": "r7 = 0"
+      },
+      {
+        "address": 33639468,
+        "bytes": "c9ff80f1c101",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 9,
+          "n": 29487488
+        },
+        "assembly": "r9 = 29487488"
+      },
+      {
+        "address": 33639474,
+        "bytes": "048a",
+        "instruction": "goto.s",
+        "fields": {
+          "n": 10
+        },
+        "assembly": "goto 20",
+        "direct_target": 33639496
+      },
+      {
+        "address": 33639476,
+        "bytes": "b4e07049",
+        "instruction": "add.rrr.l",
+        "fields": {
+          "r": 4,
+          "s": 7,
+          "t": 9
+        },
+        "assembly": "r4 = r7 + r9"
+      },
+      {
+        "address": 33639480,
+        "bytes": "50ee4467",
+        "instruction": "ld.bu.l",
+        "fields": {
+          "r": 6,
+          "s": 4,
+          "n": 116
+        },
+        "assembly": "r6 = b[r4+116] (u)"
+      },
+      {
+        "address": 33639484,
+        "bytes": "7416",
+        "instruction": "mov.rr",
+        "fields": {
+          "x": 4,
+          "y": 7
+        },
+        "assembly": "r4 = r7"
+      },
+      {
+        "address": 33639486,
+        "bytes": "96e80000",
+        "instruction": "if.ne.rr",
+        "fields": {
+          "r": 6,
+          "s": 0,
+          "t": 0,
+          "e": 0
+        },
+        "assembly": "if (r6 != r0) {"
+      },
+      {
+        "address": 33639490,
+        "bytes": "5416",
+        "instruction": "mov.rr",
+        "fields": {
+          "x": 4,
+          "y": 5
+        },
+        "assembly": "r4 = r5"
+      },
+      {
+        "address": 33639492,
+        "bytes": "c721",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 7,
+          "n": 1
+        },
+        "assembly": "r7 += 1"
+      },
+      {
+        "address": 33639494,
+        "bytes": "4516",
+        "instruction": "mov.rr",
+        "fields": {
+          "x": 5,
+          "y": 4
+        },
+        "assembly": "r5 = r4"
+      },
+      {
+        "address": 33639496,
+        "bytes": "87f8f409",
+        "instruction": "bne.ri",
+        "fields": {
+          "r": 7,
+          "i": 4,
+          "n": 500
+        },
+        "assembly": "if (r7 != 4) goto -24",
+        "direct_target": 33639476
+      },
+      {
+        "address": 33639500,
+        "bytes": "85fd4500",
+        "instruction": "blts.ri",
+        "fields": {
+          "r": 5,
+          "i": 0,
+          "n": 69
+        },
+        "assembly": "ifs (r5 < 0) goto 138",
+        "direct_target": 33639642
+      }
+    ],
+    "config_restore": [
+      {
+        "address": 33570600,
+        "bytes": "f8e8a000",
+        "instruction": "add.r_sp_i.l",
+        "fields": {
+          "r": 0,
+          "n": 160
+        },
+        "assembly": "r0 = sp + 160"
+      },
+      {
+        "address": 33570604,
+        "bytes": "c029",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 0,
+          "n": 9
+        },
+        "assembly": "r0 += 9"
+      },
+      {
+        "address": 33570606,
+        "bytes": "4120",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 1,
+          "n": 0
+        },
+        "assembly": "r1 = 0"
+      },
+      {
+        "address": 33570608,
+        "bytes": "0489",
+        "instruction": "goto.s",
+        "fields": {
+          "n": 9
+        },
+        "assembly": "goto 18",
+        "direct_target": 33570628
+      },
+      {
+        "address": 33570610,
+        "bytes": "d8ee0021",
+        "instruction": "ld.bu.idx",
+        "fields": {
+          "r": 2,
+          "s": 0,
+          "t": 1
+        },
+        "assembly": "r2 = b[r0+r1] (u)"
+      },
+      {
+        "address": 33570614,
+        "bytes": "b2ec0440",
+        "instruction": "if.le.ri.s12",
+        "fields": {
+          "r": 2,
+          "n": 4,
+          "t": 1,
+          "e": 0
+        },
+        "assembly": "if (r2 <= 4) {"
+      },
+      {
+        "address": 33570618,
+        "bytes": "b4e01039",
+        "instruction": "add.rrr.l",
+        "fields": {
+          "r": 3,
+          "s": 1,
+          "t": 9
+        },
+        "assembly": "r3 = r1 + r9"
+      },
+      {
+        "address": 33570622,
+        "bytes": "52ee3427",
+        "instruction": "st.b.l",
+        "fields": {
+          "r": 3,
+          "n": 116,
+          "s": 2
+        },
+        "assembly": "b[r3+116] = r2"
+      },
+      {
+        "address": 33570626,
+        "bytes": "c121",
+        "instruction": "add.ri.u5",
+        "fields": {
+          "r": 1,
+          "n": 1
+        },
+        "assembly": "r1 += 1"
+      },
+      {
+        "address": 33570628,
+        "bytes": "81f8f509",
+        "instruction": "bne.ri",
+        "fields": {
+          "r": 1,
+          "i": 4,
+          "n": 501
+        },
+        "assembly": "if (r1 != 4) goto -22",
+        "direct_target": 33570610
+      }
+    ],
+    "MINI_stock_init": [
+      {
+        "address": 33579158,
+        "bytes": "1004",
+        "instruction": "push.rets",
+        "fields": {},
+        "assembly": "[--sp] = rets"
+      },
+      {
+        "address": 33579160,
+        "bytes": "402a",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 10
+        },
+        "assembly": "r0 = 10"
+      },
+      {
+        "address": 33579162,
+        "bytes": "4121",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 1,
+          "n": 1
+        },
+        "assembly": "r1 = 1"
+      },
+      {
+        "address": 33579164,
+        "bytes": "718b",
+        "instruction": "call.s",
+        "fields": {
+          "n": 235
+        },
+        "assembly": "call -42",
+        "direct_target": 33579124
+      },
+      {
+        "address": 33579166,
+        "bytes": "4020",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 0
+        },
+        "assembly": "r0 = 0"
+      },
+      {
+        "address": 33579168,
+        "bytes": "4121",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 1,
+          "n": 1
+        },
+        "assembly": "r1 = 1"
+      },
+      {
+        "address": 33579170,
+        "bytes": "7188",
+        "instruction": "call.s",
+        "fields": {
+          "n": 232
+        },
+        "assembly": "call -48",
+        "direct_target": 33579124
+      },
+      {
+        "address": 33579172,
+        "bytes": "4023",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 3
+        },
+        "assembly": "r0 = 3"
+      },
+      {
+        "address": 33579174,
+        "bytes": "4121",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 1,
+          "n": 1
+        },
+        "assembly": "r1 = 1"
+      },
+      {
+        "address": 33579176,
+        "bytes": "7185",
+        "instruction": "call.s",
+        "fields": {
+          "n": 229
+        },
+        "assembly": "call -54",
+        "direct_target": 33579124
+      },
+      {
+        "address": 33579178,
+        "bytes": "c1ff60a00002",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 1,
+          "n": 33595488
+        },
+        "assembly": "r1 = 33595488"
+      },
+      {
+        "address": 33579184,
+        "bytes": "4020",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 0
+        },
+        "assembly": "r0 = 0"
+      },
+      {
+        "address": 33579186,
+        "bytes": "422a",
+        "instruction": "li.u8",
+        "fields": {
+          "r": 2,
+          "n": 10
+        },
+        "assembly": "r2 = 10"
+      },
+      {
+        "address": 33579188,
+        "bytes": "bfea79ff",
+        "instruction": "call.l",
+        "fields": {
+          "n": 4194169
+        },
+        "assembly": "call -270",
+        "direct_target": 33578922
+      },
+      {
+        "address": 33579192,
+        "bytes": "0004",
+        "instruction": "pop.pc",
+        "fields": {},
+        "assembly": "pc = [sp++]"
+      }
+    ],
+    "MINI_stock_read": [
+      {
+        "address": 33595488,
+        "bytes": "7f04",
+        "instruction": "push.rets_rl",
+        "fields": {
+          "l": 15
+        },
+        "assembly": "[--sp] = {rets, r15-r4}"
+      },
+      {
+        "address": 33595490,
+        "bytes": "e29f",
+        "instruction": "add.sp_i",
+        "fields": {
+          "n": 255
+        },
+        "assembly": "sp += -4"
+      },
+      {
+        "address": 33595492,
+        "bytes": "c0ff04000500",
+        "instruction": "li.u32",
+        "fields": {
+          "r": 0,
+          "n": 327684
+        },
+        "assembly": "r0 = 327684"
+      },
+      {
+        "address": 33595498,
+        "bytes": "0160",
+        "instruction": "ld.w",
+        "fields": {
+          "d": 1,
+          "b": 0,
+          "n": 0
+        },
+        "assembly": "r1 = [r0+0]"
+      },
+      {
+        "address": 33595500,
+        "bytes": "0260",
+        "instruction": "ld.w",
+        "fields": {
+          "d": 2,
+          "b": 0,
+          "n": 0
+        },
+        "assembly": "r2 = [r0+0]"
+      },
+      {
+        "address": 33595502,
+        "bytes": "c0f11a88",
+        "instruction": "lsr.rri.p",
+        "fields": {
+          "d": 8,
+          "s": 1,
+          "n": 10
+        },
+        "assembly": "r8 = r1 >> 10  #"
+      },
+      {
+        "address": 33595506,
+        "bytes": "0060",
+        "instruction": "ld.w",
+        "fields": {
+          "d": 0,
+          "b": 0,
+          "n": 0
+        },
+        "assembly": "r0 = [r0+0]"
+      },
+      {
+        "address": 33595508,
+        "bytes": "21a1",
+        "instruction": "lsl.rri",
+        "fields": {
+          "d": 1,
+          "s": 2,
+          "n": 1
+        },
+        "assembly": "r1 = r2 << 1"
+      },
+      {
+        "address": 33595510,
+        "bytes": "69e10210",
+        "instruction": "and.modimm.rri",
+        "fields": {
+          "r": 9,
+          "s": 1,
+          "n": 2
+        },
+        "assembly": "r9 = r1 & 0x2"
+      },
+      {
+        "address": 33595514,
+        "bytes": "80a1",
+        "instruction": "lsr.rri",
+        "fields": {
+          "d": 0,
+          "s": 0,
+          "n": 1
+        },
+        "assembly": "r0 = r0 >> 1"
+      },
+      {
+        "address": 33595516,
+        "bytes": "6ae10400",
+        "instruction": "and.modimm.rri",
+        "fields": {
+          "r": 10,
+          "s": 0,
+          "n": 4
+        },
+        "assembly": "r10 = r0 & 0x4"
+      }
+    ],
+    "debounce_original_G": {
+      "main_different_samples": 4,
+      "IRQ_different_samples": 30,
+      "timings_measured": false
+    }
+  },
+  "G_analog_controls": {
+    "status": "disabled pending MINI knob/expression mapping",
+    "pins": [
+      "PB1",
+      "PC6",
+      "PC7",
+      "PC8",
+      "PC9"
+    ],
+    "enable_byte": 29518800,
+    "init_bypassed": [
+      33642946,
+      33643004
+    ],
+    "scan_block_guard": 33643718,
+    "other_call_guard": 33607340,
+    "other_guarded_callee": 33607136,
+    "known_gpio_writers": [
+      33637690,
+      33637752,
+      33606682,
+      33606720
+    ],
+    "knob_gate_other_writes_found": false,
+    "proof_scope": "Decoded selected paths and direct-reference survey; not a full binary alias/indirect-call proof."
+  },
+  "direct_reference_candidates": [
+    {
+      "address": 33607204,
+      "target": 33606682,
+      "assembly": "call -526",
+      "bytes": "bfeaf9fe"
+    },
+    {
+      "address": 33607216,
+      "target": 33606720,
+      "assembly": "call -500",
+      "bytes": "bfea06ff"
+    },
+    {
+      "address": 33607302,
+      "target": 33606720,
+      "assembly": "call -586",
+      "bytes": "bfeadbfe"
+    },
+    {
+      "address": 33607354,
+      "target": 33607136,
+      "assembly": "call -220",
+      "bytes": "4192"
+    },
+    {
+      "address": 33642946,
+      "target": 33637690,
+      "assembly": "call -5260",
+      "bytes": "bfeabaf5"
+    },
+    {
+      "address": 33642950,
+      "target": 33637752,
+      "assembly": "call -5202",
+      "bytes": "bfead7f5"
+    },
+    {
+      "address": 33643192,
+      "target": 33639428,
+      "assembly": "call -3768",
+      "bytes": "bfeaa4f8"
+    },
+    {
+      "address": 33643290,
+      "target": 33639428,
+      "assembly": "call -3866",
+      "bytes": "bfea73f8"
+    },
+    {
+      "address": 33643740,
+      "target": 33637690,
+      "assembly": "call -6054",
+      "bytes": "bfea2df4"
+    },
+    {
+      "address": 33643766,
+      "target": 33637752,
+      "assembly": "call -6018",
+      "bytes": "bfea3ff4"
+    },
+    {
+      "address": 33643846,
+      "target": 33607136,
+      "assembly": "call -36714",
+      "bytes": "bfea4bb8"
+    },
+    {
+      "address": 33643924,
+      "target": 33606682,
+      "assembly": "call -37246",
+      "bytes": "bfea41b7"
+    },
+    {
+      "address": 33643934,
+      "target": 33606720,
+      "assembly": "call -37218",
+      "bytes": "bfea4fb7"
+    },
+    {
+      "address": 33643958,
+      "target": 33606720,
+      "assembly": "call -37242",
+      "bytes": "bfea43b7"
+    },
+    {
+      "address": 33650024,
+      "target": 33642584,
+      "assembly": "call -7444",
+      "bytes": "bfea76f1"
+    },
+    {
+      "address": 33654316,
+      "target": 33642690,
+      "assembly": "call -11630",
+      "bytes": "bfea49e9"
+    }
+  ],
+  "callgraph_scope": "Selected direct calls and verified local control flow. A linear decoder includes data and cannot prove absence of all computed calls.",
+  "other_GPIO_ownership": [
+    {
+      "site": 33575844,
+      "pins": [
+        "PC0",
+        "PC1",
+        "PC5",
+        "PA9"
+      ],
+      "owner": "audio port pre/post-start hook"
+    },
+    {
+      "site": 33674254,
+      "operation": "generic low-power port save/reconfigure",
+      "status": "must be qualified with power management; not neutralized by panel patches"
+    },
+    {
+      "site": 33675610,
+      "operation": "generic GPIO restore",
+      "status": "must preserve MINI codec and switch ownership; not a panel-specific writer"
+    },
+    {
+      "site": 33573272,
+      "operation": "shared GPIO-output helper used with dynamic pins",
+      "status": "not globally replaced; whole-program callers remain an integration audit"
+    }
+  ],
+  "verification": {
+    "writer_byte_execution_cases": 5,
+    "input_init_byte_execution_cases": 4,
+    "physical_state_table_cases": 32,
+    "config_restore_byte_execution_cases": 1024,
+    "original_dispatcher_byte_execution_cases": 10,
+    "loop_target_checks": 3,
+    "negative_source_cases": 3,
+    "full_original_byte_inverse": true,
+    "IRQ_or_RTOS_execution_emulated": false,
+    "real_GPIO_accessed": false
+  },
+  "pending": [
+    "LED electrical mapping and driver",
+    "MINI knob/expression mapping",
+    "physical switch label order",
+    "all indirect GPIO writers and low-power transition qualification",
+    "hardware debounce/action behavior and concurrent codec operation"
+  ],
+  "app_panel_capability_enabled": false,
+  "hardware_verified": false,
+  "flashable": false,
+  "device_accessed": false,
+  "verifier_sha256": "34ccce518ac9e0e05dcc55d74578596ac8e03ad8eb83084e9f67db9c44ef1d19"
+}

@@ -1,0 +1,1695 @@
+{
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "architecture": "standalone-ultrarig-port",
+  "source_editor": "recovered/ultrarig-original/web/tankg.html",
+  "source_sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+  "source_converter_sha256": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183",
+  "full_original_editor_preserved": true,
+  "implementation_files": {
+    "tools/build_mini_app.py": "8f8cc9bd746040072d96a155f3d0c3c5cb48ed723479ef1ab1b74179b5234625",
+    "app/mini/board-profile.json": "d3259a3f5f847e6b89b2654995a721eb14411690e8e82ad512a6f0590f5e5f51",
+    "app/mini/mini-profile.js": "ba452ba12a6308d1f4e22f4a34589427c05983a2bab669eb9a88a4b16c194d4a",
+    "app/mini/mini-ui.js": "02c5eeb7c7b2919a50d872d7dec182ee0ed5050591e358e29bb2787e58f9005e"
+  },
+  "stock_mini_protocol_adapter": false,
+  "firmware_hardware_verified": false,
+  "profile": {
+    "schema": 1,
+    "target": "tank-mini",
+    "architecture": "standalone-ultrarig-port",
+    "identity_prefix": "tankm_fw",
+    "firmware_version": null,
+    "image_sha256": null,
+    "capabilities": {
+      "identity": true,
+      "read": false,
+      "write": false,
+      "panel": false
+    },
+    "panel": {
+      "switch_count": 3,
+      "switch_pins": null,
+      "led_mapping": null,
+      "knob_mapping": null
+    },
+    "usb": {
+      "class": "CDC-ACM",
+      "vendor_id": 13908,
+      "product_id": 20821,
+      "baud_rate": 115200
+    },
+    "ble": {
+      "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+      "rx": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+      "tx": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+      "pair": "6e400004-b5a3-f393-e0a9-e50e24dcca9e"
+    },
+    "hardware_verified": false,
+    "write_validation": null
+  },
+  "patches": [
+    {
+      "name": "document title",
+      "before_sha256": "30b0936d5bfb01f6ada97e05e5b4ac43770191e154537812d188b2ad33626409",
+      "after_sha256": "72b030748d0d14ccc5deb897ae59e5f3c5ccbb4ad2b09e419b7db16281d648b6"
+    },
+    {
+      "name": "board name",
+      "before_sha256": "1ed05e0c53e70887ab71bcf7f829b1bb2b71f8c3c45def9aa9d87eb93ea2c43f",
+      "after_sha256": "844645b3dd6931b07956bdba0013a84acf6788c26885e0c4a77108f7aa1c2f05"
+    },
+    {
+      "name": "board identity",
+      "before_sha256": "47c06f2b82a957b74e39179de6ad7322b559ebb3ec399827736d982213c64040",
+      "after_sha256": "9bf5600497d1ef58eb6db42b7fda5aae8e54245e288e6ffbdf899be8dd6a0857"
+    },
+    {
+      "name": "no G/B fallback",
+      "before_sha256": "542db413b5eeb29b1c5842682057c976f714d588da294937f2493ad0021f6f6c",
+      "after_sha256": "610a2843b9ac439c1d332a83a826eaaefb389882e4a36fabe534e81c68deec3a"
+    },
+    {
+      "name": "explicit offline MINI demo",
+      "before_sha256": "007fc190837d7061d68bd276ade942be3f55e99481f27426ff9c7581d0178808",
+      "after_sha256": "618f25de9b97f3a11fb920b19838eed0755484936f9726aa3a120260aad372df"
+    },
+    {
+      "name": "MINI board key",
+      "before_sha256": "eea5559223e31242568839c45b824cde8a573c8215519b351b329325fba376d8",
+      "after_sha256": "2f5aa193369eef0a7092fefa84304284ed00c8849e4d2a7ca04e0c5e224f7fcb"
+    },
+    {
+      "name": "separate saved MINI connection",
+      "before_sha256": "d1f281a09c193dd3e8880a89c8b8afcc0b7e09d7440942f26f978acd94835cb0",
+      "after_sha256": "0fc54e4a6529aa65e4d1ace2b6ad8bcbc9d69b27de65f9f0e100c151825d72c3"
+    },
+    {
+      "name": "separate MINI Bluetooth credentials",
+      "before_sha256": "d041192e83c1fcd9b8a708e07a928885edd4d2e7e5262a623252eefac2f241a5",
+      "after_sha256": "f986c81c1e615a20b5d2eab32794c6ed4a560c6c25e691b63062fff90f664cfb"
+    },
+    {
+      "name": "separate MINI tab ownership",
+      "before_sha256": "659872c8eed07dd9081d52d5559b64198c8b8834d924eb3b9d6e0ef625dc3401",
+      "after_sha256": "29da76313275c179addf425a1e427f11d0893c560133aa04bee02ea8688711e1"
+    },
+    {
+      "name": "command capabilities before queue or write",
+      "before_sha256": "84a12d294296bc10012ba085a770ba848adc2f0b1a152ade32c7fac03e9d04de",
+      "after_sha256": "6754cd06b16e6e66b27a3c1397ac63ddde48fced360f07596262d94f5617587a"
+    },
+    {
+      "name": "verify MINI before first query or mutation",
+      "before_sha256": "2f038283015e706484336c185961a255fa5653d730af74ced37db34b8a2032fd",
+      "after_sha256": "dbfe668ac7f135958764ae7797aa540dfe1ea2fd185e455643610ba316ad30d7"
+    },
+    {
+      "name": "clear session capability on disconnect",
+      "before_sha256": "5a17ed5f60ed566fcbc1cd7ef5f1988b6bfa4822e70deca7d96d6d6f5e2f7009",
+      "after_sha256": "e2285365371022c1802ce4790991c6f554a2d8097838f1b65a343d20e5d76d28"
+    },
+    {
+      "name": "no invented MINI revision",
+      "before_sha256": "22c8a37bcb62ace1c206432080785bf2c49a2868f841f5f6f5e6019bd9c54cee",
+      "after_sha256": "27804b154d8ed9d549af92928279298599d001de749589f798b82b03fb98d200"
+    },
+    {
+      "name": "no implicit four-switch assignment",
+      "before_sha256": "4263d2371106062cb0481cfbd861fb4e115e2ae751dfbe3c34d865c78271c2d5",
+      "after_sha256": "2b2f239c6caec51cb70d1a3ff96599bf499bdcd238e9a324796b6a1ffd4dfc7a"
+    },
+    {
+      "name": "three-switch profile",
+      "before_sha256": "f1c4d65b3877f453fe6d17ea77b3444b3b1923dddd7f50e26a9c7e7def6afb09",
+      "after_sha256": "ba1f7bb478d374061560501b16500d1137a980408bd00bb94cc86473a4cd0bf3"
+    },
+    {
+      "name": "MINI schematic without fabricated G/B knobs",
+      "before_sha256": "d65c08fcd02ffae4bba94862596664ebd1bde924c3ca8a5a6ffde58169c580cb",
+      "after_sha256": "fddd1d9ef7c0a1efdc4ff237a1d65c3a9bf149f776e71d0c164ea113a9074e19"
+    },
+    {
+      "name": "three neutral switch indicators",
+      "before_sha256": "843106a4f832b64808c0f2fc890799360f7d2ac2e32fac6db6e46b6b4e06eeb0",
+      "after_sha256": "d4e3bdf09d078aec12b053229ad6a54ec33215a4f199e0f9d54b21d535f002ff"
+    },
+    {
+      "name": "gate fsOpen",
+      "before_sha256": "5ab2be734fe60fa0d14c3fd3190358391ea666a71eeaed4e727b677431dc9650",
+      "after_sha256": "303866cce5b08a23d9ab0bbbdf1cc938c044d5a5ed931c8183727aad4c96a394"
+    },
+    {
+      "name": "gate stageOpen",
+      "before_sha256": "49c938b829f52b2207e7c079f562572df9062299fc1214e0b6ff61b3d26bc11a",
+      "after_sha256": "19a72f2782ae24fedd004b34919abac25d153699c2781cf4a0a83728570fc196"
+    },
+    {
+      "name": "remove G/B installation advice",
+      "before_sha256": "687ce3f8e80c7df34dbb862622c35624cb6154246631f9b28766fb0aa21b7d14",
+      "after_sha256": "b24279b116934599db5789b7b5ba9d2b03fd85a355cd7b17e21d5fb286547a82"
+    },
+    {
+      "name": "demo does not promise compatibility with stock MINI",
+      "before_sha256": "4a724d61543391336856541b872b3d470d74eb252a0438d28794127d9c1769f7",
+      "after_sha256": "2902adbf1f91d1980ab00c371869dcc39f758de3d4ea5fb0baaf5be227180641"
+    },
+    {
+      "name": "MINI status UI",
+      "before_sha256": "124207d84bdc8a107cbcc04212a091e85157e09d7bf208f7afb4839498fef083",
+      "after_sha256": "f524f48ea843acc5638d30aa18fb10a9a5854c61943011c50a76f4137868687e"
+    }
+  ],
+  "call_sites": [
+    {
+      "line": 5327,
+      "command": null,
+      "request_expression": "l",
+      "completion_expression": "Array.isArray(pre) ? doneBy(...pre) : pre",
+      "timeout_expression": "2500",
+      "dynamic": true
+    },
+    {
+      "line": 5341,
+      "command": "GSAVE",
+      "request_expression": "\"GSAVE\"",
+      "completion_expression": "\"GSAVE\"",
+      "timeout_expression": "5000",
+      "dynamic": false
+    },
+    {
+      "line": 5392,
+      "command": "FXT",
+      "request_expression": "\"FXT\"",
+      "completion_expression": "FXT_END",
+      "timeout_expression": "3000",
+      "dynamic": false
+    },
+    {
+      "line": 5410,
+      "command": "LVL",
+      "request_expression": "\"LVL\"",
+      "completion_expression": "\"LVL\"",
+      "timeout_expression": "800",
+      "dynamic": false
+    },
+    {
+      "line": 5413,
+      "command": "LVL",
+      "request_expression": "\"LVL\"",
+      "completion_expression": "\"LVL\"",
+      "timeout_expression": "800",
+      "dynamic": false
+    },
+    {
+      "line": 5414,
+      "command": "FXS",
+      "request_expression": "\"FXS\"",
+      "completion_expression": "FXS_DONE",
+      "timeout_expression": "2500",
+      "dynamic": false
+    },
+    {
+      "line": 5426,
+      "command": "FXMIX",
+      "request_expression": "\"FXMIX\"",
+      "completion_expression": "l => FXMIX_END(l) || l.startsWith(\"ERR\")",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 5451,
+      "command": "MODEL",
+      "request_expression": "\"MODEL\"",
+      "completion_expression": "\"MODEL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 5466,
+      "command": "MEM",
+      "request_expression": "\"MEM\"",
+      "completion_expression": "\"MEM\"",
+      "timeout_expression": "3000",
+      "dynamic": false
+    },
+    {
+      "line": 6416,
+      "command": "FXMIX",
+      "request_expression": "`FXMIX ${bank} ${ord} ${c[0]} ${c[1]}`",
+      "completion_expression": "FXMIX_DONE",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 6433,
+      "command": "FXXO",
+      "request_expression": "`FXXO ${bank} ${ord} ${hz}`",
+      "completion_expression": "FXXO_DONE",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 6453,
+      "command": "FXXO",
+      "request_expression": "`FXXO ${bank} ${ord} ${xoGet(bank, ord)} 1`",
+      "completion_expression": "FXXO_DONE",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 6820,
+      "command": "FXR",
+      "request_expression": "`FXR ${id}`",
+      "completion_expression": "\"FXR\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 6824,
+      "command": null,
+      "request_expression": "c",
+      "completion_expression": "FXMIX_DONE",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 6824,
+      "command": null,
+      "request_expression": "c",
+      "completion_expression": "w + \" \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7002,
+      "command": null,
+      "request_expression": "cap ? \"CLIST\" : \"ILIST\"",
+      "completion_expression": "cap ? doneBy(\"CLIST end\", \"CLIST fin\") : doneBy(\"ILIST end\", \"ILIST fin\")",
+      "timeout_expression": "4000",
+      "dynamic": true
+    },
+    {
+      "line": 7015,
+      "command": null,
+      "request_expression": "`${cap ? \"CLOAD\" : \"ILOAD\"} ${i}`",
+      "completion_expression": "cap ? \"CLOAD\" : \"ILOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 7139,
+      "command": "FXR",
+      "request_expression": "`FXR ${id}`",
+      "completion_expression": "\"FXR\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7145,
+      "command": "FXA",
+      "request_expression": "`FXA ${bank} ${pos} ${type}`",
+      "completion_expression": "l => l.startsWith(\"FX cpu\") || l.startsWith(\"ERR FXA\")",
+      "timeout_expression": "4000",
+      "dynamic": true
+    },
+    {
+      "line": 7153,
+      "command": "FXA",
+      "request_expression": "`FXA ${bank} ${pos} ${old.type}`",
+      "completion_expression": "l => l.startsWith(\"FX cpu\") || l.startsWith(\"ERR FXA\")",
+      "timeout_expression": "4000",
+      "dynamic": true
+    },
+    {
+      "line": 7156,
+      "command": "FXP",
+      "request_expression": "`FXP ${bid} ${pp.idx} ${old.p[pp.idx]}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7157,
+      "command": "FXL",
+      "request_expression": "`FXL ${bid} ${old.lane}`",
+      "completion_expression": "\"FXL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7158,
+      "command": "FXE",
+      "request_expression": "`FXE ${bid} 0`",
+      "completion_expression": "\"FXE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7170,
+      "command": "FXL",
+      "request_expression": "`FXL ${nid} ${old.lane}`",
+      "completion_expression": "\"FXL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7171,
+      "command": "FXE",
+      "request_expression": "`FXE ${nid} 0`",
+      "completion_expression": "\"FXE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7195,
+      "command": "FXA",
+      "request_expression": "`FXA ${bank} 99 ${type}`",
+      "completion_expression": "l => l.startsWith(\"FX cpu\") || l.startsWith(\"ERR FXA\")",
+      "timeout_expression": "4000",
+      "dynamic": true
+    },
+    {
+      "line": 7238,
+      "command": "FXR",
+      "request_expression": "`FXR ${id}`",
+      "completion_expression": "\"FXR\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7247,
+      "command": "FXE",
+      "request_expression": "`FXE ${id} ${f.inst.on ? 0 : 1}`",
+      "completion_expression": "\"FXE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7263,
+      "command": "AMPX",
+      "request_expression": "\"AMPX 0\"",
+      "completion_expression": "\"AMPX\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 7275,
+      "command": "AMPX",
+      "request_expression": "\"AMPX 1\"",
+      "completion_expression": "\"AMPX\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 7576,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${idx} ${v}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7603,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${p.idx} ${nv}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7620,
+      "command": "FXOS",
+      "request_expression": "`FXOS ${it.id} ${nv}`",
+      "completion_expression": "\"FXOS\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7634,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${idx} ${nv}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7662,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${gi} ${nv}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7671,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${k} ${cl}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7686,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${pi} ${ti}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7725,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${p.idx} ${ti}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7740,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${p.idx} ${ti}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7759,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${ii} ${pv}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7789,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${gi} ${pv}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7809,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${fk} 0`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7814,
+      "command": "FXP",
+      "request_expression": "`FXP ${it.id} ${p.idx} ${nv}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 7866,
+      "command": "FXIR",
+      "request_expression": "`FXIR ${id} ${slot}`",
+      "completion_expression": "\"FXIR\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 8380,
+      "command": "SNAPS",
+      "request_expression": "\"SNAPS\"",
+      "completion_expression": "\"SNAPS\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 8388,
+      "command": "SNAPNAME",
+      "request_expression": "\"SNAPNAME\"",
+      "completion_expression": "doneBy(\"SNAPNAME end\")",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 8452,
+      "command": "PNAME",
+      "request_expression": "\"PNAME\"",
+      "completion_expression": "\"PNAME\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 8475,
+      "command": "PNAME",
+      "request_expression": "`PNAME ${n} ${name}`",
+      "completion_expression": "\"PNAME\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 8495,
+      "command": "SNAPNAME",
+      "request_expression": "`SNAPNAME ${k} ${name}`",
+      "completion_expression": "\"SNAPNAME\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8509,
+      "command": "SNAPDEL",
+      "request_expression": "`SNAPDEL ${k}`",
+      "completion_expression": "\"SNAPDEL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8522,
+      "command": "SNAP",
+      "request_expression": "`SNAP ${k}`",
+      "completion_expression": "\"SNAP \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8538,
+      "command": "SNAPSAVE",
+      "request_expression": "`SNAPSAVE ${k}`",
+      "completion_expression": "\"SNAPSAVE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8673,
+      "command": "LVL",
+      "request_expression": "\"LVL\"",
+      "completion_expression": "\"LVL\"",
+      "timeout_expression": "800",
+      "dynamic": false
+    },
+    {
+      "line": 8729,
+      "command": "SNAPSAVE",
+      "request_expression": "`SNAPSAVE ${k}`",
+      "completion_expression": "\"SNAPSAVE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8731,
+      "command": "PSAVE",
+      "request_expression": "`PSAVE ${curPreset} ${presetName()}`",
+      "completion_expression": "\"PSAVE\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 8738,
+      "command": "TUNER",
+      "request_expression": "\"TUNER\"",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 8739,
+      "command": "TUNER",
+      "request_expression": "`TUNER 1 1 ${tun[3]}`",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8747,
+      "command": "AMPEQ",
+      "request_expression": "`AMPEQ ${aeq0.slice(0, S.aeqDrv ? AEQ_N : 5).join(\" \")}`",
+      "completion_expression": "AEQ_DONE",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8748,
+      "command": "SNAP",
+      "request_expression": "`SNAP ${k}`",
+      "completion_expression": "\"SNAP \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8753,
+      "command": "FXP",
+      "request_expression": "`FXP ${e.id} ${e.idx} ${e.v}`",
+      "completion_expression": "\"FXP\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8754,
+      "command": "AMPEQ",
+      "request_expression": "`AMPEQ ${b} ${v}`",
+      "completion_expression": "AEQ_DONE",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8763,
+      "command": "SNAP",
+      "request_expression": "`SNAP ${k0}`",
+      "completion_expression": "\"SNAP \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 8764,
+      "command": "TUNER",
+      "request_expression": "`TUNER ${tun[1]} ${tun[2]} ${tun[3]}`",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 9116,
+      "command": null,
+      "request_expression": "line",
+      "completion_expression": "Array.isArray(pre) ? doneBy(...pre) : pre",
+      "timeout_expression": "2500",
+      "dynamic": true
+    },
+    {
+      "line": 9397,
+      "command": "FSA",
+      "request_expression": "\"FSA\"",
+      "completion_expression": "doneBy(\"FSA end\", \"FSA fin\")",
+      "timeout_expression": "3000",
+      "dynamic": false
+    },
+    {
+      "line": 9399,
+      "command": "FSPRESS",
+      "request_expression": "\"FSPRESS\"",
+      "completion_expression": "\"FSPRESS\"",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 9401,
+      "command": "FSMODE",
+      "request_expression": "\"FSMODE\"",
+      "completion_expression": "\"FSMODE\"",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 9403,
+      "command": "FSLED",
+      "request_expression": "\"FSLED\"",
+      "completion_expression": "doneBy(\"FSLED end\")",
+      "timeout_expression": "2000",
+      "dynamic": false
+    },
+    {
+      "line": 9404,
+      "command": "LEDCFG",
+      "request_expression": "\"LEDCFG\"",
+      "completion_expression": "\"LEDCFG\"",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 9407,
+      "command": "PCOLOR",
+      "request_expression": "\"PCOLOR\"",
+      "completion_expression": "\"PCOLOR\"",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 9427,
+      "command": "GSAVE",
+      "request_expression": "\"GSAVE\"",
+      "completion_expression": "\"GSAVE\"",
+      "timeout_expression": "5000",
+      "dynamic": false
+    },
+    {
+      "line": 9502,
+      "command": "PNEW",
+      "request_expression": "\"PNEW\"",
+      "completion_expression": "\"PNEW\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 9527,
+      "command": "BPM",
+      "request_expression": "`BPM ${v}`",
+      "completion_expression": "\"BPM\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 9642,
+      "command": "TUNE",
+      "request_expression": "\"TUNE\"",
+      "completion_expression": "\"TUNE \"",
+      "timeout_expression": "600",
+      "dynamic": false
+    },
+    {
+      "line": 9660,
+      "command": "TUNER",
+      "request_expression": "`TUNER 1 ${$(\"tuMute\").checked ? 1 : 0} ${+$(\"tuRef\").value || 440}`",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 9666,
+      "command": "TUNER",
+      "request_expression": "\"TUNER 0\"",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 9668,
+      "command": "TUNER",
+      "request_expression": "`TUNER 1 ${$(\"tuMute\").checked ? 1 : 0} ${+$(\"tuRef\").value || 440}`",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 9805,
+      "command": "FSDO",
+      "request_expression": "`FSDO ${\"abcd\"[f]}${g === 1 ? \" hold\" : \"\"}`",
+      "completion_expression": "\"FSMODE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 10057,
+      "command": "LVLSUB",
+      "request_expression": "`LVLSUB ${on ? LVL_PUSH_MS + (S.cinOk ? \" 2\" : \"\") : 0}`",
+      "completion_expression": "\"LVLSUB\"",
+      "timeout_expression": "800",
+      "dynamic": true
+    },
+    {
+      "line": 10102,
+      "command": "LVL",
+      "request_expression": "\"LVL\"",
+      "completion_expression": "\"LVL\"",
+      "timeout_expression": "800",
+      "dynamic": false
+    },
+    {
+      "line": 10122,
+      "command": "FSMODE",
+      "request_expression": "`FSMODE mode=${live ? \"live\" : \"preset\"}`",
+      "completion_expression": "\"FSMODE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 10154,
+      "command": "LVL",
+      "request_expression": "\"LVL\"",
+      "completion_expression": "\"LVL\"",
+      "timeout_expression": "800",
+      "dynamic": false
+    },
+    {
+      "line": 10234,
+      "command": "EVT",
+      "request_expression": "`EVT ${evSeq}`",
+      "completion_expression": "l => l.startsWith(\"EVT end\") || l.startsWith(\"EVT fin\")",
+      "timeout_expression": "1200",
+      "dynamic": true
+    },
+    {
+      "line": 10261,
+      "command": "EVT",
+      "request_expression": "`EVT ${last}`",
+      "completion_expression": "l => l.startsWith(\"EVT end\") || l.startsWith(\"EVT fin\")",
+      "timeout_expression": "1200",
+      "dynamic": true
+    },
+    {
+      "line": 10282,
+      "command": "CRASH",
+      "request_expression": "\"CRASH\"",
+      "completion_expression": "l => /^CRASH end/.test(l) || /^TRAP /.test(l) || (!ringFw && /^CRASH (none|ASSERT|WDOG)/.test(l))",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 10288,
+      "command": "CLKSTATE",
+      "request_expression": "\"CLKSTATE\"",
+      "completion_expression": "l => /^CLKSTATE |^ERR CLKSTATE/.test(l)",
+      "timeout_expression": "1000",
+      "dynamic": false
+    },
+    {
+      "line": 10293,
+      "command": "LIFE",
+      "request_expression": "\"LIFE\"",
+      "completion_expression": "x => /^LIFE |^ERR/.test(x)",
+      "timeout_expression": "1000",
+      "dynamic": false
+    },
+    {
+      "line": 10351,
+      "command": "PING",
+      "request_expression": "\"PING\"",
+      "completion_expression": "\"PONG\"",
+      "timeout_expression": "700",
+      "dynamic": false
+    },
+    {
+      "line": 10373,
+      "command": "BLE",
+      "request_expression": "\"BLE\"",
+      "completion_expression": "\"BLE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10379,
+      "command": "BLE",
+      "request_expression": "\"BLE\"",
+      "completion_expression": "\"BLE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10387,
+      "command": "LVL",
+      "request_expression": "\"LVL\"",
+      "completion_expression": "\"LVL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10672,
+      "command": "BLE",
+      "request_expression": "\"BLE key\"",
+      "completion_expression": "\"BLE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10683,
+      "command": "AUTH",
+      "request_expression": "\"AUTH ?\"",
+      "completion_expression": "\"AUTH\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10686,
+      "command": "AUTH",
+      "request_expression": "`AUTH ${e.id} ${m}`",
+      "completion_expression": "\"AUTH\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 10704,
+      "command": "BLE",
+      "request_expression": "\"BLE pair\"",
+      "completion_expression": "\"BLE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10714,
+      "command": "BLE",
+      "request_expression": "\"BLE forget\"",
+      "completion_expression": "\"BLE\"",
+      "timeout_expression": "9000",
+      "dynamic": false
+    },
+    {
+      "line": 10954,
+      "command": null,
+      "request_expression": "S.audio === 2 ? \"AUDIO OFF\" : \"AUDIO A2L\"",
+      "completion_expression": "\"AUDIO\"",
+      "timeout_expression": "12000",
+      "dynamic": true
+    },
+    {
+      "line": 10962,
+      "command": "GEQ",
+      "request_expression": "`GEQ ${b} ${v}`",
+      "completion_expression": "\"GEQ\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 10973,
+      "command": "HPF",
+      "request_expression": "`HPF ${v}`",
+      "completion_expression": "\"HPF\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 10977,
+      "command": "GEQ",
+      "request_expression": "\"GEQ\"",
+      "completion_expression": "\"GEQ\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10979,
+      "command": "HPF",
+      "request_expression": "\"HPF\"",
+      "completion_expression": "\"HPF\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10982,
+      "command": "SPILL",
+      "request_expression": "\"SPILL\"",
+      "completion_expression": "\"SPILL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 10984,
+      "command": "GLIDE",
+      "request_expression": "\"GLIDE\"",
+      "completion_expression": "\"GLIDE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 11072,
+      "command": "SPUR",
+      "request_expression": "\"SPUR\"",
+      "completion_expression": "\"SPUR\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 11073,
+      "command": "LIM",
+      "request_expression": "\"LIM\"",
+      "completion_expression": "\"LIM \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 11075,
+      "command": "PSTAT",
+      "request_expression": "\"PSTAT\"",
+      "completion_expression": "\"PSTAT\"",
+      "timeout_expression": "2000",
+      "dynamic": false
+    },
+    {
+      "line": 11081,
+      "command": "SPUR",
+      "request_expression": "`SPUR ${on ? 1 : 0}`",
+      "completion_expression": "\"SPUR\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11089,
+      "command": "LIM",
+      "request_expression": "`LIM ${on ? 1 : 0} ${thr} ${rel}`",
+      "completion_expression": "\"LIM \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11119,
+      "command": "STW",
+      "request_expression": "\"STW\"",
+      "completion_expression": "\"STW\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 11127,
+      "command": "STW",
+      "request_expression": "`STW ${want ? 100 : 0}`",
+      "completion_expression": "\"STW\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11597,
+      "command": "GSAVE",
+      "request_expression": "\"GSAVE\"",
+      "completion_expression": "\"GSAVE\"",
+      "timeout_expression": "5000",
+      "dynamic": false
+    },
+    {
+      "line": 11601,
+      "command": "GLIDE",
+      "request_expression": "`GLIDE ${S.glideMs === undefined ? 43 : S.glideMs} ${on ? 1 : 0}`",
+      "completion_expression": "\"GLIDE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11604,
+      "command": "SPILL",
+      "request_expression": "`SPILL ${$(\"spill\").checked ? 1 : 0}`",
+      "completion_expression": "\"SPILL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11608,
+      "command": "GAIN",
+      "request_expression": "`GAIN ${S.gain[0]} ${S.gain[1]}`",
+      "completion_expression": "\"GAIN\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11623,
+      "command": null,
+      "request_expression": "`${prefix} ${off} ${hex(ch)}`",
+      "completion_expression": "l => l.startsWith(okp) || l.startsWith(\"ERR\")",
+      "timeout_expression": "1500",
+      "dynamic": true
+    },
+    {
+      "line": 11637,
+      "command": "AMP",
+      "request_expression": "`AMP ${want}`",
+      "completion_expression": "\"AMP \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11747,
+      "command": "AUDIO",
+      "request_expression": "\"AUDIO OFF\"",
+      "completion_expression": "\"AUDIO\"",
+      "timeout_expression": "5000",
+      "dynamic": false
+    },
+    {
+      "line": 11750,
+      "command": "LDBEGIN",
+      "request_expression": "`LDBEGIN ${data.length}`",
+      "completion_expression": "l => l.startsWith(\"OK LDBEGIN\") || l.startsWith(\"ERR\")",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11753,
+      "command": "LDEND",
+      "request_expression": "`LDEND ${crc32(data).toString(16).padStart(8, \"0\")}`",
+      "completion_expression": "l => l.startsWith(\"LOAD\") || l.startsWith(\"ERR\")",
+      "timeout_expression": "amx ? 60000 : 10000",
+      "dynamic": true
+    },
+    {
+      "line": 11758,
+      "command": "AUDIO",
+      "request_expression": "\"AUDIO A2L\"",
+      "completion_expression": "\"AUDIO\"",
+      "timeout_expression": "12000",
+      "dynamic": false
+    },
+    {
+      "line": 11764,
+      "command": "CTRIM",
+      "request_expression": "`CTRIM live 0 ${Math.round(inDbu * 10)}`",
+      "completion_expression": "\"CTRIM \"",
+      "timeout_expression": "2000",
+      "dynamic": true
+    },
+    {
+      "line": 11769,
+      "command": "CSAVE",
+      "request_expression": "`CSAVE ${slot} ${name.slice(0, 23)}`",
+      "completion_expression": "\"CSAVE\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 11777,
+      "command": "LDBEGIN",
+      "request_expression": "\"LDBEGIN 0\"",
+      "completion_expression": "\"ERR LDBEGIN\"",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 11779,
+      "command": "AUDIO",
+      "request_expression": "\"AUDIO A2L\"",
+      "completion_expression": "\"AUDIO\"",
+      "timeout_expression": "12000",
+      "dynamic": false
+    },
+    {
+      "line": 11827,
+      "command": "CLOAD",
+      "request_expression": "`CLOAD ${back}`",
+      "completion_expression": "\"CLOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 11909,
+      "command": "IRBEGIN",
+      "request_expression": "`IRBEGIN ${q.length} ${gain} 48`",
+      "completion_expression": "l => l.startsWith(\"OK IRBEGIN\") || l.startsWith(\"ERR\")",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 11913,
+      "command": "IREND",
+      "request_expression": "`IREND ${crc32(data).toString(16).padStart(8, \"0\")}`",
+      "completion_expression": "l => l.startsWith(\"IR ok\") || l.startsWith(\"ERR\")",
+      "timeout_expression": "5000",
+      "dynamic": true
+    },
+    {
+      "line": 11917,
+      "command": "IRBEGIN",
+      "request_expression": "\"IRBEGIN 0 0 48\"",
+      "completion_expression": "\"ERR IRBEGIN\"",
+      "timeout_expression": "1500",
+      "dynamic": false
+    },
+    {
+      "line": 11938,
+      "command": "ISAVE",
+      "request_expression": "`ISAVE ${saveSlot} ${f.name.replace(/\\.wav$/i, \"\").slice(0, 23)}`",
+      "completion_expression": "\"ISAVE\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 12005,
+      "command": "ISAVE",
+      "request_expression": "`ISAVE ${j.slot} ${j.f.name.replace(/\\.wav$/i, \"\").slice(0, 23)}`",
+      "completion_expression": "\"ISAVE\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 12020,
+      "command": "ILOAD",
+      "request_expression": "`ILOAD ${back}`",
+      "completion_expression": "\"ILOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 12067,
+      "command": "PLIST",
+      "request_expression": "\"PLIST\"",
+      "completion_expression": "doneBy(\"PLIST end\", \"PLIST fin\")",
+      "timeout_expression": "4000",
+      "dynamic": false
+    },
+    {
+      "line": 12138,
+      "command": "PDEL",
+      "request_expression": "`PDEL ${n}`",
+      "completion_expression": "\"PDEL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 12823,
+      "command": "PLOAD",
+      "request_expression": "`PLOAD ${n}`",
+      "completion_expression": "\"PLOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 12834,
+      "command": "LVL",
+      "request_expression": "\"LVL\"",
+      "completion_expression": "\"LVL\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 12845,
+      "command": "SNAPS",
+      "request_expression": "\"SNAPS\"",
+      "completion_expression": "\"SNAPS\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 12848,
+      "command": "SNAPSAVE",
+      "request_expression": "\"SNAPSAVE 0\"",
+      "completion_expression": "\"SNAPSAVE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 12876,
+      "command": "PSAVE",
+      "request_expression": "`PSAVE ${n} ${name}`",
+      "completion_expression": "\"PSAVE\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 12897,
+      "command": "SNAPSAVE",
+      "request_expression": "`SNAPSAVE ${k}`",
+      "completion_expression": "\"SNAPSAVE\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 13599,
+      "command": null,
+      "request_expression": "line",
+      "completion_expression": "Array.isArray(until) ? (l => until.some(p => l.startsWith(p)) || l.startsWith(\"ERR\")) : until",
+      "timeout_expression": "tmo",
+      "dynamic": true
+    },
+    {
+      "line": 13636,
+      "command": "TUNER",
+      "request_expression": "\"TUNER\"",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": false
+    },
+    {
+      "line": 13637,
+      "command": "TUNER",
+      "request_expression": "`TUNER 1 1 ${t[3]}`",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 13640,
+      "command": "TUNER",
+      "request_expression": "`TUNER ${t[1]} ${t[2]} ${t[3]}`",
+      "completion_expression": "\"TUNER\"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 13686,
+      "command": "PLOAD",
+      "request_expression": "`PLOAD ${pre0}`",
+      "completion_expression": "\"PLOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 13686,
+      "command": "SNAP",
+      "request_expression": "`SNAP ${snap0}`",
+      "completion_expression": "\"SNAP \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 13687,
+      "command": "SNAP",
+      "request_expression": "`SNAP ${snap0}`",
+      "completion_expression": "\"SNAP \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 13767,
+      "command": "PLOAD",
+      "request_expression": "`PLOAD ${pre0}`",
+      "completion_expression": "\"PLOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 13777,
+      "command": "PLOAD",
+      "request_expression": "`PLOAD ${n}`",
+      "completion_expression": "\"PLOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 13782,
+      "command": "PLOAD",
+      "request_expression": "`PLOAD ${back}`",
+      "completion_expression": "\"PLOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 13782,
+      "command": "SNAP",
+      "request_expression": "`SNAP ${snap0}`",
+      "completion_expression": "\"SNAP \"",
+      "timeout_expression": "1500 (default)",
+      "dynamic": true
+    },
+    {
+      "line": 13980,
+      "command": null,
+      "request_expression": "cap ? \"CLIST\" : \"ILIST\"",
+      "completion_expression": "cap ? doneBy(\"CLIST end\", \"CLIST fin\") : doneBy(\"ILIST end\", \"ILIST fin\")",
+      "timeout_expression": "4000",
+      "dynamic": true
+    },
+    {
+      "line": 14038,
+      "command": null,
+      "request_expression": "`${cap ? \"CLOAD\" : \"ILOAD\"} ${i}`",
+      "completion_expression": "cap ? \"CLOAD\" : \"ILOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 14056,
+      "command": null,
+      "request_expression": "`${cap ? \"CDEL\" : \"IDEL\"} ${i}`",
+      "completion_expression": "cap ? \"CDEL\" : \"IDEL\"",
+      "timeout_expression": "5000",
+      "dynamic": true
+    },
+    {
+      "line": 14089,
+      "command": "CLIST",
+      "request_expression": "\"CLIST\"",
+      "completion_expression": "doneBy(\"CLIST end\", \"CLIST fin\")",
+      "timeout_expression": "4000",
+      "dynamic": false
+    },
+    {
+      "line": 14215,
+      "command": "FXXO",
+      "request_expression": "\"FXXO\"",
+      "completion_expression": "l => l === \"FXXO end\" || l.startsWith(\"ERR\")",
+      "timeout_expression": "1200",
+      "dynamic": false
+    },
+    {
+      "line": 14226,
+      "command": "AMPEQ",
+      "request_expression": "\"AMPEQ\"",
+      "completion_expression": "AEQ_DONE",
+      "timeout_expression": "1200",
+      "dynamic": false
+    },
+    {
+      "line": 14231,
+      "command": "AMPEQ",
+      "request_expression": "\"AMPEQ info\"",
+      "completion_expression": "\"AMPEQ info\"",
+      "timeout_expression": "1200",
+      "dynamic": false
+    },
+    {
+      "line": 14238,
+      "command": "AMPEQ",
+      "request_expression": "\"AMPEQ\"",
+      "completion_expression": "AEQ_DONE",
+      "timeout_expression": "1200",
+      "dynamic": false
+    },
+    {
+      "line": 14278,
+      "command": null,
+      "request_expression": "aeqCmd(S.aeq, [b])",
+      "completion_expression": "AEQ_DONE",
+      "timeout_expression": "1500",
+      "dynamic": true
+    },
+    {
+      "line": 14387,
+      "command": "CTRIM",
+      "request_expression": "`CTRIM live ${(h2 / 2).toFixed(1)}`",
+      "completion_expression": "\"CTRIM \"",
+      "timeout_expression": "2000",
+      "dynamic": true
+    },
+    {
+      "line": 14393,
+      "command": "CTRIM",
+      "request_expression": "`CTRIM ${slot} ${(h2 / 2).toFixed(1)}`",
+      "completion_expression": "\"CTRIM \"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 14400,
+      "command": null,
+      "request_expression": "slot >= 0 ? `CTRIM ${slot} ${(h2 / 2).toFixed(1)}` : `CTRIM live ${(h2 / 2).toFixed(1)}`",
+      "completion_expression": "\"CTRIM \"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 14443,
+      "command": "CLOAD",
+      "request_expression": "`CLOAD ${slot}`",
+      "completion_expression": "\"CLOAD\"",
+      "timeout_expression": "8000",
+      "dynamic": true
+    },
+    {
+      "line": 14455,
+      "command": "CALIB",
+      "request_expression": "\"CALIB start\"",
+      "completion_expression": "\"CALIB \"",
+      "timeout_expression": "3000",
+      "dynamic": false
+    },
+    {
+      "line": 14464,
+      "command": "CALIB",
+      "request_expression": "\"CALIB stop\"",
+      "completion_expression": "\"CALIB \"",
+      "timeout_expression": "2000",
+      "dynamic": false
+    },
+    {
+      "line": 14474,
+      "command": "CALIB",
+      "request_expression": "\"CALIB stop\"",
+      "completion_expression": "\"CALIB \"",
+      "timeout_expression": "3000",
+      "dynamic": false
+    },
+    {
+      "line": 14491,
+      "command": "CALIB",
+      "request_expression": "`CALIB sens ${v.toFixed(1)}`",
+      "completion_expression": "\"CALIB \"",
+      "timeout_expression": "2000",
+      "dynamic": true
+    },
+    {
+      "line": 14493,
+      "command": "GSAVE",
+      "request_expression": "\"GSAVE\"",
+      "completion_expression": "\"GSAVE\"",
+      "timeout_expression": "5000",
+      "dynamic": false
+    }
+  ],
+  "command_names": [
+    "AMP",
+    "AMPEQ",
+    "AMPX",
+    "AUDIO",
+    "AUTH",
+    "BLE",
+    "BPM",
+    "CALIB",
+    "CLIST",
+    "CLKSTATE",
+    "CLOAD",
+    "CRASH",
+    "CSAVE",
+    "CTRIM",
+    "EVT",
+    "FSA",
+    "FSDO",
+    "FSLED",
+    "FSMODE",
+    "FSPRESS",
+    "FXA",
+    "FXE",
+    "FXIR",
+    "FXL",
+    "FXMIX",
+    "FXOS",
+    "FXP",
+    "FXR",
+    "FXS",
+    "FXT",
+    "FXXO",
+    "GAIN",
+    "GEQ",
+    "GLIDE",
+    "GSAVE",
+    "HPF",
+    "ILOAD",
+    "IRBEGIN",
+    "IREND",
+    "ISAVE",
+    "LDBEGIN",
+    "LDEND",
+    "LEDCFG",
+    "LIFE",
+    "LIM",
+    "LVL",
+    "LVLSUB",
+    "MEM",
+    "MODEL",
+    "PCOLOR",
+    "PDEL",
+    "PING",
+    "PLIST",
+    "PLOAD",
+    "PNAME",
+    "PNEW",
+    "PSAVE",
+    "PSTAT",
+    "SNAP",
+    "SNAPDEL",
+    "SNAPNAME",
+    "SNAPS",
+    "SNAPSAVE",
+    "SPILL",
+    "SPUR",
+    "STW",
+    "TUNE",
+    "TUNER"
+  ],
+  "dynamic_call_site_count": 102,
+  "inventory_scope": "All textual Pedal.cmd call sites; unresolved JS expressions are retained, not inferred as resolved commands.",
+  "firmware_transport": {
+    "source": "analysis/firmware/m571_g_app/app.bin",
+    "source_sha256": "4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e",
+    "hardware_enumeration_verified_on_mini": false,
+    "usb": {
+      "device_template_address": "0x02035085",
+      "device_template_hex": "120100020000004054365541000101020301",
+      "template_vid": "3654",
+      "template_pid": "4155",
+      "runtime_pid": "5155",
+      "pid_patch_address": "0x0201b9f0",
+      "pid_patch_hex": "5131894b",
+      "pid_patch_semantics": "r1=0x51; b[r0+11]=r1 after 18-byte descriptor copy at 0x0201b9e2",
+      "configuration_template_address": "0x020350b9",
+      "configuration_template_hex": "090200000001008032080b000202020100090400000102020100052400100105240103010424020205240600010705820308000109040100020a0000000705020240000007058302400000",
+      "control_interface": {
+        "number": 0,
+        "class": 2,
+        "subclass": 2,
+        "protocol": 1,
+        "interrupt_in": "82",
+        "packet_bytes": 8
+      },
+      "data_interface": {
+        "number": 1,
+        "class": 10,
+        "bulk_out": "02",
+        "bulk_in": "83",
+        "packet_bytes": 64
+      },
+      "product_string_address": "0x0203a264",
+      "product_original": "Tank-G UltraRig"
+    },
+    "nus_uuid_addresses": {
+      "6e400001-b5a3-f393-e0a9-e50e24dcca9e": [
+        "0x0203524b",
+        "0x0203a254"
+      ],
+      "6e400002-b5a3-f393-e0a9-e50e24dcca9e": [
+        "0x02035266",
+        "0x0203527c"
+      ],
+      "6e400003-b5a3-f393-e0a9-e50e24dcca9e": [
+        "0x02035297",
+        "0x020352ad"
+      ],
+      "6e400004-b5a3-f393-e0a9-e50e24dcca9e": [
+        "0x020352d2",
+        "0x020352e8"
+      ]
+    },
+    "firmware_read_guard_list": {
+      "address": "0x020388c4",
+      "text": "PING EVT LVL LVLSUB STAT! MEM MODEL FXT! FXS! PLIST! PSTAT! CLIST! ILIST! SNAPS! SNAPNAME! AMPEQ! FXXO! FXMIX! GEQ! GLIDE! HPF! SPILL! LIM! SPUR! TUNE! FSMODE! FSA! FSPRESS! FSLED! LEDCFG! BLE! CRASH! CLKSTATE! AUTH STW! LIFE!",
+      "note": "Original firmware string evidence; no claim that a MINI build executes these handlers yet."
+    },
+    "firmware_command_list": {
+      "address": "0x02038b09",
+      "text": "PING EVT LVL LVLSUB STAT MEM MODEL AUDIO FXT FXS FXA FXR FXM FXE FXP FXL FXOS FXMIX FXXO FXIR AMP AMPX AMPEQ GEQ GAIN LIM HPF SPUR GLIDE SPILL TUNER TUNE TAP BPM IRBEGIN IRB IREND LDBEGIN LDB LDEND PLIST PSTAT PLOAD PSAVE PNAME PNEW PDEL PCOLOR SNAP SNAPS SNAPSAVE SNAPDEL SNAPNAME CLIST ILIST CLOAD ILOAD CSAVE ISAVE CDEL IDEL CTRIM CALIB GSAVE CREAD IREAD FSA FSMODE FSDO FSPRESS FSLED LEDCFG LEDTEST STW BLE! CRASH! CLKSTATE! LIFE! AUTH"
+    }
+  },
+  "required_startup_queries": [
+    "PING",
+    "BLE (if advertised)",
+    "FXT",
+    "MODEL",
+    "CLIST",
+    "MEM",
+    "FXXO",
+    "LVL",
+    "FXS",
+    "FXMIX (if needed)",
+    "PLIST",
+    "SNAPS",
+    "SNAPNAME",
+    "AMPEQ",
+    "AMPEQ info",
+    "GEQ",
+    "HPF",
+    "SPILL",
+    "GLIDE",
+    "SPUR",
+    "LIM",
+    "PSTAT",
+    "CRASH"
+  ],
+  "asynchronous_responses": [
+    "@L",
+    "@K",
+    "NOISE ms=",
+    "CALIB",
+    "ERR CALIB stopped"
+  ],
+  "board_assumptions": {
+    "original_switches": 4,
+    "original_knobs": 15,
+    "mini_switches": 3,
+    "mini_pins_and_led_mapping": "unresolved; physical-control commands blocked",
+    "original_presets": "8 banks x 4 slots; original storage/protocol retained pending port storage audit",
+    "stock_21_preset_layout_used": false,
+    "capture_formats": "original NAM converter / A2L1; no conversion to stock AM4"
+  },
+  "output": "build/hyperrig-mini",
+  "files": {
+    "build/hyperrig-mini/DERIVATION.txt": "a2423ae82ebad09741ca6f20d330a2f89cb880207fc9e4d5d0f76acb4e66bd6c",
+    "build/hyperrig-mini/LICENSE.md": "fbf763e6b656372647ea3950abc3d35feabe2148e697dc4215e1f92387e37a4c",
+    "build/hyperrig-mini/NOTICE.md": "02849a92a5a2ee4ced154650b52fcf316954fad41311cf55e9402567159b6ed8",
+    "build/hyperrig-mini/THIRD_PARTY_LICENSES.md": "50a9a2228e6225bc038b8d50f094be5698c4bbec563b4d2309c4fbec3447fcd8",
+    "build/hyperrig-mini/web/index.html": "4090b0510aefb6a32faf548b37ea94f8092d7361860de6cc18ded567d1c978bc",
+    "build/hyperrig-mini/web/mini-profile.js": "ba452ba12a6308d1f4e22f4a34589427c05983a2bab669eb9a88a4b16c194d4a",
+    "build/hyperrig-mini/web/mini-ui.js": "02c5eeb7c7b2919a50d872d7dec182ee0ed5050591e358e29bb2787e58f9005e",
+    "build/hyperrig-mini/web/nam2chip.js": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183",
+    "build/hyperrig-mini/web/tankmini.html": "4af4f197853f3cb0014545464144dac44a171583755b422a22e5c80cc7fff5c5"
+  }
+}

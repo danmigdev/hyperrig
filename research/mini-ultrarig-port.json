@@ -1,0 +1,1567 @@
+{
+  "format_version": 1,
+  "objective": "Port the complete UltraRig G v2 application to MINI; stock MINI is hardware/recovery evidence only.",
+  "hardware_io_performed": false,
+  "nvm_writes_performed": false,
+  "sources": {
+    "g": {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_g_app.bin",
+      "sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+      "area_bytes": 487424,
+      "app_bytes": 485772
+    },
+    "mini": {
+      "path": "artifacts/tank-mini/TANK-MINI.fwsc",
+      "sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+      "app_bytes": 511032,
+      "boot_payload_sha256": "fcaf033c5e10526353ecb11279a7556ac8645026d370c0267912cb4bfa7c7e4d"
+    }
+  },
+  "format_fit": {
+    "same_entry": 33554720,
+    "same_chip_key": 38927,
+    "g_area_bytes": 487424,
+    "mini_area_bytes": 516096,
+    "partition_size_difference": 28672,
+    "maximum_append_bytes_before_alignment": 29653,
+    "cfg_tool_identical": true,
+    "cfg_tool_sha256": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+    "same_entry_and_format_proves_hardware_compatibility": false
+  },
+  "partition_mapping": {
+    "g": {
+      "VM": [
+        503808,
+        774144
+      ],
+      "PRCT": [
+        0,
+        503808
+      ],
+      "BTIF": [
+        774144,
+        778240
+      ],
+      "OTP": [
+        778240,
+        782336
+      ],
+      "USR": [
+        782336,
+        1044480
+      ]
+    },
+    "mini": {
+      "VM": [
+        532480,
+        778240
+      ],
+      "PRCT": [
+        0,
+        532480
+      ],
+      "BTIF": [
+        778240,
+        782336
+      ],
+      "USR": [
+        782336,
+        1044480
+      ]
+    },
+    "g_directory": [
+      {
+        "name": "app_area_head",
+        "header_offset": 0,
+        "offset": 33554720,
+        "size": 486443,
+        "flags": 131,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 64113
+      },
+      {
+        "name": "app.bin",
+        "header_offset": 32,
+        "offset": 288,
+        "size": 485772,
+        "flags": 130,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 8588
+      },
+      {
+        "name": "cfg_tool.bin",
+        "header_offset": 64,
+        "offset": 486060,
+        "size": 383,
+        "flags": 130,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 11893
+      },
+      {
+        "name": "VM",
+        "header_offset": 96,
+        "offset": 503808,
+        "size": 270336,
+        "flags": 18,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "PRCT",
+        "header_offset": 128,
+        "offset": 0,
+        "size": 503808,
+        "flags": 146,
+        "reserved": 130,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "BTIF",
+        "header_offset": 160,
+        "offset": 774144,
+        "size": 4096,
+        "flags": 146,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "OTP",
+        "header_offset": 192,
+        "offset": 778240,
+        "size": 4096,
+        "flags": 146,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "USR",
+        "header_offset": 224,
+        "offset": 782336,
+        "size": 262144,
+        "flags": 146,
+        "reserved": 129,
+        "index": 1,
+        "data_crc": 65535
+      }
+    ],
+    "mini_directory": [
+      {
+        "name": "app_area_head",
+        "header_offset": 0,
+        "offset": 33554720,
+        "size": 511703,
+        "flags": 131,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 26394
+      },
+      {
+        "name": "app.bin",
+        "header_offset": 32,
+        "offset": 288,
+        "size": 511032,
+        "flags": 130,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 41886
+      },
+      {
+        "name": "cfg_tool.bin",
+        "header_offset": 64,
+        "offset": 511320,
+        "size": 383,
+        "flags": 130,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 11893
+      },
+      {
+        "name": "VM",
+        "header_offset": 96,
+        "offset": 532480,
+        "size": 245760,
+        "flags": 18,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "PRCT",
+        "header_offset": 128,
+        "offset": 0,
+        "size": 532480,
+        "flags": 146,
+        "reserved": 130,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "BTIF",
+        "header_offset": 160,
+        "offset": 778240,
+        "size": 4096,
+        "flags": 146,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "USR",
+        "header_offset": 192,
+        "offset": 782336,
+        "size": 262144,
+        "flags": 146,
+        "reserved": 129,
+        "index": 1,
+        "data_crc": 65535
+      }
+    ]
+  },
+  "memory": {
+    "ram_copy_vma": [
+      29360128,
+      29491980
+    ],
+    "ram_copy_lma": 33908608,
+    "bss": [
+      29491980,
+      29589584
+    ],
+    "initial_sp": 29577400,
+    "initial_ssp": 29581496,
+    "cpu1_usp": 29582264,
+    "cpu1_sp": 29586360,
+    "heap": [
+      29589600,
+      29883296
+    ],
+    "heap_bytes": 293696,
+    "external_reset_copy_bytes": 0,
+    "external_reset_clear_bytes": 0,
+    "whole_application_absence_of_external_ram_use_proven": false,
+    "g_saved_boot_context": 29883724,
+    "mini_boot_argument": 29883912,
+    "extra_boot_argument_reads": [
+      [
+        29883992,
+        8
+      ],
+      [
+        29884000,
+        4
+      ]
+    ],
+    "extension_values_for_no_sdram_boot_proven": false,
+    "rom_plugin_slots_available_after_full_application_boot": false
+  },
+  "storage_access": {
+    "vm_base_source": "Name comparison of vm with JLFS directory, then ioctl205/206 metadata; not fixed 0x7B000.",
+    "vm_name_address": 33773649,
+    "vm_scan_address": 33694216,
+    "btif_base_source": "mnt/sdfile/app/btif open at 0x0201FB00, metadata read, base+512 calibration access.",
+    "btif_name_address": 33777164,
+    "cfg_path_address": 33778370,
+    "usr_base_hardcoded": 782336,
+    "usr_special_slots": [
+      905216,
+      909312
+    ],
+    "otp_string_count_in_app": 0,
+    "otp_removal_runtime_safe_proven": false,
+    "negative_literal_search_is_not_control_flow_proof": true,
+    "mini_record_schema_and_radio_calibration_compatible": false
+  },
+  "instruction_evidence": {
+    "reset_and_ram_copy": [
+      {
+        "address": 33554826,
+        "bytes": "eeffb850c301",
+        "assembly": "sp = 29577400"
+      },
+      {
+        "address": 33554832,
+        "bytes": "edffb860c301",
+        "assembly": "ssp = 29581496"
+      },
+      {
+        "address": 33554838,
+        "bytes": "80ff92020000",
+        "assembly": "call 658"
+      },
+      {
+        "address": 33554844,
+        "bytes": "c3ff0c03c201",
+        "assembly": "r3 = 29491980"
+      },
+      {
+        "address": 33554850,
+        "bytes": "4120",
+        "assembly": "r1 = 0"
+      },
+      {
+        "address": 33554852,
+        "bytes": "c2ff447d0100",
+        "assembly": "r2 = 97604"
+      },
+      {
+        "address": 33554858,
+        "bytes": "a2a2",
+        "assembly": "r2 = r2 >> 2"
+      },
+      {
+        "address": 33554860,
+        "bytes": "0203",
+        "assembly": "rep 2 r2 {"
+      },
+      {
+        "address": 33554862,
+        "bytes": "b105",
+        "assembly": "[r3++=4] = r1"
+      },
+      {
+        "address": 33554864,
+        "bytes": "f25d",
+        "assembly": "if (r2 != 0) goto -6"
+      },
+      {
+        "address": 33554866,
+        "bytes": "c4ff0000c001",
+        "assembly": "r4 = 29360128"
+      },
+      {
+        "address": 33554872,
+        "bytes": "c1ff80670502",
+        "assembly": "r1 = 33908608"
+      },
+      {
+        "address": 33554878,
+        "bytes": "c2ff0c030200",
+        "assembly": "r2 = 131852"
+      },
+      {
+        "address": 33554884,
+        "bytes": "a2a2",
+        "assembly": "r2 = r2 >> 2"
+      },
+      {
+        "address": 33554886,
+        "bytes": "1203",
+        "assembly": "rep 4 r2 {"
+      },
+      {
+        "address": 33554888,
+        "bytes": "1305",
+        "assembly": "r3 = [r1++=4]"
+      },
+      {
+        "address": 33554890,
+        "bytes": "c305",
+        "assembly": "[r4++=4] = r3"
+      },
+      {
+        "address": 33554892,
+        "bytes": "f25c",
+        "assembly": "if (r2 != 0) goto -8"
+      },
+      {
+        "address": 33554894,
+        "bytes": "80ffb0020000",
+        "assembly": "call 688"
+      },
+      {
+        "address": 33554900,
+        "bytes": "0316",
+        "assembly": "r3 = r0"
+      },
+      {
+        "address": 33554902,
+        "bytes": "c0ff20010004",
+        "assembly": "r0 = 67109152"
+      },
+      {
+        "address": 33554908,
+        "bytes": "c1ff80670502",
+        "assembly": "r1 = 33908608"
+      },
+      {
+        "address": 33554914,
+        "bytes": "c2ff00000000",
+        "assembly": "r2 = 0"
+      },
+      {
+        "address": 33554920,
+        "bytes": "01e80400",
+        "assembly": "if (r0 == r1) goto 8"
+      },
+      {
+        "address": 33554924,
+        "bytes": "80ff94020000",
+        "assembly": "call 660"
+      },
+      {
+        "address": 33554930,
+        "bytes": "3016",
+        "assembly": "r0 = r3"
+      },
+      {
+        "address": 33554932,
+        "bytes": "c3ff20010004",
+        "assembly": "r3 = 67109152"
+      },
+      {
+        "address": 33554938,
+        "bytes": "4120",
+        "assembly": "r1 = 0"
+      },
+      {
+        "address": 33554940,
+        "bytes": "c2ff00000000",
+        "assembly": "r2 = 0"
+      },
+      {
+        "address": 33554946,
+        "bytes": "a2a2",
+        "assembly": "r2 = r2 >> 2"
+      },
+      {
+        "address": 33554948,
+        "bytes": "0203",
+        "assembly": "rep 2 r2 {"
+      },
+      {
+        "address": 33554950,
+        "bytes": "b105",
+        "assembly": "[r3++=4] = r1"
+      },
+      {
+        "address": 33554952,
+        "bytes": "f25d",
+        "assembly": "if (r2 != 0) goto -6"
+      },
+      {
+        "address": 33554954,
+        "bytes": "80ffb00ac0ff",
+        "assembly": "call -4191568"
+      },
+      {
+        "address": 33554960,
+        "bytes": "80ff42e10300",
+        "assembly": "call 254274"
+      },
+      {
+        "address": 33554966,
+        "bytes": "80ffda150000",
+        "assembly": "call 5594"
+      },
+      {
+        "address": 33554972,
+        "bytes": "c6ff42100002",
+        "assembly": "r6 = 33558594"
+      },
+      {
+        "address": 33554978,
+        "bytes": "d600",
+        "assembly": "goto r6"
+      }
+    ],
+    "boot_descriptor_extension": [
+      {
+        "address": 33555548,
+        "bytes": "01e15040",
+        "assembly": "r1 = r4 + 80"
+      },
+      {
+        "address": 33555552,
+        "bytes": "c0ff74fdc701",
+        "assembly": "r0 = 29883764"
+      },
+      {
+        "address": 33555558,
+        "bytes": "4228",
+        "assembly": "r2 = 8"
+      },
+      {
+        "address": 33555560,
+        "bytes": "6181",
+        "assembly": "call -126"
+      },
+      {
+        "address": 33555562,
+        "bytes": "01e15840",
+        "assembly": "r1 = r4 + 88"
+      },
+      {
+        "address": 33555566,
+        "bytes": "c0ff7cfdc701",
+        "assembly": "r0 = 29883772"
+      },
+      {
+        "address": 33555572,
+        "bytes": "4224",
+        "assembly": "r2 = 4"
+      },
+      {
+        "address": 33555574,
+        "bytes": "519a",
+        "assembly": "call -140"
+      }
+    ],
+    "heap_bounds": [
+      {
+        "address": 33800394,
+        "bytes": "c8fff45cc201",
+        "assembly": "r8 = 29514996"
+      },
+      {
+        "address": 33800400,
+        "bytes": "d0ec8070",
+        "assembly": "r7 = [r8+0]"
+      },
+      {
+        "address": 33800404,
+        "bytes": "b7e80010",
+        "assembly": "if (r7 != 0) {"
+      },
+      {
+        "address": 33800408,
+        "bytes": "7516",
+        "assembly": "r5 = r7"
+      },
+      {
+        "address": 33800410,
+        "bytes": "c5ff6080c301",
+        "assembly": "r5 = 29589600"
+      },
+      {
+        "address": 33800416,
+        "bytes": "561c",
+        "assembly": "r6 = r5 + r0"
+      },
+      {
+        "address": 33800418,
+        "bytes": "caffa0fbc701",
+        "assembly": "r10 = 29883296"
+      }
+    ],
+    "vm_directory_name_scan": [
+      {
+        "address": 33694216,
+        "bytes": "caff51580302",
+        "assembly": "r10 = 33773649"
+      },
+      {
+        "address": 33694222,
+        "bytes": "00e115a9",
+        "assembly": "r0 = r10 + 2325"
+      },
+      {
+        "address": 33694226,
+        "bytes": "bfeacbfe",
+        "assembly": "call -618"
+      },
+      {
+        "address": 33694230,
+        "bytes": "00f1e4a7",
+        "assembly": "r0 = r10 + 2020  #"
+      },
+      {
+        "address": 33694234,
+        "bytes": "e062",
+        "assembly": "[r6+8] = r0"
+      },
+      {
+        "address": 33694236,
+        "bytes": "bfeac6fe",
+        "assembly": "call -628"
+      },
+      {
+        "address": 33694240,
+        "bytes": "00f1b9a0",
+        "assembly": "r0 = r10 + 185  #"
+      },
+      {
+        "address": 33694244,
+        "bytes": "e063",
+        "assembly": "[r6+12] = r0"
+      },
+      {
+        "address": 33694246,
+        "bytes": "bfeac1fe",
+        "assembly": "call -638"
+      },
+      {
+        "address": 33694250,
+        "bytes": "e064",
+        "assembly": "[r6+16] = r0"
+      },
+      {
+        "address": 33694252,
+        "bytes": "6062",
+        "assembly": "r0 = [r6+8]"
+      },
+      {
+        "address": 33694254,
+        "bytes": "05e12800",
+        "assembly": "r5 = r0 + 40"
+      },
+      {
+        "address": 33694258,
+        "bytes": "0481",
+        "assembly": "goto 2"
+      },
+      {
+        "address": 33694260,
+        "bytes": "cd20",
+        "assembly": "r5 += 32"
+      },
+      {
+        "address": 33694262,
+        "bytes": "5863",
+        "assembly": "r0 = h[r5+6] (u)"
+      },
+      {
+        "address": 33694264,
+        "bytes": "a052",
+        "assembly": "if (r0 != 0) goto 164"
+      },
+      {
+        "address": 33694266,
+        "bytes": "5988",
+        "assembly": "r1 = r5 + 8"
+      },
+      {
+        "address": 33694268,
+        "bytes": "a016",
+        "assembly": "r0 = r10"
+      },
+      {
+        "address": 33694270,
+        "bytes": "bfea23f6",
+        "assembly": "call -5050"
+      },
+      {
+        "address": 33694274,
+        "bytes": "f058",
+        "assembly": "if (r0 != 0) goto -16"
+      },
+      {
+        "address": 33694276,
+        "bytes": "507f",
+        "assembly": "r0 = [r5+-4]"
+      },
+      {
+        "address": 33694278,
+        "bytes": "d0ec9500",
+        "assembly": "[r9+4] = r0"
+      },
+      {
+        "address": 33694282,
+        "bytes": "5060",
+        "assembly": "r0 = [r5+0]"
+      },
+      {
+        "address": 33694284,
+        "bytes": "d0ec9d00",
+        "assembly": "[r9+12] = r0"
+      },
+      {
+        "address": 33694288,
+        "bytes": "bfea4a02",
+        "assembly": "call -129900"
+      },
+      {
+        "address": 33694292,
+        "bytes": "4020",
+        "assembly": "r0 = 0"
+      },
+      {
+        "address": 33694294,
+        "bytes": "712d",
+        "assembly": "r1 = 205"
+      },
+      {
+        "address": 33694296,
+        "bytes": "9216",
+        "assembly": "r2 = r9"
+      },
+      {
+        "address": 33694298,
+        "bytes": "bfea9104",
+        "assembly": "call -128734"
+      }
+    ],
+    "vm_bank_size": [
+      {
+        "address": 33687156,
+        "bytes": "8a84",
+        "assembly": "r2 = sp + 4"
+      },
+      {
+        "address": 33687158,
+        "bytes": "712e",
+        "assembly": "r1 = 206"
+      },
+      {
+        "address": 33687160,
+        "bytes": "bfea8212",
+        "assembly": "call -121596"
+      },
+      {
+        "address": 33687164,
+        "bytes": "0024",
+        "assembly": "r0 = [sp+16]"
+      },
+      {
+        "address": 33687166,
+        "bytes": "20e9800b",
+        "assembly": "if (r0 >= 65536) {"
+      },
+      {
+        "address": 33687170,
+        "bytes": "60e0800b",
+        "assembly": "r0 = 0x10000"
+      },
+      {
+        "address": 33687174,
+        "bytes": "41e06f02",
+        "assembly": "r1 = 623"
+      },
+      {
+        "address": 33687178,
+        "bytes": "caff9060c201",
+        "assembly": "r10 = 29515920"
+      },
+      {
+        "address": 33687184,
+        "bytes": "d8eea031",
+        "assembly": "r3 = b[r10+r1] (u)"
+      },
+      {
+        "address": 33687188,
+        "bytes": "61ff01305501",
+        "assembly": "if ((r3 & 0x1) != 0) goto 682"
+      }
+    ],
+    "btif_name_lookup": [
+      {
+        "address": 33684152,
+        "bytes": "c9ff0c660302",
+        "assembly": "r9 = 33777164"
+      },
+      {
+        "address": 33684158,
+        "bytes": "00e1b694",
+        "assembly": "r0 = r9 + 1206"
+      },
+      {
+        "address": 33684162,
+        "bytes": "bfeaa4fe",
+        "assembly": "call -696"
+      },
+      {
+        "address": 33684166,
+        "bytes": "0716",
+        "assembly": "r7 = r0"
+      },
+      {
+        "address": 33684168,
+        "bytes": "44e000fc",
+        "assembly": "r4 = -1024"
+      },
+      {
+        "address": 33684172,
+        "bytes": "274c",
+        "assembly": "if (r7 == 0) goto 152"
+      },
+      {
+        "address": 33684174,
+        "bytes": "8d84",
+        "assembly": "r5 = sp + 4"
+      },
+      {
+        "address": 33684176,
+        "bytes": "5116",
+        "assembly": "r1 = r5"
+      },
+      {
+        "address": 33684178,
+        "bytes": "bfeaa3fe",
+        "assembly": "call -698"
+      },
+      {
+        "address": 33684182,
+        "bytes": "c8ff2460c201",
+        "assembly": "r8 = 29515812"
+      },
+      {
+        "address": 33684188,
+        "bytes": "0023",
+        "assembly": "r0 = [sp+12]"
+      },
+      {
+        "address": 33684190,
+        "bytes": "4121",
+        "assembly": "r1 = 1"
+      },
+      {
+        "address": 33684192,
+        "bytes": "0222",
+        "assembly": "r2 = [sp+8]"
+      },
+      {
+        "address": 33684194,
+        "bytes": "52ee8010",
+        "assembly": "b[r8+0] = r1"
+      },
+      {
+        "address": 33684198,
+        "bytes": "c024",
+        "assembly": "r0 += 4"
+      },
+      {
+        "address": 33684200,
+        "bytes": "d0ec8500",
+        "assembly": "[r8+4] = r0"
+      },
+      {
+        "address": 33684204,
+        "bytes": "30e1fc2f",
+        "assembly": "r0 = r2 + -4"
+      },
+      {
+        "address": 33684208,
+        "bytes": "d0ec8900",
+        "assembly": "[r8+8] = r0"
+      },
+      {
+        "address": 33684212,
+        "bytes": "7016",
+        "assembly": "r0 = r7"
+      },
+      {
+        "address": 33684214,
+        "bytes": "bfea1eff",
+        "assembly": "call -452"
+      },
+      {
+        "address": 33684218,
+        "bytes": "52ee8c60",
+        "assembly": "b[r8+12] = r6"
+      },
+      {
+        "address": 33684222,
+        "bytes": "9016",
+        "assembly": "r0 = r9"
+      },
+      {
+        "address": 33684224,
+        "bytes": "bfea85fe",
+        "assembly": "call -758"
+      },
+      {
+        "address": 33684228,
+        "bytes": "0616",
+        "assembly": "r6 = r0"
+      },
+      {
+        "address": 33684230,
+        "bytes": "164f",
+        "assembly": "if (r6 == 0) goto 94"
+      },
+      {
+        "address": 33684232,
+        "bytes": "8984",
+        "assembly": "r1 = sp + 4"
+      },
+      {
+        "address": 33684234,
+        "bytes": "bfea87fe",
+        "assembly": "call -754"
+      },
+      {
+        "address": 33684238,
+        "bytes": "6016",
+        "assembly": "r0 = r6"
+      },
+      {
+        "address": 33684240,
+        "bytes": "bfea11ff",
+        "assembly": "call -478"
+      },
+      {
+        "address": 33684244,
+        "bytes": "5562",
+        "assembly": "r5 = [r5+8]"
+      },
+      {
+        "address": 33684246,
+        "bytes": "01e10052",
+        "assembly": "r1 = r5 + 512"
+      },
+      {
+        "address": 33684250,
+        "bytes": "d0ec8111",
+        "assembly": "[r8+16] = r1"
+      }
+    ],
+    "usr_address_function": [
+      {
+        "address": 33564346,
+        "bytes": "60e05d2a",
+        "assembly": "r2 = 0xDD000"
+      },
+      {
+        "address": 33564350,
+        "bytes": "b0e81000",
+        "assembly": "if (r0 != 16) {"
+      },
+      {
+        "address": 33564354,
+        "bytes": "60e05e2a",
+        "assembly": "r2 = 0xDE000"
+      },
+      {
+        "address": 33564358,
+        "bytes": "01ac",
+        "assembly": "r1 = r0 << 12"
+      },
+      {
+        "address": 33564360,
+        "bytes": "e1e03f1a",
+        "assembly": "r1 = r1 + 0xBF000"
+      },
+      {
+        "address": 33564364,
+        "bytes": "30e91000",
+        "assembly": "if (r0 >= 16) {"
+      },
+      {
+        "address": 33564368,
+        "bytes": "2116",
+        "assembly": "r1 = r2"
+      },
+      {
+        "address": 33564370,
+        "bytes": "1016",
+        "assembly": "r0 = r1"
+      },
+      {
+        "address": 33564372,
+        "bytes": "8000",
+        "assembly": "rts"
+      }
+    ]
+  },
+  "mini_vm_instruction_evidence": [
+    {
+      "address": 33684850,
+      "bytes": "dce90400",
+      "assembly": "r0 = b[sp+4] (u)"
+    },
+    {
+      "address": 33684854,
+      "bytes": "41e00020",
+      "assembly": "r1 = 8192"
+    },
+    {
+      "address": 33684858,
+      "bytes": "b0e80100",
+      "assembly": "if (r0 != 1) {"
+    },
+    {
+      "address": 33684862,
+      "bytes": "41e00040",
+      "assembly": "r1 = 16384"
+    },
+    {
+      "address": 33684866,
+      "bytes": "42e0d21b",
+      "assembly": "r2 = 7122"
+    },
+    {
+      "address": 33684870,
+      "bytes": "caff9057c101",
+      "assembly": "r10 = 29448080"
+    },
+    {
+      "address": 33684876,
+      "bytes": "d8eea042",
+      "assembly": "r4 = b[r10+r2] (u)"
+    },
+    {
+      "address": 33684880,
+      "bytes": "61ff01405f01",
+      "assembly": "if ((r4 & 0x1) != 0) goto 702"
+    },
+    {
+      "address": 33684886,
+      "bytes": "0224",
+      "assembly": "r2 = [sp+16]"
+    },
+    {
+      "address": 33684888,
+      "bytes": "35e42011",
+      "assembly": "r1 = umin(r2, r1)"
+    }
+  ],
+  "vm_patch_validation": {
+    "instructions": [
+      {
+        "address": 33687166,
+        "before": "if (r0 >= 65536) {",
+        "after": "if (r0 >= 16384) {"
+      },
+      {
+        "address": 33687170,
+        "before": "r0 = 0x10000",
+        "after": "r0 = 0x4000"
+      }
+    ],
+    "arithmetic_boundary_cases": 12,
+    "full_vm_execution_emulated": false
+  },
+  "installer": {
+    "constants_sha256": "64830ea5e0abc40b05327220564c0bc98d69af3e888155660d2b324621a27e55",
+    "bytecode_listing_sha256": "1a2a94103d3d0ee80deefd6820c2d602d41b9e20a6e101855b94a6100bbc170c",
+    "build_target_source_line": 1623,
+    "normal_g_application_payload_range": [
+      16384,
+      503808
+    ],
+    "persistent_factory_bootloader_replaced": false,
+    "normal_usr_policy": "keep",
+    "declared_alternative_jedec_ids": [
+      15425556
+    ],
+    "conditional_vm_paths_exist": [
+      "factory-97 bank migration",
+      "Tank-B migration",
+      "repair from the same unit backup",
+      "restore"
+    ],
+    "evidence": "build_target bytecode 42..62 copies current, 250..286 replaces APP_AREA; VM and USR writes are explicit separate branches; plan_sectors rejects changes outside allowed ranges.",
+    "mini_supported_by_original_installer": false
+  },
+  "nor_driver_comparison": {
+    "mini_ram_source": 34008352,
+    "fragment_comparisons": [
+      {
+        "name": "cs_delay",
+        "g_range": [
+          29360242,
+          29360264
+        ],
+        "mini_range": [
+          29360244,
+          29360266
+        ],
+        "instructions_or_tables": 10,
+        "normalized_sha256": "48cbce2aea899e9cb35d8a0745afb4615d7d1187e36cedd74479142dd7748e04",
+        "equal": true
+      },
+      {
+        "name": "chip_select_pd0",
+        "g_range": [
+          29360264,
+          29360296
+        ],
+        "mini_range": [
+          29360266,
+          29360298
+        ],
+        "instructions_or_tables": 12,
+        "normalized_sha256": "6a5953b871c1da1487e72120d5970e92a67464e87ae62721df71b43053d1ac5e",
+        "equal": true
+      },
+      {
+        "name": "spi_completion",
+        "g_range": [
+          29360296,
+          29360344
+        ],
+        "mini_range": [
+          29360298,
+          29360346
+        ],
+        "instructions_or_tables": 19,
+        "normalized_sha256": "6b28524763f50264031ded8cd0f076014f0e1c13246fc77c1155156d52a498dd",
+        "equal": true
+      },
+      {
+        "name": "spi_transmit",
+        "g_range": [
+          29360344,
+          29360368
+        ],
+        "mini_range": [
+          29360346,
+          29360370
+        ],
+        "instructions_or_tables": 8,
+        "normalized_sha256": "c3cf2b0cfe6b2b3b20e23fbdd0819ea3778f6237a6546e7a5868a4a9e7442358",
+        "equal": true
+      },
+      {
+        "name": "spi_receive",
+        "g_range": [
+          29360430,
+          29360460
+        ],
+        "mini_range": [
+          29360604,
+          29360636
+        ],
+        "instructions_or_tables": 10,
+        "normalized_sha256": "8950fae678ea794ffde33c952b1dd6c1b4d0440ffe63441e259e78069bd5073d",
+        "equal": true
+      },
+      {
+        "name": "address_bytes",
+        "g_range": [
+          29360460,
+          29360496
+        ],
+        "mini_range": [
+          29360420,
+          29360456
+        ],
+        "instructions_or_tables": 14,
+        "normalized_sha256": "009f3eb2698c031e369e98e8deda7742cab6a3ef9be31c14b056e145acf80031",
+        "equal": true
+      },
+      {
+        "name": "read_modes",
+        "g_range": [
+          29360784,
+          29361108
+        ],
+        "mini_range": [
+          29360776,
+          29361100
+        ],
+        "instructions_or_tables": 112,
+        "normalized_sha256": "e36233bb7d3e6d44992f9a5476dad11e12817a811db26ab1b9f2add2207a2dad",
+        "equal": true
+      },
+      {
+        "name": "jedec_and_uid",
+        "g_range": [
+          29361228,
+          29361360
+        ],
+        "mini_range": [
+          29361408,
+          29361540
+        ],
+        "instructions_or_tables": 47,
+        "normalized_sha256": "2c020b9828d1c152a2efa2a18510f5a43d4213deff3612c67b4b5f5f747e386a",
+        "equal": true
+      },
+      {
+        "name": "status_read_05_35",
+        "g_range": [
+          29361360,
+          29361418
+        ],
+        "mini_range": [
+          29361784,
+          29361842
+        ],
+        "instructions_or_tables": 20,
+        "normalized_sha256": "e90fb1813ab1c4ccc4f01197d1c7dcc9aa28eb52fb0ff6c4efa977e3477d7704",
+        "equal": true
+      },
+      {
+        "name": "write_enable_06",
+        "g_range": [
+          29361616,
+          29361638
+        ],
+        "mini_range": [
+          29361540,
+          29361562
+        ],
+        "instructions_or_tables": 8,
+        "normalized_sha256": "0ac60eda39deaf382ad597a4ec2f5a497dbfa5ee1f89cfabcf9499cda5af5812",
+        "equal": true
+      },
+      {
+        "name": "busy_wait_05",
+        "g_range": [
+          29361664,
+          29361728
+        ],
+        "mini_range": [
+          29361572,
+          29361636
+        ],
+        "instructions_or_tables": 24,
+        "normalized_sha256": "c12e56cfaea1e662a62d26abae74d26affba627f19ea02fd84fd9fced592bd39",
+        "equal": true
+      },
+      {
+        "name": "erase_dispatch",
+        "g_range": [
+          29361728,
+          29361874
+        ],
+        "mini_range": [
+          29361636,
+          29361784
+        ],
+        "instructions_or_tables": 50,
+        "normalized_sha256": "2e12cbdceaf5373150f3f95f5c713e67feb1fc93423692d99bfe6be658db740f",
+        "equal": true
+      },
+      {
+        "name": "status_write_01_31",
+        "g_range": [
+          29361874,
+          29362078
+        ],
+        "mini_range": [
+          29361842,
+          29362046
+        ],
+        "instructions_or_tables": 69,
+        "normalized_sha256": "0685fa4b6da956b00d53a82fb41d7f3dfc5d60fa511e6e46354ed31a4ddeabc7",
+        "equal": true
+      },
+      {
+        "name": "status_update_policy",
+        "g_range": [
+          29362078,
+          29362210
+        ],
+        "mini_range": [
+          29362046,
+          29362178
+        ],
+        "instructions_or_tables": 43,
+        "normalized_sha256": "70b1f2130c784d40dddcc0a130510b9187b2c12fde5f13621c7c7806df08e2d2",
+        "equal": true
+      },
+      {
+        "name": "page_program_02",
+        "g_range": [
+          29362240,
+          29362356
+        ],
+        "mini_range": [
+          29362208,
+          29362324
+        ],
+        "instructions_or_tables": 39,
+        "normalized_sha256": "4774d5ba11f35908d9e205f965650eda784de0cc0041b58831a77d2ed89d39e4",
+        "equal": true
+      },
+      {
+        "name": "sfc_enter_mmio",
+        "g_range": [
+          29360182,
+          29360240
+        ],
+        "mini_range": [
+          29360184,
+          29360242
+        ],
+        "instructions_or_tables": 20,
+        "normalized_sha256": "33cf111c1ad76297dd0de002e7304fc3cbe4c73799540fc192a2267e0b600f7c",
+        "equal": true
+      }
+    ],
+    "normalization": "Explicit callee symbols, two declared global addresses, local branch/table instruction indices only; MMIO/masks/opcodes/register order retained.",
+    "observed_jedec": 15425556,
+    "capacity_derived_by_g_bytes": 1048576,
+    "capacity_g_sites": [
+      33564480,
+      33564486,
+      33564490,
+      33564492,
+      33564494
+    ],
+    "read_opcodes_in_shared_dispatch": [
+      3,
+      11,
+      59,
+      107,
+      187,
+      235
+    ],
+    "shared_program_opcode": 2,
+    "shared_sector_erase_opcode": 32,
+    "shared_status_read_opcodes": [
+      5,
+      53
+    ],
+    "shared_status_write_opcodes": [
+      1,
+      49
+    ],
+    "jedec_manufacturer_specific_gate_in_compared_fragments": false,
+    "full_driver_equivalence_proven": false,
+    "runtime_program_or_erase_tested_on_mini": false,
+    "qe_bit_effect_on_chip_proven": false,
+    "limitations": [
+      "Lock/dual-core coordination and cache invalidation callees are boundaries, not proven by this normalization.",
+      "Flash/SFC timing at G CPU-clock policy is not measured.",
+      "Status-update request source and all call paths, including hardware security-register operations, are not exhaustively audited.",
+      "Shared SPI instruction sequences and physical JEDEC read do not prove erase/program success or safe recovery."
+    ]
+  },
+  "candidate": {
+    "sha256": "4e74d0c0b1c1f491afdaa92e441d4504efcaff4237b4af1706e57a6e434a20ab",
+    "bytes": 516096,
+    "physical_range": [
+      16384,
+      532480
+    ],
+    "cpu_entry": 33554720,
+    "app_bytes": 485772,
+    "app_sha256": "a93156c6bda834edb352ed87a20f951bbed0a5837af16b347d74aace211558fb",
+    "cfg_tool_bytes": 383,
+    "cfg_tool_area_offset": 486060,
+    "head_end": 486443,
+    "encoding_end": 486464,
+    "directory": [
+      {
+        "name": "app_area_head",
+        "header_offset": 0,
+        "offset": 33554720,
+        "size": 486443,
+        "flags": 131,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 54013
+      },
+      {
+        "name": "app.bin",
+        "header_offset": 32,
+        "offset": 288,
+        "size": 485772,
+        "flags": 130,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 6119
+      },
+      {
+        "name": "cfg_tool.bin",
+        "header_offset": 64,
+        "offset": 486060,
+        "size": 383,
+        "flags": 130,
+        "reserved": 255,
+        "index": 0,
+        "data_crc": 11893
+      },
+      {
+        "name": "VM",
+        "header_offset": 96,
+        "offset": 532480,
+        "size": 245760,
+        "flags": 18,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "PRCT",
+        "header_offset": 128,
+        "offset": 0,
+        "size": 532480,
+        "flags": 146,
+        "reserved": 130,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "BTIF",
+        "header_offset": 160,
+        "offset": 778240,
+        "size": 4096,
+        "flags": 146,
+        "reserved": 129,
+        "index": 0,
+        "data_crc": 65535
+      },
+      {
+        "name": "USR",
+        "header_offset": 192,
+        "offset": 782336,
+        "size": 262144,
+        "flags": 146,
+        "reserved": 129,
+        "index": 1,
+        "data_crc": 65535
+      }
+    ],
+    "patches": [
+      {
+        "name": "authentication_brand",
+        "cpu_address": 33775946,
+        "area_offset": 221514,
+        "physical_address": 237898,
+        "bytes": 14,
+        "before_hex": "556c747261526967206175746800",
+        "after_hex": "4879706572526967206175746800",
+        "rationale": "Same-sized user-visible brand; authentication algorithm is retained."
+      },
+      {
+        "name": "ble_name_format",
+        "cpu_address": 33792291,
+        "area_offset": 237859,
+        "physical_address": 254243,
+        "bytes": 18,
+        "before_hex": "556c74726152696720253032582530325800",
+        "after_hex": "487970657252696720253032582530325800",
+        "rationale": "Same-sized advertising-name format; unique suffix is retained."
+      },
+      {
+        "name": "runtime_version",
+        "cpu_address": 33777550,
+        "area_offset": 223118,
+        "physical_address": 239502,
+        "bytes": 23,
+        "before_hex": "74616e6b675f6677204d352e37312072656c20626c6500",
+        "after_hex": "74616e6b6d5f6677204d352e37312072656c20626c6500",
+        "rationale": "MINI app handshake is ^PONG tankm_fw\\b; version fields are retained."
+      },
+      {
+        "name": "runtime_build_identity",
+        "cpu_address": 33779944,
+        "area_offset": 225512,
+        "physical_address": 241896,
+        "bytes": 44,
+        "before_hex": "74616e6b675f6677204d352e37312072656c20626c65204e6f7620313220323032362031363a30343a313100",
+        "after_hex": "74616e6b6d5f6677204d352e37312072656c20626c65204e6f7620313220323032362031363a30343a313100",
+        "rationale": "Same-sized board prefix; original build/version metadata is retained."
+      },
+      {
+        "name": "usb_product_utf16",
+        "cpu_address": 33792612,
+        "area_offset": 238180,
+        "physical_address": 254564,
+        "bytes": 32,
+        "before_hex": "2003540061006e006b002d004700200055006c00740072006100520069006700",
+        "after_hex": "2003540061006e006b002d004d00200048007900700065007200520069006700",
+        "rationale": "Length-32 USB string descriptor, including its original type/length."
+      },
+      {
+        "name": "mini_vm_geometry",
+        "cpu_address": 33687166,
+        "area_offset": 132734,
+        "physical_address": 149118,
+        "bytes": 8,
+        "before_hex": "20e9800b60e0800b",
+        "after_hex": "20e9800c60e0800c",
+        "rationale": "Change G's VM-size clamp from 64 KiB to MINI's 16 KiB: two 8 KiB banks, no VM migration."
+      }
+    ],
+    "appended_code": {
+      "cpu_address": 34040492,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "original_application_recovered_exactly_by_reversing_patches": true,
+    "original_application_bytes_retained": 485772,
+    "stock_mini_application_bytes_used": 0,
+    "stock_mini_partition_headers_used": true,
+    "bootloader_included": false,
+    "user_partition_data_included": false,
+    "removed_partition": "OTP",
+    "otp_absence_runtime_compatibility_proven": false,
+    "crc_and_layout_valid": true,
+    "board_port_complete": false,
+    "boot_verified_on_mini": false,
+    "flashable": false,
+    "actual_original_app_bytes_changed": 20,
+    "path": "build/mini-ultrarig/hyperrig-mini-g-derived.app.bin"
+  },
+  "validation": {
+    "negative_cases_passed": [
+      "unrecognized original image",
+      "bad board patch preimage",
+      "overlapping board patch",
+      "patch outside application",
+      "append beyond application partition",
+      "candidate payload corruption"
+    ],
+    "append_and_cfg_relocation": {
+      "appended_bytes": 4,
+      "cfg_tool_relocated_by": 4,
+      "crc_and_inverse_patch_roundtrip_passed": true,
+      "fixture_written_to_file": false
+    },
+    "candidate_crc_roundtrip": true,
+    "original_application_inverse_patch_equality": true
+  },
+  "remaining_product_gates": [
+    "Board-specific codec and GPIO sequence, buttons/LED mapping and analog mute must be ported; see the separate board audit.",
+    "Confirm SFC/CPU clock policy and boot descriptor extension handling under the MINI factory bootloader.",
+    "Prove all OTP/BTIF consumers and radio calibration record meanings; the directory adaptation alone is insufficient.",
+    "Recheck current VM bank maintenance before any future write; the frozen backup is not a permanent state assertion.",
+    "Prove recovery when the application is corrupt; successful reset of intact stock is insufficient.",
+    "Boot the complete port, validate USB/BLE PONG, audio and preset roundtrips, then stable restart and sustained operation."
+  ],
+  "frozen_backup_check": {
+    "path": "artifacts/my-mini-flash/20261115-paced-resume/flash-a.bin",
+    "sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180",
+    "stock_boot_and_app_prefix_match": true,
+    "unmodified_g_geometry": {
+      "base": 532480,
+      "size": 65536,
+      "bank_bytes": 32768,
+      "magic_a": 4294967295,
+      "magic_b": 4294967295,
+      "active_bank": null,
+      "predicted_maintenance_requests": [
+        "format"
+      ],
+      "record_schema_compatibility_proven": false
+    },
+    "mini_geometry": {
+      "base": 532480,
+      "size": 16384,
+      "bank_bytes": 8192,
+      "magic_a": 4294967295,
+      "magic_b": 1437248085,
+      "active_bank": "B",
+      "predicted_maintenance_requests": [],
+      "record_schema_compatibility_proven": false,
+      "bank_start": 540672,
+      "write_pointer": 545566,
+      "used_bytes": 4894,
+      "used_percent": 59.7412109375,
+      "records": 134,
+      "record_metadata_sha256": "b3a64bf78aff5f09fbb306e71b130a1e82f61a1e8edaff39c3533fb3ce37108c",
+      "all_parsed_record_crcs_valid": true,
+      "distinct_record_ids": [
+        7,
+        70,
+        71,
+        106,
+        107,
+        108,
+        109,
+        113,
+        114,
+        115,
+        116,
+        187
+      ],
+      "no_maintenance_predicted": true
+    },
+    "hypothetical_in_memory_replacement_preserves_outside_application": true,
+    "corrupted_vm_record_rejected_by_no_maintenance_gate": true,
+    "full_flash_candidate_written_to_file": false,
+    "recovery_from_corrupt_application_proven": false
+  },
+  "builder_sha256": "16ff2d1677d1df444a9bd764c233707ff06acf1c348cd41d04a700539311fc6f"
+}
