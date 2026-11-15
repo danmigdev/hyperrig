@@ -1,0 +1,148 @@
+{
+  "project": "HyperRig",
+  "target": "TANK MINI",
+  "protocol": "HYRN v1",
+  "host_tests": {
+    "read_cases": 10,
+    "byte_timeout_cases": 522,
+    "legacy_private_commands_blocked": 9,
+    "guard_and_framing_cases": 14,
+    "mmio_write_allowlist_checked": true,
+    "physical_hardware_modeled": false,
+    "address_sanitizer": true,
+    "undefined_behavior_sanitizer": true,
+    "executable_sha256": "1e16d5981916d9d4f23e8180a06e3b4c3238d29e4b421567d9a2bd9be1c0b1ae"
+  },
+  "artifacts": [
+    {
+      "elf": "build/mini-flash-reader/hyperrig-reader-01c20000.elf",
+      "elf_sha256": "e78b7f0ba3849b0deade5477546758d4f6a6b8b465b0df1360d63e53a7f7b65e",
+      "flat": "build/mini-flash-reader/hyperrig-reader-01c20000.bin",
+      "flat_sha256": "80d7775ff6195341376254195edb08790be56259fb8b075c4a454323aed7de4c",
+      "audit": {
+        "slot": 29491200,
+        "entry": 29491200,
+        "image_bytes": 2308,
+        "private_ram_bytes": 2884,
+        "private_ram_end": 29494084,
+        "functions": [
+          "read32",
+          "settle",
+          "synchronize",
+          "write32",
+          "byte_transfer",
+          "clock_guard",
+          "rejected_phase",
+          "send",
+          "memcpy",
+          "hyperrig_reader_dispatch",
+          "hyperrig_reader_initialize",
+          "hyperrig_reader_entry"
+        ],
+        "all_code_and_data_in_slot": true,
+        "unresolved_symbols": 0,
+        "runtime_relocations": 0
+      },
+      "device_executed": false,
+      "nvm_writable": false,
+      "application_image": false
+    },
+    {
+      "elf": "build/mini-flash-reader/hyperrig-reader-01c28000.elf",
+      "elf_sha256": "c59cff25df5c3e3bfe0d85392d9aa861e1fe287dc1f7d8afcf40e5f7575acf72",
+      "flat": "build/mini-flash-reader/hyperrig-reader-01c28000.bin",
+      "flat_sha256": "7a492bf17d98f0f5ca5d2fb0d0da7d369937169075507676bfb51b88c9bb2b83",
+      "audit": {
+        "slot": 29523968,
+        "entry": 29523968,
+        "image_bytes": 2308,
+        "private_ram_bytes": 2884,
+        "private_ram_end": 29526852,
+        "functions": [
+          "read32",
+          "settle",
+          "synchronize",
+          "write32",
+          "byte_transfer",
+          "clock_guard",
+          "rejected_phase",
+          "send",
+          "memcpy",
+          "hyperrig_reader_dispatch",
+          "hyperrig_reader_initialize",
+          "hyperrig_reader_entry"
+        ],
+        "all_code_and_data_in_slot": true,
+        "unresolved_symbols": 0,
+        "runtime_relocations": 0
+      },
+      "device_executed": false,
+      "nvm_writable": false,
+      "application_image": false
+    }
+  ],
+  "sources_sha256": {
+    "firmware/mini/recovery_reader/entry.c": "d3d48ce899ed29a18bb011255f9d491df9530f212302043d2531c9637a39efd4",
+    "firmware/mini/recovery_reader/memory.c": "2cc98ec4ef63d39ab2ff889ae9e44346f97c63f431934c6844f2d27dcff5800f",
+    "firmware/mini/recovery_reader/reader.c": "a67a471ec875118e83a2adb757c936449f6d009f6647ef4eec633c1720e5d881",
+    "firmware/mini/recovery_reader/reader.h": "3ca18d15d3743b89d64ac5cf89af0286d2419f5a768cbdf15ef67fdc824711c4",
+    "firmware/mini/recovery_reader/reader.ld": "99cf15c36ac7b99d846aaa852d6cedb3b32e4982cf73a0d6a746fe3830ba2005",
+    "firmware/mini/recovery_reader/test_reader.c": "979ae9d3b61aee8bc273b5c645e116c43c864424db7a4d12d0c1548e465ec4c8"
+  },
+  "verifier_sha256": "030f7b9b7fc62975a643cd27aa12479574869d34d47e332b9d1c55b0dc8578cd",
+  "stock_boot_report_sha256": "ebcedec42fa82cfa0d043f488165a88e99d2db4dcf68aca233b52253bf9246aa",
+  "stock_boot_payload_sha256": "fcaf033c5e10526353ecb11279a7556ac8645026d370c0267912cb4bfa7c7e4d",
+  "reference": {
+    "repository": "https://github.com/jvitkauskas/m-bootloader",
+    "commit": "3ac7651a019fa44daba061b05654278496477b64",
+    "platform_sha256": "72362154506af9cfb2fb6b84ac8ba5d818a559ec8bd58393fa421cc82be5044d",
+    "loader_abi_sha256": "6d8cacc6c300a106b0f6ed175005782eb17a2d74d70084e9a6ee7b43c4ad6fec"
+  },
+  "spi_commands": {
+    "exit_continuous_read": "ff ff",
+    "jedec": "9f",
+    "read": "03 + 24-bit address"
+  },
+  "rom_commands": {
+    "fc70": "identity, no MMIO",
+    "fc72": "explicit SPI init + JEDEC",
+    "fd71": "read 1..512 bytes",
+    "fc73": "sticky error and successful byte counter"
+  },
+  "clock_guard": {
+    "sys_div_address": 65544,
+    "sys_div_mask": 198400,
+    "clk_con2_address": 65556,
+    "clk_con2_mask": 255,
+    "accepted_pairs_clk_div": [
+      [
+        128,
+        0
+      ],
+      [
+        64,
+        256
+      ]
+    ],
+    "clock_writes": false
+  },
+  "spi_baud_divider_register": 15,
+  "supported_capacity_bytes": 1048576,
+  "dma_used": false,
+  "display_used": false,
+  "p33_or_efuse_used": false,
+  "watchdog_modified": false,
+  "cache_or_mmu_modified": false,
+  "physical_boot_verified": false,
+  "physical_flash_read_verified": false,
+  "nvm_write_operations_available": false,
+  "limitations": [
+    "clock field match does not measure a physical frequency",
+    "ROM callback/slot compatibility must be established on this MINI first",
+    "ROM send callback nonnegative return is accepted; exact return semantics unmeasured",
+    "GPIO/SPI initialization changes volatile hardware state; all plugin code must be in RAM",
+    "host must require status zero and exact counter advance after every block",
+    "host must preserve two complete identical 1 MiB reads and metadata before any NVM work",
+    "malformed transfers over 512 bytes are not fully drained and may require ROM recovery"
+  ]
+}

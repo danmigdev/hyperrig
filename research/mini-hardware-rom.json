@@ -1,0 +1,215 @@
+{
+  "project": "HyperRig",
+  "date": "2026-11-15",
+  "identity": "TANK MINI_009",
+  "kind": "physical-observation-not-host-simulation",
+  "firmware_write_performed": false,
+  "usb": {
+    "hub_restart_restored_enumeration": true,
+    "stock_vid_pid": "4c4a:c755",
+    "rom_vid_pid": "4c4a:8057",
+    "rom_entry_command": "f02224357df7",
+    "rom_inquiry": {
+      "vendor": "WL82",
+      "product": "UBOOT1.00",
+      "raw_hex": "0080020220000000574c38322020202055424f4f54312e303020202020202020312e3030"
+    },
+    "corrupt_firmware_recovery_verified": false,
+    "hub_restart_restored_rom_enumeration": true
+  },
+  "ram_probe": {
+    "slot": 29491200,
+    "image_sha256": "2f72aa15c30b99a1034ab027d9c92fae369a7dcd4db787e33c9f05360d7e2189",
+    "rom_readback_sha256": "2f72aa15c30b99a1034ab027d9c92fae369a7dcd4db787e33c9f05360d7e2189",
+    "rom_wire_sha256": "d47e2cd377a8ead8c24d152b686da304ea44371b79c5f1e6be3eec452d276470",
+    "rom_readback_transform": "jl_crc_cipher keyffffffff, restart per FD07 command",
+    "image_bytes": 4928,
+    "readback_verified": true,
+    "jump_sent": true,
+    "flash_write_commands_sent": false,
+    "jump_answer_hex": "fb080000000000000000000000000000",
+    "selftest_answer_hex": "fc600000000848595231000000000001",
+    "selftest_count": 8,
+    "selftest_status": 0,
+    "selftest_version": 1,
+    "spi_initialized": false,
+    "record_hex": "48595231010000000000c20100800000020000000000000008000000b493b4d4dc32f35387ad1019d019c2014000000079178a4900000000a2fbaee9444f4e45",
+    "record_sha256": "7d66f4cc58ba174919f493ab505af478932a12a4706a5cc4288a65e0dd7de585",
+    "cases": 8,
+    "runs": 2,
+    "dot_crc": "d4b493b4",
+    "head_crc": "53f332dc",
+    "rechannel_crc": "1910ad87",
+    "peripheral_actions": false,
+    "hardware_execution_verified": true,
+    "scope": "dot_i16, dot_i32, head3 and rechannel3 primitive vectors; not the full capture engine",
+    "full_a2_capture_executed": false,
+    "audio_dma_started": false,
+    "elf_sha256": "f86d34f7b8f66f4aeb69a80e5ae8203e410d59c0292a8431ac9ba06af883c4e8",
+    "manifest_sha256_at_execution": "640e931497bd309ffda1cba2ea057139867abfe08c7bad58df9f9b609a864817"
+  },
+  "nor_reader": {
+    "slot": 29523968,
+    "image_sha256": "7a492bf17d98f0f5ca5d2fb0d0da7d369937169075507676bfb51b88c9bb2b83",
+    "rom_readback_sha256": "7a492bf17d98f0f5ca5d2fb0d0da7d369937169075507676bfb51b88c9bb2b83",
+    "rom_wire_sha256": "4c37f39c43eb7e879424930eb802dc73811c9983fcc94f8078a7c2f0de0ffc4b",
+    "rom_readback_transform": "jl_crc_cipher keyffffffff, restart per FD07 command",
+    "image_bytes": 2308,
+    "readback_verified": true,
+    "jump_sent": true,
+    "flash_write_commands_sent": false,
+    "jump_answer_hex": "fb080000000000000000000000000000",
+    "reader_identity_hex": "fc704859524e010301c2800000008000",
+    "reader_version": 1,
+    "reader_read_only_pio": true,
+    "spi_initialized": false,
+    "spi_initialized_on_device": true,
+    "flash_identity": {
+      "jedec_hex": "eb6014",
+      "capacity": 1048576,
+      "baud_divisor": 15,
+      "sys_div": 0,
+      "clk_con2": 128,
+      "successful_read_bytes": 0
+    },
+    "uses_dma": false,
+    "flash_program_or_erase_commands_available": false
+  },
+  "flash_backup": {
+    "complete": true,
+    "attempts": [
+      {
+        "complete": false,
+        "successful_blocks": 260,
+        "block_bytes": 512,
+        "stock_matching_bytes": 133120,
+        "persisted_bytes": 131072,
+        "persisted_sha256": "a930735ae02587077951f26dac196b444001f8ca820d86d48813f4d005e11b65",
+        "error": "[Errno 31] SCSI command failed; no automatic retry",
+        "failing_offset": 133120,
+        "error_duration_established": false,
+        "automatic_retry": false,
+        "return_to_stock": {
+          "verified_utc": "2026-11-15T17:24:31.546121+00:00",
+          "identity": "TANK MINI_009",
+          "stock_usb_vid_pid": "4c4a:c755",
+          "usb_midi_audio_reenumerated": true,
+          "preset_sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+          "preset_bytes": 1942,
+          "preset_equal_reads": 2,
+          "presets_equal_before_after": true,
+          "return_to_stock_verified": true,
+          "flash_restoration_tested": false,
+          "firmware_write_performed": false
+        }
+      },
+      {
+        "complete": false,
+        "stage": "request_fresh_rom",
+        "error": "fresh ROM disk not uniquely enumerated",
+        "plugin_jumps_sent": 0,
+        "cause_observed": "USB descriptor failure code43 at same hub",
+        "rom_entry_requested_once": true,
+        "firmware_write_performed": false
+      },
+      {
+        "command_spacing_seconds": 0.005,
+        "automatic_retry": false,
+        "complete": true,
+        "return_to_stock": {
+          "verified_utc": "2026-11-15T17:38:36.481481+00:00",
+          "identity": "TANK MINI_009",
+          "stock_usb_vid_pid": "4c4a:c755",
+          "usb_midi_audio_reenumerated": true,
+          "preset_sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+          "preset_bytes": 1942,
+          "preset_equal_reads": 2,
+          "presets_equal_before_after": true,
+          "return_to_stock_verified": true,
+          "flash_restoration_tested": false,
+          "firmware_write_performed": false
+        },
+        "flash_a": {
+          "file": "artifacts/my-mini-flash/20261115-paced-resume/flash-a.bin",
+          "bytes": 1048576,
+          "sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180"
+        },
+        "flash_b": {
+          "file": "artifacts/my-mini-flash/20261115-paced-resume/flash-b.bin",
+          "bytes": 1048576,
+          "sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180"
+        },
+        "flash_content": {
+          "backup_consistency_and_content_validated": true,
+          "decoded_firmware_matches_stock_009": true,
+          "raw_package_extent_identical_to_stock": true,
+          "errors": []
+        },
+        "progress": {
+          "pass": "b",
+          "verified_bytes": 1048576,
+          "total": 1048576,
+          "reader_cumulative_bytes": 2097152
+        }
+      }
+    ],
+    "bytes": 1048576,
+    "equal_complete_reads": 2,
+    "sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180",
+    "physical_read_commands": 4096,
+    "status_verified_after_each_read": true,
+    "decoded_firmware_matches_stock_009": true,
+    "raw_package_extent_identical_to_stock": true
+  },
+  "ram_reset": {
+    "entry": 29491200,
+    "image_bytes": 26,
+    "image_sha256": "cf3526d914eef007649f88f1f22e085a908359b9ad0e9f4743427b4757c0540f",
+    "readback_verified": true,
+    "jump_outcome": "post_submit_transport_error",
+    "return_to_stock_verified": true,
+    "verified_stock_returns": 2,
+    "preset_sha256_before_after": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+    "presets_unchanged": true,
+    "flash_restore_tested": false,
+    "latest_stock_observation": {
+      "verified_utc": "2026-11-15T17:38:36.481481+00:00",
+      "identity": "TANK MINI_009",
+      "stock_usb_vid_pid": "4c4a:c755",
+      "usb_midi_audio_reenumerated": true,
+      "preset_sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+      "preset_bytes": 1942,
+      "preset_equal_reads": 2,
+      "presets_equal_before_after": true,
+      "return_to_stock_verified": true,
+      "flash_restoration_tested": false,
+      "firmware_write_performed": false
+    }
+  },
+  "application_boot_from_flash_verified": false,
+  "audio_io_verified": false,
+  "limits": [
+    "RAM callbacks and primitive DSP vectors are physically verified, not full A2 or audio.",
+    "ROM clock snapshots are not measurements of the normal audio clock.",
+    "Returning from RAM to intact stock firmware does not prove recovery from erased/corrupt flash."
+  ],
+  "private_evidence_sha256": {
+    "analysis/hardware/rom-entry-request.json": "e276dfe05b4592a5df8c526dc35e7596661f48bd53a4b953fc313504a9a46b88",
+    "analysis/hardware/rom-probe-run.json": "a625953ccc2cbb2419a5e375841513fa5d48868d1130ba2de56044c96f280970",
+    "analysis/hardware/rom-probe-trace.jsonl": "98f0d82545f5a3e7893ec7e11be958a4cf8fc8f26e1e0c252589cf4063e35879",
+    "analysis/hardware/run_mini_ram_bundle.py": "9bb81e7e44fcc7ef1a6b918754c59b0d6b4859d38f6b9828c95f6f7336c06c0f",
+    "analysis/hardware/mini-ram-bundle-run.json": "f5d541b2f44c50bc0233f58481ec763fe83f75ebc756355b0dcba81739f6f9f8",
+    "analysis/hardware/mini-ram-bundle-trace.jsonl": "fc40e46c0905899d2a9b0e10605fae13bf1a219df2b8cdea109b8fb46cdfcde8",
+    "analysis/hardware/mini-ram-bundle-stock-return.json": "f7c5cd27dd9fa0802a5acb0335f91166b37f19d0acc3a7c59b68cd7d7cc03253",
+    "analysis/hardware/mini-flash-paced-run.json": "204a5dd42ac907483dad9172fb7ea465a05c8093625348bdf6d34584d3130f7c",
+    "analysis/hardware/run_mini_flash_paced.py": "b9fd316f45cbf4f7d3a8cf12271ba31c857250cb3a0c66bbaa5997dc49632663",
+    "analysis/hardware/mini-flash-paced-resume-run.json": "ff43954e1c40ad5a30302c51efdcdf63e09866e5c79dc53b3bccb59c7b029437",
+    "analysis/hardware/run_mini_flash_paced_resume.py": "1b26b6920b2c76aeb8a790acc1698afe93b4bebb33fedd0afc88ec4d2751a3f5",
+    "analysis/hardware/mini-flash-paced-resume-trace.jsonl": "0eb0cfefc788a2fb7c14e5ea9a7fd50bd538ee4229402af64ad8f4e3017fc121",
+    "analysis/hardware/mini-flash-paced-resume-stock-return.json": "8d46e155dcecce02efbe567c9ea0be5336470776b09e79001dca0a1784175228",
+    "analysis/hardware/hub-restart-paced-result.json": "35c87d791dd380d694177c28dc321e356aed7c438c147f050dc776437556d648",
+    "analysis/hardware/run_mini_flash_paced_resume.ps1": "1f4b2ca012cbe12421402ea95a1c98c2bed672d656aab01f0ff7733d2d7d0997",
+    "artifacts/my-mini-flash/20261115-paced-resume/inspection.json": "291c646bcf904a5f9f5ee5baec3065c953a4ee9acb98e6cccac8ae5807cba510"
+  },
+  "source_runner_hashes_match_records": true
+}

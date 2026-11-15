@@ -14,7 +14,8 @@ la paternità del codice recuperato.
 | [Ghidra](https://github.com/NationalSecurityAgency/ghidra) | Decompilatore | Distribuzione 12.2 verificata con il digest GitHub |
 | [tankmini-linux](https://github.com/viniciusapl97/tankmini-linux) | Documentazione del protocollo e vettori catturati | MIT; riferimento per la nuova implementazione Python |
 | [m-bootloader](https://github.com/jvitkauskas/m-bootloader) | Specifica AC791N/ROM, registri P33 e cache | MIT; solo riferimento SoC, nessun binario FM1/SMK37 usato sul MINI |
-| [SDK AC79 mirror](https://github.com/amitv87/fw-AC79_AIoT_SDK) | Header di riferimento e LICENSE, incluso `iis.h` | Origine ufficiale Gitee non risolvibile dalla rete locale; mirror e commit registrati |
+| [m-flasher](https://github.com/jvitkauskas/m-flasher) | CDB ROM e riferimento del client USB | Commit fissato; nessun loader per altre schede caricato sul MINI |
+| [SDK AC79 mirror](https://github.com/amitv87/fw-AC79_AIoT_SDK) | Header di riferimento e LICENSE, `iis.h` e `cpu.a` per il selettore I2S | Origine ufficiale Gitee non risolvibile dalla rete locale; mirror, commit e hash registrati |
 | [Toolchain JieLi](https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz) | Clang, linker e objdump pi32v2 | Usati localmente come strumenti via WSL; archivio verificato e ignorato da Git |
 | [Apktool](https://github.com/iBotPeaches/Apktool) | Decodifica risorse/Smali e ricostruzione APK | Versione 3.0.3 verificata con digest della release |
 | [Uber APK Signer](https://github.com/patrickfav/uber-apk-signer) | Allineamento, firma e verifica APK | Versione 1.3.0 verificata con checksum pubblicato; chiave di sviluppo locale |

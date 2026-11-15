@@ -24,6 +24,11 @@
       "url": "https://github.com/jvitkauskas/m-bootloader.git",
       "commit": "3ac7651a019fa44daba061b05654278496477b64",
       "usage": "AC791N SoC/ROM reference only; FM1/SMK37 board binaries are not MINI firmware"
+    },
+    "m-flasher": {
+      "url": "https://github.com/jvitkauskas/m-flasher.git",
+      "commit": "8fbece7348d758ac284325eed455781675ac95ff",
+      "usage": "ROM USB protocol reference, no FM1 board binaries used on MINI"
     }
   },
   "ghidra": {
@@ -76,6 +81,11 @@
         "path": "include_lib/driver/cpu/wl82/asm/iis.h",
         "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/iis.h",
         "sha256": "edffa901d9c6a7cef05e74fb0038a98b7a43869e572b0037947489c1244b087b"
+      },
+      {
+        "path": "cpu/wl82/liba/cpu.a",
+        "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/cpu/wl82/liba/cpu.a",
+        "sha256": "00cea21d3c8d99487821f2c2b203f2c5a04b2cc8421bc05e9b875a0d70e42c62"
       }
     ]
   },

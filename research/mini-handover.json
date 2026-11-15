@@ -1,0 +1,796 @@
+{
+  "project": "HyperRig",
+  "target": "TANK MINI",
+  "stock": {
+    "package_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+    "flash_sha256": "d743a9eee7035d151b1ebcd1dde1d87cbfb3f069d7e74e1efec83ca3a92ffeed",
+    "boot_container_sha256": "730e54f0a439f58d147be4364ad21e19566945ada9d3a7bbc8371dce5068d3ef",
+    "boot_payload_sha256": "fcaf033c5e10526353ecb11279a7556ac8645026d370c0267912cb4bfa7c7e4d",
+    "boot_load": 29368320,
+    "boot_payload_bytes": 14368,
+    "boot_header_crc16": "bcf5",
+    "boot_payload_crc16": "81a2",
+    "boot_container_crc16": "71c8",
+    "application_sha256": "bc46bc604d42067449cdf5b8200f8ebbafd668b722243e3db1b033289e49bdea",
+    "configuration": {
+      "offset": 14544,
+      "bytes": 699,
+      "sha256": "0952afd96f533dd0fba72a8fab9cb4a4336f55424a1a89eecb13ff8a51a0eff0",
+      "crc16": "70d5",
+      "values": {
+        "SPI": "4_1_0_0",
+        "OSC": "OSC0",
+        "OSC_FREQ": 24000000,
+        "SYS_CLK": 360000000,
+        "HSB_DIV": 1,
+        "LSB_DIV": 2,
+        "ENABLE_SDRAM": 0
+      }
+    },
+    "native_fragments": {
+      "rom_exception_entry": {
+        "start": 29368320,
+        "end_exclusive": 29368390,
+        "sha256": "958c13618bcde07460af75c083687377a99ac9594ae9858783fe58263fe059cf"
+      },
+      "clear_cache_arrays": {
+        "start": 29369572,
+        "end_exclusive": 29369650,
+        "sha256": "d3de07a526a3c0d2b993113563a01fb645d790b46e9347b82cfeacaa6f3a24a2"
+      },
+      "core_reset": {
+        "start": 29370612,
+        "end_exclusive": 29370622,
+        "sha256": "0f0113c68f495794f2170fac4aea090d1c8c7720b6675c3b871403ef2b0d2600"
+      },
+      "spi_chip_select": {
+        "start": 29371558,
+        "end_exclusive": 29371590,
+        "sha256": "11882a0b35150147f93e69d972cd4ff85504d8aa1f6242319bcf10df0ddd9c32"
+      },
+      "spi_byte_transactions": {
+        "start": 29371590,
+        "end_exclusive": 29371650,
+        "sha256": "8c602505946d9396724a6177e0dbe090141f328934397f9e9b55f7908e809f69"
+      },
+      "spi_pin_initialization": {
+        "start": 29371698,
+        "end_exclusive": 29371828,
+        "sha256": "febcff8e53157e7e1246e9d65c3485cce5eaea148978baca8a981d5d2e1b2887"
+      },
+      "program_enc_keys": {
+        "start": 29373156,
+        "end_exclusive": 29373174,
+        "sha256": "37acd75bd081e9bc22c6f4fc3ae41a83cf52f94055cae9cf48d06e8b4c53529d"
+      },
+      "watchdog_disable_at_boot_start": {
+        "start": 29374494,
+        "end_exclusive": 29374572,
+        "sha256": "ffdbc4bdeeb8831fe235d5640c7c36d284b1ce2b03af6fc2728ff04dc34412cf"
+      },
+      "main_pll_configuration": {
+        "start": 29377276,
+        "end_exclusive": 29377432,
+        "sha256": "6ef5c06a916263500577075f00d877f1bdf79a47d245ff8826f00b8a00eb4809"
+      },
+      "sfc_setup": {
+        "start": 29380806,
+        "end_exclusive": 29381026,
+        "sha256": "c6402f37c1bb72621041fa324d127a38cdcabbe798ed94f21e85481a75e5c0e3"
+      },
+      "application_cache_handoff": {
+        "start": 29381026,
+        "end_exclusive": 29381102,
+        "sha256": "aadd31cb7cf80e9111282c2041384f19fc7e0b66b357535b1a362b12402b485a"
+      },
+      "application_call": {
+        "start": 29381252,
+        "end_exclusive": 29381266,
+        "sha256": "1978adecd0e664664322c4f5b28a70fd369f1944995dfb95a9f5c39c393953fd"
+      }
+    },
+    "cache_array_store_traces": [
+      {
+        "instructions_executed": 12820,
+        "word_stores": 6402,
+        "control_before": 0,
+        "control_after": 768,
+        "trace_sha256": "d52cddd20bb04134d41773005cf372d9baf446ff962899397861e84d8e30dd24"
+      },
+      {
+        "instructions_executed": 12820,
+        "word_stores": 6402,
+        "control_before": 2779096485,
+        "control_after": 2779096997,
+        "trace_sha256": "2409bd692520a14152b4100dad67883e0839ee13582841e2851e907a8d4966f8"
+      }
+    ],
+    "cache_array_ranges": [
+      [
+        32505856,
+        32522240
+      ],
+      [
+        32538624,
+        32546816
+      ],
+      [
+        32546816,
+        32547328
+      ],
+      [
+        32550912,
+        32551424
+      ]
+    ],
+    "cache_array_bytes_written": 25600,
+    "cache_control_clear_mask": 768,
+    "cache_control_enable_mask": 768,
+    "cache_idle_bit": 14,
+    "stock_handoff_descriptor": 29883912,
+    "stock_application_call": 29381260,
+    "application_entry": 33554720,
+    "application_first_ram_call": {
+      "instruction": 33554846,
+      "destination": 29363852,
+      "preceding_reset_sha256": "0d5f0c52f6e065e5d0549eaee7b6787e6e681e9c3b0af36728989377aa16b8d0"
+    },
+    "cache_hardware_modeled": false,
+    "mmu_state_proven": false
+  },
+  "artifacts": [
+    {
+      "file": "build/mini-handover/hyperrig-mini-xip-minimal.elf",
+      "sha256": "70a6fd4114b21e5fdf3f49f893a6993e773c8abdd4fb75c7c45cb9f32b08d41c",
+      "audit": {
+        "elf_check": {
+          "file_format": "ELF32-pi32v2",
+          "sha256": "70a6fd4114b21e5fdf3f49f893a6993e773c8abdd4fb75c7c45cb9f32b08d41c",
+          "bytes": 2428,
+          "elf_type": 2,
+          "machine": 241,
+          "entry": 33554720,
+          "elf_flags": 0,
+          "layout_valid": true,
+          "flashable": false,
+          "boot_verified_on_device": false,
+          "status": "linked-application-layout-only",
+          "load_segments": [
+            {
+              "index": 0,
+              "offset": 192,
+              "vaddr": 33554720,
+              "lma": 33554720,
+              "file_bytes": 472,
+              "memory_bytes": 472,
+              "flags": 5,
+              "region": "flash"
+            },
+            {
+              "index": 1,
+              "offset": 672,
+              "vaddr": 29360128,
+              "lma": 33555192,
+              "file_bytes": 4,
+              "memory_bytes": 4,
+              "flags": 6,
+              "region": "ram"
+            },
+            {
+              "index": 2,
+              "offset": 676,
+              "vaddr": 29360132,
+              "lma": 33555196,
+              "file_bytes": 0,
+              "memory_bytes": 80,
+              "flags": 6,
+              "region": "ram"
+            },
+            {
+              "index": 3,
+              "offset": 688,
+              "vaddr": 29871408,
+              "lma": 34066472,
+              "file_bytes": 0,
+              "memory_bytes": 12288,
+              "flags": 6,
+              "region": "ram"
+            }
+          ],
+          "linker_symbols": {
+            "__ram_start": 29360128,
+            "__ram_end": 29360132,
+            "__ram_load_start": 33555192,
+            "__ram_load_end": 33555196,
+            "__bss_start": 29360132,
+            "__bss_end": 29360160,
+            "__stack_bottom": 29871408,
+            "__stack_top": 29879600,
+            "__ssp_bottom": 29879600,
+            "__ssp_top": 29883696,
+            "__boot_reserved_start": 29883696,
+            "__boot_reserved_end": 29884416,
+            "__flash_image_end": 33555196,
+            "__noinit_start": 29360160,
+            "__noinit_end": 29360212,
+            "__ram_region_start": 29360128,
+            "__ram_region_end": 29883696
+          },
+          "file_backed_flash_bytes": 476,
+          "limit": "Linking and layout checks do not establish startup, clock, interrupts, audio or update/recovery behavior."
+        },
+        "executable_sections": [
+          {
+            "name": ".text",
+            "address": 33554720,
+            "bytes": 472
+          }
+        ],
+        "function_symbols_in_xip": 7,
+        "functions": [
+          {
+            "name": "hyperrig_mini_application_probe",
+            "address": 33554838,
+            "bytes": 6
+          },
+          {
+            "name": "memcpy",
+            "address": 33554938,
+            "bytes": 16
+          },
+          {
+            "name": "hyperrig_mini_irq_register",
+            "address": 33554966,
+            "bytes": 142
+          },
+          {
+            "name": "_start",
+            "address": 33554720,
+            "bytes": 118
+          },
+          {
+            "name": "memset",
+            "address": 33554954,
+            "bytes": 12
+          },
+          {
+            "name": "hyperrig_mini_irq_unregister",
+            "address": 33555108,
+            "bytes": 82
+          },
+          {
+            "name": "hyperrig_mini_boot_main",
+            "address": 33554844,
+            "bytes": 94
+          }
+        ],
+        "initialized_ram_bytes": 4,
+        "copied_instruction_bytes": 0,
+        "ramtext_bytes_placed_in_xip": 0,
+        "probe_mailbox": 29360160,
+        "all_ram_segments_non_executable": true
+      },
+      "startup_simulations": {
+        "boot_descriptor": {
+          "steps": 44,
+          "whole_ram_result_sha256": "e68dc2c9bdb89000490aafc7392838348df40ba6fa1d782f12d5f68eea5b362b",
+          "stopped_before_c_entry": true,
+          "irq_disabled": true
+        },
+        "null_debug_descriptor": {
+          "steps": 32,
+          "whole_ram_result_sha256": "56999bf77546e3b419450be3f182a72006cb6ef95b8058eb4dbfdfa27ea5211f",
+          "stopped_before_c_entry": true,
+          "irq_disabled": true
+        }
+      },
+      "dsp_worker_linked": false,
+      "expected_application_status": -100,
+      "target_c_executed": false,
+      "real_irq_or_dma_enabled": false,
+      "flashable": false
+    },
+    {
+      "file": "build/mini-handover/hyperrig-mini-xip-runtime.elf",
+      "sha256": "4deff917b60bce0cf69dda027fe3ff9ee26e7cf265f0931e6e72832e921b3cfb",
+      "audit": {
+        "elf_check": {
+          "file_format": "ELF32-pi32v2",
+          "sha256": "4deff917b60bce0cf69dda027fe3ff9ee26e7cf265f0931e6e72832e921b3cfb",
+          "bytes": 18600,
+          "elf_type": 2,
+          "machine": 241,
+          "entry": 33554720,
+          "elf_flags": 0,
+          "layout_valid": true,
+          "flashable": false,
+          "boot_verified_on_device": false,
+          "status": "linked-application-layout-only",
+          "load_segments": [
+            {
+              "index": 0,
+              "offset": 192,
+              "vaddr": 33554720,
+              "lma": 33554720,
+              "file_bytes": 13620,
+              "memory_bytes": 13620,
+              "flags": 5,
+              "region": "flash"
+            },
+            {
+              "index": 1,
+              "offset": 13824,
+              "vaddr": 29360128,
+              "lma": 33568340,
+              "file_bytes": 4,
+              "memory_bytes": 4,
+              "flags": 6,
+              "region": "ram"
+            },
+            {
+              "index": 2,
+              "offset": 13856,
+              "vaddr": 29360160,
+              "lma": 33568384,
+              "file_bytes": 0,
+              "memory_bytes": 218516,
+              "flags": 6,
+              "region": "ram"
+            },
+            {
+              "index": 3,
+              "offset": 13840,
+              "vaddr": 29871408,
+              "lma": 34079632,
+              "file_bytes": 0,
+              "memory_bytes": 12288,
+              "flags": 6,
+              "region": "ram"
+            }
+          ],
+          "linker_symbols": {
+            "__ram_start": 29360128,
+            "__ram_end": 29360132,
+            "__ram_load_start": 33568340,
+            "__ram_load_end": 33568344,
+            "__bss_start": 29360160,
+            "__bss_end": 29578624,
+            "__stack_bottom": 29871408,
+            "__stack_top": 29879600,
+            "__ssp_bottom": 29879600,
+            "__ssp_top": 29883696,
+            "__boot_reserved_start": 29883696,
+            "__boot_reserved_end": 29884416,
+            "__flash_image_end": 33568344,
+            "__noinit_start": 29578624,
+            "__noinit_end": 29578676,
+            "__ram_region_start": 29360128,
+            "__ram_region_end": 29883696
+          },
+          "file_backed_flash_bytes": 13624,
+          "limit": "Linking and layout checks do not establish startup, clock, interrupts, audio or update/recovery behavior."
+        },
+        "executable_sections": [
+          {
+            "name": ".text",
+            "address": 33554720,
+            "bytes": 13620
+          }
+        ],
+        "function_symbols_in_xip": 63,
+        "functions": [
+          {
+            "name": "crc32_word_le",
+            "address": 33555190,
+            "bytes": 46
+          },
+          {
+            "name": "process",
+            "address": 33555576,
+            "bytes": 10
+          },
+          {
+            "name": "begin",
+            "address": 33555900,
+            "bytes": 30
+          },
+          {
+            "name": "end",
+            "address": 33555930,
+            "bytes": 40
+          },
+          {
+            "name": "enter",
+            "address": 33555856,
+            "bytes": 22
+          },
+          {
+            "name": "leave",
+            "address": 33555878,
+            "bytes": 22
+          },
+          {
+            "name": "rx_sync",
+            "address": 33555970,
+            "bytes": 32
+          },
+          {
+            "name": "tx_sync",
+            "address": 33556002,
+            "bytes": 32
+          },
+          {
+            "name": "wake",
+            "address": 33556034,
+            "bytes": 6
+          },
+          {
+            "name": "parse",
+            "address": 33557106,
+            "bytes": 1556
+          },
+          {
+            "name": "reserve",
+            "address": 33557034,
+            "bytes": 72
+          },
+          {
+            "name": "take",
+            "address": 33556958,
+            "bytes": 76
+          },
+          {
+            "name": "layout",
+            "address": 33560358,
+            "bytes": 286
+          },
+          {
+            "name": "take",
+            "address": 33560288,
+            "bytes": 70
+          },
+          {
+            "name": "registers_valid",
+            "address": 33561234,
+            "bytes": 28
+          },
+          {
+            "name": "current",
+            "address": 33562476,
+            "bytes": 48
+          },
+          {
+            "name": "fault_locked",
+            "address": 33563274,
+            "bytes": 16
+          },
+          {
+            "name": "finish",
+            "address": 33562360,
+            "bytes": 116
+          },
+          {
+            "name": "hyperrig_mini_codec_replay_stock",
+            "address": 33562138,
+            "bytes": 44
+          },
+          {
+            "name": "hyperrig_mini_application_probe",
+            "address": 33555236,
+            "bytes": 340
+          },
+          {
+            "name": "hyperrig_a2l_head3_init",
+            "address": 33558854,
+            "bytes": 86
+          },
+          {
+            "name": "hyperrig_a2l3_process",
+            "address": 33561064,
+            "bytes": 170
+          },
+          {
+            "name": "hyperrig_a2l_size",
+            "address": 33558662,
+            "bytes": 68
+          },
+          {
+            "name": "memcpy",
+            "address": 33554938,
+            "bytes": 16
+          },
+          {
+            "name": "hyperrig_mini_runtime_init",
+            "address": 33562182,
+            "bytes": 178
+          },
+          {
+            "name": "hyperrig_a2l_bias32",
+            "address": 33556946,
+            "bytes": 12
+          },
+          {
+            "name": "hyperrig_mini_irq_register",
+            "address": 33554966,
+            "bytes": 142
+          },
+          {
+            "name": "hyperrig_shift",
+            "address": 33556040,
+            "bytes": 152
+          },
+          {
+            "name": "hyperrig_mini_irq11_entry",
+            "address": 33563338,
+            "bytes": 20
+          },
+          {
+            "name": "hyperrig_mini_runtime_enter_cpu0",
+            "address": 33563314,
+            "bytes": 16
+          },
+          {
+            "name": "hyperrig_mini_audio_start",
+            "address": 33561490,
+            "bytes": 60
+          },
+          {
+            "name": "hyperrig_mini_audio_stock_rx",
+            "address": 33561654,
+            "bytes": 18
+          },
+          {
+            "name": "hyperrig_mini_runtime_work",
+            "address": 33562524,
+            "bytes": 448
+          },
+          {
+            "name": "hyperrig_mini_runtime_memory_probe",
+            "address": 33555586,
+            "bytes": 270
+          },
+          {
+            "name": "hyperrig_a2l_load",
+            "address": 33558730,
+            "bytes": 124
+          },
+          {
+            "name": "hyperrig_mini_audio_unpack",
+            "address": 33561888,
+            "bytes": 52
+          },
+          {
+            "name": "hyperrig_layer3_supported",
+            "address": 33559238,
+            "bytes": 102
+          },
+          {
+            "name": "hyperrig_mini_runtime_ready",
+            "address": 33563124,
+            "bytes": 150
+          },
+          {
+            "name": "hyperrig_dot_i16",
+            "address": 33556192,
+            "bytes": 146
+          },
+          {
+            "name": "hyperrig_mini_runtime_irq_bind",
+            "address": 33563058,
+            "bytes": 66
+          },
+          {
+            "name": "_start",
+            "address": 33554720,
+            "bytes": 118
+          },
+          {
+            "name": "hyperrig_a2l3_size",
+            "address": 33560644,
+            "bytes": 154
+          },
+          {
+            "name": "hyperrig_mini_audio_prepare",
+            "address": 33561262,
+            "bytes": 228
+          },
+          {
+            "name": "hyperrig_head3_process",
+            "address": 33556484,
+            "bytes": 400
+          },
+          {
+            "name": "hyperrig_layer3_process",
+            "address": 33559340,
+            "bytes": 948
+          },
+          {
+            "name": "hyperrig_mini_audio_rx_q",
+            "address": 33561672,
+            "bytes": 74
+          },
+          {
+            "name": "hyperrig_mini_audio_stop",
+            "address": 33561550,
+            "bytes": 30
+          },
+          {
+            "name": "memset",
+            "address": 33554954,
+            "bytes": 12
+          },
+          {
+            "name": "hyperrig_mini_audio_pack",
+            "address": 33561940,
+            "bytes": 54
+          },
+          {
+            "name": "hyperrig_a2l_bias64",
+            "address": 33556884,
+            "bytes": 62
+          },
+          {
+            "name": "hyperrig_mini_runtime_inspect",
+            "address": 33562972,
+            "bytes": 86
+          },
+          {
+            "name": "hyperrig_mini_irq_unregister",
+            "address": 33555108,
+            "bytes": 82
+          },
+          {
+            "name": "hyperrig_mini_boot_main",
+            "address": 33554844,
+            "bytes": 94
+          },
+          {
+            "name": "hyperrig_a2l_rechannel3_init",
+            "address": 33558940,
+            "bytes": 114
+          },
+          {
+            "name": "hyperrig_mini_runtime_leave_cpu0",
+            "address": 33563330,
+            "bytes": 8
+          },
+          {
+            "name": "hyperrig_a2l3_reset",
+            "address": 33560798,
+            "bytes": 152
+          },
+          {
+            "name": "hyperrig_rechannel3_process",
+            "address": 33559054,
+            "bytes": 184
+          },
+          {
+            "name": "hyperrig_a2l3_init",
+            "address": 33560950,
+            "bytes": 114
+          },
+          {
+            "name": "hyperrig_mini_irq11_dispatch",
+            "address": 33563290,
+            "bytes": 24
+          },
+          {
+            "name": "hyperrig_mini_audio_process_half",
+            "address": 33561994,
+            "bytes": 144
+          },
+          {
+            "name": "hyperrig_dot_i32",
+            "address": 33556338,
+            "bytes": 146
+          },
+          {
+            "name": "hyperrig_mini_audio_irq",
+            "address": 33561580,
+            "bytes": 74
+          },
+          {
+            "name": "hyperrig_mini_audio_tx_q",
+            "address": 33561746,
+            "bytes": 142
+          }
+        ],
+        "initialized_ram_bytes": 4,
+        "copied_instruction_bytes": 0,
+        "ramtext_bytes_placed_in_xip": 234,
+        "probe_mailbox": 29578624,
+        "all_ram_segments_non_executable": true
+      },
+      "startup_simulations": {
+        "boot_descriptor": {
+          "steps": 109262,
+          "whole_ram_result_sha256": "ef7a17c7ac1503278b0a8bcde967797fc9c0d87876b9ef8880a0f7c0805a150f",
+          "stopped_before_c_entry": true,
+          "irq_disabled": true
+        },
+        "null_debug_descriptor": {
+          "steps": 109250,
+          "whole_ram_result_sha256": "f5e9a342ecc9303dfdf7b7dacbc6e4f332d559b65b181e8ca45d87ddf5e2cdca",
+          "stopped_before_c_entry": true,
+          "irq_disabled": true
+        }
+      },
+      "dsp_worker_linked": true,
+      "expected_application_status": 0,
+      "target_c_executed": false,
+      "real_irq_or_dma_enabled": false,
+      "flashable": false
+    }
+  ],
+  "checked_dependency_reports": {
+    "analysis/native/verification.json": {
+      "sha256": "d0e460d71903a9d0662b992bf95469f838535de8002b3b91e4dd040578da32fc",
+      "verified_sources_and_objects": 13
+    },
+    "research/mini-audio-driver.json": {
+      "sha256": "383bf7ec9f59d92e669ae09a24083c1bd046147d13630da1b4151435bf721c25",
+      "verified_sources_and_objects": 5
+    },
+    "research/mini-runtime.json": {
+      "sha256": "9120421450dfe0270da207c65799b98702136ce2a1695ba08bab10eaec7e1072",
+      "verified_sources_and_objects": 8
+    }
+  },
+  "sources_sha256": {
+    "firmware/mini/boot/startup.S": "c61ace50e7a74dc6dcbb69bf1cb38feee14a2db3dd53614c30ff52ae0d35e653",
+    "firmware/mini/boot/boot_probe.c": "e0181764700cf74631eb0dd5edcd96e352d39b686c706279f0833a9ec4c2ac02",
+    "firmware/mini/boot/runtime.c": "a0fe564e1785238960f4810bb1684066bfd4d33f5337d98d74803b702c066973",
+    "firmware/mini/boot/irq.c": "66fe7e52006b332525581d38cabf515b540c342f7b1671a5311e3786d84742c3",
+    "firmware/mini/boot/capture.S": "9c790f56dec0af159f7d2b6ed3393526785d217026695ffc64002101b4920026",
+    "firmware/mini/boot/dsp_probe.c": "2e06f529957f944ccf0e172052d07e8d7692a9faed84b675d00fc4d8ab5e6b14",
+    "firmware/mini/boot/runtime_probe.c": "32d0ab9c6854a3ebf0fa70ce870967190a5937681964ee3cc29121e32932f679",
+    "firmware/mini/handover/mini_xip.ld": "4dafc236d4b5fa976583e40b7741c3764973c9f54e4e6664fd6e9a2eda511528",
+    "tools/verify_mini_handover.py": "aeddf9dba9c70a9ac2b18395cc1c4ef94e2c54f73d867465c22b3fb7d8d9abdd"
+  },
+  "existing_host_runtime_test": {
+    "report": "research/mini-boot.json",
+    "report_sha256": "245ee47b9fb22acea78064569acf63dd3f5a5653856778389fa8fae4f2d875bb",
+    "result": {
+      "host_c_probe_passed": true,
+      "application_status": 0,
+      "model_bytes": 7055,
+      "engine_bytes": 115383,
+      "rendered_frames": 64,
+      "dsp_crc32": "f10b5e4c",
+      "audio_status": 0,
+      "audio_frames": 64,
+      "tx_crc32": "f0a44a06",
+      "address_sanitizer": true,
+      "undefined_behavior_sanitizer": true,
+      "target_c_executed": false,
+      "mmio_called": false,
+      "hardware_irq_entered": false,
+      "ram_event_worker_dsp_path": true,
+      "completed_blocks": 1,
+      "ownership_callbacks": "private RAM arrays, never claimed for real DMA",
+      "executable_sha256": "739078533d21bf75f56b25f1e3667019df6ea1dd49c0a0f1a1972430441139af"
+    },
+    "rerun_for_linker_only_change": false
+  },
+  "entry_contract": "stock bootloader application call, never ROM USB RAM-loader entry",
+  "removed_prerequisite": "instruction visibility after copying application RAMtext",
+  "preserved_hardware": [
+    "SFC mapping and ownership",
+    "ENC",
+    "PLL and dividers",
+    "cache partition/enables",
+    "MMU"
+  ],
+  "unproven": [
+    "physical boot/handover on this MINI",
+    "incoming MMU/control state and RAM aliases",
+    "CPU1 and retained ROM state",
+    "watchdog lifetime",
+    "mailbox observation transport",
+    "real IRQ/DMA cache coherence and deadlines",
+    "48 kHz codec/board clocks"
+  ],
+  "hardware_accessed": false,
+  "hardware_boot_verified": false,
+  "flashable": false
+}

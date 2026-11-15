@@ -1,0 +1,80 @@
+{
+  "project": "HyperRig",
+  "type": "AC791N ROM RAM diagnostics",
+  "build_tag": 1233786745,
+  "golden": {
+    "dot": 3568604084,
+    "head": 1408447196,
+    "rechannel": 420523399,
+    "cases": 8,
+    "source": "interpreted original UltraRig G v2 kernels, not HyperRig C output",
+    "original_kernel_sha256": {
+      "29435400": "44d5e86b3eef0d8c44daa18445e2729930c8d8ad1c9ab3cd4193aacce3202553",
+      "29435636": "72400b5617fb6eefe17aa634ec68ecb5e186fd6ccf4cee3e17a63cf5c75cb897",
+      "29438132": "d9419c8dfdb610b6ad0a6a4519b6bc4f8caf5dcaa8b0fab798c8dcc12bfd3153",
+      "29443388": "08bf1784a8ff784606882cb21085038c7ae8ade1200b83bccb1d9355d95cb2bc"
+    }
+  },
+  "host": {
+    "protocol_cases": 33,
+    "dsp_cases": 8,
+    "status": 0,
+    "dot_crc": "d4b493b4",
+    "head_crc": "53f332dc",
+    "rechannel_crc": "1910ad87",
+    "asan": true,
+    "ubsan": true
+  },
+  "artifacts": [
+    {
+      "base": 29491200,
+      "span": 32768,
+      "entry": 29491200,
+      "payload_bytes": 4928,
+      "memory_bytes": 6672,
+      "record_address": 29497808,
+      "record_bytes": 64,
+      "elf_sha256": "f86d34f7b8f66f4aeb69a80e5ae8203e410d59c0292a8431ac9ba06af883c4e8",
+      "payload_sha256": "2f72aa15c30b99a1034ab027d9c92fae369a7dcd4db787e33c9f05360d7e2189",
+      "file": "build/mini-rom/hyperrig-rom-probe-01c20000.bin",
+      "elf": "build/mini-rom/hyperrig-rom-probe-01c20000.elf"
+    },
+    {
+      "base": 29523968,
+      "span": 32768,
+      "entry": 29523968,
+      "payload_bytes": 4928,
+      "memory_bytes": 6672,
+      "record_address": 29530576,
+      "record_bytes": 64,
+      "elf_sha256": "72f5678511b9cf499c7bccfad2fd73aa4fd349e0160be3593278f01815d22af6",
+      "payload_sha256": "33544a0a794fba72536f726597994cf829d49f82aa1b23a96f6397f42bd7959d",
+      "file": "build/mini-rom/hyperrig-rom-probe-01c28000.bin",
+      "elf": "build/mini-rom/hyperrig-rom-probe-01c28000.elf"
+    }
+  ],
+  "source_sha256": {
+    "firmware/mini/rom_probe/entry.c": "8fa890a8e26f3a59b0111f2df59558b8a2b665780d875335e7c3abb446240cb8",
+    "firmware/mini/rom_probe/host_test.c": "46ed4c4bab53d5c10652d08f8369a44962dc335df6bddb61c1b5ebfe3b31701f",
+    "firmware/mini/rom_probe/probe.ld": "c498d61d71b174e5e28732630bc597bec14752f875fa2800067586e6c258c37a",
+    "firmware/mini/rom_probe/rom_probe.c": "49150266ff4f71f964ad26997f629f949745d830cfb52b544016bace544c2fcc",
+    "firmware/mini/rom_probe/rom_probe.h": "8082c674f2f46314c16d13dba0495837ca5e46fc005f77a381d758a86e306f47",
+    "firmware/src/hyperrig_dot.c": "85b059a579a4f86ca90290b682ee25a834f60a0934e8fab45b9667548765cfc8",
+    "firmware/src/hyperrig_head.c": "95cdd2a45e589ed99e3d87346afa7d5a74cc9e8d447fbb3f0659e723883c4299",
+    "firmware/src/hyperrig_rechannel.c": "e93f8d76d5d9e4c50a4427f71049467819f9c9c4a31e6b0af4430d5260e981ac",
+    "firmware/src/hyperrig_a2l.c": "59b4b441d9a3cbcba49d01c4effac36d93100f950ac44c3ef12886e043f1292d",
+    "firmware/mini/boot/runtime.c": "a0fe564e1785238960f4810bb1684066bfd4d33f5337d98d74803b702c066973",
+    "tools/build_mini_rom_probe.py": "fbcb22502db6e8ba7036dcfca9c2001bb2faf35043d10731c2317a0c72f1b2cd"
+  },
+  "hardware_execution_verified": false,
+  "hardware_peripheral_actions": false,
+  "firmware_installation_package": false,
+  "complete_flash_backup": false,
+  "abi_reference": "m-bootloader/docs/SPEC.md 10.1 and pi32v2-isa/tools/hwtest/runner.S",
+  "limits": [
+    "ROM upload/ABI and slot allocations must be observed on this MINI.",
+    "Eight primitive kernel cases are not the complete A2 engine or audio path.",
+    "No SPI or flash reader; FD61 exposes only this plug-in slot.",
+    "Send callback return/error semantics are unknown; host must validate transfer status."
+  ]
+}

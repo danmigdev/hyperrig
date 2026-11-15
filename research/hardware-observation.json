@@ -1,7 +1,7 @@
 {
   "date": "2026-11-15",
   "identity": "TANK MINI_009",
-  "transport": "Bluetooth LE vendor service",
+  "transport": "Bluetooth LE and USB MIDI; USB ROM diagnostics",
   "service_uuid": "0000ae40-0000-1000-8000-00805f9b34fb",
   "write_uuid": "0000ae41-0000-1000-8000-00805f9b34fb",
   "notify_uuid": "0000ae42-0000-1000-8000-00805f9b34fb",
@@ -17,10 +17,10 @@
   ],
   "rtmidi_exposes_ble_port": false,
   "preset_backup_acquired": true,
-  "complete_flash_backup_acquired": false,
+  "complete_flash_backup_acquired": true,
   "firmware_write_performed": false,
-  "limitation": "Identity and stable preset bank confirmed; no full-flash hash comparison, hardware revision or flash geometry verification. No HyperRig code has run on the device.",
-  "usb_mini_identified": false,
+  "limitation": "RAM probe, primitive DSP, two identical complete NOR reads matching stock009, and two returns to stock with unchanged presets are verified. Full A2 capture execution, application boot, audio and recovery from corrupted flash remain unverified.",
+  "usb_mini_identified": true,
   "preset_backup": {
     "bytes": 1942,
     "equal_reads": 2,
@@ -35,13 +35,46 @@
   },
   "latest_readonly_check": {
     "date": "2026-11-15",
+    "transport": "USB-MIDI after full NOR acquisition and RAM reset",
     "identity_confirmed_again": true,
-    "vendor_ble_notifications_worked": true,
-    "midi_inputs": [],
-    "midi_outputs": [
-      "Microsoft GS Wavetable Synth 0"
+    "midi_inputs": [
+      "USB-Midi 0"
     ],
-    "rom_usb_4c4a_8057_identified": false,
-    "no_usb_mode_switch_requested": true
+    "midi_outputs": [
+      "Microsoft GS Wavetable Synth 0",
+      "USB-Midi 1"
+    ],
+    "stock_usb_vid_pid": "4c4a:c755",
+    "preset_equal_reads": 2,
+    "preset_sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+    "presets_equal_to_initial_backup": true
+  },
+  "usb_rom_diagnostics": {
+    "evidence": "research/mini-hardware-rom.json",
+    "physical_ram_execution_verified": true,
+    "primitive_dsp_cases": 8,
+    "reader_jedec_hex": "eb6014",
+    "reader_reported_flash_bytes": 1048576,
+    "full_flash_backup": true,
+    "return_to_stock_verified": true,
+    "presets_unchanged": true,
+    "firmware_write_performed": false,
+    "verified_stock_returns": 2
+  },
+  "complete_flash_backup": {
+    "bytes": 1048576,
+    "equal_complete_reads": 2,
+    "sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180",
+    "artifacts": [
+      "artifacts/my-mini-flash/20261115-paced-resume/flash-a.bin",
+      "artifacts/my-mini-flash/20261115-paced-resume/flash-b.bin"
+    ],
+    "physical_regions": [
+      0,
+      1048576
+    ],
+    "raw_package_extent_identical_to_stock": true,
+    "all_decoded_firmware_crcs_valid": true,
+    "evidence": "research/mini-hardware-rom.json"
   }
 }

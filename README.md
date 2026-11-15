@@ -41,9 +41,16 @@ scelto per questo progetto indipendente.
 - Compositore dell'area applicativa MINI da ELF: directory e configurazione
   originali conservate, vecchio codice rimosso e CRC verificati. Produce un
   artefatto sperimentale offline, non un aggiornamento FWSC installabile.
-- Identità del pedale letta via BLE: `TANK MINI_009`. Backup dei preset acquisito
-  con due letture identiche; backup totale e prova di HyperRig sul dispositivo
-  ancora da eseguire.
+- **Primo codice HyperRig eseguito sul MINI in RAM:** 8 casi delle primitive
+  DSP superati, con CRC uguali ai kernel originali interpretati. Il probe ROM
+  ha restituito un record verificato; motore A2 completo e audio restano da provare.
+- Identità `TANK MINI_009` confermata via BLE e USB. Ritorno dalla ROM al
+  firmware stock verificato due volte, con preset invariati. **Backup completo
+  della NOR: due copie da 1 MiB identiche**, CRC validi e firmware corrispondente
+  allo stock 009. Nessuna scrittura flash effettuata; recupero da un'applicazione
+  corrotta ancora da verificare.
+- Handover del bootloader, varianti applicative interamente in flash e selettore
+  dei clock ricostruiti. Candidato codec OSR64 preparato, ancora da provare sul pedale.
 - Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
   APK Android `com.hyperrig.app`, ricostruito e firmato localmente. Sono in
   `build/hyperrig/`: **queste copie G/B non sono il port MINI**.
@@ -61,6 +68,11 @@ originale. Il dettaglio delle ricerche è in [source-audit.json](research/source
 - [Percorso audio del MINI e confronto con il G](docs/TANK_MINI_AUDIO.md).
 - [Driver audio MINI e conversione dei campioni](docs/MINI_AUDIO_DRIVER.md).
 - [Startup, linker e programmi diagnostici MINI](docs/MINI_BOOT.md).
+- [Prima esecuzione fisica del probe ROM HyperRig](docs/MINI_ROM_PROBE.md).
+- [Protocollo ROM, verifica RAM e ritorno allo stock](docs/MINI_RECOVERY.md).
+- [Lettura completa della NOR e verifica del backup](docs/MINI_FLASH_BACKUP.md).
+- [Handover stock e varianti XIP](docs/MINI_HANDOVER.md).
+- [Clock e vincoli di campionamento del MINI](docs/MINI_CLOCK.md).
 - [Validazione ELF e contenitore stock MINI](docs/MINI_IMAGE.md).
 - [Watchdog, clock e cache MINI](docs/MINI_PLATFORM.md).
 - [Bus codec, mute e vincoli del campionamento](docs/MINI_CODEC.md).

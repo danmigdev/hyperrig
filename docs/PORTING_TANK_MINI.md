@@ -12,7 +12,7 @@ non di etichettare un'immagine G/B come compatibile.
 3. Protocollo USB-MIDI del MINI, distinto dal CDC testuale di UltraRig.
 4. Lettura e interpretazione dei suoi 21 preset da 92 byte.
 5. CLI per identificare il modello prima delle letture e confrontare due
-   copie della banca preset; il backup sul nostro esemplare non è riuscito.
+   copie della banca preset; backup BLE e USB riusciti sul nostro esemplare.
 6. Header del SDK AC79 per studiare GPIO, registri ADC e DAC.
 7. Modello A2-Lite in Float64 eseguibile sul PC e confrontato con il convertitore
    originale. È un riferimento numerico, non il runtime intero del firmware.
@@ -37,6 +37,16 @@ non di etichettare un'immagine G/B come compatibile.
 14. Area applicativa MINI sperimentale composta dall'ELF con CRC verificati,
     preservando directory delle regioni e `cfg_tool.bin`. Non è un FWSC.
 15. Backup preset BLE di 1.942 byte acquisito e validato con due letture uguali.
+16. **Probe HyperRig eseguito in RAM sul MINI:** 8 vettori delle primitive DSP
+    superati con record e CRC verificati. Vedere [MINI_ROM_PROBE.md](MINI_ROM_PROBE.md).
+17. Ingresso USB nella ROM e ritorno al firmware stock verificati, con preset
+    invariati. Lettore NOR PIO avviato, JEDEC `EB6014`, capacità dichiarata 1 MiB.
+    Backup completo acquisito con due letture da 1 MiB identiche, CRC validi
+    e prefisso firmware uguale allo stock 009. [MINI_RECOVERY.md](MINI_RECOVERY.md),
+    [MINI_FLASH_BACKUP.md](MINI_FLASH_BACKUP.md).
+18. Handover del bootloader e varianti XIP, selettore clock e candidato codec
+    OSR64 ricostruiti offline. [MINI_HANDOVER.md](MINI_HANDOVER.md),
+    [MINI_CLOCK.md](MINI_CLOCK.md). La frequenza audio fisica non è stata misurata.
 
 ## Tre ingressi candidati per i footswitch
 
@@ -70,16 +80,16 @@ non inventa valori per questi campi.
 | Storage | BTIF del MINI occupa l'area chiamata OTP nelle immagini G/B |
 | DSP | Percorso capture a tre canali/int32 completo nel dominio verificato; restano frontend, altri profili, IR ed effetti |
 | Clock e prestazioni | 396 MHz nei metadati UltraRig non certifica il MINI |
-| Installazione | Identità, flash ID, backup totale e recupero del singolo esemplare da validare |
+| Installazione | Identità, JEDEC e backup totale verificati; recupero da flash corrotta e installazione ancora da validare |
 
 Il formato A2L1 e il convertitore NAM sono già disponibili per lo sviluppo,
 ma questo non rende il firmware stock MINI capace di eseguire il motore UltraRig.
 
 ## Sequenza concreta di completamento
 
-1. Completare l'identificazione della revisione/flash e acquisire una lettura
-   completa verificata dell'esemplare. L'identità BLE e il pacchetto ufficiale
-   scaricato non soddisfano questo requisito.
+1. Usare il backup integrale verificato dell'esemplare per progettare e provare
+   il recupero indipendente dall'applicazione. Il ritorno dalla RAM allo stock
+   integro è riuscito; una flash cancellata o corrotta non è stata ripristinata.
 2. Completare GPIO, tasti e mute; verificare sul dispositivo il percorso ALNK
    ricostruito e la sequenza di clock/codec a 48 kHz.
 3. Ricostruire le funzioni DSP necessarie o implementarle con sorgenti disponibili;

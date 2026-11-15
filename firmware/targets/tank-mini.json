@@ -7,7 +7,7 @@
   "chip": "AC791N",
   "isa": "pi32v2",
   "flash_bytes_from_package_header": 1044480,
-  "physical_flash_capacity_verified_on_device": false,
+  "physical_flash_capacity_verified_on_device": true,
   "application_area": [
     16384,
     532480
@@ -104,22 +104,31 @@
     "evidence": "research/native-verification.json",
     "a2l_fast_path_complete": true,
     "a2l_supported_profile": "three channels, 32-bit activations, bounded fast-path shifts",
-    "original_scheduler_emulated": false
+    "original_scheduler_emulated": false,
+    "primitive_vectors_on_device_verified": true,
+    "hardware_execution_scope": "8 primitive vectors passed on MINI; full A2 capture engine not yet executed on target",
+    "primitive_hardware_evidence": "research/mini-hardware-rom.json"
   },
   "device_observation": {
     "identity": "TANK MINI_009",
-    "transport": "vendor BLE AE40/AE41/AE42",
+    "transport": "vendor BLE and USB-MIDI; USB ROM for RAM diagnostics",
     "identity_reply_received": true,
-    "complete_flash_backup_acquired": false,
+    "complete_flash_backup_acquired": true,
     "preset_backup_acquired": true,
     "evidence": "research/hardware-observation.json",
-    "usb_mini_identified": false,
+    "usb_mini_identified": true,
     "preset_backup_bytes": 1942,
     "preset_equal_reads": 2,
-    "preset_sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427"
+    "preset_sha256": "c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427",
+    "rom_usb_identified": true,
+    "ram_probe_executed": true,
+    "stock_return_verified": true,
+    "presets_unchanged_after_ram_probe": true,
+    "complete_flash_backup_bytes": 1048576,
+    "complete_flash_backup_sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180"
   },
   "boot": {
-    "status": "three-diagnostic-ELFs-linked-startup-simulated",
+    "status": "RAM ROM probe physically verified; application startup remains offline",
     "entry": 33554720,
     "usable_ram_static_range": [
       29360128,
@@ -130,12 +139,14 @@
       29884416
     ],
     "stock_handover_verified_on_device": false,
-    "target_c_executed": false,
+    "target_c_executed": true,
     "flashable": false,
     "evidence": [
       "research/mini-boot.json",
       "research/mini-image.json",
-      "research/mini-package.json"
+      "research/mini-package.json",
+      "research/mini-handover.json",
+      "research/mini-hardware-rom.json"
     ],
     "host_dsp_audio_selftest": {
       "passed": true,
@@ -150,7 +161,9 @@
       "physical_irq_entered": false,
       "mmio_called": false,
       "buffers": "private RAM; no DMA peripheral"
-    }
+    },
+    "target_c_scope": "ROM RAM primitive probe only; application ELF not booted",
+    "application_target_c_executed": false
   },
   "audio_driver": {
     "status": "compiled-offline-tested",
@@ -198,5 +211,30 @@
     "installable_update_package": false,
     "boot_verified_on_device": false,
     "evidence": "research/mini-package.json"
+  },
+  "physical_flash_capacity_evidence": {
+    "jedec_hex": "eb6014",
+    "reported_bytes": 1048576,
+    "evidence": "research/mini-hardware-rom.json"
+  },
+  "rom_diagnostics": {
+    "ram_probe_verified": true,
+    "dsp_cases": 8,
+    "selftest_runs": 2,
+    "record_sha256": "7d66f4cc58ba174919f493ab505af478932a12a4706a5cc4288a65e0dd7de585",
+    "read_only_nor_plugin_verified": true,
+    "full_flash_backup_verified": true,
+    "return_to_stock_verified": true,
+    "corrupt_application_recovery_verified": false,
+    "evidence": "research/mini-hardware-rom.json",
+    "verified_stock_returns": 2
+  },
+  "clock_analysis": {
+    "evidence": "research/mini-clock.json",
+    "stock_instruction_comparisons": 6080,
+    "sdk_48000_pll_bit_already_set_by_stock_boot": true,
+    "nominal_fast_family_hz": 48076.92307692308,
+    "physical_rate_measured": false,
+    "osr64_candidate_applied": false
   }
 }

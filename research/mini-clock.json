@@ -1,0 +1,297 @@
+{
+  "stock_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+  "stock_application_sha256": "bc46bc604d42067449cdf5b8200f8ebbafd668b722243e3db1b033289e49bdea",
+  "boot_clock_evidence": {
+    "boot_payload_sha256": "fcaf033c5e10526353ecb11279a7556ac8645026d370c0267912cb4bfa7c7e4d",
+    "boot_payload_bytes": 14368,
+    "configuration_sha256": "0952afd96f533dd0fba72a8fab9cb4a4336f55424a1a89eecb13ff8a51a0eff0",
+    "configuration_crc16": "70d5",
+    "profile": {
+      "OSC": "OSC0",
+      "OSC_FREQ": 24000000,
+      "SYS_CLK": 360000000,
+      "HSB_DIV": 1,
+      "LSB_DIV": 2,
+      "ENABLE_SDRAM": 0
+    },
+    "main_pll_fragment_start": "0x01c042fc",
+    "main_pll_fragment_end_exclusive": "0x01c04398",
+    "main_pll_fragment_sha256": "6ef5c06a916263500577075f00d877f1bdf79a47d245ff8826f00b8a00eb4809",
+    "pll_con1_or_mask": "0x3f503000",
+    "pll_con0_enable_mask": "0x3",
+    "special_skip_branch_matches_mini_profile": false,
+    "analog_lock_verified": false
+  },
+  "native_fragments": {
+    "alnk_rate": {
+      "start": "0x2006e36",
+      "end_exclusive": "0x2006f70",
+      "sha256": "cf6afcbefd78315871b70e5bcd08f7287f332fcbb27910991fe5b58ab6941c22"
+    },
+    "codec_record_init": {
+      "start": "0x2006dec",
+      "end_exclusive": "0x2006e08",
+      "sha256": "50729046b217153434b78cab1815f9238a056f18ee785039235d78cf06fe04f5"
+    },
+    "audio_startup": {
+      "start": "0x200717c",
+      "end_exclusive": "0x2007244",
+      "sha256": "4bd4ffed26e0cd452a2607be3a1c5076d69374ec4869f5b09c1ca98670378085"
+    },
+    "initial_gain_countdown": {
+      "start": "0x1c03ade",
+      "end_exclusive": "0x1c03b18",
+      "sha256": "880f90133adf2d726f573486802010e0d369964e7ac698168c0dc6a033c691d2"
+    },
+    "clock_read_decode": {
+      "start": "0x2002d76",
+      "end_exclusive": "0x2002ec8",
+      "sha256": "de019096c01b9801c0e23aea0ffdfe5d993bd25028277fd9a1d63590f896a9d3"
+    },
+    "clock_post_decode": {
+      "start": "0x2002ec8",
+      "end_exclusive": "0x20030b0",
+      "sha256": "8616f02bf66e3d79125542cbfbe3defd1afd10f3b9d7db2735bd07865aa09da3"
+    },
+    "power_path_clock_switch": {
+      "start": "0x1c03296",
+      "end_exclusive": "0x1c033ec",
+      "sha256": "dcedc1b1414e69648600257f9bc6c76706fdf3c66e5f7dcfa12f082c9cd45751"
+    }
+  },
+  "codec_table_sha256": "1032b05743d45148e6aecd2bdc6834ab54804d154362c545d9949a49461c415d",
+  "direct_call_scan": {
+    "0x2006dce": [
+      "0x2006dfe"
+    ],
+    "0x2006dec": [
+      "0x2007188"
+    ],
+    "0x2006e58": [
+      "0x2007086"
+    ],
+    "0x1c03296": [
+      "0x200b8d8",
+      "0x201f51a"
+    ]
+  },
+  "absolute_codec_pointer_scan": {
+    "0x2006dce": [],
+    "0x2006dec": []
+  },
+  "call_scan_limit": "halfword-aligned call candidates; no reachability proof; excludes computed calls and alternate bus implementations",
+  "stock_osr_records": {
+    "0x3": "0x0",
+    "0x2b": "0x3",
+    "0x2c": "0x81"
+  },
+  "initial_gain_countdown_samples": 44118,
+  "countdown_step_samples": 64,
+  "initial_gain_hold_blocks": 690,
+  "countdown_is_sample_rate_configuration": false,
+  "pa9_startup": {
+    "before_audio": 0,
+    "after_audio": 1,
+    "each_spin_iterations": 100000,
+    "electrical_function_verified": false,
+    "duration_calibrated": false
+  },
+  "sdk_archive": {
+    "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/cpu/wl82/liba/cpu.a",
+    "sha256": "00cea21d3c8d99487821f2c2b203f2c5a04b2cc8421bc05e9b875a0d70e42c62",
+    "members_sha256": {
+      "iis.c.o": "798414d475c2220db53a9de36fd7146dfbeda4fb57f23f07556a78fe3d38efa8",
+      "clock.c.o": "8a5f9b26dec4ddada3673567745dbf70b003d8a2706905efe4c2a0bed44dadb4"
+    }
+  },
+  "sdk_48000_path": {
+    "pll_con1_address": "0x119a4",
+    "or_mask": "0x02000000",
+    "clk_con2_address": "0x10014",
+    "alnk0_select_or": "0x100"
+  },
+  "nominal_divider_scope": "clock_hw.h CLOCK_HAL_DEBUG/#if0 enum names, corroborated by stock countdown; not measured",
+  "sdk_code_linked_into_hyperrig": false,
+  "stock_rate_instruction_cases": 6080,
+  "stock_rate_instruction_count": 106,
+  "stock_rate_result_sha256": "5f298973bf86bea493b92657014748763a39b78ea9cfe22b385eac96aa660af4",
+  "stock_rate_write_traces": {
+    "44100": [
+      [
+        "0x10014",
+        4,
+        0
+      ],
+      [
+        "0x12e0c",
+        1,
+        3
+      ],
+      [
+        "0x12e0c",
+        1,
+        131
+      ]
+    ],
+    "48000": [
+      [
+        "0x10014",
+        4,
+        1280
+      ],
+      [
+        "0x12e0c",
+        1,
+        3
+      ],
+      [
+        "0x12e0c",
+        1,
+        131
+      ]
+    ]
+  },
+  "measurement_integer_cases": 2000,
+  "synthetic_measurement_examples": [
+    {
+      "label": 44100,
+      "lrck_millihz": 44100000,
+      "bclk_hz": 2822400,
+      "mclk_hz": 11289600,
+      "uncertainty_ppm": 5,
+      "tolerance_ppm": 100,
+      "flags": 112,
+      "synthetic_not_measured": true
+    },
+    {
+      "label": 44100,
+      "lrck_millihz": 44117647,
+      "bclk_hz": 2823529,
+      "mclk_hz": 11294118,
+      "uncertainty_ppm": 5,
+      "tolerance_ppm": 100,
+      "flags": 176,
+      "synthetic_not_measured": true
+    },
+    {
+      "label": 48000,
+      "lrck_millihz": 48000000,
+      "bclk_hz": 3072000,
+      "mclk_hz": 12288000,
+      "uncertainty_ppm": 5,
+      "tolerance_ppm": 100,
+      "flags": 112,
+      "synthetic_not_measured": true
+    },
+    {
+      "label": 48000,
+      "lrck_millihz": 48076923,
+      "bclk_hz": 3076923,
+      "mclk_hz": 12307692,
+      "uncertainty_ppm": 5,
+      "tolerance_ppm": 100,
+      "flags": 176,
+      "synthetic_not_measured": true
+    }
+  ],
+  "sanitizers": {
+    "sanitizer_cases": 66560,
+    "hardware_accessed": false,
+    "asan": true,
+    "ubsan": true
+  },
+  "target_object": {
+    "path": "build/mini-clock/hyperrig_mini_clock.pi32v2.o",
+    "sha256": "5c3746e696bbbab4f1dc068a78e2b81dacac30b515647d913fecfbe2be383c12",
+    "undefined_symbols": [],
+    "allocated_section_bytes": {
+      ".text": 1152
+    }
+  },
+  "conditional_nominal_rates": [
+    {
+      "label": 44100,
+      "mclk_numerator": 192000000,
+      "mclk_denominator": 17,
+      "lrck_denominator": 4352,
+      "fs_hz": 44117.64705882353,
+      "difference_ppm": 400.16006402576744
+    },
+    {
+      "label": 48000,
+      "mclk_numerator": 160000000,
+      "mclk_denominator": 13,
+      "lrck_denominator": 3328,
+      "fs_hz": 48076.92307692308,
+      "difference_ppm": 1602.5641025640969
+    }
+  ],
+  "codec_findings": {
+    "physical_identity_verified": false,
+    "matching_maps": [
+      "NAU88L21",
+      "NAU88L21C common fields"
+    ],
+    "both_maps_stock_adc_osr": 256,
+    "both_maps_stock_dac_osr": 256,
+    "manufacturer_document_contradiction": "features advertise 48k/OSR256; clock section limits converters to 6.144MHz",
+    "later_osr_write_identified": false,
+    "candidate_osr64_records_from_stock_shadow": [
+      [
+        3,
+        160
+      ],
+      [
+        43,
+        1
+      ],
+      [
+        44,
+        128
+      ]
+    ],
+    "candidate_transmitted": false,
+    "osr128_at_conditional_48k_converter_hz": 6153846.153846154,
+    "osr64_at_conditional_48k_converter_hz": 3076923.076923077
+  },
+  "primary_documentary_sources": [
+    {
+      "url": "https://github.com/amitv87/fw-AC79_AIoT_SDK/blob/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/clock_hw.h",
+      "scope": "nominal ALNK divider names in disabled/debug declarations; not active source proof"
+    },
+    {
+      "url": "https://www.nuvoton.com/export/resource-files/en-us--DS_NAU88L21_DataSheet_EN_Rev3.7.pdf",
+      "scope": "features 48k/OSR256 and clock-section 6.144MHz ceiling disagree"
+    },
+    {
+      "url": "https://www.nuvoton.com/export/resource-files/en-us--DS_NAU88L21C_DataSheet_EN_Rev1.3.pdf",
+      "scope": "pp22,59,60: ADC3=256, DAC1=256; ADC1/DAC0=64; p30 converter ceiling"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.12/sound/soc/codecs/nau8821.c",
+      "sha256": "91320977f58094a8dafe1ff31364324349c935f95ce6c5bc898b8f92ebd99309",
+      "scope": "Nuvoton-authored OSR/divider mapping and conservative 6.144MHz limit"
+    }
+  ],
+  "sources_sha256": {
+    "firmware/mini/clock/hyperrig_mini_clock.c": "bed4e2635cbe05a1b641dca1892f0e1b4142dbfede02b7419568ba6d9c513d40",
+    "firmware/mini/clock/hyperrig_mini_clock.h": "1ae4f54be9fdc672a791250d49e5b2a46d125cd8045d410b182b654499474d95",
+    "firmware/mini/clock/test_clock.c": "a1235e7df4a5551d8fd158e4e513dfa6daf40f835cab1a990d694436688ffc6d"
+  },
+  "verifier_sha256": "bd0d4f7b9ae001b4d29a8db1d408cec70601671788a7636005d4572259351d9e",
+  "hardware_executed": false,
+  "clock_or_sfc_written": false,
+  "codec_written": false,
+  "frequency_measured": false,
+  "physical_codec_identified": false,
+  "audio_readiness_granted": false,
+  "limitations": [
+    "nominal divider model needs actual clock measurement",
+    "register bits do not prove PLL lock or waveform quality",
+    "countdown corroborates approximately 44118Hz but is not a frequency measurement",
+    "codec identity/revision and datasheet inconsistency unresolved",
+    "PA9 electrical function and delay durations unknown",
+    "candidate OSR64 alters filtering/latency and is never applied automatically",
+    "48k bypass needs IRQ, DMA, clock and analog-path validation before A2"
+  ]
+}

@@ -1,0 +1,294 @@
+{
+  "target": "TANK MINI_009",
+  "offline_only": true,
+  "stock": {
+    "package_sha256": "13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209",
+    "fwsc_chip": "AC791N",
+    "mini_usb_recovery_command_static_support": true,
+    "sysex_hex": "f02224357df7",
+    "usb_midi_event_packets_hex": "04f0222407357df7",
+    "transport": "USB MIDI cable0, two event packets received together (8 bytes)",
+    "guard_model_positive_cases": 1,
+    "guard_model_negative_cases": 73,
+    "marker_source": "0x0203fd2a",
+    "marker_destination": "0x01c7fd80",
+    "marker_bytes": 16,
+    "reset_path": "P33 bitfield helper(0xa0,4,1,1), then wait loop; never executed by this tool",
+    "ble_route_to_usb_handler_verified": false,
+    "fragments": {
+      "usb_endpoint_callback_registration": {
+        "start": "0x2007ed0",
+        "end_exclusive": "0x2007ede",
+        "sha256": "ba46ca95e01615b4a09e83f0dcaa0f8f9e134d8984068d7f3a3f7a75950c205d",
+        "instructions": [
+          "r2 = 33589348",
+          "r1 = 4",
+          "r0 = r4",
+          "call -1648"
+        ]
+      },
+      "usb_read_dispatch": {
+        "start": "0x2008864",
+        "end_exclusive": "0x2008880",
+        "sha256": "616c2c74da696014906a6e934e64b15e7f2f91a8b09783a117230d563a3d5d88",
+        "instructions": [
+          "[--sp] = {rets, r4}",
+          "sp += -64",
+          "r4 = sp + 0",
+          "r0 = 0",
+          "r1 = 4",
+          "r3 = 64",
+          "r2 = r4",
+          "call -1184",
+          "r1 = r0",
+          "r0 = r4",
+          "call -248",
+          "sp += 64",
+          "{pc, r4} = [sp++]"
+        ]
+      },
+      "usb_command_guard": {
+        "start": "0x200869a",
+        "end_exclusive": "0x20086de",
+        "sha256": "cbb4997e16d3a21e87f87caca22bd89705abfb843cc2da1942df9c23c90cf370",
+        "instructions": [
+          "[--sp] = {rets, r10-r4}",
+          "r4 = r1",
+          "r5 = r0",
+          "r8 = 33798700",
+          "if (r4 != 8) goto 52",
+          "r1 = 29405124",
+          "r2 = 6",
+          "call 179340",
+          "if (r0 != 0) goto 36",
+          "r0 = b[r5+7] (u)",
+          "if (r0 != 247) goto 30",
+          "r0 = b[r5+6] (u)",
+          "if (r0 == 127) goto 12",
+          "if (r0 != 125) goto 20",
+          "call -4219806",
+          "goto -2",
+          "r1 = 1",
+          "r2 = 148",
+          "r0 = r8",
+          "call 243950"
+        ]
+      },
+      "memcmp": {
+        "start": "0x2034344",
+        "end_exclusive": "0x203437c",
+        "sha256": "2629c8815cb3dadd1bab28610ac721b12a5b55978ed3cb68a8190d30da6a8c23",
+        "instructions": [
+          "[--sp] = {rets, r4}",
+          "if (r2 < 4) goto 10",
+          "r3 = r1 | r0",
+          "if ((r3 & 0x3) == 0) goto 22",
+          "if (r2 == 0) goto 34",
+          "r3 = b[r1++=1] (u)",
+          "r4 = b[r0++=1] (u)",
+          "r2 += -1",
+          "if (r4 == r3) goto -12",
+          "r0 = r4 - r3",
+          "{pc, r4} = [sp++]",
+          "r2 += -4",
+          "r1 += 4",
+          "r0 += 4",
+          "if (r2 < 4) goto -26",
+          "r3 = [r1+0]",
+          "r4 = [r0+0]",
+          "if (r4 == r3) goto -18",
+          "goto -36",
+          "r0 = 0",
+          "{pc, r4} = [sp++]"
+        ]
+      },
+      "retained_marker_and_reset": {
+        "start": "0x1c02332",
+        "end_exclusive": "0x1c02382",
+        "sha256": "164d6f9f4aba920dbf1dd500efc36f5cda82b335cf58ec20f1833b716dfb27ac",
+        "instructions": [
+          "cli",
+          "r0 = cnum",
+          "r0 = r0 << 2",
+          "r1 = 29415128",
+          "r0 += r1",
+          "[r0+0] += 1",
+          "csync",
+          "r0 = 29415120",
+          "r1 = cnum",
+          "r2 = [r0+r1<<2]",
+          "r3 = r2 + 1",
+          "[r0+r1<<2] = r3",
+          "if (r2 != 0) goto 2",
+          "lockset",
+          "csync",
+          "r0 = 29883776",
+          "r1 = 33815850",
+          "rep 4 16 {",
+          "r2 = b[r1++=1] (u)",
+          "b[r0++=1] = r2",
+          "r0 = 160",
+          "r1 = 4",
+          "r2 = 1",
+          "r3 = 1",
+          "call -4852",
+          "goto -2"
+        ]
+      },
+      "p33_bitfield_helper": {
+        "start": "0x1c0108c",
+        "end_exclusive": "0x1c010b4",
+        "sha256": "901cbd808affe979ae15046bbb169b5d0909fe10cf8bbccc89ed5c3e9de38e09",
+        "instructions": [
+          "[--sp] = {rets, r6-r4}",
+          "r4 = r0",
+          "r0 = -1",
+          "r0 <<= r2",
+          "r2 = r3 & ~r0",
+          "r5 = r2 << r1",
+          "r0 = ~r0",
+          "r6 = r0 << r1",
+          "r0 = r4",
+          "call -156",
+          "r0 = r0 & ~r6",
+          "r0 |= r5",
+          "r1 = r0.b0 (u)",
+          "r0 = r4",
+          "call -100",
+          "{pc, r6-r4} = [sp++]"
+        ]
+      }
+    },
+    "stock_updater": {
+      "fwsc_name": "ota.bin",
+      "bytes": 19958,
+      "sha256": "9c62bbdfd55f6527a3cffe43abc16c621d0900a8ff47685240abb1ee596eb66e",
+      "inner_entry": {
+        "name": "usb_hid_ota.bin",
+        "header_offset": 0,
+        "offset": 32,
+        "size": 19926,
+        "flags": 65,
+        "reserved": 0,
+        "index": 0,
+        "data_crc": 5263
+      },
+      "is_rom_callback_plugin": false,
+      "reason": "staged usb_hid_ota.bin container, not the normal-call flat ROM plugin ABI"
+    }
+  },
+  "reference_rom_abi": {
+    "entry": "first byte of flat image; normal C call, r0 points to params",
+    "parameters": {
+      "0": "send callback",
+      "4": "receive callback",
+      "8": "handler-pointer slot address"
+    },
+    "handler": "int handler(CBW31 *r0, answer16 *r1): 1 handled, 0 defer to ROM",
+    "cbw": {
+      "signature_le": "0x43425355",
+      "tag_offset": 4,
+      "transfer_count_le_offset": 8,
+      "flags_offset": 12,
+      "cdb_length_offset": 14,
+      "cdb_offset": 15
+    },
+    "callbacks": "pointer,length in r0/r1; chunks<=512; short/error return semantics unknown",
+    "response": "plugin sends reply using supplied answer buffer; ROM sends CSW",
+    "slots": [
+      "0x1c20000",
+      "0x1c28000"
+    ],
+    "slot_bytes": 32768,
+    "known_source_devices": [
+      "FM-1",
+      "SMK-37"
+    ],
+    "mini_observed": false,
+    "preserve": [
+      "ROM stack",
+      "clocks",
+      "interrupt state",
+      "USB service",
+      "other RAM"
+    ],
+    "initialize": "own BSS/state explicitly; no application startup or global RAM clearing"
+  },
+  "protocol": {
+    "upload": "FB06, <=512 bytes transformed independently, CRC16/XMODEM over transmitted data",
+    "jump": "FB08 entryBE32,targetBE16=1; IN16; ambiguous result must not trigger blind retry",
+    "plugin_read": "FD61, addressBE32,lengthBE16; own slot only; <=4096 command, <=512 callback",
+    "rom_read": "FD07 returns jl_crc_cipher transformed bytes; keyffffffff restarts per command; full plain comparison required",
+    "rom_read_evidence": "installer reboot lines2786/2791 and all10 captured MINI block hashes on2026-11-15",
+    "flash_read": "FD05 requires initialized flash loader; RAM/SFC reads are not a raw flash backup"
+  },
+  "host_library": {
+    "profiles": [
+      "ram-probe",
+      "nor-reader"
+    ],
+    "ram": [
+      "upload_only",
+      "verify_upload_only",
+      "verify_and_start",
+      "upload_and_start",
+      "read"
+    ],
+    "existing_upload_requires": "explicit known_uploaded_unstarted history, full fresh FD07 readback before jump",
+    "nor": {
+      "identity": "FC70/HYRN",
+      "explicit_init": "FC72",
+      "read": "FD71 physical1MiB/max512B",
+      "status": "FC73 after each read; sticky error or incorrect byte count discards data"
+    },
+    "reset": "start_reset_once binds manifest+ELF+flat, rereads RAM, one FB08, no HYR1; USB normal identity must be verified separately",
+    "all_device_io_requires_explicit_api_construction": true,
+    "cli_opens_device": false
+  },
+  "windows": {
+    "vid": "4c4a",
+    "pid": "8057",
+    "inquiry_vendor": "WL82",
+    "inquiry_product": "UBOOT1.00",
+    "transport": "SCSI_PASS_THROUGH_DIRECT via IOCTL0x4d014 on identified PhysicalDrive; no manual CBW",
+    "descriptor_error43_is_usable_transport": false
+  },
+  "vectors": {
+    "plain_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "transformed_hex": "2fa583cf4ac45bede6abbcad2587daf81395f9f2db9f9c03a5ffc707cce55824",
+    "write_cdb_hex": "fb0601c200000020008529ffffffffff",
+    "jump_cdb_hex": "fb0801c200000001ffffffffffffffff",
+    "read_cdb_hex": "fd6101c200000010ffffffffffffffff"
+  },
+  "mflasher_primary_sources": {
+    "commit": "8fbece7348d758ac284325eed455781675ac95ff",
+    "source_sha256": {
+      "src/jl.rs": "874f589c2c49f30dae7ec25213d2c45d6ce40d349e5e66e174654a451b4de3ca",
+      "src/usb.rs": "efc429fc1c957ba3d99fc3b1d0bd5cca76284c2c6300162389572f995bb0403f",
+      "src/scsi.rs": "aaa28596096bb3aea5c0b00cd3af0eb794b0fb6c5964113ac78c34c824a50e9a",
+      "src/midi.rs": "9e1dd61fdf59ea9c65d5d7d2f98319fef703bc7aa435c01e082e6d6ad4a05980"
+    },
+    "url": "https://github.com/jvitkauskas/m-flasher/tree/8fbece7348d758ac284325eed455781675ac95ff",
+    "read_only_source_inspection": true,
+    "binaries_used": false,
+    "mini_in_midi_allowlist": false
+  },
+  "local_source_sha256": {
+    "upstream/m-bootloader/docs/SPEC.md": "d86ae060b1db368a8aba421e21903b3b9c7517943bcf2667ee170a5a96a2863c",
+    "upstream/m-bootloader/src/loader_target.c": "6d8cacc6c300a106b0f6ed175005782eb17a2d74d70084e9a6ee7b43c4ad6fec",
+    "upstream/pi32v2-isa/tools/hwtest/runner.S": "466637b7ea681b6df9d03553b8986694f0bd1c5ee1c0ffbf6eb30d9748f45fa3",
+    "upstream/pi32v2-isa/tools/hwtest/README.md": "3ad70700f22d9f60939d2e259b195065ec79169f0d8a8d4ee02df6cdf5966062",
+    "recovered/installer/jltech.uboot.dis.txt": "6eca3ec9eb66913b932fa7cdf2b44e6ecc7950750b85080e78b8b2f966af19e2",
+    "recovered/installer/jltech.cipher.dis.txt": "98c1a03b7e7ca1111022533ffc1f017bdf07cc027ef03d582dc4e61aa756ba11",
+    "recovered/installer/tankg_install.dis.txt": "1a2a94103d3d0ee80deefd6820c2d602d41b9e20a6e101855b94a6100bbc170c",
+    "recovered/installer/tankg_install.constants.json": "64830ea5e0abc40b05327220564c0bc98d69af3e888155660d2b324621a27e55"
+  },
+  "tool_sha256": "5c5151f88e8bea40c4631f299407fd82bb7ead5bd2609f13ada138692fab55d8",
+  "device_command_sent": false,
+  "mode_changed": false,
+  "hardware_execution_verified": false,
+  "raw_flash_backup_acquired": false,
+  "recovery_after_corrupt_flash_verified": false,
+  "boot_ready": false,
+  "flashable": false
+}
