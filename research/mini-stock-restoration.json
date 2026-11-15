@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "explicit-stock-app-restoration-implementation",
+  "scope": "Restore only the pinned same-unit stock application from an immutable fresh full-NOR preimage",
+  "source_sha256": {
+    "tools/restore_mini_stock.py": "aca0b65237210b5cd30a9363e66d72cc22dc5f77c0cb0ef8ddceed0653f22324",
+    "tests/test_restore_mini_stock.py": "93880e8fcc758f4d56cd6b27734c92e9741454a700f198c72a6908b2b45e46a6",
+    "tools/install_mini_app.py": "4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f"
+  },
+  "operational_writer_manifest": {
+    "path": "research/mini-app-writer-operational.json",
+    "sha256": "214cbfc3c14d4bc2eff83a9e88ae8b9f9232c211c685e81af9059b182f05031c"
+  },
+  "stock_full_backup_sha256": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180",
+  "stock_application_sha256": "11ade0ace13c48d1b633669ee8beae71d98a269690f1ffb93eb2c6ce14922eda",
+  "physical_write_allowlist": [16384, 532480],
+  "sector_bytes": 4096,
+  "page_bytes": 256,
+  "fresh_full_read_required_bytes": 1048576,
+  "hardware_read_origin_or_freshness_attested_by_planner": false,
+  "same_unit_checks": ["Pinned complete stock backup SHA256", "SPL and boot configuration byte equality", "key_mac byte equality"],
+  "partial_or_unbootable_app_accepted": true,
+  "preserved_external_regions": ["factory_SPL_and_boot_configuration", "VM including OTA", "BTIF", "USR", "key_mac"],
+  "external_differences_reported": true,
+  "external_region_writes_available": false,
+  "header_sector_last": true,
+  "header_page_last": true,
+  "initial_header_invalidation": false,
+  "power_loss_atomicity_proven": false,
+  "stock_OTA_fallback_qualified": false,
+  "immutable_application_preimage": true,
+  "canonical_plan_hash_bound_to_session": true,
+  "journal_required_before_commands": true,
+  "automatic_retry": false,
+  "automatic_reset": false,
+  "CLI_device_access_available": false,
+  "session_reuses_bounded_operational_installer": true,
+  "independent_full_readback_validator_available": true,
+  "historical_preset_restoration_claimed": false,
+  "tests": {
+    "command": "python -B -X utf8 -m unittest tests.test_restore_mini_stock -q",
+    "passed": 16,
+    "fake_NOR_only": true,
+    "hardware_transport_used": false,
+    "coverage": ["Unknown or incomplete application", "Zero-change stock app", "Sector bounds and header-last pages", "Changed VM/OTA/BTIF/USR preserved", "Foreign SPL/key_mac rejected", "Expected full-read hash and extent", "Immutable preimage", "Exclusive durable plan retention", "Full readback including every external region", "Missing or stale app preimage rejected before WREN", "Lost erase/program replies terminate without retry", "Journal failure before mutation and after verified application", "Default CLI performs no device access"]
+  },
+  "real_local_artifacts_checked": true,
+  "real_local_fixture": "Pinned historical stock backup, zero changed app sectors; not claimed as a fresh hardware read",
+  "hardware_restoration_executed": false,
+  "stock_boot_verified_by_this_work": false
+}

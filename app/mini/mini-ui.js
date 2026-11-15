@@ -7,11 +7,14 @@
   const commandNames = {FXP: "parametri effetti", FXE: "bypass effetti", PLOAD: "caricamento preset",
     PSAVE: "salvataggio preset", PDEL: "eliminazione preset", SNAP: "selezione scene", SNAPSAVE: "salvataggio scene"};
   const scoped = Object.keys(p.command_capabilities || {}).map(c => commandNames[c]).filter(Boolean);
+  const families = Object.entries(p.family_capabilities || {}).filter(([tr]) => HyperRigMini.familyWriteEnabled(tr))
+    .map(([tr, commands]) => (tr === "usb-cdc" ? "USB" : "Bluetooth") + ": " + commands.map(c => commandNames[c]).filter(Boolean).join(", "));
   const note = document.createElement("div");
   note.id = "miniPortStatus"; note.setAttribute("role", "status");
   note.style.cssText = "padding:10px 18px;background:#172b30;color:#e3edef;border-bottom:1px solid #45636b;font-size:13px";
   note.textContent = demo ? "HyperRig MINI · Demo offline: nessun pedale collegato, nessun audio dal pedale." :
     p.capabilities.read ? "HyperRig MINI · Profilo " + p.firmware_version + (HyperRigMini.fullWriteEnabled() ? " · controlli abilitati per questa build." :
+      families.length ? " · " + families.join(". ") + "." :
       HyperRigMini.scopedWriteEnabled() ? " · via USB, prove limitate a " + scoped.join(", ") + ". Sono ammessi solo i preset e i valori già verificati." : " · verifica del port: sole letture, modifiche bloccate.") :
     "HyperRig MINI · Port in sviluppo. Collegamento limitato a PING finché non viene associata una build. Puoi provare l’editor in Demo.";
   const top = document.querySelector(".top"); if (top) top.after(note);

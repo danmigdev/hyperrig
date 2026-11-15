@@ -33,6 +33,10 @@ SCOPED_COMMANDS = {
     "SNAPSAVE": r"SNAPSAVE [0-3]",
 }
 PERSISTENT_COMMANDS = {"PSAVE", "PDEL", "SNAPSAVE"}
+FAMILY_COMMANDS = {"FXP", "FXE", "PLOAD", "PSAVE", "SNAP", "SNAPSAVE"}
+FAMILY_TRANSPORTS = {"usb-cdc", "ble-nus"}
+PROTOCOL_BINDING = {"dialect": "ultrarig-ascii-v1", "editor_sha256": SOURCE_SHA,
+                    "original_firmware_sha256": FW_SHA}
 
 
 def sha(data: bytes) -> str:
@@ -154,6 +158,7 @@ def load_profile(manifest: Path | None = None) -> dict:
     if caps.get("panel"):
         raise ValueError("three-switch panel mapping is not implemented/validated yet")
     grants, command_validation = load_command_validation(spec, caps)
+    families, family_validation, qualifications = load_family_validation(spec, caps)
     if caps.get("write"):
         proof = spec.get("write_validation") or {}
         proof_path = (ROOT / proof.get("path", "")).resolve()
@@ -168,9 +173,156 @@ def load_profile(manifest: Path | None = None) -> dict:
     profile.update(firmware_version=version, image_sha256=spec["image_sha256"],
                    hardware_verified=spec.get("hardware_verified") is True,
                    write_validation=copy.deepcopy(spec.get("write_validation")),
-                   command_capabilities=grants, command_validation=command_validation)
+                   command_capabilities=grants, command_validation=command_validation,
+                   family_capabilities=families, family_validation=family_validation,
+                   family_qualification=qualifications)
     profile["capabilities"].update(read=caps.get("read", False), write=caps.get("write", False))
     return profile
+
+
+def family_grants(value: dict) -> dict:
+    """Protocol families, independently qualified for each transport."""
+    if not isinstance(value, dict) or set(value) - FAMILY_TRANSPORTS:
+        raise ValueError("unsupported family transport")
+    result = {}
+    for transport, commands in value.items():
+        if (not isinstance(commands, list) or not commands
+                or any(not isinstance(c, str) or c not in FAMILY_COMMANDS for c in commands)
+                or len(set(commands)) != len(commands)):
+            raise ValueError("families require distinct supported command names")
+        result[transport] = sorted(commands)
+    return dict(sorted(result.items()))
+
+
+def representative_trace(data: bytes, evidence: dict) -> dict:
+    """Bind reviewed observations to retained TX, raw RX and completion records.
+
+    This checks consistency, not physical authenticity or device image hashes.
+    The frozen mutation client emits this journal for actual and mock sessions.
+    """
+    rows = [json.loads(line) for line in data.decode("utf-8").splitlines() if line]
+    if (not rows or any(not isinstance(row, dict) for row in rows)
+            or any(row.get("hardware_executed") is False for row in rows)
+            or not any(row.get("hardware_executed") is True
+                       and row.get("expected_image_sha256") == evidence["image_sha256"] for row in rows)):
+        raise ValueError("family trace lacks matching hardware execution provenance")
+    sessions, active = {}, None
+    for row in rows:
+        event = row.get("event")
+        if event == "tx":
+            command = row.get("command")
+            if not isinstance(command, str) or row.get("hex") != (command + "\n").encode().hex():
+                raise ValueError("family trace TX differs from its command")
+            if active is not None:
+                raise ValueError("family trace contains an unfinished exchange")
+            active = {"command": command, "raw": bytearray(), "lines": []}
+        elif event in ("rx", "line", "complete"):
+            if active is None or row.get("command") != active["command"]:
+                raise ValueError("family trace reply has no matching request")
+            if event == "rx":
+                chunk = bytes.fromhex(row.get("hex", ""))
+                if len(chunk) != row.get("bytes"):
+                    raise ValueError("family trace RX length differs")
+                active["raw"].extend(chunk)
+            elif event == "line":
+                if not isinstance(row.get("line"), str):
+                    raise ValueError("family trace line is malformed")
+                active["lines"].append(row["line"])
+            else:
+                raw_lines = bytes(active["raw"]).decode("utf-8").replace("\r\n", "\n").split("\n")[:-1]
+                if row.get("lines") != len(active["lines"]) or any(line not in raw_lines for line in active["lines"]):
+                    raise ValueError("family trace completion lacks the claimed raw replies")
+                sessions.setdefault(active["command"], []).append(active["lines"])
+                active = None
+        elif event in ("failed", "mutation_failed", "port_close_failed"):
+            raise ValueError("failed family trace cannot qualify operational commands")
+    if active is not None:
+        raise ValueError("family trace ends during an exchange")
+    pong = re.compile(r"^PONG " + re.escape(evidence["firmware_version"]) + r" \w{3} [ \d]\d \d{4}(?: |$)", re.ASCII)
+    if not any(any(pong.match(line) for line in lines) for lines in sessions.get("PING", [])):
+        raise ValueError("family trace lacks the matching firmware identity")
+    return sessions
+
+
+def load_family_validation(spec: dict, caps: dict) -> tuple[dict, dict, dict]:
+    grants = family_grants(spec.get("family_capabilities", {}))
+    references = spec.get("family_validation", {})
+    if not isinstance(references, dict) or set(references) != set(grants):
+        raise ValueError("family validation must cover exactly the requested transports")
+    if not grants:
+        return {}, {}, {}
+    if caps.get("write") or spec.get("hardware_verified") is not True or caps.get("read") is not True:
+        raise ValueError("families require a hardware verified read profile without blanket write")
+    qualifications = {}
+    for transport, commands in grants.items():
+        proofs = references[transport]
+        if not isinstance(proofs, list) or not proofs or len(proofs) > 32:
+            raise ValueError("each transport needs bounded representative reports")
+        exercised, qualified = {}, set()
+        for proof in proofs:
+            evidence = json.loads(local_evidence(proof, "family validation"))
+            if (not isinstance(evidence, dict) or evidence.get("schema") != 1
+                    or evidence.get("kind") != "mini-app-command-validation"
+                    or evidence.get("evidence_model") != "representative-families-v1"
+                    or evidence.get("target") != "tank-mini"
+                    or evidence.get("firmware_version") != spec["firmware_version"]
+                    or evidence.get("image_sha256") != spec["image_sha256"]
+                    or evidence.get("hardware_executed") is not True
+                    or evidence.get("transport") != transport
+                    or evidence.get("editor_source_sha256") != SOURCE_SHA
+                    or evidence.get("protocol_binding") != PROTOCOL_BINDING
+                    or evidence.get("restoration_verified") is not True
+                    or evidence.get("every_value_physically_tested") is not False
+                    or evidence.get("simulated_requests") != {}):
+                raise ValueError("representative evidence does not match image/protocol/transport/restoration")
+            supported = evidence.get("supported_by_protocol")
+            if (not isinstance(supported, list) or any(not isinstance(c, str) for c in supported)
+                    or len(set(supported)) != len(supported) or set(supported) - FAMILY_COMMANDS):
+                raise ValueError("unsupported protocol family declaration")
+            actual = command_grants(evidence.get("physically_exercised_requests", {}))
+            if not actual or set(actual) - set(supported):
+                raise ValueError("representative report has no exercised supported family")
+            sessions = representative_trace(local_evidence(evidence.get("trace"), "family trace"), evidence)
+            backup = json.loads(local_evidence(evidence.get("backup"), "family state backup"))
+            if (not isinstance(backup, dict) or backup.get("kind") != "mini-app-live-state-backup"
+                    or backup.get("image_sha256") != spec["image_sha256"]
+                    or backup.get("firmware_version") != spec["firmware_version"]
+                    or backup.get("transport") != transport or backup.get("hardware_executed") is not True):
+                raise ValueError("family backup differs from the executed trial")
+            observations = evidence.get("representative_observations")
+            if not isinstance(observations, list) or any(not isinstance(o, dict) for o in observations):
+                raise ValueError("representative observations are missing")
+            for command, requests in actual.items():
+                for request in requests:
+                    found = [o for o in observations if o.get("request") == request
+                             and o.get("ack_verified") is True and o.get("readback_verified") is True
+                             and re.fullmatch(r"[a-f0-9]{64}", str(o.get("state_sha256", "")))
+                             and any(o.get("ack") in lines for lines in sessions.get(request, []))]
+                    if command in PERSISTENT_COMMANDS:
+                        found = [o for o in found if o.get("persistence_readback_verified") is True]
+                    if not found:
+                        raise ValueError("exercised request lacks ACK/readback and a matching complete trace")
+                    exercised.setdefault(command, set()).add(request)
+                qualified.add(command)
+            if {"PSAVE", "SNAPSAVE"} & set(actual):
+                trial = evidence.get("trial", {})
+                if (not isinstance(trial, dict) or trial.get("roundtrip_passed") is not True
+                        or trial.get("persistence_readback_verified") is not True
+                        or trial.get("snapshot_persistence_readback_verified") is not True
+                        or trial.get("temporary_slot_deleted") is not True):
+                    raise ValueError("persistent family needs the complete reload/scene/cleanup trial")
+                local_evidence(evidence.get("bank_backup"), "persistent family bank backup")
+        if set(commands) - qualified:
+            raise ValueError("requested family has no representative physical roundtrip on this transport")
+        qualifications[transport] = {
+            "supported_by_protocol": sorted(FAMILY_COMMANDS),
+            "enabled_families": commands,
+            "physically_exercised_requests": {c: sorted(v) for c, v in sorted(exercised.items())},
+            "every_value_physically_tested": False,
+            "protocol_binding": copy.deepcopy(PROTOCOL_BINDING),
+            "image_hash_attested_by_device": False,
+        }
+    return grants, copy.deepcopy(references), qualifications
 
 
 def derive_html(source: str, profile: dict) -> tuple[str, list[dict]]:
@@ -202,6 +354,13 @@ def derive_html(source: str, profile: dict) -> tuple[str, list[dict]]:
     replace('new BroadcastChannel("tankg-port")', 'new BroadcastChannel("hyperrig-mini-port")', "separate MINI tab ownership")
     replace('  cmd(line, until, timeout = 1500) {',
             '  cmd(line, until, timeout = 1500) {\n    if (!DEMO) { const gate = HyperRigMini.commandPolicy(line, this.tr === SerialTransport ? "usb-cdc" : "ble-nus"); if (!gate.allowed) {\n      Log.ev("mini_command_blocked", { command: String(line).split(" ")[0], reason: gate.reason });\n      return Promise.resolve(["ERR MINI_APP " + gate.reason]);\n    } }', "command capabilities before queue or write")
+    replace('      const t0 = performance.now();',
+            '      if (!DEMO) { const gate = HyperRigMini.commandPolicy(line, this.tr === SerialTransport ? "usb-cdc" : "ble-nus");\n'
+            '        if (!gate.allowed) { resolve(["ERR MINI_APP " + gate.reason]); return; } }\n'
+            '      const t0 = performance.now();', "recheck current context when queued command starts")
+    replace('        gdDone(gd, lines);',
+            '        if (!DEMO) HyperRigMini.observeReply(line, lines, to, this.tr === SerialTransport ? "usb-cdc" : "ble-nus");\n'
+            '        gdDone(gd, lines);', "observe complete replies for family command bounds")
     replace('  S.connected = true; S.connAt = Date.now(); autoRe = null; ctlReleased = false; Tabs.busy = false; S.firstUse = false;',
             '  const miniIdentity = HyperRigMini.acceptPong(pong, Pedal.tr === SerialTransport ? "usb-cdc" : "ble-nus");\n  if (!miniIdentity.ok) { toast(miniIdentity.reason, "err"); await Pedal.disconnect(); return new Error(miniIdentity.reason); }\n  S.connected = true; S.connAt = Date.now(); autoRe = null; ctlReleased = false; Tabs.busy = false; S.firstUse = false;', "verify MINI before first query or mutation")
     replace('function onDisconnected(e) {', 'function onDisconnected(e) {\n  HyperRigMini.resetIdentity();', "clear session capability on disconnect")
@@ -372,6 +531,13 @@ def build(output: Path, manifest: Path | None = None, report: Path | None = None
                                    "scope": "exact request strings, no wildcard/prefix/range expansion",
                                    "hardware_validation_required": True, "enabled_by_default": False,
                                    "snapshot_context": "SNAP/SNAPSAVE and FXP/FXE act on current firmware state; wire grants are not a board-state lock"},
+              "family_mutations": {"supported_by_protocol": sorted(FAMILY_COMMANDS),
+                                   "transports": sorted(FAMILY_TRANSPORTS), "enabled_by_default": False,
+                                   "qualification": "representative physical roundtrips bound to image/version/protocol/transport",
+                                   "runtime_bounds": "complete observed FXT/FXS/PLIST/SNAPS plus canonical command syntax",
+                                   "every_value_physically_tested": False,
+                                   "state_is_atomic_or_locked": False,
+                                   "persistent_save_flow": "PSAVE plus SNAPSAVE; all-scene save/export also require other unqualified commands"},
               "command_names": sorted({c["command"] for c in calls if c["command"]}),
               "dynamic_call_site_count": sum(c["dynamic"] for c in calls),
               "inventory_scope": "All textual Pedal.cmd call sites; unresolved JS expressions are retained, not inferred as resolved commands.",
