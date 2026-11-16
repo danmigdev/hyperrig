@@ -69,6 +69,12 @@ records and protocol identifiers are preserved; see [AGENTS.md](AGENTS.md).
 
 ## Development and reverse engineering
 
+Current priority: [reverse engineering for backports](docs/REVERSE_ROADMAP.md).
+The [switch transition core](docs/CONTROL_RECONSTRUCTION.md) now has a portable
+C reconstruction with 15,520 comparisons against original instructions, separate
+from the existing DSP reconstruction. It is a development component, not a new
+installed firmware or a qualification of physical controls.
+
 The repository includes parsers for SFC/JLFS/FWSC and A2L1, extracted-protocol
 analysis, binary port builders, reconstructed C components, tests, board
 profiles, and hardware investigation records.

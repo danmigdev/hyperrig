@@ -3,6 +3,12 @@
 Research started on 15 November 2026. Conclusions concern the hash-identified
 artifacts, not every commercially available hardware revision.
 
+Current development order is maintained in the
+[reverse engineering roadmap](REVERSE_ROADMAP.md). Newer bounded C results are
+documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md) and
+[switch transition reconstruction](CONTROL_RECONSTRUCTION.md); the investigation
+notes below retain the context of the original analysis.
+
 ## Samples and sources found
 
 Official repository: [manuaguirre9/ultrarig](https://github.com/manuaguirre9/ultrarig).

@@ -1,6 +1,6 @@
 # HyperRig goal
 
-Explicit user requirements, updated on 15 November 2026.
+Explicit user requirements, updated on 16 November 2026.
 
 HyperRig is the port of the UltraRig firmware to TANK MINI, together with its
 adapted applications. The final firmware replaces the stock MINI firmware.
@@ -72,6 +72,20 @@ banks and the MINI v4 label. See [MINI_V4_EDITOR.md](MINI_V4_EDITOR.md).
 The qualified v3 bundle is preserved.
 See [MINI_ONE_SWITCH_UPGRADE.md](MINI_ONE_SWITCH_UPGRADE.md).
 
+## Current priority: reverse engineering for backports
+
+The user prioritizes reconstructing firmware source and module contracts before
+further installer feature work, to make future backports easier to integrate.
+The sequence is controls/action dispatch, protocol and persistence, remaining
+audio/DSP integration, and incremental source integration into the MINI port.
+See the [reverse engineering roadmap](REVERSE_ROADMAP.md).
+
+The first new control milestone reconstructs the switch transition function and
+immediate-action policy in C, with instruction-level comparisons and a byte
+binding to the published MINI v4. The action executor and timer worker remain
+separate work. This does not modify the installed/released firmware or enable
+unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md).
+
 ## Implementation decisions
 
 The complete candidate uses the UltraRig G application as its base. Changes
@@ -84,8 +98,9 @@ The final app retains the UltraRig protocol. The MINI target is identified by
 `tankm_fw`; the stock MINI MIDI protocol remains a diagnostic and access tool
 for the original firmware during development.
 
-Work proceeds with parallel agents. The result is declared complete only after
-checks on the pedal and the app, with any remaining reverse-engineering
+Work proceeds through bounded, reproducible reconstructions with explicit
+dependencies and verification domains. Product behavior is declared complete
+only after checks on the pedal and the app, with remaining reverse-engineering
 limitations stated explicitly.
 
 ## Selected recovery method and the user's Raspberry Pi
