@@ -1,0 +1,330 @@
+{
+  "schema": 1,
+  "kind": "mini-pc-limit-port-offline",
+  "inputs": {
+    "installed_image": {
+      "path": "build/hyperrig-mini-audio-v2/hyperrig-mini.app-area.bin",
+      "sha256": "3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff"
+    },
+    "physical_app_proof": {
+      "path": "build/mini-desktop-real-03/connected-proof.json",
+      "sha256": "96f5300a17b3d5cb18741c34857d7dda63a30edaf3a7222ee7ca615d8214ded2"
+    },
+    "SDK_debug": {
+      "path": "build/mini-cdc-analysis/sdk-debug.c",
+      "sha256": "92d7927fb423e933f8f20ab51d6727d3944954cfd56037a044e4e4d3f48f789a",
+      "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/cpu/wl82/debug.c"
+    }
+  },
+  "diagnosis": {
+    "cpu": 0,
+    "DBG_MSG": 4096,
+    "EMU_MSG": 0,
+    "SDK_cause": "c0_pc_limit_err_r",
+    "RETI": 34040494,
+    "RETS": 33575850,
+    "other_core_PC": 29378032,
+    "crash_age_boots": 1,
+    "old_flash_high": 33908608,
+    "shim_entry": 34040492,
+    "entry_instructions": [
+      {
+        "address": 34040492,
+        "size": 2,
+        "id": "push.rets",
+        "fields": {},
+        "text": "[--sp] = rets",
+        "bytes": "1004"
+      },
+      {
+        "address": 34040494,
+        "size": 6,
+        "id": "li.u32",
+        "fields": {
+          "r": 2,
+          "n": 33560700
+        },
+        "text": "r2 = 33560700",
+        "bytes": "c2ff7c180002"
+      },
+      {
+        "address": 34040500,
+        "size": 2,
+        "id": "li.u8",
+        "fields": {
+          "r": 0,
+          "n": 37
+        },
+        "text": "r0 = 37",
+        "bytes": "4825"
+      },
+      {
+        "address": 34040502,
+        "size": 2,
+        "id": "li.u8",
+        "fields": {
+          "r": 1,
+          "n": 1
+        },
+        "text": "r1 = 1",
+        "bytes": "4121"
+      }
+    ],
+    "original_setup": {
+      "cpu": 1,
+      "exit": 33556128,
+      "writes": [
+        {
+          "instruction": 33556092,
+          "address": 32432712,
+          "value": 4294967295
+        },
+        {
+          "instruction": 33556100,
+          "address": 32433024,
+          "value": 33908608
+        },
+        {
+          "instruction": 33556108,
+          "address": 32433028,
+          "value": 33554720
+        },
+        {
+          "instruction": 33556110,
+          "address": 32432712,
+          "value": 4294967295
+        },
+        {
+          "instruction": 33556118,
+          "address": 32433032,
+          "value": 29487240
+        },
+        {
+          "instruction": 33556126,
+          "address": 32433036,
+          "value": 29360128
+        }
+      ],
+      "visited": [
+        33556076,
+        33556080,
+        33556084,
+        33556086,
+        33556088,
+        33556092,
+        33556094,
+        33556100,
+        33556102,
+        33556108,
+        33556110,
+        33556112,
+        33556118,
+        33556120,
+        33556126
+      ],
+      "PC_limits": {
+        "32433024": 33908608,
+        "32433028": 33554720,
+        "32433032": 29487240,
+        "32433036": 29360128
+      }
+    },
+    "codec_GPIO_call_reached_in_this_trace": false,
+    "conclusion": "Observed CPU0 PC-limit exception on entry to appended code.",
+    "limitation": "Exception delivery can be delayed; RETI is a saved PC, not proof of exact last retired instruction."
+  },
+  "literal_consumers": [
+    {
+      "instruction": 33554872,
+      "literal": 33554874,
+      "role": "original RAM copy source",
+      "patch": false
+    },
+    {
+      "instruction": 33554908,
+      "literal": 33554910,
+      "role": "original RAM copy source",
+      "patch": false
+    },
+    {
+      "instruction": 33556094,
+      "literal": 33556096,
+      "role": "shared PC_LIMIT0_H initialized by CPU1",
+      "patch": true
+    }
+  ],
+  "patch": {
+    "name": "mini_appended_flash_pc_limit",
+    "cpu_address": 33556094,
+    "area_offset": 1662,
+    "physical_address": 18046,
+    "bytes": 6,
+    "before_hex": "c1ff80670502",
+    "after_hex": "c1fff2740702",
+    "rationale": "Extend the shared flash execution range through the exact appended app/guard end. Preserve the original RAM-copy source, RAM execution range and all debug enables."
+  },
+  "future_end_rule": "ENTRY + final JLFS app.bin size, including all appended code and entry guard",
+  "decoded_original_setup": [
+    {
+      "cpu": 0,
+      "exit": 33556168,
+      "writes": [],
+      "visited": [
+        33556076,
+        33556080,
+        33556084
+      ],
+      "PC_limits": {}
+    },
+    {
+      "cpu": 1,
+      "exit": 33556128,
+      "writes": [
+        {
+          "instruction": 33556092,
+          "address": 32432712,
+          "value": 4294967295
+        },
+        {
+          "instruction": 33556100,
+          "address": 32433024,
+          "value": 33908608
+        },
+        {
+          "instruction": 33556108,
+          "address": 32433028,
+          "value": 33554720
+        },
+        {
+          "instruction": 33556110,
+          "address": 32432712,
+          "value": 4294967295
+        },
+        {
+          "instruction": 33556118,
+          "address": 32433032,
+          "value": 29487240
+        },
+        {
+          "instruction": 33556126,
+          "address": 32433036,
+          "value": 29360128
+        }
+      ],
+      "visited": [
+        33556076,
+        33556080,
+        33556084,
+        33556086,
+        33556088,
+        33556092,
+        33556094,
+        33556100,
+        33556102,
+        33556108,
+        33556110,
+        33556112,
+        33556118,
+        33556120,
+        33556126
+      ],
+      "PC_limits": {
+        "32433024": 33908608,
+        "32433028": 33554720,
+        "32433032": 29487240,
+        "32433036": 29360128
+      }
+    }
+  ],
+  "decoded_patched_setup": [
+    {
+      "cpu": 0,
+      "exit": 33556168,
+      "writes": [],
+      "visited": [
+        33556076,
+        33556080,
+        33556084
+      ],
+      "PC_limits": {}
+    },
+    {
+      "cpu": 1,
+      "exit": 33556128,
+      "writes": [
+        {
+          "instruction": 33556092,
+          "address": 32432712,
+          "value": 4294967295
+        },
+        {
+          "instruction": 33556100,
+          "address": 32433024,
+          "value": 34043122
+        },
+        {
+          "instruction": 33556108,
+          "address": 32433028,
+          "value": 33554720
+        },
+        {
+          "instruction": 33556110,
+          "address": 32432712,
+          "value": 4294967295
+        },
+        {
+          "instruction": 33556118,
+          "address": 32433032,
+          "value": 29487240
+        },
+        {
+          "instruction": 33556126,
+          "address": 32433036,
+          "value": 29360128
+        }
+      ],
+      "visited": [
+        33556076,
+        33556080,
+        33556084,
+        33556086,
+        33556088,
+        33556092,
+        33556094,
+        33556100,
+        33556102,
+        33556108,
+        33556110,
+        33556112,
+        33556118,
+        33556120,
+        33556126
+      ],
+      "PC_limits": {
+        "32433024": 34043122,
+        "32433028": 33554720,
+        "32433032": 29487240,
+        "32433036": 29360128
+      }
+    }
+  ],
+  "only_changed_register": 32433024,
+  "callers": {
+    "CPU0": 33558982,
+    "CPU1": 33557222,
+    "debug_init": 33556008
+  },
+  "protection_enabled_after_entry_guard": true,
+  "new_image_emitted": false,
+  "device_io": false,
+  "new_image_hardware_tested": false,
+  "audio_verified": false,
+  "source_sha256": {
+    "tools/audit_mini_pc_limit.py": "c30ba06cd4cc33df14b69040f24224b559b8ca7361bdc0c2e8ea8b3b9b9d2a03",
+    "firmware/mini/pc_limit_port/patches.py": "d3b1c7ebb21342d27673cd54494a8fb50e528dd6e046ff9d7ee3961e0fe7d5b3",
+    "tests/test_mini_pc_limit.py": "79109c576a39f90aa67ad7189a5e8717ec66f4999e960976d90039a8f211c58d",
+    "tools/audit_mini_boot_contract.py": "4819d1dae16f3f19793c2b2c0baec5d2fe372a779f35a749b50cfea8834d54b2",
+    "tools/audit_mini_ultrarig_port.py": "16ff2d1677d1df444a9bd764c233707ff06acf1c348cd41d04a700539311fc6f",
+    "hyperrig/jieli.py": "112309b398056da7ac4e4e8e10525fe7f858afc511f952887c97463e5fbe3620"
+  }
+}

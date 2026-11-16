@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "kind": "mini-webserial-recovery-offline",
+  "hardware_executed": false,
+  "browser_executed": false,
+  "firmware_write": false,
+  "command": "UBOOT",
+  "commands_per_session": [
+    "PING",
+    "UBOOT"
+  ],
+  "max_count_each": 1,
+  "automatic_retry": false,
+  "ROM_verified": false,
+  "tests": {
+    "python": 9,
+    "node_conditions": 61,
+    "result": "PASS",
+    "transport": "fakes only"
+  },
+  "review": {
+    "agent": "mini_image",
+    "method": "read-only source review",
+    "blockers": []
+  },
+  "source_sha256": {
+    "tools/enter_mini_rom_webserial.py": "e8fc546a37ffc1e48c884ad1072f44d27be2443b214b77c1b2d4028f1439b255",
+    "tools/mini_rom_webserial/guard.js": "10afaf75f76fa972cec33f420b43e23aaa05be38c225bed40e8ee683da11b103",
+    "tools/mini_rom_webserial/index.html": "4c5927fadb6bd4095b7d3516d55d8f076c04d644c968ece5c39780083f08221d",
+    "tools/audit_mini_cdc_recovery.py": "7620c649ec1416f08bbf632c0035108eb62c8c4b67069d8752a2697d5e89f8b8",
+    "tests/test_mini_cdc_recovery.py": "ad3bf7bdb34278d06bf74d38742ac16f62177b4e8e0212222359727c253ca43c",
+    "tests/mini_rom_webserial_guard_test.js": "d002d55a771f79f5a5f431a793971267fa10e71c1d40350631efb33ab1c7d17c",
+    "docs/MINI_CDC_RECOVERY.md": "1c85c9b587519dfb6f7ae2b7502848bdeaad203a1c2054a963cf132996edc690",
+    "research/mini-cdc-recovery.json": "dc607de60545004f95770c0afc863d6f9fb8d4229a23d740977fe877fb984fea"
+  }
+}

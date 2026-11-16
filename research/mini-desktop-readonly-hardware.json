@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "kind": "mini-desktop-readonly-hardware-observation",
+  "target": "tank-mini",
+  "transport": "usb-cdc-webserial",
+  "observed_utc": "2026-11-16T00:08:26.876654+00:00",
+  "physical_session": "mini-desktop-real-03",
+  "physical_execution_actor": "root",
+  "evidence": {
+    "connected_proof": {
+      "path": "build/mini-desktop-real-03/connected-proof.json",
+      "sha256": "96f5300a17b3d5cb18741c34857d7dda63a30edaf3a7222ee7ca615d8214ded2"
+    },
+    "native_selection": {
+      "path": "analysis/hardware/mini-desktop-real-03-selection.json",
+      "sha256": "30dca427dc997818aa3888af948ee8df63fd5c4f20111e37f3bbce1c64d4dbba"
+    },
+    "screenshot": {
+      "path": "build/mini-desktop-real-03/connected.png",
+      "sha256": "ee8346b83431ed150c21ed3d0fba9fe60ff07e11f4d69dd90676193b4d199890"
+    }
+  },
+  "input_evidence": {
+    "normal_boot": {
+      "path": "analysis/hardware/mini-first-boot-v10-released-run.json",
+      "sha256": "b18df35377459059ae59ff2ef2def87798510ceda78fe10ef676e57fb4551f49"
+    },
+    "PING": {
+      "path": "analysis/hardware/mini-app-host-open-01.jsonl",
+      "sha256": "4633d9d893cabae8984e29a9b2fc764a340a402c70685205a09e53203cc8533e"
+    },
+    "manifest": {
+      "path": "build/hyperrig-mini-audio-v2/firmware-manifest.json",
+      "sha256": "f119ab571a6cb04c8ca72513b5d18d614e079e756d209ce5794fbaeb4fe77d12"
+    },
+    "installation": {
+      "path": "analysis/hardware/mini-final-install-run.json",
+      "sha256": "9cdd33ac9b0aef7f653ecfd4f7494a26d5878da0a1c34940f0be83feeae0d7f0"
+    }
+  },
+  "source_sha256": {
+    "tools/launch_mini_desktop_readonly.py": "ffe876c4ab1ac0f4ea051056369dc70f124d5ba0a3168dff71aea9bc5425f412",
+    "tools/mini_desktop_readonly_guard.js": "f192b65e1323458f6bc72f761047363337fa56ac4d297d3bb30554f87a569eff",
+    "tools/probe_mini_browser_readonly.py": "82c76d9011a4b393e375fdcfe072c10dc17f8e275e102bd0c78529f2229a0d5a",
+    "tools/verify_mini_browser.py": "2aea89bf6619cdc7bed44e5e2a34f236f8981188d2878ba69e19d600202fe19e",
+    "build/hyperrig-mini-audio-v2/app/web/index.html": "4090b0510aefb6a32faf548b37ea94f8092d7361860de6cc18ded567d1c978bc",
+    "build/hyperrig-mini-audio-v2/app/web/mini-profile.js": "c9a6f31e46154598f22df942e1db432b2a7164c9acfe05523e8c704d5cc9fd55",
+    "build/hyperrig-mini-audio-v2/app/web/mini-ui.js": "42b815af820f0fe411aed1d194c2a8476a91abddf0bbff40d7180f60f42c18fc",
+    "build/hyperrig-mini-audio-v2/app/web/nam2chip.js": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183",
+    "build/hyperrig-mini-audio-v2/app/web/tankmini.html": "13d276d50136f9551cf657dae49fff8f0b4d83f0e75b9b831ddb85edcd92a3c4"
+  },
+  "candidate_image_association_sha256": "3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff",
+  "image_hash_attested_by_device": false,
+  "browser": {
+    "Browser": "Chrome/157.0.8103.52",
+    "Protocol-Version": "1.3",
+    "WebKit-Version": "537.36 (@0985600c06a688b9c669e74afde7dacd5aaed047)"
+  },
+  "native_picker": {
+    "observed_utc": "2026-11-16T00:08:26.4098981Z",
+    "exact_unique_row_verified": true,
+    "no_other_device_selected": true,
+    "selected_row": "Tank-M HyperRig (COM3)",
+    "method": "Windows UIAutomation SelectionItem and Invoke",
+    "browser_pid": 154888,
+    "origin": "http://127.0.0.1:2047"
+  },
+  "CDP_DeviceAccess_serial_prompt_supported_in_observed_run": false,
+  "serial": {
+    "com": "COM3",
+    "vid": 13908,
+    "pid": 20821,
+    "baud": 115200,
+    "requests": 1,
+    "native_opens_completed": 1,
+    "native_closes_completed_at_snapshot": 0,
+    "left_open_at_snapshot": true
+  },
+  "identity": {
+    "target": "tank-mini",
+    "firmware_version": "tankm_fw M5.71 rel ble",
+    "pong": "PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11 safe",
+    "binary_hash_attested_by_device": false
+  },
+  "safe_mode_reported": true,
+  "verified": {
+    "real_editor_loaded": true,
+    "demo_disabled": true,
+    "actual_USB_identity": true,
+    "initial_editor_queries_completed": true,
+    "preset_inventory_read": true,
+    "preset_mutation": false,
+    "UI_edit_roundtrip": false,
+    "analog_audio": false,
+    "BLE": false,
+    "held_footswitch_recovery": false,
+    "cold_power_cycle": false,
+    "stable_normal_audio_boot": false
+  },
+  "initial_query_writes": 25,
+  "initial_response_lines": 302,
+  "initial_queries": {
+    "PING": 1,
+    "BLE": 1,
+    "FXT": 1,
+    "MODEL": 1,
+    "CLIST": 1,
+    "MEM": 1,
+    "FXXO": 1,
+    "LVL": 2,
+    "FXS": 1,
+    "PLIST": 1,
+    "SNAPS": 1,
+    "SNAPNAME": 1,
+    "AMPEQ": 1,
+    "GEQ": 1,
+    "HPF": 1,
+    "SPILL": 1,
+    "GLIDE": 1,
+    "SPUR": 1,
+    "LIM": 1,
+    "STW": 1,
+    "PSTAT": 1,
+    "CRASH": 1,
+    "CLKSTATE": 1,
+    "LIFE": 1
+  },
+  "actual_required_responses": {
+    "PING": [
+      "PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11 safe"
+    ],
+    "MODEL": [
+      "MODEL 'A2' layers=23 channels=3 fused=1 engine=A2L trim=0.0"
+    ],
+    "PLIST": [
+      "PLIST end current=-1"
+    ],
+    "SNAPS": [
+      "SNAPS 0000 current=-1"
+    ]
+  },
+  "parsed_state": {
+    "effect_type_count_in_UI": 37,
+    "FXS": {
+      "blocks": [],
+      "amp": {
+        "present": 1,
+        "on": 1
+      },
+      "mix": [],
+      "xo": []
+    },
+    "PLIST": {
+      "presets": [],
+      "current": -1,
+      "ok": true,
+      "reason": "",
+      "bad": []
+    },
+    "SNAPS": {
+      "present": "0000",
+      "current": -1
+    }
+  },
+  "diagnostics": {
+    "CRASH": [
+      "CRASH EXC cpu=0 dbg=0x1000 emu=0x0 reti=0x2076aae rets=0x20053aa other_pc=0x1c045f0 ago=1",
+      "R0-7 00000000 01c340cc 00000000 00000000 00000000 00000000 00000001 01c26890",
+      "R8-15 01c1f180 00001770 00000000 00000002 00000000 01c1f180 01c26890 02035810",
+      "reti 02076aae rete 00000000 retx 00000000 rets 020053aa psr 00000000 icfg 07010280 usp 01c3cd68 ssp 01c360b8 sp 01c360b8",
+      "DSP A.Y 00000000 A.zc 00000000 B.Y 00000000 B.zc 00000000 e.zc 00000000 e.zc2 00000000 w_cmd 00000000 split 0 hw_to 0 jobs 0",
+      "BUS axi_rd=000003ff axi_wr=000003ff emu0=00000000 emu1=00000000 usp=01c3be60/01c3cf5c wr_lim=00000354 mmu_rid=000003ff mmu_wid=000003ff",
+      "FXA -",
+      "AUD st=6 t=0 id=0 f=000011 m=0 p=0 na=0/0",
+      "ETM c0 02076aac 0200538e 01c04b9a 01c04b78 c1 01c045c4 01c045c4 01c04666 01c04762",
+      "TRAP usp_l 01c3be60 usp_h 01c3cf5c emu0 00000000 emu1 00000000 axi_rd 000003ff axi_wr 000003ff otro_usp 01c7888c otro_pc 01c045ce"
+    ],
+    "CLKSTATE": [
+      "CLKSTATE mhz=360 state=untested why=none target=360 hi=396 safe=1 boot=0 prev=c1e54000 prev_ok=1 ck=c1e54000 cr=e7c01010 best=360 steps=360:ok,372:untested,384:untested,396:untested crash_step=0 bud=18950 lim=154950 base=136000 eng=1"
+    ],
+    "LIFE": [
+      "LIFE v=1 boots=2 exc=1 wdg=0 asrt=0 tst=0 hours=0.2 since=M5.71"
+    ]
+  },
+  "session_history": {
+    "01": "Native serial chooser only: requests1, opens0, no TX/RX; not a firmware WebSerial test.",
+    "02": "Input-hash preflight failure reported by root; no browser or serial open.",
+    "03": "Exact native UIAutomation selection, one real open, actual PONG and initial readonly replies."
+  },
+  "limits": [
+    "Only the stable initial connection snapshot is sealed; active session.json is not hash-pinned.",
+    "Browser guard stores decoded actual RX lines, not USB packets or complete native raw RX bytes.",
+    "PONG associates a version/build with the host-verified candidate; it does not attest the image hash.",
+    "Safe-mode PONG and retained exception report do not prove ordinary audio startup.",
+    "No preset or firmware mutation is present among the25 initial wire writes.",
+    "Native close and subsequent UI edits must be observed separately; this snapshot intentionally retains the open user window."
+  ]
+}

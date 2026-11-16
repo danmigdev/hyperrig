@@ -3,10 +3,11 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato documentato al 15 novembre 2026, 23:32 UTC: applicazione UltraRig completa
-adattata al MINI, scritta e riletta integralmente. Tutte le regioni esterne
-all'applicazione sono invariate. Avvio, audio e connessione dell'app al nuovo
-firmware non sono ancora verificati.** HyperRig
+**Stato documentato al 16 novembre 2026, 00:08 UTC: applicazione UltraRig completa
+adattata al MINI, scritta e riletta integralmente. L'editor desktop comunica
+realmente via USB e legge 37 tipi di effetti e lo stato dei preset. Il firmware
+è in modalità `safe` dopo un'eccezione nel nuovo shim: audio e modifiche dei
+preset restano da verificare.** HyperRig
 è il nome scelto per questo progetto indipendente.
 
 L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
@@ -61,7 +62,8 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   della NOR: due copie da 1 MiB identiche**, CRC validi e firmware corrispondente
   allo stock 009. L'installazione della candidata è completata: una nuova lettura
   indipendente di tutta la NOR conferma l'applicazione esatta e ogni byte esterno
-  invariato. Il pedale resta in ROM in attesa della prova di primo avvio.
+  invariato prima del riavvio. Il pedale ha poi avviato HyperRig e risponde
+  all'editor via USB in modalità `safe`; la NOR non è stata riletta dopo l'avvio.
   Stato e prove in
   [mini-installation-interruptions.json](research/mini-installation-interruptions.json).
 - Handover del bootloader, varianti applicative interamente in flash e selettore
@@ -73,9 +75,19 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   20 patch, shim audio v2 da 2.332 byte e guardia footswitch da 298 byte. Struttura, CRC e confronto inverso
   con l'originale verificati. La base applicativa è UltraRig G; lo stock MINI
   fornisce il riferimento hardware e il backup di ripristino.
-  L'editor MINI è associato all'hash dell'immagine. Avvio e audio sul pedale
-  restano da provare. L'immagine installata da `build/hyperrig-mini-audio-v2/` ha SHA-256
+  L'editor MINI è associato all'hash dell'immagine. Il primo collegamento reale
+  ha completato 25 query con 302 righe ricevute; il PONG identifica
+  `tankm_fw M5.71 rel ble` con suffisso `safe`. Avvio normale e audio restano
+  da completare. Prove e limiti in
+  [MINI_DESKTOP_READONLY_HARDWARE.md](docs/MINI_DESKTOP_READONLY_HARDWARE.md).
+  L'immagine installata da `build/hyperrig-mini-audio-v2/` ha SHA-256
   `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`.
+- Correzione v3 del crash localizzata e ricostruita: il limite PC originale
+  escludeva il codice audio aggiunto. Cambiano 11 byte nel solo settore
+  `0x4000`, inclusi i CRC. Immagine, piano e procedura di aggiornamento
+  verificati offline; **v3 non ancora installata**. La nuova lettura completa
+  conserverà i dati attuali del pedale. Dettagli in
+  [MINI_PC_LIMIT_UPGRADE.md](docs/MINI_PC_LIMIT_UPGRADE.md).
 - Recupero tramite tre footswitch e reset verso ROM verificati in RAM; la guardia
   integrata deve ancora essere eseguita all'accensione. Ricezione, lettura NOR e
   restituzione della pagina dell'installatore verificate sul MINI con tutte le

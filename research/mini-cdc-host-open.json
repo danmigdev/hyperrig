@@ -1,0 +1,499 @@
+{
+  "schema": 1,
+  "kind": "MINI CDC host-open binary audit and failed physical diagnostics",
+  "created_utc": "2026-11-16T00:04:47.555199+00:00",
+  "target": "tank-mini",
+  "transport": "usb-cdc",
+  "candidate": {
+    "path": "build/hyperrig-mini-audio-v2/hyperrig-mini.app-area.bin",
+    "sha256": "3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff",
+    "app_bin_sha256": "f4f62d5dcd08af6cc3edaba2fa2262f21d6247265b9b45436bc59b36358bb703",
+    "expected_version": "tankm_fw M5.71 rel ble",
+    "origin": "complete original UltraRig G application adapted for MINI"
+  },
+  "original": {
+    "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_g_app.bin",
+    "sha256": "2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059",
+    "decoded_area_sha256": "2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334",
+    "app_bin_sha256": "4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e",
+    "assembly": "analysis/firmware/m571_g_app/flash.asm",
+    "assembly_sha256": "7f98d3d4ce393c04e2aeba571a3825a8021969efd54f9f2f1d6a1d879652cffb"
+  },
+  "normal_boot_observation": {
+    "path": "analysis/hardware/mini-first-boot-v10-released-run.json",
+    "sha256": "b18df35377459059ae59ff2ef2def87798510ceda78fe10ef676e57fb4551f49",
+    "application_USB_enumerated": true,
+    "candidate_CDC_absent_before_reset": true,
+    "reset_submitted": true,
+    "buttons_confirmed_by_user": false,
+    "buttons_assumed": "released",
+    "held_button_boot_trial_performed": false,
+    "cold_power_cycle_tested": false,
+    "PONG_verified": false
+  },
+  "conclusion": {
+    "DTR_required_by_original_firmware": true,
+    "DTR_false_disables_application_RX_and_TX_gate": true,
+    "DTR_true_is_necessary_but_not_sufficient": true,
+    "DTR_true_physical_diagnostic_result": "PING write returned full length but no response in3seconds; port close recorded",
+    "actual_DTR_control_request_delivery_observed": false,
+    "CDC_enumeration_proves_control_endpoint_descriptor_response_only": "It does not establish ctl task progress, application RX-pending callback execution, command dispatch, or a working reply endpoint.",
+    "application_communication_verified": false,
+    "audio_verified": false,
+    "future_CDC_probe_default": "Request DTR=true before serial open; RTS is not tested by this control-state handler. Preserve raw trace, single session, and explicit timeout. Do not reinterpret any previous DTR=false timeout as evidence of application-task failure."
+  },
+  "gate": {
+    "object_pointer": "word[0x01C26F00] (global0x01C26890+1648)",
+    "object_static_storage": "0x01C37EE8",
+    "flag_byte": "CDC object +104",
+    "request": "class SET_CONTROL_LINE_STATE bRequest0x22; wValue bit0 DTR",
+    "new_flags_DTR_0": "(old_flags & 0xEC) | 0x11",
+    "new_flags_DTR_1": "old_flags | 0x13",
+    "connected_and_TX_predicate": "(flags & 0x12) == 0x12",
+    "RTS_bit1_of_wValue_used": false,
+    "static_truth_table_cases": 512,
+    "static_truth_table_is_not_target_execution": true
+  },
+  "RX_flow": [
+    "0x0201C480 endpoint initialization registers OUT2 callback0x0201C590.",
+    "0x0201C590 reads CDC object+20 and invokes the application wakeup handler.",
+    "0x0200204A writes that handler pointer; callers0x02002178 and0x02005860 supply0x02002186.",
+    "0x02002186 sets byte[0x01C26890+4]=1 and updates activity time.",
+    "ctl0x02017B74 polls connectivity at0x0201A4AA; generation changes can defer connected status for that loop.",
+    "0x0201A4B8..0x0201A514 processes connection changes and clears partial line/upload state; this is deferred to ctl, not proof from EP0 execution.",
+    "0x0201A55C/0x0201A560 require connected and RX-pending;0x0201A652 drains data via0x02005D84.",
+    "A complete nonempty CR/LF-terminated command reaches0x02014104 from0x0201A604."
+  ],
+  "fragments": {
+    "cdc_control_request_handler": {
+      "cpu_start": "0x0201C4D2",
+      "cpu_end_exclusive": "0x0201C588",
+      "area_offset": 115922,
+      "physical_MINI_start": 132306,
+      "bytes": 182,
+      "identical_in_candidate": true,
+      "original_sha256": "5a4cd9a5d23fee8dc7c643ecbdb29f07f26cf2e9f16be3bac922180e246c1699",
+      "candidate_sha256": "5a4cd9a5d23fee8dc7c643ecbdb29f07f26cf2e9f16be3bac922180e246c1699",
+      "original_hex": "7504041650ee4901bfeafafe1a4072e19f2082f841401b41c2ff006fc20103f80b4403f8274283f83740c1ffb2c501024016bfeae8fe1494d8ec2a0000561b43194250ee0826a1e1203443e1032075e11320352031ea0100351643e1105052ee083652e81f0a51e81d0041204016bfea1cfe049ed8ec2a00004f1b471a46a2e16034a31733e907004227a31702e169004016bfea91fa048441234016bfea05fe4020550441204016bfeafffd52e8f823bfea7dfff795",
+      "candidate_hex": "7504041650ee4901bfeafafe1a4072e19f2082f841401b41c2ff006fc20103f80b4403f8274283f83740c1ffb2c501024016bfeae8fe1494d8ec2a0000561b43194250ee0826a1e1203443e1032075e11320352031ea0100351643e1105052ee083652e81f0a51e81d0041204016bfea1cfe049ed8ec2a00004f1b471a46a2e16034a31733e907004227a31702e169004016bfea91fa048441234016bfea05fe4020550441204016bfeafffd52e8f823bfea7dfff795"
+    },
+    "connected_gate": {
+      "cpu_start": "0x02005C7C",
+      "cpu_end_exclusive": "0x02005C9E",
+      "area_offset": 23676,
+      "physical_MINI_start": 40060,
+      "bytes": 34,
+      "identical_in_candidate": true,
+      "original_sha256": "95ab564ebd1bbbffbd49b866807c1c17cc5531efb73c9141284dd443f052e6e4",
+      "candidate_sha256": "95ab564ebd1bbbffbd49b866807c1c17cc5531efb73c9141284dd443f052e6e4",
+      "original_hex": "40e09c01c1ff9068c201d8ec1a00004750ee080671e1ed00402101f8012440208000",
+      "candidate_hex": "40e09c01c1ff9068c201d8ec1a00004750ee080671e1ed00402101f8012440208000"
+    },
+    "cdc_transmit_gate": {
+      "cpu_start": "0x02006C9C",
+      "cpu_end_exclusive": "0x02006D14",
+      "area_offset": 27804,
+      "physical_MINI_start": 44188,
+      "bytes": 120,
+      "identical_in_candidate": true,
+      "original_sha256": "89d8c9ff43550754c2c0fdee708d9112c358208c3128c5e57bcd078aee077cee",
+      "candidate_sha256": "89d8c9ff43550754c2c0fdee708d9112c358208c3128c5e57bcd078aee077cee",
+      "original_hex": "780442e09c01c8ff9068c201d8ec8a22151606164420124e50ee280670e1ed0080f82824289880ff4c990300402047e09c01041605e91140601d511f31e940005120bfea74ff0049d8ec8a1750ee181671e1ed10401801f8ec25044524ea3f408014bfea64ff7016d8ec8a00c03880ff3c9a030040165804",
+      "candidate_hex": "780442e09c01c8ff9068c201d8ec8a22151606164420124e50ee280670e1ed0080f82824289880ff4c990300402047e09c01041605e91140601d511f31e940005120bfea74ff0049d8ec8a1750ee181671e1ed10401801f8ec25044524ea3f408014bfea64ff7016d8ec8a00c03880ff3c9a030040165804"
+    },
+    "endpoint_initialization": {
+      "cpu_start": "0x0201C480",
+      "cpu_end_exclusive": "0x0201C4D2",
+      "area_offset": 115840,
+      "physical_MINI_start": 132224,
+      "bytes": 82,
+      "identical_in_candidate": true,
+      "original_sha256": "b5c986edf21a89d7521fbe63e0164dc232bd5997eca5b96062402173a0725158",
+      "candidate_sha256": "b5c986edf21a89d7521fbe63e0164dc232bd5997eca5b96062402173a0725158",
+      "original_hex": "750450ee0901bfea24ff0416c5ff006fc201d8ec5a04005740d6036261224220bfea28ffd8ec5a0440d6036141224221bfea20ffc2ff90c5010241224016618140166198550480ff76220200bfea4f22f79f",
+      "candidate_hex": "750450ee0901bfea24ff0416c5ff006fc201d8ec5a04005740d6036261224220bfea28ffd8ec5a0440d6036141224221bfea20ffc2ff90c5010241224016618140166198550480ff76220200bfea4f22f79f"
+    },
+    "endpoint_OUT_dispatch": {
+      "cpu_start": "0x0201C590",
+      "cpu_end_exclusive": "0x0201C5B2",
+      "area_offset": 116112,
+      "physical_MINI_start": 132496,
+      "bytes": 34,
+      "identical_in_candidate": true,
+      "original_sha256": "c278e55109f6d43cea54e3dcd6b9c85f8321024649470848633b33fbe4933c56",
+      "candidate_sha256": "c278e55109f6d43cea54e3dcd6b9c85f8321024649470848633b33fbe4933c56",
+      "original_hex": "1004011650ee1901bfea9bfec2ff006fc201d8ec2a000044026502421016c2000004",
+      "candidate_hex": "1004011650ee1901bfea9bfec2ff006fc201d8ec2a000044026502421016c2000004"
+    },
+    "wakeup_handler_setter": {
+      "cpu_start": "0x0200204A",
+      "cpu_end_exclusive": "0x0200205A",
+      "area_offset": 8266,
+      "physical_MINI_start": 24650,
+      "bytes": 16,
+      "identical_in_candidate": true,
+      "original_sha256": "e29081b35f260dbbf682aabc834c38167fd4626ca3922482bd5648fd5dddcc6f",
+      "candidate_sha256": "e29081b35f260dbbf682aabc834c38167fd4626ca3922482bd5648fd5dddcc6f",
+      "original_hex": "c2ff006fc201d8ec2a00004181658000",
+      "candidate_hex": "c2ff006fc201d8ec2a00004181658000"
+    },
+    "application_RX_pending_callback": {
+      "cpu_start": "0x02002186",
+      "cpu_end_exclusive": "0x020021A2",
+      "area_offset": 8582,
+      "physical_MINI_start": 24966,
+      "bytes": 28,
+      "identical_in_candidate": true,
+      "original_sha256": "753e90725a7db5860e9d100e6e1ffcace1bc3cde5e3aa73ef3529c688d68d21c",
+      "candidate_sha256": "753e90725a7db5860e9d100e6e1ffcace1bc3cde5e3aa73ef3529c688d68d21c",
+      "original_hex": "c0ff9068c20141218944c1ff80f1c1011166e1e10a10d0ec05168000",
+      "candidate_hex": "c0ff9068c20141218944c1ff80f1c1011166e1e10a10d0ec05168000"
+    },
+    "host_open_and_RX_loop": {
+      "cpu_start": "0x0201A496",
+      "cpu_end_exclusive": "0x0201A678",
+      "area_offset": 107670,
+      "physical_MINI_start": 124054,
+      "bytes": 482,
+      "identical_in_candidate": true,
+      "original_sha256": "fdb57baaf30a903c284248fad9111693ecd7c650b9df6ccf48d3fe1745c22a6e",
+      "candidate_sha256": "fdb57baaf30a903c284248fad9111693ecd7c650b9df6ccf48d3fe1745c22a6e",
+      "original_hex": "b516402352eee600bfea195bbfeaef5ad8eceab8bfeae75b041695e8000b4420203900e82d40d0ece59b50eee808804cbfeaea5bd0ece80b004580ff422d0200d0ece99bd0eced9bc0ff80f1c101c4d48f414020044352eee4994021c1ff4468c20141d69840402e4220bfea0644c0ff80f1c1010066e0e10a00d0ece506a43950eee10000484020bfeaa83c50ee0401422100f80108422044e0400150eee30000e80e2052eee320c0ff80f1c1010066e0e10a00d0ece506402e4129bfeadd4350eee400213901f88c0000f88a0052eee4903480f8e8ea006116421680ffb685010040e09c01d8ecea00c03880ffc461020047202484f8e8ea00d8ee000700f8021a80f819140cf826004520d0ece55b52eee85840e01822b4e0e06002e1d8fc41e000026016bfeaaf61bfeab76101166016bfea2c641481d0ece41b452111fc1c8c1a81d0ece52be11842e07c13d8ee1102c5160492d0ece41b014e10e17ce34520d8ee115052eee85852eee6d0bfea7ecdd0ece55b04814520c7215c1604e90470d8ecea0800e8b6b147214de0410144e04001d8ecea28bfea255b82e821b0104040e09c01d8ecea00005b4de00100d8ec086180ffc45f02006016bfea975b041634e940005420c44540e09c01d8ecea00c03880ffdc6002004de0410144e04001",
+      "candidate_hex": "b516402352eee600bfea195bbfeaef5ad8eceab8bfeae75b041695e8000b4420203900e82d40d0ece59b50eee808804cbfeaea5bd0ece80b004580ff422d0200d0ece99bd0eced9bc0ff80f1c101c4d48f414020044352eee4994021c1ff4468c20141d69840402e4220bfea0644c0ff80f1c1010066e0e10a00d0ece506a43950eee10000484020bfeaa83c50ee0401422100f80108422044e0400150eee30000e80e2052eee320c0ff80f1c1010066e0e10a00d0ece506402e4129bfeadd4350eee400213901f88c0000f88a0052eee4903480f8e8ea006116421680ffb685010040e09c01d8ecea00c03880ffc461020047202484f8e8ea00d8ee000700f8021a80f819140cf826004520d0ece55b52eee85840e01822b4e0e06002e1d8fc41e000026016bfeaaf61bfeab76101166016bfea2c641481d0ece41b452111fc1c8c1a81d0ece52be11842e07c13d8ee1102c5160492d0ece41b014e10e17ce34520d8ee115052eee85852eee6d0bfea7ecdd0ece55b04814520c7215c1604e90470d8ecea0800e8b6b147214de0410144e04001d8ecea28bfea255b82e821b0104040e09c01d8ecea00005b4de00100d8ec086180ffc45f02006016bfea975b041634e940005420c44540e09c01d8ecea00c03880ffdc6002004de0410144e04001"
+    }
+  },
+  "instruction_sites": [
+    {
+      "address": "0x0201C4E4",
+      "meaning": "class request type 0x20",
+      "assembly": "0201c4e4  82 f8 41 40        if (r2 != 32) goto 130 ; target 0x0201c56a"
+    },
+    {
+      "address": "0x0201C4F0",
+      "meaning": "request 0x22 SET_CONTROL_LINE_STATE",
+      "assembly": "0201c4f0  03 f8 0b 44        if (r3 == 34) goto 22 ; target 0x0201c50a"
+    },
+    {
+      "address": "0x0201C510",
+      "meaning": "wValue high byte",
+      "assembly": "0201c510  1b 43              r3 = b[r1+3] (u)"
+    },
+    {
+      "address": "0x0201C512",
+      "meaning": "wValue low byte",
+      "assembly": "0201c512  19 42              r1 = b[r1+2] (u)"
+    },
+    {
+      "address": "0x0201C514",
+      "meaning": "old flags at CDC object +104",
+      "assembly": "0201c514  50 ee 08 26        r2 = b[r0+104] (u)"
+    },
+    {
+      "address": "0x0201C51C",
+      "meaning": "DTR-set candidate old flags OR 3",
+      "assembly": "0201c51c  43 e1 03 20        r3 = r2 | 0x3"
+    },
+    {
+      "address": "0x0201C520",
+      "meaning": "DTR-clear candidate old flags AND 0xEC",
+      "assembly": "0201c520  75 e1 13 20        r5 = r2 & 0xFFFFFFEC"
+    },
+    {
+      "address": "0x0201C524",
+      "meaning": "keep receive/config bookkeeping bit0 set",
+      "assembly": "0201c524  35 20              r5 |= 1"
+    },
+    {
+      "address": "0x0201C526",
+      "meaning": "predicate tests wValue bit0 (DTR), not bit1 RTS",
+      "assembly": "0201c526  31 ea 01 00        if ((r1 & 0x1) != 0) {"
+    },
+    {
+      "address": "0x0201C52A",
+      "meaning": "choose DTR-set candidate when bit0 is1",
+      "assembly": "0201c52a  35 16              r5 = r3"
+    },
+    {
+      "address": "0x0201C52C",
+      "meaning": "set configured bit4",
+      "assembly": "0201c52c  43 e1 10 50        r3 = r5 | 0x10"
+    },
+    {
+      "address": "0x0201C530",
+      "meaning": "write updated flags",
+      "assembly": "0201c530  52 ee 08 36        b[r0+104] = r3"
+    },
+    {
+      "address": "0x0201C534",
+      "meaning": "old DTR/connected bit1",
+      "assembly": "0201c534  52 e8 1f 0a        if ((r2 & 2) != 0) goto 62 ; target 0x0201c576"
+    },
+    {
+      "address": "0x0201C538",
+      "meaning": "new DTR bit0",
+      "assembly": "0201c538  51 e8 1d 00        if ((r1 & 1) == 0) goto 58 ; target 0x0201c576"
+    },
+    {
+      "address": "0x0201C57E",
+      "meaning": "old configured bit4",
+      "assembly": "0201c57e  52 e8 f8 23        if ((r2 & 16) != 0) goto -16 ; target 0x0201c572"
+    },
+    {
+      "address": "0x0201C582",
+      "meaning": "initialize endpoints on rising DTR or unconfigured session",
+      "assembly": "0201c582  bf ea 7d ff        call -262 ; target 0x0201c480"
+    },
+    {
+      "address": "0x02005C8C",
+      "meaning": "connected reads object+104",
+      "assembly": "02005c8c  50 ee 08 06        r0 = b[r0+104] (u)"
+    },
+    {
+      "address": "0x02005C90",
+      "meaning": "mask connected bits0x12",
+      "assembly": "02005c90  71 e1 ed 00        r1 = r0 & 0xFFFFFF12"
+    },
+    {
+      "address": "0x02005C96",
+      "meaning": "connected iff masked flags equal0x12",
+      "assembly": "02005c96  01 f8 01 24        if (r1 == 18) goto 2 ; target 0x02005c9c"
+    },
+    {
+      "address": "0x02006CB4",
+      "meaning": "TX reads same flags",
+      "assembly": "02006cb4  50 ee 28 06        r0 = b[r2+104] (u)"
+    },
+    {
+      "address": "0x02006CBC",
+      "meaning": "TX returns without USB write unless masked flags equal0x12",
+      "assembly": "02006cbc  80 f8 28 24        if (r0 != 18) goto 80 ; target 0x02006d10"
+    },
+    {
+      "address": "0x0201C4BE",
+      "meaning": "install OUT2 interrupt dispatch callback",
+      "assembly": "0201c4be  61 81              call -126 ; target 0x0201c442"
+    },
+    {
+      "address": "0x0201C5A8",
+      "meaning": "load application wakeup callback from object+20",
+      "assembly": "0201c5a8  02 65              r2 = [r0+20]"
+    },
+    {
+      "address": "0x0201C5AE",
+      "meaning": "call application wakeup callback",
+      "assembly": "0201c5ae  c2 00              call r2"
+    },
+    {
+      "address": "0x0200218E",
+      "meaning": "set application RX-pending byte",
+      "assembly": "0200218e  89 44              b[r0+4] = r1"
+    },
+    {
+      "address": "0x0201A4B8",
+      "meaning": "control loop detects connected-state transition",
+      "assembly": "0201a4b8  00 e8 2d 40        if (r4 == r0) goto 90 ; target 0x0201a516"
+    },
+    {
+      "address": "0x0201A4BC",
+      "meaning": "clear partial command length",
+      "assembly": "0201a4bc  d0 ec e5 9b        [r14+180] = r9"
+    },
+    {
+      "address": "0x0201A4C6",
+      "meaning": "discard unfinished model upload state",
+      "assembly": "0201a4c6  bf ea ea 5b        call -84012 ; target 0x02005c9e"
+    },
+    {
+      "address": "0x0201A4D0",
+      "meaning": "free pending upload allocation",
+      "assembly": "0201a4d0  80 ff 42 2d 02 00  call 142658 ; target 0x0203d218"
+    },
+    {
+      "address": "0x0201A556",
+      "meaning": "read RX-pending byte",
+      "assembly": "0201a556  50 ee e4 00        r0 = b[r14+4] (u)"
+    },
+    {
+      "address": "0x0201A55C",
+      "meaning": "skip RX when disconnected",
+      "assembly": "0201a55c  01 f8 8c 00        if (r1 == 0) goto 280 ; target 0x0201a678"
+    },
+    {
+      "address": "0x0201A560",
+      "meaning": "skip RX when no pending flag",
+      "assembly": "0201a560  00 f8 8a 00        if (r0 == 0) goto 276 ; target 0x0201a678"
+    },
+    {
+      "address": "0x0201A564",
+      "meaning": "clear pending flag before draining",
+      "assembly": "0201a564  52 ee e4 90        b[r14+4] = r9"
+    },
+    {
+      "address": "0x0201A652",
+      "meaning": "drain CDC bulk OUT",
+      "assembly": "0201a652  bf ea 97 5b        call -84178 ; target 0x02005d84"
+    },
+    {
+      "address": "0x0201A604",
+      "meaning": "dispatch complete newline-delimited command",
+      "assembly": "0201a604  bf ea 7e cd        call -25860 ; target 0x02014104"
+    }
+  ],
+  "physical_diagnostics": [
+    {
+      "path": "analysis/hardware/mini-first-app-v10-ping.jsonl",
+      "sha256": "57c4c207fa1f8f066dce72d12b083ee759197785ca8f6c2cf0234ddefe4996aa",
+      "port": "COM3",
+      "vid": "3654",
+      "pid": "5155",
+      "opened_utc": "2026-11-15T23:50:39.835326+00:00",
+      "closed_utc": "2026-11-15T23:50:40.636838+00:00",
+      "requested_DTR": false,
+      "requested_RTS": false,
+      "control_line_setting_basis": "frozen probe_mini_app.SerialTransport.open sets DTR=false and RTS=false; earlier log did not explicitly include these fields",
+      "physical_control_line_measurement": false,
+      "PING_hex": "50494e470a",
+      "PING_timeout_seconds": 0.7,
+      "error": "response timeout for PING",
+      "received_bytes": 0,
+      "raw_RX_hex": "",
+      "partial_hex": "",
+      "host_write_returned_full_length": true,
+      "host_write_completion_is_not_device_parser_execution": true,
+      "PING_retries": 0,
+      "port_close_recorded": true,
+      "PONG_verified": false,
+      "queries_after_PING_sent": 0
+    },
+    {
+      "path": "analysis/hardware/mini-app-settled-read-01.jsonl",
+      "sha256": "01bc3a22489a4f78112baf76ac09fdb972e3454d768fb50e053f6e4d5fee8417",
+      "port": "COM3",
+      "vid": "3654",
+      "pid": "5155",
+      "opened_utc": "2026-11-15T23:51:25.056616+00:00",
+      "closed_utc": "2026-11-15T23:51:26.123123+00:00",
+      "requested_DTR": false,
+      "requested_RTS": false,
+      "control_line_setting_basis": "frozen probe_mini_app.SerialTransport.open sets DTR=false and RTS=false; earlier log did not explicitly include these fields",
+      "physical_control_line_measurement": false,
+      "PING_hex": "50494e470a",
+      "PING_timeout_seconds": 0.7,
+      "error": "Write timeout",
+      "received_bytes": 0,
+      "raw_RX_hex": "",
+      "partial_hex": "",
+      "host_write_returned_full_length": false,
+      "host_write_completion_is_not_device_parser_execution": true,
+      "PING_retries": 0,
+      "port_close_recorded": true,
+      "PONG_verified": false,
+      "queries_after_PING_sent": 0
+    },
+    {
+      "path": "analysis/hardware/mini-app-settled-read-02.jsonl",
+      "sha256": "f7013a506c73ea71fabf4bfadf8dab4160f0d6598a03eda954a7fc9355fae227",
+      "port": "COM3",
+      "vid": "3654",
+      "pid": "5155",
+      "opened_utc": "2026-11-15T23:57:00.037112+00:00",
+      "closed_utc": "2026-11-15T23:57:00.850914+00:00",
+      "requested_DTR": false,
+      "requested_RTS": false,
+      "control_line_setting_basis": "frozen probe_mini_app.SerialTransport.open sets DTR=false and RTS=false; earlier log did not explicitly include these fields",
+      "physical_control_line_measurement": false,
+      "PING_hex": "50494e470a",
+      "PING_timeout_seconds": 0.7,
+      "error": "response timeout for PING",
+      "received_bytes": 0,
+      "raw_RX_hex": "",
+      "partial_hex": "",
+      "host_write_returned_full_length": true,
+      "host_write_completion_is_not_device_parser_execution": true,
+      "PING_retries": 0,
+      "port_close_recorded": true,
+      "PONG_verified": false,
+      "queries_after_PING_sent": 0
+    },
+    {
+      "path": "analysis/hardware/mini-app-host-open-01.jsonl",
+      "sha256": "4633d9d893cabae8984e29a9b2fc764a340a402c70685205a09e53203cc8533e",
+      "port": "COM3",
+      "vid": "3654",
+      "pid": "5155",
+      "opened_utc": "2026-11-15T23:58:53.017669+00:00",
+      "closed_utc": "2026-11-15T23:58:57.083834+00:00",
+      "requested_DTR": true,
+      "requested_RTS": false,
+      "control_line_setting_basis": "explicit new log fields and frozen host-open source",
+      "physical_control_line_measurement": false,
+      "PING_hex": "50494e470a",
+      "PING_timeout_seconds": 3.0,
+      "error": "response timeout for PING",
+      "received_bytes": 0,
+      "raw_RX_hex": "",
+      "partial_hex": "",
+      "host_write_returned_full_length": true,
+      "host_write_completion_is_not_device_parser_execution": true,
+      "PING_retries": 0,
+      "port_close_recorded": true,
+      "PONG_verified": false,
+      "queries_after_PING_sent": 0
+    }
+  ],
+  "source_context": {
+    "editor": {
+      "path": "recovered/ultrarig-original/web/tankg.html",
+      "sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+      "host_open_comment_line": 10845,
+      "comment_scope": "DTR changes are described as clearing incomplete command/upload state, not changing audio or the chain.",
+      "open_line": 4262,
+      "explicit_setSignals_in_original_transport": false,
+      "startup_comments_lines": [
+        10756,
+        10768
+      ],
+      "startup_comment_scope": "Original author describes possible15..60second post-reset silence and problems from rapid reopen. A later attempt after more than5minutes still timed out."
+    },
+    "SDK_comparison": {
+      "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/apps/common/usb/device/cdc.c",
+      "sha256": "98d5ba0431d4233e25bb9939c069615e3590a6791c6fdd08d13add9bc67f5100",
+      "role": "documentary comparison only; DTR conditionals are commented out in this SDK, whereas the original UltraRig G bytes above condition bit1 on DTR. SDK alone must not be used to infer current firmware behavior."
+    },
+    "frozen_native_probe": {
+      "path": "tools/probe_mini_app.py",
+      "sha256": "055bf238d1ea9a1a2cba298259391406faa22a3bd75384e2b866b0b9af969b74",
+      "requested_DTR": false
+    },
+    "new_host_open_probe": {
+      "path": "tools/probe_mini_app_host_open.py",
+      "sha256": "8936ef30d0db27df4ffd91c600e7f1a2c911302f9f1b245df8048691d2ac9c8d",
+      "requested_DTR": true,
+      "requested_RTS": false,
+      "initial_wait_seconds": 1,
+      "PING_timeout_seconds": 3,
+      "tests": "tests/test_mini_app_host_open.py",
+      "tests_sha256": "3e26540de1d7d3717eb7a457ea8af6892fcd4130c88b852a0a8c7f63a7e0478f",
+      "offline_tests_passed": 8
+    }
+  },
+  "verification": {
+    "all8_original_candidate_fragments_byte_identical": true,
+    "JLFS_CRC_checked_by_unpack_app": true,
+    "all4_physical_logs_complete_closed_and_no_RX": true,
+    "native_diagnostic_source_unchanged_after_hardware": true,
+    "offline_report_generation_accessed_hardware": false
+  },
+  "unresolved": [
+    "Whether the DTR=true USB control request reached and completed the handler on the physical device.",
+    "Whether ctl is scheduled and returns to the connectivity/RX loop.",
+    "Whether OUT IRQ sets RX-pending and bulk data is drained.",
+    "Whether a board/audio/clock transition blocks execution after CDC enumeration.",
+    "USB device arrival after the earlier timed attempt is an OS observation, not proof of watchdog reset or its cause."
+  ],
+  "no_claims": [
+    "No successful PONG or app read session exists in these four logs.",
+    "No audio or preset persistence is qualified by this report.",
+    "No new firmware image, reset, write command, or hardware I/O was performed by this audit."
+  ]
+}
