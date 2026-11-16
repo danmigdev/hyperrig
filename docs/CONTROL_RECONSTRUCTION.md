@@ -2,6 +2,10 @@
 
 Two UltraRig TANK-G v2 M5.71 routines have been reconstructed in portable C:
 
+This document retains the first component's verification boundary. The separate
+[action dispatcher and timer component](CONTROL_ACTIONS.md) now extends it with
+integrated execution; the original source, verifier and reports remain unchanged.
+
 | Original CPU range, end exclusive | Recovered implementation |
 | --- | --- |
 | `0x0200c9c2..0x0200c9f4` | `hyperrig_controls_immediate`: decide whether the primary action runs at the press edge. |
@@ -133,4 +137,5 @@ Outputs remain under the new build directory: host library, pi32v2 object,
 output directories and reports are preserved. The completed local run is
 `build/reverse-controls-02`.
 
-Next: [action execution and timer reconstruction](REVERSE_ROADMAP.md#next-concrete-milestone).
+Continue with [action execution and timer reconstruction](CONTROL_ACTIONS.md)
+and the [next roadmap milestone](REVERSE_ROADMAP.md#next-concrete-milestone).

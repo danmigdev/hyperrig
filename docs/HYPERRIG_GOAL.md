@@ -82,9 +82,12 @@ See the [reverse engineering roadmap](REVERSE_ROADMAP.md).
 
 The first new control milestone reconstructs the switch transition function and
 immediate-action policy in C, with instruction-level comparisons and a byte
-binding to the published MINI v4. The action executor and timer worker remain
-separate work. This does not modify the installed/released firmware or enable
-unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md).
+binding to the published MINI v4. The next milestone adds the action dispatcher,
+timer worker and integrated event sequences, with 10,101 further comparisons.
+Preset, scene and effect leaf handlers remain explicit boundaries. This does not
+modify the installed/released firmware or enable unqualified editor controls;
+see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md) and
+[CONTROL_ACTIONS.md](CONTROL_ACTIONS.md).
 
 ## Implementation decisions
 

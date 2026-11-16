@@ -5,8 +5,9 @@ artifacts, not every commercially available hardware revision.
 
 Current development order is maintained in the
 [reverse engineering roadmap](REVERSE_ROADMAP.md). Newer bounded C results are
-documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md) and
-[switch transition reconstruction](CONTROL_RECONSTRUCTION.md); the investigation
+documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
+[switch transition reconstruction](CONTROL_RECONSTRUCTION.md) and
+[action dispatch and timers](CONTROL_ACTIONS.md); the investigation
 notes below retain the context of the original analysis.
 
 ## Samples and sources found
