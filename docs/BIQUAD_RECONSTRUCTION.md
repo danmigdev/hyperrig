@@ -149,6 +149,7 @@ produces a host library, target object, sanitizer executable/report, source-hash
 verification report and artifact manifest. Generated files remain outside Git.
 The completed local run is `build/reverse-biquad-01`.
 
-The next DSP step is tracing coefficient generation and section ownership into
-a complete effect or shared equalization path, retaining these two numerical
-behaviors as independently verified dependencies.
+The [five-section chain](BIQUAD_CHAIN_RECONSTRUCTION.md) now reconstructs section
+updates and the complete caller, executing both kernels internally. Coefficient
+generation is traced to its floating-point producer and remains the next bounded
+DSP step toward a complete effect or shared equalization path.

@@ -96,6 +96,10 @@ The seventh adds nine independently verified asset and routing-layout dependenci
 of application, with 3,938 comparisons. In parallel, two shared recursive DSP
 filters add 1,864 comparisons beyond the A2 engine, including rounding, clipping,
 fractional residue and persistent history.
+The eighth application milestone adds the IR loader and ownership helpers:
+five functions and 541 comparisons, including payload CRCs, reuse and cleanup.
+The parallel DSP chain adds two functions and 2,445 comparisons, applying staged
+updates and executing all five sections with the verified numerical kernels.
 Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
@@ -104,8 +108,10 @@ unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCT
 [PRESET_STORAGE_RECONSTRUCTION.md](PRESET_STORAGE_RECONSTRUCTION.md),
 [PRESET_PREFLIGHT_RECONSTRUCTION.md](PRESET_PREFLIGHT_RECONSTRUCTION.md),
 [PRESET_LOADER_RECONSTRUCTION.md](PRESET_LOADER_RECONSTRUCTION.md),
-[PRESET_ASSETS_RECONSTRUCTION.md](PRESET_ASSETS_RECONSTRUCTION.md) and
-[BIQUAD_RECONSTRUCTION.md](BIQUAD_RECONSTRUCTION.md).
+[PRESET_ASSETS_RECONSTRUCTION.md](PRESET_ASSETS_RECONSTRUCTION.md),
+[BIQUAD_RECONSTRUCTION.md](BIQUAD_RECONSTRUCTION.md),
+[IR_LOADER_RECONSTRUCTION.md](IR_LOADER_RECONSTRUCTION.md) and
+[BIQUAD_CHAIN_RECONSTRUCTION.md](BIQUAD_CHAIN_RECONSTRUCTION.md).
 
 ## Implementation decisions
 

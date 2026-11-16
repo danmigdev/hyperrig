@@ -12,8 +12,10 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [preset storage validation](PRESET_STORAGE_RECONSTRUCTION.md),
 [preset preflight and conversion](PRESET_PREFLIGHT_RECONSTRUCTION.md),
 [preset loader/binding/report reconstruction](PRESET_LOADER_RECONSTRUCTION.md),
-[asset/application dependencies](PRESET_ASSETS_RECONSTRUCTION.md) and
-[recursive DSP filters](BIQUAD_RECONSTRUCTION.md); the investigation
+[asset/application dependencies](PRESET_ASSETS_RECONSTRUCTION.md),
+[recursive DSP filters](BIQUAD_RECONSTRUCTION.md),
+[IR loading and ownership](IR_LOADER_RECONSTRUCTION.md) and
+[the five-section DSP chain](BIQUAD_CHAIN_RECONSTRUCTION.md); the investigation
 notes below retain the context of the original analysis.
 
 ## Samples and sources found

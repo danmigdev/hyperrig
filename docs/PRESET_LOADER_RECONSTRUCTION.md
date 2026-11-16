@@ -239,8 +239,9 @@ local run is `build/reverse-preset-loader-01`.
 
 The [asset/application extension](PRESET_ASSETS_RECONSTRUCTION.md) now independently
 reconstructs its header/identity, descriptor and routing-layout helpers. These
-are not yet connected to an executed application handler. Next, recover the
-capture/IR payload lifecycle, working-to-live state conversion, effect/routing
+are not yet connected to an executed application handler. The
+[IR extension](IR_LOADER_RECONSTRUCTION.md) adds IR payload checks and ownership.
+Next, recover capture loading, working-to-live state conversion, effect/routing
 application and the meanings of its result/output words. Storage preparation/cache invalidation
 and the writers of state word 4092 also remain to be traced. See the
 [roadmap](REVERSE_ROADMAP.md); three-switch bank integration and Alpha 13 feature

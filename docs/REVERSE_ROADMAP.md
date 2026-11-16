@@ -24,6 +24,8 @@ original firmware C sources have not been recovered.
 | Preset loader, bindings and reports | Eight more functions recovered; 4,635 further comparisons | Controls now reach availability, preflight and loader commit/rebind/report sequencing; all 227 new instructions visited. The application handler remains a scripted boundary. |
 | Asset checks and application layout | Nine dependencies recovered; 3,938 further comparisons | Dual-format headers, extended identities/trailers, reuse descriptors and legacy/modern routing metadata; all 189 new instructions visited. Asset payload loading and the application caller remain external. |
 | Shared Q28 recursive filters | Two kernels recovered; 1,864 further comparisons | Fixed rounding and fractional residue variants, including clipping, wraparound and persistent history; all 346 instructions visited. Coefficient generation and complete effects remain external. |
+| IR loading and ownership | Five functions recovered; 541 further comparisons | Reuse, complete record/CRC checks up to 8152 bytes, buffer transfer and pending-slot refresh; all 229 new instructions visited. Allocator, locking and DSP service implementations remain external. |
+| Five-section DSP chain | Two functions recovered; 2,445 further comparisons | Staged coefficient/flag updates, history retention, both numerical kernels and timing accounting; all 172 new and 518 combined instructions visited. Coefficient generation remains external. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -32,8 +34,10 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [preset storage validation](PRESET_STORAGE_RECONSTRUCTION.md),
 [preset preflight and conversion](PRESET_PREFLIGHT_RECONSTRUCTION.md),
 [preset loader, bindings and reports](PRESET_LOADER_RECONSTRUCTION.md),
-[asset/application dependencies](PRESET_ASSETS_RECONSTRUCTION.md) and
-[recursive DSP filters](BIQUAD_RECONSTRUCTION.md) for exact evidence and limits.
+[asset/application dependencies](PRESET_ASSETS_RECONSTRUCTION.md),
+[recursive DSP filters](BIQUAD_RECONSTRUCTION.md),
+[IR loading and ownership](IR_LOADER_RECONSTRUCTION.md) and
+[the five-section DSP chain](BIQUAD_CHAIN_RECONSTRUCTION.md) for exact evidence and limits.
 
 ## Order of work
 
@@ -74,25 +78,29 @@ The application handler at `0x020092fa` remains external. A zero loader result
 does not establish successful DSP application or persistence. See the
 [documented offline boundary](PRESET_LOADER_RECONSTRUCTION.md).
 Its asset-header/identity, reuse-descriptor and routing-layout dependencies now
-have independent C/instruction comparisons. In parallel, the two Q28 recursive
-filters supply numerical building blocks for further effect reconstruction.
+have independent C/instruction comparisons. The IR loader now executes those
+metadata/record dependencies and the ownership sequence, with explicit allocator
+and DSP service boundaries. In parallel, the five-section DSP caller now executes
+both Q28 kernels and preserves their live history during staged updates.
 
 Continue into preset storage and application contracts:
 
 - `0x020092fa`: application of the converted working buffer and the meanings
-  of its result and output pointers. Next, recover the capture/IR payload
-  lifecycle at `0x020087cc` / `0x02008a62`, then connect the verified metadata
-  dependencies to effect-state reuse/rebuilding and routing application.
+  of its result and output pointers. Next, recover the capture loader at
+  `0x020087cc`, including preparation/fallback and `0x02008586` installation,
+  then connect both loaders to effect-state reuse/rebuilding and routing.
+- IR installation at `0x0202957e` / `0x020295d8`, callback `0x0201ad4c` and
+  effect-refresh services: recover their payload ownership and numerical behavior.
 - `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
   writers of state words 708/732 and the pair mapping at offset 3476.
 - `0x0200a1d6`: bridge selected scenes into their DSP application dependencies.
 - State word 4092 and global calibration word 44: trace writers and clock
   configuration before assigning physical meanings to load-report arithmetic.
 
-Continue the application path with asset payload loading and ownership. On the
-DSP path, trace coefficient generation and the five-section caller at
-`0x01c05280` into a complete effect or equalization path, preserving the verified
-rounded and fractional-residue behaviors.
+Continue the application path with capture payload loading and ownership. On the
+DSP path, reconstruct coefficient production from `0x020288d6` through
+`0x02028892` / `0x02028734` and float-to-Q28 conversion, using the verified
+five-section chain and both numerical kernels as downstream dependencies.
 The read wrapper at `0x02002810`, its physical I/O and the priority/poll helpers
 also remain external. Scheduler and counter tracing remain prerequisites for
 physical time-unit claims; LED behavior remains unqualified. Enabling

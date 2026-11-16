@@ -85,6 +85,10 @@ and the loader. [Asset checks and application layouts](docs/PRESET_ASSETS_RECONS
 add nine dependencies and 3,938 comparisons. Alongside the existing A2 engine,
 [two recursive DSP filters](docs/BIQUAD_RECONSTRUCTION.md) add 1,864 comparisons
 covering rounding, fractional carry, clipping and history across blocks.
+The [IR loader and ownership helpers](docs/IR_LOADER_RECONSTRUCTION.md) add five
+functions and 541 comparisons, including reuse, full record checks and cleanup.
+The [five-section DSP chain](docs/BIQUAD_CHAIN_RECONSTRUCTION.md) adds two functions
+and 2,445 comparisons, executing both filters and preserving history during updates.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
 These are development components; the installed firmware and qualification of
 physical controls are unchanged.

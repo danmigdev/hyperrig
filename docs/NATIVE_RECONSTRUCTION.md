@@ -13,6 +13,9 @@ Two additional [Q28 recursive filters](BIQUAD_RECONSTRUCTION.md) are reconstruct
 separately, with 1,864 comparisons against their original instructions. They
 provide shared numerical dependencies for effects beyond A2; coefficient
 generation, complete effect behavior and audio integration remain separate work.
+The [five-section chain](BIQUAD_CHAIN_RECONSTRUCTION.md) now connects those kernels
+through the reconstructed original caller, adding 2,445 comparisons for staged
+updates, history retention and timing-accounting behavior.
 
 ## Reconstructed functions
 

@@ -131,8 +131,9 @@ connects the recovered helpers to the remaining work:
   external to this reconstruction.
 
 These are static caller observations, not an executed application handler. The
-next bounded step is the capture/IR payload lifecycle and ownership, followed by
-the effect-state reuse and rebuild contracts. The separate
+[IR extension](IR_LOADER_RECONSTRUCTION.md) now reconstructs the IR payload loader
+and ownership sequence, retaining explicit allocator and DSP service boundaries.
+Capture loading and the effect-state reuse/rebuild contracts remain next. The separate
 [recursive-filter reconstruction](BIQUAD_RECONSTRUCTION.md) supplies numerical
 DSP dependencies without claiming this application path has been integrated.
 
