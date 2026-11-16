@@ -2,10 +2,10 @@
   "schema_version": 1,
   "kind": "mini-bounded-internal-latency-tool-preparation",
   "created_utc": "2026-11-16T06:59:34.899361+00:00",
-  "status": "offline_prepared",
+  "status": "physical_trials_02_and_03_verified_including_nine_selected_effects",
   "device_io_performed_by_agent": false,
   "browser_started_or_accessed_by_agent": false,
-  "effect_stress_trial_physically_executed": false,
+  "effect_stress_trial_physically_executed": true,
   "analog_latency_measured": false,
   "stimulus_controlled": false,
   "worst_case_latency_proven": false,
@@ -14,13 +14,13 @@
   "sources": [
     {
       "path": "tools/probe_mini_browser_latency.py",
-      "bytes": 27556,
-      "sha256": "d55d85c06b8dd887b8ad082504f379e9afbb0bf1579dbccdf78f573157e4bc7f"
+      "bytes": 27736,
+      "sha256": "108cd5308e5e29518ce719b1f9cd6162f04c1d5d092d708a87001eb09efd0f9a"
     },
     {
       "path": "tools/mini_browser_latency_guard.js",
-      "bytes": 13723,
-      "sha256": "7f56f7aafac859767fe246de7de73e6e542bbfe45e706476d6b05bf3d1b68a18"
+      "bytes": 13981,
+      "sha256": "f1a0299ffad740c5d0bc8fd581c4cacd17c2bb18e18738ef69a20f1d08603cae"
     },
     {
       "path": "tools/mini_latency_observation.py",
@@ -29,13 +29,13 @@
     },
     {
       "path": "tests/test_mini_browser_latency.py",
-      "bytes": 19656,
-      "sha256": "8726328acf8a63c99e12529b0e5a2349969ca8546aaf482c782564738f65080c"
+      "bytes": 24639,
+      "sha256": "2cab3616454d5b797e7b80c20220fa0ea6ef133a1668156b7a33abd4c735f949"
     },
     {
       "path": "tests/mini_browser_latency_guard_test.js",
-      "bytes": 9660,
-      "sha256": "476b471c76c9ece1344319c22641fa1bdaa3ed9e1e847593785707d6353a3608"
+      "bytes": 10742,
+      "sha256": "05b5301571cf979c484371634120f200b9f96ab1c30539a9368eacf5bdd7ede4"
     },
     {
       "path": "tests/test_mini_latency_observation.py",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/MINI_LATENCY.md",
-      "bytes": 12778,
-      "sha256": "936a57c789ce94ca4b747a8fbbfb2a1ef4aa382a317b520900fcd366f65386a9"
+      "bytes": 15293,
+      "sha256": "35d44074af0cfc4d1a901f929f99d89f7826ffda0efff3acacf9118ef3123ed0"
     }
   ],
   "frozen_dependencies": [
@@ -67,7 +67,7 @@
     {
       "path": "tools/qualify_mini_browser_preset.py",
       "bytes": 66737,
-      "sha256": "6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6"
+      "sha256": "744015157f7061f518c31e975e7bff7d23e547f7b803d2452ac16d51ef29f636"
     },
     {
       "path": "tools/verify_mini_browser.py",
@@ -110,6 +110,21 @@
       "path": "build/hyperrig-mini-audio-v3/app/web/tankmini.html",
       "bytes": 1362515,
       "sha256": "6aa1383c7d644f3dbb3c8b0ce5e2d287d7d24756b8b21b9c4352ed720cde1842"
+    },
+    {
+      "path": "build/mini-saved-reload-ui-v2-06/report.json",
+      "bytes": 600604,
+      "sha256": "372ae6bfb212d59646a3302f123be4e05e79c975443ff2c3e78d59298e4ed9e0"
+    },
+    {
+      "path": "build/mini-fx-latency-01/report.json",
+      "bytes": 309260,
+      "sha256": "a825d6cc25a201da8c5423ce16f47e6716885236e59d88222ecafc7c23e5883c"
+    },
+    {
+      "path": "build/mini-qualified-editor-live-02/recovery.json",
+      "bytes": 9010,
+      "sha256": "edc2150f49f45edc5cb3332efd0c9d533e62070937417eabe2db8cd75aa4992e"
     }
   ],
   "checks": {
@@ -169,6 +184,43 @@
       "original_source_sha256": "c42092eb3b3368bde0896b8ed57fc0d4c79a33e2c0ac494537f971ab4c1a6558",
       "extended_source_sha256": "0f53053aa248dc33dd6394bc0ae29d9937acb30542a6ed21fce0944e0fb222c0",
       "no_browser_or_device_access": true
+    },
+    "revision_7_ACK_tests": {
+      "command": "python -m unittest tests.test_mini_browser_latency -q",
+      "python_tests_passed": 16,
+      "runner_sha256_at_full_run_before_qualifier_pin": "3f358844e8fb4fea92e3600525e440e1813b39473c410d72271d8a74d8c27f39",
+      "node_original_queue_and_native_streams_exercised": true,
+      "node_IR_status_minus1_rejected_without_repeating_PLOAD": true,
+      "coherently_changed_decoded_ACK_and_raw_RX_with_bad_status_rejected": true,
+      "IR_slot_minus1_and_current_preset0_readback_preserved": true,
+      "independent_agent_review": "mini_boot: no blocker; targeted ACK test rerun passed"
+    },
+    "revision_7_final_binding_tests": {
+      "command": "python -m unittest tests.test_mini_browser_preset_qualification.QualificationTests.test_v2_pload_status_zero_is_distinct_from_saved_and_loaded_ir_slot_minus_one tests.test_mini_browser_latency.BrowserLatencyTests.test_preflight_accepts_retained_preset_without_fabricated_global_restoration tests.test_mini_browser_latency.BrowserLatencyTests.test_preflight_refuses_partial_save_missing_reload_and_unowned_session -q",
+      "python_tests_passed": 3,
+      "qualifier_sha256": "744015157f7061f518c31e975e7bff7d23e547f7b803d2452ac16d51ef29f636"
+    },
+    "revision_8_FXE_tests": {
+      "command": "python -m unittest tests.test_mini_browser_latency -q",
+      "python_tests_passed": 18,
+      "runner_sha256": "108cd5308e5e29518ce719b1f9cd6162f04c1d5d092d708a87001eb09efd0f9a",
+      "guard_sha256": "f1a0299ffad740c5d0bc8fd581c4cacd17c2bb18e18738ef69a20f1d08603cae",
+      "actual_trial01_FXE_reply_used_in_original_JS_queue_test": true,
+      "malformed_FXE_and_wrong_FXP_with_coherent_raw_RX_rejected": true,
+      "independent_review": {
+        "agent": "mini_boot",
+        "targeted_tests_passed": 3,
+        "blockers": []
+      }
+    },
+    "runner_current_tests": {
+      "command": "python -m unittest tests.test_mini_browser_latency -v",
+      "passed": 20,
+      "new_cases": [
+        "prefix counts/costs/checkpoints/bounds/default unchanged",
+        "nine enabled instances measured0/4/8/9 with one final PLOAD0"
+      ],
+      "independent_review": "mini_boot reran both new cases; no blocker"
     }
   },
   "runtime_contract": {
@@ -191,23 +243,200 @@
     "automatic_command_retry": false,
     "save_delete_or_firmware_commands": false,
     "measurement": "Three distinct STG windows at least two newer than the first; at most12STAT and20seconds per interval; fresh CLKSTATE/model/chain/gain and raw counter/clip observations.",
-    "restoration": "One PLOAD0 only while connection healthy; actual snapshot readback and original UI readonly refresh must match baseline before restoring wrapper references/UI.",
+    "restoration": "One PLOAD0 only while connection healthy; actual ACK missing=0/capture=0/ir=0 loader status, then separate snapshot readback (PRE/ILIST IR slot -1) and original UI readonly refresh must match baseline before restoring wrapper references/UI. ACK alone does not prove a cold reload.",
     "uncertain_write": "Stop and leave UI blocked for diagnosis; no replay and no additional restoration request.",
     "readback_provenance": "Every reported snapshot/STAT is matched to a completed native command in order, interval has one mutation epoch, calculations recomputed.",
     "fresh_catalog_changes_admission": "Earlier21364tick budget chooses13instances/20095publishedticks; later17394observed budget changes the derived plan. Actual firmware ACK/readback governs admission, not these estimates."
   },
   "remaining_physical_prerequisites": [
-    "healthy already connected editor after real PLOAD0 qualification",
-    "root controller explicitly invokes execute on that exact session",
-    "no analog latency result without confirmed recording routing and stimulus"
+    "Analog ADC-to-DAC latency remains unmeasured; it needs confirmed physical reference/output routing."
   ],
-  "revision": 6,
-  "updated_utc": "2026-11-16T09:23:58.280602+00:00",
-  "revision_note": {
-    "scope": "Only the latency runner qualifier SHA binding changed. The continuation and normal launcher declare the exact runtime extension of the original single native-open timeout from 5s to 30s, with CDP45s and no reconnect. Latency parser, guard, effect sequence and restoration are unchanged.",
-    "previous_runner_sha256": "24a97e09c7eec19db2c32069bdeb219ac6cd3f333cef48a2683db9dfa3ec4936",
-    "qualifier_sha256": "6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6",
-    "requires_actual_successful_reload": true,
-    "new_hardware_evidence_created": false
+  "revision": 9,
+  "updated_utc": "2026-11-16T10:10:13.812596+00:00",
+  "revision_note": "Optional explicit finite prefix --max-effects, default unchanged; closed physical trial03 measures nine enabled effects. Historical01 remains failed and02 does not acquire a nine-effect measurement.",
+  "PLOAD_ACK_correction": {
+    "audit": {
+      "path": "docs/MINI_PLOAD_ACK.md",
+      "bytes": 1462,
+      "sha256": "2853e9794eead0ee44db42820572594efef2d3f72ccbfde658046b8bf607a724"
+    },
+    "closed_failed_observation": {
+      "path": "build/mini-saved-reload-ui-v2-06/report.json",
+      "bytes": 600604,
+      "sha256": "372ae6bfb212d59646a3302f123be4e05e79c975443ff2c3e78d59298e4ed9e0"
+    },
+    "actual_ACK": "PLOAD ok 0 'Preset 1A' missing=0 capture=0 ir=0 ms=0",
+    "original_report_remains": "fail",
+    "original_report_modified": false,
+    "capture_and_ir_ACK_fields": "loader results; zero may remain when no replacement load occurs",
+    "restored_IR_slot_required": -1,
+    "cold_reload_inferred_from_ACK_alone": false,
+    "benchmark_physically_executed": false
+  },
+  "FX_ACK_audit": {
+    "original_firmware": {
+      "path": "analysis/firmware/m571_g_app/app.bin",
+      "bytes": 485772,
+      "sha256": "4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e"
+    },
+    "candidate": {
+      "path": "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin",
+      "bytes": 516096,
+      "sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c"
+    },
+    "original_editor": {
+      "path": "recovered/ultrarig-original/web/tankg.html",
+      "bytes": 1358828,
+      "sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6"
+    },
+    "fragments": [
+      {
+        "name": "command_string_base",
+        "start": "0x2011302",
+        "end_exclusive": "0x2011308",
+        "bytes": 6,
+        "sha256": "aba1d6d76e71e1cad4aee5435716715127775d0efab958f442e3c7b3b7e6b078",
+        "original_and_candidate_identical": true
+      },
+      {
+        "name": "FXA_header_then_resources",
+        "start": "0x20129d4",
+        "end_exclusive": "0x2012a08",
+        "bytes": 52,
+        "sha256": "767053a1662956b3f8343e415ac7c897428ad13c59aa5d38afa552b02c50fbfa",
+        "original_and_candidate_identical": true
+      },
+      {
+        "name": "FXE_execute_success_branch",
+        "start": "0x2012b7a",
+        "end_exclusive": "0x2012baa",
+        "bytes": 48,
+        "sha256": "1f33214edac512356e69577af008b60cf8d85d78c2e9b0526fa761c9d14a7cb1",
+        "original_and_candidate_identical": true
+      },
+      {
+        "name": "FXE_success_to_resource_formatter",
+        "start": "0x2012cbc",
+        "end_exclusive": "0x2012cc4",
+        "bytes": 8,
+        "sha256": "2f40d6dd3c2fdc6a35e3692f32845c129250a3e4d6de95d87ece40d185321bb9",
+        "original_and_candidate_identical": true
+      },
+      {
+        "name": "FXP_effective_value_formatter",
+        "start": "0x2012c14",
+        "end_exclusive": "0x2012c5c",
+        "bytes": 72,
+        "sha256": "1484a642327a2b79d9e4cc521a789ce0dc06097bfa0be1951c151b00f9e765a3",
+        "original_and_candidate_identical": true
+      },
+      {
+        "name": "resource_formatter",
+        "start": "0x200eb78",
+        "end_exclusive": "0x200ebea",
+        "bytes": 114,
+        "sha256": "5b40987050f87cae310b91ad2134944da00d05be64bb0f68a411d9799f51c691",
+        "original_and_candidate_identical": true
+      }
+    ],
+    "strings": [
+      {
+        "address": "0x2035b71",
+        "format": "FXE ok",
+        "bytes_with_NUL": 7,
+        "sha256": "7c956e1a82c26d685cdb332dbaf0dbcbb5388502af2e27365b3760754e3bf1b9"
+      },
+      {
+        "address": "0x2035df1",
+        "format": "FXP ok %d\n",
+        "bytes_with_NUL": 11,
+        "sha256": "9726dde303c802271e1ed4b57635b720acf556568b46b9eb78a91ea455afdd86"
+      },
+      {
+        "address": "0x20360a2",
+        "format": "FXA id=%d %s\n",
+        "bytes_with_NUL": 14,
+        "sha256": "93e79c18c7c92241889f00946d3fca00a31223ececdf5eb15eb2fa75310466e2"
+      },
+      {
+        "address": "0x2039ff1",
+        "format": "%s cpu=%u/%u ticks (%u%%) mem_fx=%u B\n",
+        "bytes_with_NUL": 39,
+        "sha256": "6a064a105a666e6983866ec66dda987711084bf9fa6d166fc35b7a5860927169"
+      },
+      {
+        "address": "0x20366de",
+        "format": "GAIN in=%d out=%d dB\n",
+        "bytes_with_NUL": 22,
+        "sha256": "17edfd6f2488a7763edbf4745e2c6b612fa94b546063413aed86c0644bcc0af4"
+      }
+    ],
+    "original_editor_sites": {
+      "FXE_command_and_chain_readback": [
+        7247,
+        7250
+      ],
+      "FXP_effective_value_parse": [
+        7576,
+        7579
+      ],
+      "FXA_header_and_final_resource_line": [
+        7195,
+        7205
+      ]
+    },
+    "FXE_reply_echoes_enable_state": false,
+    "FXS_readback_still_required": true,
+    "GAIN_FXA_FXP_PLOAD_ACK_acceptance_unchanged": true
+  },
+  "documented_physical_attempt_01": {
+    "report": {
+      "path": "build/mini-fx-latency-01/report.json",
+      "bytes": 309260,
+      "sha256": "a825d6cc25a201da8c5423ce16f47e6716885236e59d88222ecafc7c23e5883c"
+    },
+    "result": "fail",
+    "native_verified_mutations": [
+      "GAIN 0 -12",
+      "FXA P 99 gate",
+      "FXE 0 0"
+    ],
+    "actual_FXE_reply": "FXE ok cpu=0/22799 ticks (0%) mem_fx=0 B",
+    "failure": "Old guard expected abbreviated FXE ok",
+    "stress_measurement_completed": false,
+    "failed_report_promoted": false,
+    "separate_recovery": {
+      "path": "build/mini-qualified-editor-live-02/recovery.json",
+      "bytes": 9010,
+      "sha256": "edc2150f49f45edc5cb3332efd0c9d533e62070937417eabe2db8cd75aa4992e"
+    },
+    "separate_recovery_native_RX_audit": false,
+    "separate_recovery_original_PLOAD_requests": 1,
+    "separate_recovery_full_state_and_UI_readback": true
+  },
+  "physical_results_reference": {
+    "path": "research/mini-latency-hardware.json",
+    "sha256": "737788d547ff3b8b59839986d6fd343e494cabb2a1f3dba797ee470f23ffbb26",
+    "bytes": 57588
+  },
+  "conclusive_physical_report": {
+    "path": "build/mini-fx-latency-03/report.json",
+    "sha256": "379a39fc8098fafc84ab35eb49ecb947406e57a87691038abc80c4cfd93d0729",
+    "bytes": 769816
+  },
+  "explicit_limit_revision": {
+    "runner_revision": 2,
+    "CLI": "--max-effects 9",
+    "minimum": 1,
+    "maximum": 16,
+    "default_plan_unchanged": true,
+    "selected_prefix_only": true,
+    "checkpoints_for_nine": [
+      4,
+      8,
+      9
+    ],
+    "selected_cumulative_estimates_recorded": true,
+    "does_not_prove_global_maximum": true
   }
 }

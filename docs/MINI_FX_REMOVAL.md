@@ -1,0 +1,13 @@
+# MINI temporary-effect removal proof
+
+The real USB trial completed: it added one temporary boost, changed its gain, removed that actual instance, and restored the saved preset. [The physical report](../build/mini-fx-remove-01/report.json) has SHA256 `307cf07fd35120c59a34d2045dcf4799abba0ec46af32f34ea5c84ffa0a70356`. [Independent replay and firmware audit](../research/mini-fx-removal.json) verified 76 native commands, 15124 captured RX bytes and five mutations.
+
+The exact sequence was `GAIN 0 -12`, `FXA Q 99 boost`, `FXP 0 0 -1`, `FXR 0`, `PLOAD 0`. Instance0 came from the real FXA reply; it was not assumed by the tool. Output attenuation preceded addition because the original boost starts enabled at +6 dB. Readback verified the added boost enabled at -1 dB, then an empty chain after FXR, then preset0/sceneA/capture0/IR-1/gain0,0 after PLOAD0. Full original UI refresh and temporary-wrapper detach passed.
+
+The FXR reply was `FXR ok cpu=0/23095 ticks (0%) mem_fx=0 B`. Original G code at `0x02012BE0` supplies `FXR ok` to the common resource formatter at `0x0200EB78`; the installed v3 bytes are identical. Accepting only a bare `FXR ok` would be incorrect. Removal success also requires the subsequent empty FXS readback.
+
+[probe_mini_browser_fx_remove.py](../tools/probe_mini_browser_fx_remove.py) uses an already connected qualified USB editor. Its separate `__miniFXRemovalGuard` can coexist with a previous latency guard only when that guard is detached. It opens/closes neither serial port nor browser, performs no automatic retry, and issues no preset save/delete or firmware command. An uncertain write/reply ends the trial without a speculative PLOAD or repeated removal. A healthy failed readback can restore the preset once, but cannot become a positive removal result.
+
+The default CLI performs no I/O. `--check-only --session build/<session>/session.json` checks local evidence. Only the root hardware controller executes an explicit trial with a new output directory. The pure `verify_report(report, prepared=None)` function binds native bytes, effective values, the actual ID and four chronological snapshots at mutation epochs0/3/4/5. Downstream qualification separately checks the report's successful lifecycle and pinned sources.
+
+Ten offline tests pass, including the original editor command queue/readLoop with fake native streams, nonzero actualID5, lost reply, wrong/partial resource ACK, missing native RX, wrong effect readback, active prior guard and cleanup failure. The root executed the physical trial; this independent analysis did not access the device or browser. The trial exercised the removal protocol through the original queue, not the editor's Remove button, and granted no general command family by itself.

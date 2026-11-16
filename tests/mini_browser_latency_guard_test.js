@@ -18,7 +18,7 @@ let checks=0;
 const check=(a,b)=>{assert.deepEqual(a,b);checks++;};
 const rejects=async f=>{await assert.rejects(f);checks++;};
 
-async function setup({rejectAdd=false,forgeParameter=false,delayedWrite=false,pollBeforePrime=false,catalog=null}={}){
+async function setup({rejectAdd=false,forgeParameter=false,delayedWrite=false,pollBeforePrime=false,catalog=null,restoreIr=0,fxeReply=null}={}){
  let ctx,tick=0,gain=[0,0],block=null;
  const waits=[],chunks=[],writes=[];let opens=0,closes=0;
  const deliver=value=>waits.length?waits.shift()(value):chunks.push(value);
@@ -37,9 +37,13 @@ async function setup({rejectAdd=false,forgeParameter=false,delayedWrite=false,po
    if(rejectAdd)return ['ERR FXA not enough CPU'];
    block={on:1,p:-70};return ['FXA id=0 gate','FX cpu=490/21364 ticks (2%) mem_fx=0 B'];
   }
-  if(/^FXE 0 [01]$/.test(line)){block.on=+line.at(-1);return ['FXE ok'];}
+  if(/^FXE 0 [01]$/.test(line)){
+   block.on=+line.at(-1);
+   return [fxeReply || (block.on?'FXE ok cpu=490/22799 ticks (2%) mem_fx=0 B':
+     catalogFixture?.observed_fxe_off || 'FXE ok cpu=0/22799 ticks (0%) mem_fx=0 B')];
+  }
   if(line==='FXP 0 0 -90'){block.p=-90;return ['FXP ok -90'];}
-  if(line==='PLOAD 0'){gain=[0,0];block=null;return ["PLOAD ok 0 'Preset 1A' missing=0 capture=0 ir=-1 ms=2"];}
+  if(line==='PLOAD 0'){gain=[0,0];block=null;return ["PLOAD ok 0 'Preset 1A' missing=0 capture=0 ir="+restoreIr+" ms=2"];}
   throw Error('unexpected fake device request: '+line);
  };
  const nativeWriter={write:async bytes=>{
@@ -99,6 +103,20 @@ async function main(){
  check(refusal.rejected,true);check(reject.guard.state.healthy,true);check(reject.guard.state.phase,'rejected');
  reject.guard.restore();await reject.guard.executeNext();const rejectedTrace=await reject.guard.detach(true);
  check(reject.writes.filter(x=>x.startsWith('FXA')).length,1);await reject.shutdown();
+
+ const badLoad=await setup({restoreIr:-1});badLoad.guard.configure(structuredClone(plan));
+ badLoad.guard.restore();await rejects(()=>badLoad.guard.executeNext());
+ check(badLoad.guard.state.healthy,false);
+ check(badLoad.writes.filter(x=>x==='PLOAD 0\n').length,1);
+ await rejects(async()=>badLoad.guard.restore());
+ check((await badLoad.guard.detach(false)).detached,false);await badLoad.shutdown();
+
+ const abbreviated=await setup({fxeReply:'FXE ok'});abbreviated.guard.configure(structuredClone(plan));
+ await abbreviated.guard.executeNext();await abbreviated.guard.executeNext();
+ await rejects(()=>abbreviated.guard.executeNext());check(abbreviated.guard.state.healthy,false);
+ check(abbreviated.writes.filter(x=>x==='FXE 0 0\n').length,1);
+ await rejects(async()=>abbreviated.guard.restore());
+ check(abbreviated.writes.some(x=>x==='PLOAD 0\n'),false);await abbreviated.shutdown();
 
  const forged=await setup({forgeParameter:true});forged.guard.configure(structuredClone(plan));
  for(let i=0;i<3;i++)await forged.guard.executeNext();

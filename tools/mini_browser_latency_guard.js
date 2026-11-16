@@ -169,11 +169,14 @@ function installMiniLatencyGuard(config) {
           okay=heads.length===1 && +heads[0][1]<16 && !state.created.some(x=>x.id===+heads[0][1]) && /^FX cpu=\d+\/\d+ ticks \(\d+%\) mem_fx=\d+ B$/.test(reply.at(-1));
           if(okay){state.created.push({id:+heads[0][1],type:plan.steps[state.step].type,bank:plan.steps[state.step].bank});state.substep=0;state.phase='configure';}
         }else if(state.phase==='configure'){
-          okay=line.startsWith('FXE ')?eq(reply,['FXE ok']):eq(reply,['FXP ok '+line.split(' ')[3]]);
+          // M5.71 FXE uses the common resource formatter; FXP returns its effective value.
+          okay=line.startsWith('FXE ')?reply.length===1 && /^FXE ok cpu=\d+\/\d+ ticks \(\d+%\) mem_fx=\d+ B$/.test(reply[0]):
+            eq(reply,['FXP ok '+line.split(' ')[3]]);
           state.substep++;if(state.substep===plan.steps[state.step].configure_after_actual_id.length)state.phase='between';
         }else if(state.phase==='restoring'){
+          // PLOAD reports loader status codes; PRE/ILIST separately report IR slot -1.
           okay=reply.length===1 && reply[0].startsWith(config.restore_ack_prefix) &&
-            /^ missing=0 capture=0 ir=-1 ms=\d+$/.test(reply[0].slice(config.restore_ack_prefix.length));
+            /^ missing=0 capture=0 ir=0 ms=\d+$/.test(reply[0].slice(config.restore_ack_prefix.length));
           state.phase='restored_ack';
         }
         if(!okay)return fail('Actual mutation ACK differs; no retry');

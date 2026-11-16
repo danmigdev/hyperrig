@@ -37,6 +37,31 @@ il ripristino.
 Probe RAM, test sintetici, simulazioni e demo dell'interfaccia sono verifiche
 intermedie. Non soddisfano da soli il minimo funzionante.
 
+## Minimo operativo raggiunto il 16 novembre 2026
+
+Il port v3 dell'applicazione UltraRig G è installato sul MINI. Sono verificati
+avvio normale, elaborazione A2, conservazione del primo preset dopo il riavvio
+dell'utente e audio da lui descritto come regolare. L'editor HyperRig via USB
+ha eseguito realmente aggiunta di un effetto, modifica del parametro, bypass,
+riattivazione, salvataggio in 1B, rimozione e richiamo di 1B: il Noise Gate
+Post è tornato attivo con soglia −71 dB. Infine è stato richiamato il preset
+originale 1A, con gain 0/0 e catena FX vuota.
+
+Le prove sono in `build/mini-saved-reload-ui-v2-07/report.json`,
+`build/mini-fx-ui-smoke-01/report.json` e nelle verifiche di installazione
+collegate dal README. L'app utilizzabile è
+`tools/launch_mini_fx_editor.cmd`, con bundle `build/hyperrig-mini-fx-editor`.
+Una prova separata con nove effetti attivi ha misurato circa 2,395 ms medi
+di elaborazione interna e 2,526 ms di massimo osservato, senza fault segnalati;
+la latenza analogica completa non è stata misurata.
+
+Questo completamento riguarda il minimo sopra definito. Il C originale
+completo non è recuperato: rimangono pseudocodice inferito e componenti binari,
+insieme alle ricostruzioni compilabili e agli strumenti di patch/build locali.
+Restano separati la prova del recupero integrato all'accensione, i controlli
+fisici completi, il routing e gli altri comandi editor non ancora abilitati,
+e l'adattamento completo delle scritture dell'app mobile/BLE.
+
 ## Decisioni di implementazione
 
 La candidata integrale usa l'applicazione UltraRig G come base. Le modifiche

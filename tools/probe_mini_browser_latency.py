@@ -26,7 +26,7 @@ from tools.verify_mini_browser import CDP
 from tools.mini_host_journal import atomic_write_json, read_shared_bytes
 
 GUARD = ROOT/'tools/mini_browser_latency_guard.js'
-QUALIFIER_SHA = '6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6'
+QUALIFIER_SHA = '744015157f7061f518c31e975e7bff7d23e547f7b803d2452ac16d51ef29f636'
 ORIGINAL_SHA = '87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b'
 IMAGE = '9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c'
 require = timing.require
@@ -40,6 +40,28 @@ def local(path):
     p = Path(path).resolve()
     require(p.is_relative_to(ROOT), 'workspace path required')
     return p
+
+
+def limit_plan(plan, max_effects):
+    """Select a finite prefix; the default derived plan remains unchanged."""
+    require(max_effects is None or type(max_effects) is int and 1 <= max_effects <= 16,
+            'max-effects must be an integer from 1 to 16')
+    if max_effects is None:
+        return plan
+    selected = copy.deepcopy(plan)
+    selected['steps'] = selected['steps'][:max_effects]
+    count = len(selected['steps'])
+    selected['measurement_after_counts'] = sorted(set([n for n in (4, 8, 12) if n <= count]+[count]))
+    selected['limits']['instances'] = min(selected['limits']['instances'], max_effects)
+    selected['explicit_effect_limit'] = {
+        'requested': max_effects, 'derived_plan_instances': len(plan['steps']),
+        'selected_instances': count,
+        'published_selected_cumulative_ticks': selected['steps'][-1]['published_cumulative_ticks'] if count else 0,
+        'published_selected_cumulative_bytes': selected['steps'][-1]['published_cumulative_bytes'] if count else 0,
+        'omitted_types': [step['type'] for step in plan['steps'][count:]],
+        'selection': 'prefix of the current finite ordered plan',
+        'global_maximum_chain_proven': False}
+    return selected
 
 
 def prepare(session_path):
@@ -231,7 +253,8 @@ def verify_trace(guard, restore_ack_prefix, pong):
             'unplanned mutation family in raw trace')
     last_wire = [w for w in wire if w['mutation']][-1]
     last_reply = next(c['lines'] for c in commands if c['id'] == last_wire['command_id'])
-    require(len(last_reply) == 1 and re.fullmatch(re.escape(restore_ack_prefix)+r' missing=0 capture=0 ir=-1 ms=\d+', last_reply[0]),
+    # These are loader status codes, independent of the PRE/ILIST IR slot -1.
+    require(len(last_reply) == 1 and re.fullmatch(re.escape(restore_ack_prefix)+r' missing=0 capture=0 ir=0 ms=\d+', last_reply[0]),
             'native PLOAD0 ACK does not match the proven saved preset')
     plans = [e['plan'] for e in guard['events'] if e['kind'] == 'plan']
     require(len(plans) == 1, 'one exact plan required')
@@ -259,7 +282,8 @@ def verify_trace(guard, restore_ack_prefix, pong):
         elif line.startswith('FXP '):
             require(reply == ['FXP ok '+line.split()[3]], 'FXP ACK differs')
         else:
-            require(reply == ['FXE ok'], 'FXE ACK differs')
+            require(len(reply) == 1 and re.fullmatch(r'FXE ok cpu=\d+/\d+ ticks \(\d+%\) mem_fx=\d+ B', reply[0]),
+                    'FXE resource ACK differs')
     return {'native_RX_bytes': sum(len(bytes.fromhex(r['hex'])) for r in rx), 'wire_commands': len(wire),
             'reader_hook_priming_queries_not_claimed_as_raw_RX_proof': priming,
             'actual_mutation_requests': mutations, 'no_NOR_save_delete_or_firmware_commands': True}
@@ -273,6 +297,18 @@ def verify_observations(report, guard):
     A whole timing interval must stay within one mutation epoch.
     """
     commands = guard['commands']; cursor = 0; matched = []
+    if report.get('runner_revision') == 2:
+        plans = [event['plan'] for event in guard['events'] if event['kind'] == 'plan']
+        require(plans == [report['plan']], 'reported plan differs from the actually armed plan')
+        maximum = report['max_effects_requested']
+        if maximum is not None:
+            selection = report['plan'].get('explicit_effect_limit', {})
+            count = len(report['plan']['steps'])
+            require(type(maximum) is int and 1 <= count <= maximum <= 16
+                    and selection.get('requested') == maximum
+                    and selection.get('selected_instances') == count
+                    and count in report['plan']['measurement_after_counts'],
+                    'explicit effect limit or final measurement checkpoint differs')
 
     def consume(line, rows):
         nonlocal cursor
@@ -312,8 +348,11 @@ def verify_observations(report, guard):
             'timing_derivations_recomputed': len(report['measurements'])}
 
 
-def experiment(prepared, editor, *, publish=lambda value: None, clock=time.monotonic, sleep=time.sleep):
+def experiment(prepared, editor, *, max_effects=None, publish=lambda value: None, clock=time.monotonic, sleep=time.sleep):
+    require(max_effects is None or type(max_effects) is int and 1 <= max_effects <= 16,
+            'max-effects must be an integer from 1 to 16')
     report = {'kind': 'mini-exact-browser-FX-timing-trial-v1', 'result': 'running', 'prepared': prepared,
+              'runner_revision': 2, 'max_effects_requested': max_effects,
               'measurements': [], 'mutation_families_granted': [], 'analog_latency_measured': False,
               'audio_quality_verified': False, 'stimulus_controlled': False, 'worst_case_latency_proven': False,
               'serial_open_performed': False, 'serial_close_performed': False,
@@ -337,7 +376,8 @@ def experiment(prepared, editor, *, publish=lambda value: None, clock=time.monot
         report['before'] = editor.snapshot()
         original.verify_state(report['before']['state'], prepared['baseline'], gains=prepared['baseline']['gain'], stage='live')
         fxt, mem = editor.query('FXT'), editor.query('MEM')
-        plan = timing.plan_stress(fxt, report['before']['responses']['FXS'], mem, report['before']['responses']['GAIN'])
+        plan = limit_plan(timing.plan_stress(fxt, report['before']['responses']['FXS'], mem,
+                                          report['before']['responses']['GAIN']), max_effects)
         require(plan['steps'], 'no effect admitted by the current declared estimates')
         report['plan'] = plan; report['phase'] = 'plan_ready'; save()
         baseline_measurement = measure(editor, clock=clock, sleep=sleep)
@@ -421,6 +461,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check-only', action='store_true'); parser.add_argument('--execute', action='store_true')
     parser.add_argument('--session', type=Path); parser.add_argument('--output', type=Path)
+    parser.add_argument('--max-effects', type=int, choices=range(1, 17), default=None,
+                        help='measure at most this many instances from the finite ordered plan; no global-maximum claim')
     args = parser.parse_args(argv)
     require(not (args.check_only and args.execute), 'choose check-only or explicit execute')
     if not args.check_only and not args.execute:
@@ -429,7 +471,8 @@ def main(argv=None):
     require(args.session is not None, 'owned connected editor session required')
     prepared = prepare(args.session)
     if args.check_only:
-        print(json.dumps({'preflight': 'pass', 'hardware_io': False, 'browser_access': False, 'prepared': prepared})); return 0
+        print(json.dumps({'preflight': 'pass', 'hardware_io': False, 'browser_access': False,
+                          'max_effects_requested': args.max_effects, 'prepared': prepared})); return 0
     require(args.output is not None, 'new explicit output directory required')
     output = local(args.output); require(output.is_relative_to(ROOT/'build') and not output.exists(), 'new build output required')
     output.mkdir(parents=True)
@@ -440,7 +483,7 @@ def main(argv=None):
         atomic_write_json(output/'report.json', value)
     cdp = CDP(prepared['websocket'])
     try:
-        report = experiment(prepared, ExistingEditor(cdp), publish=publish)
+        report = experiment(prepared, ExistingEditor(cdp), max_effects=args.max_effects, publish=publish)
     finally:
         cdp.ws.close()  # Only this CDP socket. The owned browser/serial port remain.
     print(json.dumps({k: report.get(k) for k in ('result', 'phase', 'error', 'baseline_restoration_verified', 'temporary_wrapper_removed')}))

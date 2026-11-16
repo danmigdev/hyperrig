@@ -8,8 +8,12 @@ e verificato sulla NOR completa. Dopo il riavvio fisico, firmware normale,
 A2 attivo e “Preset 1A” con scena A e capture conservati. L'utente conferma
 suono regolare. Letture reali riuscite via Bluetooth e USB. Nell'editor sono
 verificati volume, salvataggio e richiamo di “Preset 1A”, con rilettura dello
-stato sul pedale. L'editor normale è disponibile; la misura con gli effetti
-attivi è ancora in corso.** HyperRig
+stato sul pedale. Anche aggiunta, parametro, bypass, rimozione e salvataggio/
+richiamo di un preset con effetti sono verificati nell'interfaccia reale.
+L'editor è disponibile; la misura reale con nove
+effetti attivi riporta circa 2,40 ms medi per blocco e 2,53 ms come massimo
+osservato, senza errori audio segnalati. È tempo interno di elaborazione,
+non latenza analogica ingresso–uscita.** HyperRig
 è il nome scelto per questo progetto indipendente.
 
 L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
@@ -19,16 +23,28 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
 ## Provare l'editor sul MINI
 
 Con il MINI acceso e collegato tramite USB dati, aprire
-[launch_mini_editor.cmd](tools/launch_mini_editor.cmd). Non richiede UAC.
-Se compare la guida iniziale, premere **Skip**, poi **Connect** e scegliere
+[launch_mini_fx_editor.cmd](tools/launch_mini_fx_editor.cmd). Non richiede UAC.
+L'app supera la guida iniziale e apre il selettore USB: scegliere
 **Tank-M HyperRig (COM3)**. Su questo PC l'apertura USB può impiegare circa
-15–20 secondi. Usare una sola finestra collegata al pedale.
+15–21 secondi. Usare una sola finestra collegata al pedale.
 
-Il bundle verificato è `build/hyperrig-mini-qualified-editor`: abilita volume,
-salvataggio del preset/scena e richiamo dei preset via USB. Per il volume,
-aprire il meter e la manopola Output; per salvare o richiamare usare Presets.
-La modifica generale della catena effetti e le scritture BLE non sono ancora
-abilitate in questo bundle. [Istruzioni di avvio](docs/MINI_EDITOR_LAUNCHER.md).
+Il bundle verificato è `build/hyperrig-mini-fx-editor`: abilita volume,
+salvataggio del preset/scena, richiamo preset, aggiunta seriale, parametri,
+bypass e rimozione degli effetti via USB. Il firmware controlla CPU e memoria.
+Per aggiungere usare il **+** in fondo a Pre o Post; selezionare un blocco per
+le manopole, Bypass e Remove. Per salvare o richiamare usare Presets.
+Routing parallelo, spostamento/sostituzione dei blocchi, controlli AMP e
+scritture BLE restano fuori da questa versione.
+[Istruzioni di avvio](docs/MINI_FX_EDITOR_LAUNCHER.md).
+
+La prova reale ha creato **1B**, con il nome copiato “Preset 1A”, capture A2
+e Noise Gate Post attivo a −71 dB. Dopo aver rimosso il blocco dall'interfaccia,
+il richiamo di 1B lo ha ripristinato con lo stesso parametro. Il MINI è stato
+lasciato sul preset originale **1A**, con volume 0/0 e catena FX vuota.
+La [verifica indipendente dell'interfaccia](docs/MINI_FX_UI.md) controlla
+comandi USB, risposte native e riletture dello stato. La prova è conservata
+in `build/mini-fx-ui-smoke-01/report.json`;
+non comprende un nuovo riavvio fisico per il preset 1B.
 
 ## Risultati disponibili
 
@@ -127,11 +143,14 @@ abilitate in questo bundle. [Istruzioni di avvio](docs/MINI_EDITOR_LAUNCHER.md).
   blocco dell'applicazione: la [corrigenza](research/mini-usb-negative-probes-correction.json)
   conserva e distingue quei risultati. Il nuovo [diagnostico CDC](docs/MINI_CDC_HANDSHAKE.md)
   richiede DTR attivo e riprende il collegamento iniziale dell'editor originale.
-- [Misura preliminare dei tempi interni](docs/MINI_LATENCY.md): con A2 e
-  zero effetti aggiuntivi, tre finestre aggiornate riportano circa 2,15 ms
-  per blocco e 2,26 ms come massimo osservato, usando la scala nominale del
-  timer. Non è una misura della latenza analogica ingresso–uscita; la prova
-  sotto carico con gli effetti resta da eseguire.
+- [Misura reale dei tempi interni](docs/MINI_LATENCY.md): con A2, la prova
+  `build/mini-fx-latency-03/report.json` misura tre finestre aggiornate per
+  ciascuna configurazione a 0, 4, 8 e 9 effetti attivi. Con nove effetti:
+  **2,3944–2,3951 ms medi per blocco e 2,5261 ms di massimo osservato**, usando
+  la scala nominale del timer. Nessun errore audio segnalato; preset iniziale
+  ripristinato e riletto. Una precedente prova ha rifiutato l'attivazione del
+  decimo effetto per CPU insufficiente. Il risultato riguarda la catena e i
+  parametri provati, non tutte le combinazioni possibili né la latenza analogica.
 - Recupero tramite tre footswitch e reset verso ROM verificati in RAM; la guardia
   integrata deve ancora essere eseguita all'accensione. Ricezione, lettura NOR e
   restituzione della pagina dell'installatore verificate sul MINI con tutte le

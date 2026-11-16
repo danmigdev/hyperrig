@@ -109,12 +109,15 @@ class FakeEditor:
         elif phase == 'configure':
             changes = self.plan['steps'][0]['configure_after_actual_id']
             line = changes[self.substep]['request_template'].replace('{id}', '0')
-            if line.startswith('FXE'): self.block['on'] = int(line.split()[2]); rows = ['FXE ok']
+            if line.startswith('FXE'):
+                self.block['on'] = int(line.split()[2])
+                used = 490 if self.block['on'] else 0
+                rows = [f'FXE ok cpu={used}/490 ticks ({used*100//490}%) mem_fx=0 B']
             else: self.block['p'] = int(line.split()[3]); rows = ['FXP ok '+line.split()[3]]
             self.substep += 1
             next_phase = 'between' if self.substep == len(changes) else 'configure'
         elif phase == 'restoring':
-            line, rows, next_phase = 'PLOAD 0', [ACK+' missing=0 capture=0 ir=-1 ms=2'], 'restored_ack'
+            line, rows, next_phase = 'PLOAD 0', [ACK+' missing=0 capture=0 ir=0 ms=2'], 'restored_ack'
             self.gain, self.block = [0, 0], None
         else: raise AssertionError('unexpected fake phase '+phase)
         self.record(line, rows, lost=self.timeout and phase == 'add')
@@ -152,10 +155,13 @@ class BrowserLatencyTests(unittest.TestCase):
         rows = read_shared_json(Path('build/mini-first-preset-ui-02/report.json'))['guard']['commands']
         cls.fxt = next(c['lines'] for c in rows if c['line'] == 'FXT' and c['completed'])
         cls.prepared = dict(baseline=cls.baseline, pong=PONG, restore_ack_prefix=ACK)
+        cls.observed = read_shared_json(Path('build/mini-fx-latency-01/report.json'))
+        cls.observed_fxe = next(c for c in cls.observed['guard']['commands'] if c['line'] == 'FXE 0 0')
         plan = runner.timing.plan_stress(cls.fxt, real['FXS'], real['MEM'], ['GAIN in=0 out=0 dB'])
         command = ['node', 'tests/mini_browser_latency_guard_test.js', 'tools/mini_browser_latency_guard.js',
                    'build/hyperrig-mini-audio-v3/app/web/tankmini.html', 'app/mini/mini-profile.js', '--catalog-from-stdin']
-        result = subprocess.run(command, input=json.dumps({'fxt': cls.fxt, 'plan': plan}),
+        result = subprocess.run(command, input=json.dumps({'fxt': cls.fxt, 'plan': plan,
+                                'observed_fxe_off': cls.observed_fxe['lines'][0]}),
                                 capture_output=True, text=True, check=True)
         cls.node = json.loads(result.stdout)
 
@@ -182,6 +188,68 @@ class BrowserLatencyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'absent from native bytes'):
             runner.verify_trace(value, ACK, PONG)
 
+    def test_pload_loader_status_is_not_the_absent_IR_slot(self):
+        for field, wrong in (('ir', '-1'), ('ir', '1'), ('capture', '-110'), ('missing', '1')):
+            value = copy.deepcopy(self.node['success_trace'])
+            command = next(c for c in value['commands'] if c['line'] == 'PLOAD 0')
+            wire = value['wire'][command['wire_id']]
+            before = command['lines'][0]
+            self.assertIn(' missing=0 capture=0 ir=0 ', before)
+            after = before.replace(field+'=0 ', field+'='+wrong+' ')
+            command['lines'] = [after]
+            for chunk in value['rx']:
+                if wire['seq'] < chunk['seq'] < command['completed_seq']:
+                    chunk['hex'] = bytes.fromhex(chunk['hex']).replace(before.encode(), after.encode()).hex()
+            with self.subTest(field=field, wrong=wrong), self.assertRaisesRegex(ValueError, 'native PLOAD0 ACK'):
+                runner.verify_trace(value, ACK, PONG)
+
+    def test_observed_FXE_resource_reply_and_installed_firmware_formatters(self):
+        guard = self.observed['guard']; command = self.observed_fxe
+        self.assertEqual(self.observed['result'], 'fail')  # Historical report is not promoted.
+        self.assertEqual(command['lines'], ['FXE ok cpu=0/22799 ticks (0%) mem_fx=0 B'])
+        wire = guard['wire'][command['wire_id']]
+        self.assertTrue(wire['completed'] and command['native_RX_verified'])
+        self.assertEqual(bytes.fromhex(wire['hex']), b'FXE 0 0\n')
+        raw = b''.join(bytes.fromhex(r['hex']) for r in guard['rx']
+                       if wire['seq'] < r['seq'] < command['completed_seq'])
+        self.assertIn(command['lines'][0].encode(), raw)
+        # The original G success paths and their format strings are unchanged in v3.
+        from hyperrig.jieli import unpack_app
+        original = runner.original.mutation.checked(runner.original.mutation.FW_SOURCE,
+                                                    runner.original.mutation.FW_SHA)
+        candidate = (runner.ROOT/'build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin').read_bytes()
+        self.assertEqual(runner.digest(candidate), runner.IMAGE)
+        decoded, _, _ = unpack_app(candidate)
+        for begin, end in ((0x02011302, 0x02011308), (0x020129D4, 0x02012A08),
+                           (0x02012B7A, 0x02012BAA), (0x02012CBC, 0x02012CC4),
+                           (0x02012C14, 0x02012C5C), (0x0200EB78, 0x0200EBEA)):
+            self.assertEqual(original[begin-0x02000120:end-0x02000120],
+                             decoded[begin-0x02000000:end-0x02000000])
+        for address, value in ((0x02035B71, b'FXE ok\0'), (0x02035DF1, b'FXP ok %d\n\0'),
+                               (0x020360A2, b'FXA id=%d %s\n\0'),
+                               (0x02039FF1, b'%s cpu=%u/%u ticks (%u%%) mem_fx=%u B\n\0'),
+                               (0x020366DE, b'GAIN in=%d out=%d dB\n\0')):
+            self.assertEqual(original[address-0x02000120:address-0x02000120+len(value)], value)
+            self.assertEqual(decoded[address-0x02000000:address-0x02000000+len(value)], value)
+
+    def test_FXE_and_FXP_reject_wrong_formats_even_with_matching_raw_RX(self):
+        cases = [('FXE 0 0', reply) for reply in (
+            'FXE ok', 'FXE ok cpu=0/22799 ticks (0%)',
+            'FXE ok cpu=-1/22799 ticks (0%) mem_fx=0 B',
+            'FXE ok cpu=0/22799 ticks (0%) mem_fx=0 B extra')]
+        cases += [('FXP 0 0 -90', 'FXP ok -89'),
+                  ('FXP 0 0 -90', 'FXP ok -90 cpu=0/22799 ticks (0%) mem_fx=0 B')]
+        for line, wrong in cases:
+            value = copy.deepcopy(self.node['success_trace'])
+            command = next(c for c in value['commands'] if c['line'] == line)
+            wire = value['wire'][command['wire_id']]
+            before = command['lines'][0]; command['lines'] = [wrong]
+            for chunk in value['rx']:
+                if wire['seq'] < chunk['seq'] < command['completed_seq']:
+                    chunk['hex'] = bytes.fromhex(chunk['hex']).replace(before.encode(), wrong.encode()).hex()
+            with self.subTest(line=line, reply=wrong), self.assertRaisesRegex(ValueError, 'FX[EP].*ACK'):
+                runner.verify_trace(value, ACK, PONG)
+
     def test_trace_plan_identity_ids_and_restore_are_not_advisory(self):
         for change in ('plan', 'id', 'pong', 'restore', 'priming_mutation'):
             value = copy.deepcopy(self.node['success_trace'])
@@ -200,11 +268,108 @@ class BrowserLatencyTests(unittest.TestCase):
         self.assertTrue(report['baseline_restoration_verified']); self.assertTrue(editor.refreshed)
         self.assertTrue(report['temporary_wrapper_removed'])
         self.assertTrue(report['observation_verification']['observations_bound_to_native_commands'])
+        self.assertEqual(report['restored']['state']['ir_current'], -1)
+        self.assertEqual(report['restored']['responses']['ILIST'], ['ILIST end current=-1 slots=8'])
+        self.assertIn("PRE 0 0 0 -1 'Preset 1A' t=- s=1", report['restored']['responses']['PLIST'])
+        self.assertEqual(report['restored']['state']['plist']['current'], 0)
         self.assertEqual(report['maximum_admitted_instances_observed'], 1)
         self.assertEqual([w['line'] for w in report['guard']['wire'] if w['mutation']],
                          ['GAIN 0 -12', 'FXA P 99 gate', 'FXE 0 0', 'FXP 0 0 -90', 'FXE 0 1', 'PLOAD 0'])
         self.assertFalse(report['analog_latency_measured']); self.assertEqual(report['mutation_families_granted'], [])
         self.assertTrue(all(not v['baseline_restoration_verified'] for v in updates[:-1]))
+
+    def test_explicit_limit_selects_prefix_totals_and_final_checkpoint_without_changing_default(self):
+        actual = read_shared_json(Path('build/mini-fx-latency-02/report.json'))['plan']
+        original = copy.deepcopy(actual)
+        self.assertIs(runner.limit_plan(actual, None), actual)
+        chosen = runner.limit_plan(actual, 9)
+        self.assertEqual(actual, original)
+        self.assertEqual(chosen['steps'], actual['steps'][:9])
+        self.assertEqual(chosen['measurement_after_counts'], [4, 8, 9])
+        self.assertEqual(chosen['limits']['instances'], 9)
+        metadata = chosen['explicit_effect_limit']
+        self.assertEqual(metadata['derived_plan_instances'], 14)
+        self.assertEqual(metadata['selected_instances'], 9)
+        self.assertEqual(metadata['omitted_types'], [s['type'] for s in actual['steps'][9:]])
+        for unit in ('ticks', 'bytes'):
+            self.assertEqual(metadata['published_selected_cumulative_'+unit],
+                             actual['steps'][8]['published_cumulative_'+unit])
+        self.assertFalse(metadata['global_maximum_chain_proven'])
+        self.assertEqual(len(runner.limit_plan(actual, 16)['steps']), 14)
+        for invalid in (0, 17, True, '9', 9.0):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, 'max-effects'):
+                runner.limit_plan(actual, invalid)
+
+    def test_nine_enabled_effects_receive_final_measurement_and_single_preset_restore(self):
+        class MultiEditor(FakeEditor):
+            """Synthetic multi-effect target; uses the real catalog and host trace verifier."""
+            def __init__(self, *args):
+                super().__init__(*args)
+                self.instances, self.index = [], 0
+                self.types = runner.timing.protocol.parse_fxt(self.fxt)
+
+            def query(self, line):
+                if line != 'FXS': return super().query(line)
+                rows = list(self.responses[line]); banks = {'P': 0, 'Q': 0}
+                blocks = []
+                for instance in self.instances:
+                    bank = instance['bank']; pos = banks[bank]; banks[bank] += 1
+                    params = ','.join(str(p) for p in instance['params'])
+                    blocks.append(f"FX {bank}{pos} id={instance['id']} {instance['type']} on={instance['on']} p={params} ticks=490")
+                return self.record(line, [rows[0], *blocks, *rows[1:]])
+
+            def next(self):
+                phase = self.g['phase']
+                if phase in ('attenuate', 'restoring'):
+                    if phase == 'restoring': self.instances.clear()
+                    return super().next()
+                step = self.plan['steps'][self.index]
+                if phase == 'add':
+                    line = step['add_request']; self.substep = 0
+                    params = self.types[step['type']]['params']
+                    item = dict(id=self.index, type=step['type'], bank=step['bank'], on=1,
+                                params=[params[i]['default'] if i in params else 0 for i in range(7)])
+                    self.instances.append(item)
+                    self.g['created'].append({k: item[k] for k in ('id', 'type', 'bank')})
+                    rows = [f"FXA id={self.index} {step['type']}", 'FX cpu=490/23018 ticks (2%) mem_fx=0 B']
+                    self.g['phase'] = 'configure'
+                else:
+                    changes = step['configure_after_actual_id']
+                    line = changes[self.substep]['request_template'].replace('{id}', str(self.index))
+                    tokens = line.split(); item = self.instances[-1]
+                    if tokens[0] == 'FXE':
+                        item['on'] = int(tokens[2]); rows = ['FXE ok cpu=490/23018 ticks (2%) mem_fx=0 B']
+                    else:
+                        item['params'][int(tokens[2])] = int(tokens[3]); rows = ['FXP ok '+tokens[3]]
+                    self.substep += 1
+                    if self.substep == len(changes): self.g['phase'] = 'between'
+                self.record(line, rows); self.g['mutations'] += 1; self.g['epoch'] += 1
+                return dict(line=line, reply=rows, rejected=False)
+
+            def advance(self):
+                self.index += 1
+                self.g['phase'] = 'stress_done' if self.index == len(self.plan['steps']) else 'add'
+
+        responses = copy.deepcopy(self.responses)
+        responses['FXS'] = [row.replace('/490 ticks', '/23018 ticks') for row in responses['FXS']]
+        prepared = dict(self.prepared, baseline=runner.original.parse_snapshot(responses))
+        editor = MultiEditor(responses, self.fxt, self.stat, self.mem); clock = Clock()
+        report = runner.experiment(prepared, editor, max_effects=9, clock=clock, sleep=clock.sleep)
+        self.assertEqual(report['result'], 'pass', report.get('error') or report.get('cleanup_error'))
+        self.assertEqual(report['max_effects_requested'], 9)
+        self.assertEqual([m['instances'] for m in report['measurements']], [0, 4, 8, 9])
+        self.assertEqual(report['maximum_admitted_instances_observed'], 9)
+        blocks = report['measurements'][-1]['measurement']['before']['configuration']['blocks']
+        self.assertEqual(len(blocks), 9); self.assertTrue(all(b['on'] == 1 for b in blocks))
+        mutations = [w['line'] for w in report['guard']['wire'] if w['mutation']]
+        self.assertEqual(sum(line.startswith('FXA ') for line in mutations), 9)
+        self.assertFalse(any('flanger' in line for line in mutations))
+        self.assertEqual(mutations.count('PLOAD 0'), 1)
+        self.assertTrue(report['baseline_restoration_verified'] and report['temporary_wrapper_removed'])
+        for field, wrong in (('max_effects_requested', 8), ('plan', {})):
+            changed = copy.deepcopy(report); changed[field] = wrong
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                runner.verify_observations(changed, changed['guard'])
 
     def test_resource_rejection_is_real_reply_and_restores_once(self):
         editor = self.fake(reject=True); report, _ = self.run_experiment(editor)

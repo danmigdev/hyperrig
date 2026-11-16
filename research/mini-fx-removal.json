@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "kind": "mini-FXR-removal-independent-evidence",
+  "date_utc": "2026-11-16",
+  "agent_device_or_browser_IO": false,
+  "physical_report": {
+    "path": "build/mini-fx-remove-01/report.json",
+    "sha256": "307cf07fd35120c59a34d2045dcf4799abba0ec46af32f34ea5c84ffa0a70356",
+    "bytes": 264324
+  },
+  "source_sha256": {
+    "tools/probe_mini_browser_fx_remove.py": "6b2e856b7ab939cfbb7a67da27cc5efd4894d5962fdb0eecd3dc74ecb8f1d237",
+    "tools/mini_browser_fx_remove_guard.js": "9c4c5a827eed94137285e5abac3b23b2f22f1e7b504b1232def0905f9e421e27",
+    "tools/probe_mini_browser_latency.py": "a80460f4dacdc2ca4c496b79ed58699e0074cbd7ddc50b1cf639a4cd57b43a37",
+    "tools/probe_mini_browser_first_preset.py": "87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b",
+    "tools/mini_latency_observation.py": "46794440387f472cd3e08fb1c430e9b8bd39bdc839ec636ebc50d8db8c168b7a"
+  },
+  "physical_result": "pass",
+  "replayed_verification": {
+    "temporary_instance_id": 0,
+    "native_RX_bytes": 15124,
+    "wire_commands": 76,
+    "actual_mutation_requests": [
+      "GAIN 0 -12",
+      "FXA Q 99 boost",
+      "FXP 0 0 -1",
+      "FXR 0",
+      "PLOAD 0"
+    ],
+    "reader_hook_priming_queries_not_claimed_as_raw_RX_proof": [
+      "PING"
+    ],
+    "no_save_delete_firmware_or_repeated_mutation": true,
+    "observations_bound_to_native_commands": true,
+    "snapshot_command_ids": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65
+    ],
+    "temporary_effect_added_then_removed": true,
+    "saved_baseline_restored": true,
+    "general_family_grants": [],
+    "effect_removal_UI_physically_exercised": false
+  },
+  "temporary_effect_removal_verified": true,
+  "saved_baseline_restoration_verified": true,
+  "wrapper_detached": true,
+  "effect_removal_UI_physically_exercised": false,
+  "general_family_grants": [],
+  "serial_open_performed_by_trial": false,
+  "serial_close_performed_by_trial": false,
+  "native_ACKs": [
+    {
+      "request": "GAIN 0 -12",
+      "lines": [
+        "GAIN in=0 out=-12 dB"
+      ]
+    },
+    {
+      "request": "FXA Q 99 boost",
+      "lines": [
+        "FXA id=0 boost",
+        "FX cpu=340/23095 ticks (1%) mem_fx=0 B"
+      ]
+    },
+    {
+      "request": "FXP 0 0 -1",
+      "lines": [
+        "FXP ok -1"
+      ]
+    },
+    {
+      "request": "FXR 0",
+      "lines": [
+        "FXR ok cpu=0/23095 ticks (0%) mem_fx=0 B"
+      ]
+    },
+    {
+      "request": "PLOAD 0",
+      "lines": [
+        "PLOAD ok 0 'Preset 1A' missing=0 capture=0 ir=0 ms=0"
+      ]
+    }
+  ],
+  "formatter_audit": {
+    "original": {
+      "path": "analysis/firmware/m571_g_app/app.bin",
+      "sha256": "4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e",
+      "bytes": 485772
+    },
+    "installed_candidate": {
+      "path": "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin",
+      "sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+      "bytes": 516096
+    },
+    "success_path": "FXR parses ID at02012A28, calls0202EB4C, accepts return0 at02012A42, then02012BE0 passes string02035B6A to common formatter0200EB78.",
+    "success_regex": "^FXR ok cpu=\\d+/\\d+ ticks \\(\\d+%\\) mem_fx=\\d+ B$",
+    "fragments": [
+      {
+        "start": "0x02012A28",
+        "end_exclusive": "0x02012A62",
+        "hex": "bfea67874120422a501680ff865a0100051680ff0cc10100061606f8c800bfeacb876016bfea9fdb031640e01822b4e0e05002e1b0f6ffeaa1f8",
+        "sha256": "3f1ffea03aa2f1eae4191823e693d8e619c5e54ff8623280ecf72386d53aa191",
+        "installed_v3_identical": true
+      },
+      {
+        "start": "0x02012BD6",
+        "end_exclusive": "0x02012BEC",
+        "hex": "5016bfeab3dfbfea008700e15af3bfeac8dfffea36f7",
+        "sha256": "b055d144a23edfa81f2d6c304c985f2357796a3990598a63bcac0dc143452a8f",
+        "installed_v3_identical": true
+      },
+      {
+        "start": "0x0200EB78",
+        "end_exclusive": "0x0200EBEA",
+        "hex": "7704e29c041680ff64a20100051680fff272bfff061680ffea72bfff004b80ff4ca20100e7e1640080ffd872bffff4e170700481472080ffb2a8010040f018228023d0e90560c1ff9068c20116dc8520c2fff19f030241e0000260164316bfeaa2bebfeaaabe01166016bfea1fc102845704",
+        "sha256": "5b40987050f87cae310b91ad2134944da00d05be64bb0f68a411d9799f51c691",
+        "installed_v3_identical": true
+      }
+    ]
+  },
+  "offline_tests": {
+    "python_cases": 10,
+    "native_Node_cases_at_least": 20,
+    "test_sources": {
+      "tests/test_mini_browser_fx_remove.py": "44335b9b4608e3619fd9eb683df3b3de5eed1310868b01385cff2cec826d621a",
+      "tests/mini_browser_fx_remove_guard_test.js": "475a01792b438a3743434006c277e1a1e61e4c745bf4c9c2cf312cdb9feb1cd2"
+    },
+    "independent_review": [
+      "mini_image:10 tests and source review pass",
+      "mini_boot:10 tests and source review pass"
+    ]
+  }
+}

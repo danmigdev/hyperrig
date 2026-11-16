@@ -1,0 +1,2248 @@
+{
+  "schema": 1,
+  "kind": "mini-latency-independent-physical-observation",
+  "date_utc": "2026-11-16",
+  "hardware_observations_exist": true,
+  "independent_analysis_performed_device_or_browser_IO": false,
+  "analysis_sources": {
+    "tools/probe_mini_browser_latency.py": "a80460f4dacdc2ca4c496b79ed58699e0074cbd7ddc50b1cf639a4cd57b43a37",
+    "tools/mini_latency_observation.py": "46794440387f472cd3e08fb1c430e9b8bd39bdc839ec636ebc50d8db8c168b7a"
+  },
+  "semantics": "STG blk is internal worker processing through output-ring publication; this is not ADC-to-DAC latency.",
+  "nominal_clock_conversion_physically_calibrated": false,
+  "analog_latency_measured": false,
+  "stimulus_controlled": false,
+  "worst_case_latency_proven": false,
+  "global_maximum_chain_proven": false,
+  "all_catalog_types_simultaneously_enabled": false,
+  "new_app_command_families_granted": [],
+  "summary": {
+    "conclusive_trial": "03",
+    "selected_instances_all_enabled_and_measured": 9,
+    "mean_internal_block_ms": 2.394822222222222,
+    "largest_observed_internal_block_ms": 2.526133333333333,
+    "trial02_distinction": "Nine admitted, only zero/four/eight measured; tenth enable rejected. No nine-instance latency was inferred from trial02.",
+    "restoration": "Both trials ended with one actual PLOAD0 and verified preset0/sceneA/capture0/IR-1/gain0,0/empty FX chain."
+  },
+  "trials": [
+    {
+      "trial": "02",
+      "report": {
+        "path": "build/mini-fx-latency-02/report.json",
+        "sha256": "9e3278a5cd5bfae31fc1cf4e60729511008c1a8f18a62c30f0f9206f0b6beb08",
+        "bytes": 670895
+      },
+      "source_provenance": [
+        {
+          "executed_source": "tools/probe_mini_browser_latency.py",
+          "path": "analysis/hardware/source-snapshots/latency-02/tools/probe_mini_browser_latency.py",
+          "sha256": "108cd5308e5e29518ce719b1f9cd6162f04c1d5d092d708a87001eb09efd0f9a",
+          "bytes": 27736
+        },
+        {
+          "executed_source": "tools/mini_browser_latency_guard.js",
+          "path": "analysis/hardware/source-snapshots/latency-02/tools/mini_browser_latency_guard.js",
+          "sha256": "f1a0299ffad740c5d0bc8fd581c4cacd17c2bb18e18738ef69a20f1d08603cae",
+          "bytes": 13981
+        },
+        {
+          "executed_source": "tools/mini_latency_observation.py",
+          "path": "analysis/hardware/source-snapshots/latency-02/tools/mini_latency_observation.py",
+          "sha256": "46794440387f472cd3e08fb1c430e9b8bd39bdc839ec636ebc50d8db8c168b7a",
+          "bytes": 17039
+        },
+        {
+          "executed_source": "tools/probe_mini_browser_first_preset.py",
+          "path": "analysis/hardware/source-snapshots/latency-02/tools/probe_mini_browser_first_preset.py",
+          "sha256": "87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b",
+          "bytes": 32940
+        },
+        {
+          "executed_source": "tools/run_mini_v3_first_preset_a2.py",
+          "path": "analysis/hardware/source-snapshots/latency-02/tools/run_mini_v3_first_preset_a2.py",
+          "sha256": "c234aa9d36f9b0c95e71a692881f81342773d6e237766f1a2d1ed49df65ac2ab",
+          "bytes": 9887
+        }
+      ],
+      "result": "pass",
+      "raw_trace_replayed": {
+        "native_RX_bytes": 42366,
+        "wire_commands": 146,
+        "reader_hook_priming_queries_not_claimed_as_raw_RX_proof": [
+          "PING"
+        ],
+        "actual_mutation_requests": [
+          "GAIN 0 -12",
+          "FXA P 99 gate",
+          "FXE 0 0",
+          "FXP 0 0 -90",
+          "FXE 0 1",
+          "FXA P 99 comp",
+          "FXE 1 0",
+          "FXP 1 4 0",
+          "FXP 1 5 25",
+          "FXE 1 1",
+          "FXA P 99 eq",
+          "FXE 2 0",
+          "FXP 2 0 -3",
+          "FXP 2 1 -3",
+          "FXP 2 3 -3",
+          "FXE 2 1",
+          "FXA P 99 boost",
+          "FXE 3 0",
+          "FXP 3 0 -1",
+          "FXE 3 1",
+          "FXA P 99 overdrive",
+          "FXE 4 0",
+          "FXE 4 1",
+          "FXA P 99 hum",
+          "FXE 5 0",
+          "FXE 5 1",
+          "FXA P 99 envfilter",
+          "FXE 6 0",
+          "FXP 6 6 25",
+          "FXE 6 1",
+          "FXA Q 99 tremolo",
+          "FXE 7 0",
+          "FXE 7 1",
+          "FXA Q 99 chorus",
+          "FXE 8 0",
+          "FXP 8 2 25",
+          "FXE 8 1",
+          "FXA Q 99 flanger",
+          "FXE 9 0",
+          "FXP 9 3 25",
+          "FXE 9 1",
+          "PLOAD 0"
+        ],
+        "no_NOR_save_delete_or_firmware_commands": true
+      },
+      "observation_replay": {
+        "observations_bound_to_native_commands": true,
+        "command_ids": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135
+        ],
+        "timing_derivations_recomputed": 3
+      },
+      "measured_enabled_instance_counts": [
+        0,
+        4,
+        8
+      ],
+      "maximum_admitted_instances_observed": 9,
+      "rejections": [
+        {
+          "request": "FXE 9 1",
+          "reply": [
+            "ERR FXE not enough CPU"
+          ],
+          "command_id": 120,
+          "epoch": 40
+        }
+      ],
+      "max_effects_requested": null,
+      "explicit_plan_selection": null,
+      "measurements": [
+        {
+          "enabled_instances": 0,
+          "all_actual_instances_enabled": true,
+          "configuration": {
+            "blocks": [],
+            "amp": {
+              "present": 1,
+              "on": 1
+            },
+            "mix": [],
+            "xo": []
+          },
+          "gain": [
+            0,
+            0
+          ],
+          "nominal_MHz": 360,
+          "nominal_ticks_per_ms": 60000,
+          "window_blocks": 512,
+          "eligible_windows": [
+            {
+              "window": 4838,
+              "blk": {
+                "avg_ticks": 128635,
+                "max_ticks": 134619,
+                "avg_ms_nominal": 2.1439166666666667,
+                "max_ms_nominal": 2.24365
+              },
+              "lat": {
+                "avg_ticks": 1045,
+                "max_ticks": 1883,
+                "avg_ms_nominal": 0.017416666666666667,
+                "max_ms_nominal": 0.03138333333333333
+              }
+            },
+            {
+              "window": 4839,
+              "blk": {
+                "avg_ticks": 128641,
+                "max_ticks": 137270,
+                "avg_ms_nominal": 2.1440166666666665,
+                "max_ms_nominal": 2.2878333333333334
+              },
+              "lat": {
+                "avg_ticks": 1051,
+                "max_ticks": 1883,
+                "avg_ms_nominal": 0.017516666666666666,
+                "max_ms_nominal": 0.03138333333333333
+              }
+            },
+            {
+              "window": 4841,
+              "blk": {
+                "avg_ticks": 128677,
+                "max_ticks": 135371,
+                "avg_ms_nominal": 2.144616666666667,
+                "max_ms_nominal": 2.2561833333333334
+              },
+              "lat": {
+                "avg_ticks": 1054,
+                "max_ticks": 1885,
+                "avg_ms_nominal": 0.017566666666666668,
+                "max_ms_nominal": 0.03141666666666667
+              }
+            }
+          ],
+          "mean_of_three_window_averages_ms": 2.1441833333333333,
+          "window_average_range_ms": [
+            2.1439166666666667,
+            2.144616666666667
+          ],
+          "largest_observed_window_maximum_ms": 2.2878333333333334,
+          "elapsed_observation_ms": 6390.00000001397,
+          "resources_before": {
+            "cost_ticks": 0,
+            "budget_ticks": 23018,
+            "effects_bytes": 0,
+            "fxcap": 108200,
+            "pool_largest": 102384,
+            "pool_used": 0,
+            "pool_bad": 0
+          },
+          "A2_nproc_delta": 2402,
+          "AUD_counter_delta": {
+            "in": 4806,
+            "out": 4806,
+            "blk": 2403,
+            "ovr": 0,
+            "und": 0,
+            "full": 0
+          },
+          "DSP_counter_delta": {
+            "hw_ok": 0,
+            "mism": 0,
+            "hw_to": 0,
+            "c1_ok": 0,
+            "c1_to": 0,
+            "jobs": 4804
+          },
+          "FXS_counter_delta": {
+            "jobs": 0,
+            "to": 0,
+            "skip": 0,
+            "posts": 0,
+            "takes": 0,
+            "canc": 0,
+            "skipped": 0
+          },
+          "nonzero_fault_counter_deltas": {},
+          "observed_status_values": {
+            "AUD.err": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "DSP.rc": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "observed_clipping": [
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            }
+          ],
+          "no_reported_faults": true
+        },
+        {
+          "enabled_instances": 4,
+          "all_actual_instances_enabled": true,
+          "configuration": {
+            "blocks": [
+              {
+                "bank": "P",
+                "position": 0,
+                "id": 0,
+                "type": "gate",
+                "on": 1,
+                "params": [
+                  -90,
+                  120,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 1,
+                "id": 1,
+                "type": "comp",
+                "on": 1,
+                "params": [
+                  -24,
+                  40,
+                  8,
+                  150,
+                  0,
+                  25,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 2,
+                "id": 2,
+                "type": "eq",
+                "on": 1,
+                "params": [
+                  -3,
+                  -3,
+                  800,
+                  -3,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 3,
+                "id": 3,
+                "type": "boost",
+                "on": 1,
+                "params": [
+                  -1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              }
+            ],
+            "amp": {
+              "present": 1,
+              "on": 1
+            },
+            "mix": [],
+            "xo": []
+          },
+          "gain": [
+            0,
+            -12
+          ],
+          "nominal_MHz": 360,
+          "nominal_ticks_per_ms": 60000,
+          "window_blocks": 512,
+          "eligible_windows": [
+            {
+              "window": 4845,
+              "blk": {
+                "avg_ticks": 132628,
+                "max_ticks": 135951,
+                "avg_ms_nominal": 2.2104666666666666,
+                "max_ms_nominal": 2.26585
+              },
+              "lat": {
+                "avg_ticks": 1056,
+                "max_ticks": 1884,
+                "avg_ms_nominal": 0.0176,
+                "max_ms_nominal": 0.0314
+              }
+            },
+            {
+              "window": 4846,
+              "blk": {
+                "avg_ticks": 132606,
+                "max_ticks": 137502,
+                "avg_ms_nominal": 2.2101,
+                "max_ms_nominal": 2.2917
+              },
+              "lat": {
+                "avg_ticks": 1051,
+                "max_ticks": 1883,
+                "avg_ms_nominal": 0.017516666666666666,
+                "max_ms_nominal": 0.03138333333333333
+              }
+            },
+            {
+              "window": 4847,
+              "blk": {
+                "avg_ticks": 132609,
+                "max_ticks": 138585,
+                "avg_ms_nominal": 2.21015,
+                "max_ms_nominal": 2.30975
+              },
+              "lat": {
+                "avg_ticks": 1051,
+                "max_ticks": 1887,
+                "avg_ms_nominal": 0.017516666666666666,
+                "max_ms_nominal": 0.03145
+              }
+            }
+          ],
+          "mean_of_three_window_averages_ms": 2.210238888888889,
+          "window_average_range_ms": [
+            2.2101,
+            2.2104666666666666
+          ],
+          "largest_observed_window_maximum_ms": 2.30975,
+          "elapsed_observation_ms": 4858.99999999674,
+          "resources_before": {
+            "cost_ticks": 3706,
+            "budget_ticks": 18164,
+            "effects_bytes": 0,
+            "fxcap": 108200,
+            "pool_largest": 102384,
+            "pool_used": 0,
+            "pool_bad": 0
+          },
+          "A2_nproc_delta": 1824,
+          "AUD_counter_delta": {
+            "in": 3650,
+            "out": 3650,
+            "blk": 1825,
+            "ovr": 0,
+            "und": 0,
+            "full": 0
+          },
+          "DSP_counter_delta": {
+            "hw_ok": 0,
+            "mism": 0,
+            "hw_to": 0,
+            "c1_ok": 0,
+            "c1_to": 0,
+            "jobs": 3648
+          },
+          "FXS_counter_delta": {
+            "jobs": 0,
+            "to": 0,
+            "skip": 0,
+            "posts": 0,
+            "takes": 0,
+            "canc": 0,
+            "skipped": 0
+          },
+          "nonzero_fault_counter_deltas": {},
+          "observed_status_values": {
+            "AUD.err": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "DSP.rc": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "observed_clipping": [
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            }
+          ],
+          "no_reported_faults": true
+        },
+        {
+          "enabled_instances": 8,
+          "all_actual_instances_enabled": true,
+          "configuration": {
+            "blocks": [
+              {
+                "bank": "P",
+                "position": 0,
+                "id": 0,
+                "type": "gate",
+                "on": 1,
+                "params": [
+                  -90,
+                  120,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 1,
+                "id": 1,
+                "type": "comp",
+                "on": 1,
+                "params": [
+                  -24,
+                  40,
+                  8,
+                  150,
+                  0,
+                  25,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 2,
+                "id": 2,
+                "type": "eq",
+                "on": 1,
+                "params": [
+                  -3,
+                  -3,
+                  800,
+                  -3,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 3,
+                "id": 3,
+                "type": "boost",
+                "on": 1,
+                "params": [
+                  -1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 4,
+                "id": 4,
+                "type": "overdrive",
+                "on": 1,
+                "params": [
+                  18,
+                  4000,
+                  -8,
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 5,
+                "id": 5,
+                "type": "hum",
+                "on": 1,
+                "params": [
+                  50,
+                  24,
+                  4,
+                  2,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 6,
+                "id": 6,
+                "type": "envfilter",
+                "on": 1,
+                "params": [
+                  50,
+                  300,
+                  2400,
+                  50,
+                  40,
+                  1,
+                  25
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "Q",
+                "position": 0,
+                "id": 7,
+                "type": "tremolo",
+                "on": 1,
+                "params": [
+                  500,
+                  60,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              }
+            ],
+            "amp": {
+              "present": 1,
+              "on": 1
+            },
+            "mix": [],
+            "xo": []
+          },
+          "gain": [
+            0,
+            -12
+          ],
+          "nominal_MHz": 360,
+          "nominal_ticks_per_ms": 60000,
+          "window_blocks": 512,
+          "eligible_windows": [
+            {
+              "window": 4852,
+              "blk": {
+                "avg_ticks": 139569,
+                "max_ticks": 142961,
+                "avg_ms_nominal": 2.32615,
+                "max_ms_nominal": 2.3826833333333335
+              },
+              "lat": {
+                "avg_ticks": 1053,
+                "max_ticks": 1885,
+                "avg_ms_nominal": 0.01755,
+                "max_ms_nominal": 0.03141666666666667
+              }
+            },
+            {
+              "window": 4853,
+              "blk": {
+                "avg_ticks": 139558,
+                "max_ticks": 143715,
+                "avg_ms_nominal": 2.3259666666666665,
+                "max_ms_nominal": 2.39525
+              },
+              "lat": {
+                "avg_ticks": 1053,
+                "max_ticks": 1904,
+                "avg_ms_nominal": 0.01755,
+                "max_ms_nominal": 0.031733333333333336
+              }
+            },
+            {
+              "window": 4855,
+              "blk": {
+                "avg_ticks": 139566,
+                "max_ticks": 144013,
+                "avg_ms_nominal": 2.3261,
+                "max_ms_nominal": 2.4002166666666667
+              },
+              "lat": {
+                "avg_ticks": 1051,
+                "max_ticks": 2324,
+                "avg_ms_nominal": 0.017516666666666666,
+                "max_ms_nominal": 0.038733333333333335
+              }
+            }
+          ],
+          "mean_of_three_window_averages_ms": 2.3260722222222223,
+          "window_average_range_ms": [
+            2.3259666666666665,
+            2.32615
+          ],
+          "largest_observed_window_maximum_ms": 2.4002166666666667,
+          "elapsed_observation_ms": 6500.0,
+          "resources_before": {
+            "cost_ticks": 11307,
+            "budget_ticks": 19320,
+            "effects_bytes": 0,
+            "fxcap": 108200,
+            "pool_largest": 102384,
+            "pool_used": 0,
+            "pool_bad": 0
+          },
+          "A2_nproc_delta": 2435,
+          "AUD_counter_delta": {
+            "in": 4868,
+            "out": 4868,
+            "blk": 2434,
+            "ovr": 0,
+            "und": 0,
+            "full": 0
+          },
+          "DSP_counter_delta": {
+            "hw_ok": 0,
+            "mism": 0,
+            "hw_to": 0,
+            "c1_ok": 0,
+            "c1_to": 0,
+            "jobs": 4870
+          },
+          "FXS_counter_delta": {
+            "jobs": 0,
+            "to": 0,
+            "skip": 0,
+            "posts": 0,
+            "takes": 0,
+            "canc": 0,
+            "skipped": 0
+          },
+          "nonzero_fault_counter_deltas": {},
+          "observed_status_values": {
+            "AUD.err": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "DSP.rc": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "observed_clipping": [
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            }
+          ],
+          "no_reported_faults": true
+        }
+      ],
+      "restoration_verified": true,
+      "temporary_wrapper_detached": true,
+      "restored_gain": [
+        0,
+        0
+      ],
+      "restored_preset": 0,
+      "restored_scene": 0,
+      "restored_capture": 0,
+      "restored_ir": -1,
+      "restored_effect_count": 0
+    },
+    {
+      "trial": "03",
+      "report": {
+        "path": "build/mini-fx-latency-03/report.json",
+        "sha256": "379a39fc8098fafc84ab35eb49ecb947406e57a87691038abc80c4cfd93d0729",
+        "bytes": 769816
+      },
+      "source_provenance": [
+        {
+          "executed_source": "tools/probe_mini_browser_latency.py",
+          "path": "tools/probe_mini_browser_latency.py",
+          "sha256": "a80460f4dacdc2ca4c496b79ed58699e0074cbd7ddc50b1cf639a4cd57b43a37",
+          "bytes": 30371
+        },
+        {
+          "executed_source": "tools/mini_browser_latency_guard.js",
+          "path": "tools/mini_browser_latency_guard.js",
+          "sha256": "f1a0299ffad740c5d0bc8fd581c4cacd17c2bb18e18738ef69a20f1d08603cae",
+          "bytes": 13981
+        },
+        {
+          "executed_source": "tools/mini_latency_observation.py",
+          "path": "tools/mini_latency_observation.py",
+          "sha256": "46794440387f472cd3e08fb1c430e9b8bd39bdc839ec636ebc50d8db8c168b7a",
+          "bytes": 17039
+        },
+        {
+          "executed_source": "tools/probe_mini_browser_first_preset.py",
+          "path": "tools/probe_mini_browser_first_preset.py",
+          "sha256": "87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b",
+          "bytes": 32940
+        },
+        {
+          "executed_source": "tools/run_mini_v3_first_preset_a2.py",
+          "path": "tools/run_mini_v3_first_preset_a2.py",
+          "sha256": "c234aa9d36f9b0c95e71a692881f81342773d6e237766f1a2d1ed49df65ac2ab",
+          "bytes": 9887
+        }
+      ],
+      "result": "pass",
+      "raw_trace_replayed": {
+        "native_RX_bytes": 49718,
+        "wire_commands": 157,
+        "reader_hook_priming_queries_not_claimed_as_raw_RX_proof": [
+          "PING"
+        ],
+        "actual_mutation_requests": [
+          "GAIN 0 -12",
+          "FXA P 99 gate",
+          "FXE 0 0",
+          "FXP 0 0 -90",
+          "FXE 0 1",
+          "FXA P 99 comp",
+          "FXE 1 0",
+          "FXP 1 4 0",
+          "FXP 1 5 25",
+          "FXE 1 1",
+          "FXA P 99 eq",
+          "FXE 2 0",
+          "FXP 2 0 -3",
+          "FXP 2 1 -3",
+          "FXP 2 3 -3",
+          "FXE 2 1",
+          "FXA P 99 boost",
+          "FXE 3 0",
+          "FXP 3 0 -1",
+          "FXE 3 1",
+          "FXA P 99 overdrive",
+          "FXE 4 0",
+          "FXE 4 1",
+          "FXA P 99 hum",
+          "FXE 5 0",
+          "FXE 5 1",
+          "FXA P 99 envfilter",
+          "FXE 6 0",
+          "FXP 6 6 25",
+          "FXE 6 1",
+          "FXA Q 99 tremolo",
+          "FXE 7 0",
+          "FXE 7 1",
+          "FXA Q 99 chorus",
+          "FXE 8 0",
+          "FXP 8 2 25",
+          "FXE 8 1",
+          "PLOAD 0"
+        ],
+        "no_NOR_save_delete_or_firmware_commands": true
+      },
+      "observation_replay": {
+        "observations_bound_to_native_commands": true,
+        "command_ids": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146
+        ],
+        "timing_derivations_recomputed": 4
+      },
+      "measured_enabled_instance_counts": [
+        0,
+        4,
+        8,
+        9
+      ],
+      "maximum_admitted_instances_observed": 9,
+      "rejections": [],
+      "max_effects_requested": 9,
+      "explicit_plan_selection": {
+        "requested": 9,
+        "derived_plan_instances": 14,
+        "selected_instances": 9,
+        "published_selected_cumulative_ticks": 12095,
+        "published_selected_cumulative_bytes": 2080,
+        "omitted_types": [
+          "flanger",
+          "phaser",
+          "vibrato",
+          "delay",
+          "doubler"
+        ],
+        "selection": "prefix of the current finite ordered plan",
+        "global_maximum_chain_proven": false
+      },
+      "measurements": [
+        {
+          "enabled_instances": 0,
+          "all_actual_instances_enabled": true,
+          "configuration": {
+            "blocks": [],
+            "amp": {
+              "present": 1,
+              "on": 1
+            },
+            "mix": [],
+            "xo": []
+          },
+          "gain": [
+            0,
+            0
+          ],
+          "nominal_MHz": 360,
+          "nominal_ticks_per_ms": 60000,
+          "window_blocks": 512,
+          "eligible_windows": [
+            {
+              "window": 5323,
+              "blk": {
+                "avg_ticks": 128710,
+                "max_ticks": 133997,
+                "avg_ms_nominal": 2.145166666666667,
+                "max_ms_nominal": 2.2332833333333335
+              },
+              "lat": {
+                "avg_ticks": 1055,
+                "max_ticks": 1883,
+                "avg_ms_nominal": 0.017583333333333333,
+                "max_ms_nominal": 0.03138333333333333
+              }
+            },
+            {
+              "window": 5324,
+              "blk": {
+                "avg_ticks": 128771,
+                "max_ticks": 145678,
+                "avg_ms_nominal": 2.1461833333333336,
+                "max_ms_nominal": 2.427966666666667
+              },
+              "lat": {
+                "avg_ticks": 1054,
+                "max_ticks": 1886,
+                "avg_ms_nominal": 0.017566666666666668,
+                "max_ms_nominal": 0.031433333333333334
+              }
+            },
+            {
+              "window": 5325,
+              "blk": {
+                "avg_ticks": 128712,
+                "max_ticks": 133697,
+                "avg_ms_nominal": 2.1452,
+                "max_ms_nominal": 2.228283333333333
+              },
+              "lat": {
+                "avg_ticks": 1052,
+                "max_ticks": 1881,
+                "avg_ms_nominal": 0.017533333333333335,
+                "max_ms_nominal": 0.03135
+              }
+            }
+          ],
+          "mean_of_three_window_averages_ms": 2.145516666666667,
+          "window_average_range_ms": [
+            2.145166666666667,
+            2.1461833333333336
+          ],
+          "largest_observed_window_maximum_ms": 2.427966666666667,
+          "elapsed_observation_ms": 4858.99999999674,
+          "resources_before": {
+            "cost_ticks": 0,
+            "budget_ticks": 22878,
+            "effects_bytes": 0,
+            "fxcap": 108200,
+            "pool_largest": 102384,
+            "pool_used": 0,
+            "pool_bad": 0
+          },
+          "A2_nproc_delta": 1823,
+          "AUD_counter_delta": {
+            "in": 3648,
+            "out": 3648,
+            "blk": 1824,
+            "ovr": 0,
+            "und": 0,
+            "full": 0
+          },
+          "DSP_counter_delta": {
+            "hw_ok": 0,
+            "mism": 0,
+            "hw_to": 0,
+            "c1_ok": 0,
+            "c1_to": 0,
+            "jobs": 3646
+          },
+          "FXS_counter_delta": {
+            "jobs": 0,
+            "to": 0,
+            "skip": 0,
+            "posts": 0,
+            "takes": 0,
+            "canc": 0,
+            "skipped": 0
+          },
+          "nonzero_fault_counter_deltas": {},
+          "observed_status_values": {
+            "AUD.err": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "DSP.rc": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "observed_clipping": [
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            }
+          ],
+          "no_reported_faults": true
+        },
+        {
+          "enabled_instances": 4,
+          "all_actual_instances_enabled": true,
+          "configuration": {
+            "blocks": [
+              {
+                "bank": "P",
+                "position": 0,
+                "id": 0,
+                "type": "gate",
+                "on": 1,
+                "params": [
+                  -90,
+                  120,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 1,
+                "id": 1,
+                "type": "comp",
+                "on": 1,
+                "params": [
+                  -24,
+                  40,
+                  8,
+                  150,
+                  0,
+                  25,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 2,
+                "id": 2,
+                "type": "eq",
+                "on": 1,
+                "params": [
+                  -3,
+                  -3,
+                  800,
+                  -3,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 3,
+                "id": 3,
+                "type": "boost",
+                "on": 1,
+                "params": [
+                  -1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              }
+            ],
+            "amp": {
+              "present": 1,
+              "on": 1
+            },
+            "mix": [],
+            "xo": []
+          },
+          "gain": [
+            0,
+            -12
+          ],
+          "nominal_MHz": 360,
+          "nominal_ticks_per_ms": 60000,
+          "window_blocks": 512,
+          "eligible_windows": [
+            {
+              "window": 5330,
+              "blk": {
+                "avg_ticks": 132639,
+                "max_ticks": 136582,
+                "avg_ms_nominal": 2.21065,
+                "max_ms_nominal": 2.2763666666666666
+              },
+              "lat": {
+                "avg_ticks": 1051,
+                "max_ticks": 1888,
+                "avg_ms_nominal": 0.017516666666666666,
+                "max_ms_nominal": 0.031466666666666664
+              }
+            },
+            {
+              "window": 5331,
+              "blk": {
+                "avg_ticks": 132644,
+                "max_ticks": 136248,
+                "avg_ms_nominal": 2.210733333333333,
+                "max_ms_nominal": 2.2708
+              },
+              "lat": {
+                "avg_ticks": 1053,
+                "max_ticks": 1881,
+                "avg_ms_nominal": 0.01755,
+                "max_ms_nominal": 0.03135
+              }
+            },
+            {
+              "window": 5332,
+              "blk": {
+                "avg_ticks": 132609,
+                "max_ticks": 137778,
+                "avg_ms_nominal": 2.21015,
+                "max_ms_nominal": 2.2963
+              },
+              "lat": {
+                "avg_ticks": 1050,
+                "max_ticks": 1887,
+                "avg_ms_nominal": 0.0175,
+                "max_ms_nominal": 0.03145
+              }
+            }
+          ],
+          "mean_of_three_window_averages_ms": 2.210511111111111,
+          "window_average_range_ms": [
+            2.21015,
+            2.210733333333333
+          ],
+          "largest_observed_window_maximum_ms": 2.2963,
+          "elapsed_observation_ms": 6484.99999998603,
+          "resources_before": {
+            "cost_ticks": 3704,
+            "budget_ticks": 15008,
+            "effects_bytes": 0,
+            "fxcap": 108200,
+            "pool_largest": 102384,
+            "pool_used": 0,
+            "pool_bad": 0
+          },
+          "A2_nproc_delta": 2432,
+          "AUD_counter_delta": {
+            "in": 4860,
+            "out": 4860,
+            "blk": 2430,
+            "ovr": 0,
+            "und": 0,
+            "full": 0
+          },
+          "DSP_counter_delta": {
+            "hw_ok": 0,
+            "mism": 0,
+            "hw_to": 0,
+            "c1_ok": 0,
+            "c1_to": 0,
+            "jobs": 4862
+          },
+          "FXS_counter_delta": {
+            "jobs": 0,
+            "to": 0,
+            "skip": 0,
+            "posts": 0,
+            "takes": 0,
+            "canc": 0,
+            "skipped": 0
+          },
+          "nonzero_fault_counter_deltas": {},
+          "observed_status_values": {
+            "AUD.err": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "DSP.rc": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "observed_clipping": [
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            }
+          ],
+          "no_reported_faults": true
+        },
+        {
+          "enabled_instances": 8,
+          "all_actual_instances_enabled": true,
+          "configuration": {
+            "blocks": [
+              {
+                "bank": "P",
+                "position": 0,
+                "id": 0,
+                "type": "gate",
+                "on": 1,
+                "params": [
+                  -90,
+                  120,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 1,
+                "id": 1,
+                "type": "comp",
+                "on": 1,
+                "params": [
+                  -24,
+                  40,
+                  8,
+                  150,
+                  0,
+                  25,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 2,
+                "id": 2,
+                "type": "eq",
+                "on": 1,
+                "params": [
+                  -3,
+                  -3,
+                  800,
+                  -3,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 3,
+                "id": 3,
+                "type": "boost",
+                "on": 1,
+                "params": [
+                  -1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 4,
+                "id": 4,
+                "type": "overdrive",
+                "on": 1,
+                "params": [
+                  18,
+                  4000,
+                  -8,
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 5,
+                "id": 5,
+                "type": "hum",
+                "on": 1,
+                "params": [
+                  50,
+                  24,
+                  4,
+                  2,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 6,
+                "id": 6,
+                "type": "envfilter",
+                "on": 1,
+                "params": [
+                  50,
+                  300,
+                  2400,
+                  50,
+                  40,
+                  1,
+                  25
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "Q",
+                "position": 0,
+                "id": 7,
+                "type": "tremolo",
+                "on": 1,
+                "params": [
+                  500,
+                  60,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              }
+            ],
+            "amp": {
+              "present": 1,
+              "on": 1
+            },
+            "mix": [],
+            "xo": []
+          },
+          "gain": [
+            0,
+            -12
+          ],
+          "nominal_MHz": 360,
+          "nominal_ticks_per_ms": 60000,
+          "window_blocks": 512,
+          "eligible_windows": [
+            {
+              "window": 5337,
+              "blk": {
+                "avg_ticks": 139594,
+                "max_ticks": 147695,
+                "avg_ms_nominal": 2.3265666666666664,
+                "max_ms_nominal": 2.4615833333333335
+              },
+              "lat": {
+                "avg_ticks": 1053,
+                "max_ticks": 1884,
+                "avg_ms_nominal": 0.01755,
+                "max_ms_nominal": 0.0314
+              }
+            },
+            {
+              "window": 5339,
+              "blk": {
+                "avg_ticks": 139573,
+                "max_ticks": 143709,
+                "avg_ms_nominal": 2.326216666666667,
+                "max_ms_nominal": 2.39515
+              },
+              "lat": {
+                "avg_ticks": 1055,
+                "max_ticks": 1879,
+                "avg_ms_nominal": 0.017583333333333333,
+                "max_ms_nominal": 0.031316666666666666
+              }
+            },
+            {
+              "window": 5340,
+              "blk": {
+                "avg_ticks": 139578,
+                "max_ticks": 142740,
+                "avg_ms_nominal": 2.3263,
+                "max_ms_nominal": 2.379
+              },
+              "lat": {
+                "avg_ticks": 1048,
+                "max_ticks": 1884,
+                "avg_ms_nominal": 0.017466666666666665,
+                "max_ms_nominal": 0.0314
+              }
+            }
+          ],
+          "mean_of_three_window_averages_ms": 2.326361111111111,
+          "window_average_range_ms": [
+            2.326216666666667,
+            2.3265666666666664
+          ],
+          "largest_observed_window_maximum_ms": 2.4615833333333335,
+          "elapsed_observation_ms": 6484.99999998603,
+          "resources_before": {
+            "cost_ticks": 11341,
+            "budget_ticks": 18408,
+            "effects_bytes": 0,
+            "fxcap": 108200,
+            "pool_largest": 102384,
+            "pool_used": 0,
+            "pool_bad": 0
+          },
+          "A2_nproc_delta": 2438,
+          "AUD_counter_delta": {
+            "in": 4876,
+            "out": 4876,
+            "blk": 2438,
+            "ovr": 0,
+            "und": 0,
+            "full": 0
+          },
+          "DSP_counter_delta": {
+            "hw_ok": 0,
+            "mism": 0,
+            "hw_to": 0,
+            "c1_ok": 0,
+            "c1_to": 0,
+            "jobs": 4874
+          },
+          "FXS_counter_delta": {
+            "jobs": 0,
+            "to": 0,
+            "skip": 0,
+            "posts": 0,
+            "takes": 0,
+            "canc": 0,
+            "skipped": 0
+          },
+          "nonzero_fault_counter_deltas": {},
+          "observed_status_values": {
+            "AUD.err": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "DSP.rc": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "observed_clipping": [
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            }
+          ],
+          "no_reported_faults": true
+        },
+        {
+          "enabled_instances": 9,
+          "all_actual_instances_enabled": true,
+          "configuration": {
+            "blocks": [
+              {
+                "bank": "P",
+                "position": 0,
+                "id": 0,
+                "type": "gate",
+                "on": 1,
+                "params": [
+                  -90,
+                  120,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 1,
+                "id": 1,
+                "type": "comp",
+                "on": 1,
+                "params": [
+                  -24,
+                  40,
+                  8,
+                  150,
+                  0,
+                  25,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 2,
+                "id": 2,
+                "type": "eq",
+                "on": 1,
+                "params": [
+                  -3,
+                  -3,
+                  800,
+                  -3,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 3,
+                "id": 3,
+                "type": "boost",
+                "on": 1,
+                "params": [
+                  -1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 4,
+                "id": 4,
+                "type": "overdrive",
+                "on": 1,
+                "params": [
+                  18,
+                  4000,
+                  -8,
+                  1,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 5,
+                "id": 5,
+                "type": "hum",
+                "on": 1,
+                "params": [
+                  50,
+                  24,
+                  4,
+                  2,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "P",
+                "position": 6,
+                "id": 6,
+                "type": "envfilter",
+                "on": 1,
+                "params": [
+                  50,
+                  300,
+                  2400,
+                  50,
+                  40,
+                  1,
+                  25
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "Q",
+                "position": 0,
+                "id": 7,
+                "type": "tremolo",
+                "on": 1,
+                "params": [
+                  500,
+                  60,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              },
+              {
+                "bank": "Q",
+                "position": 1,
+                "id": 8,
+                "type": "chorus",
+                "on": 1,
+                "params": [
+                  80,
+                  50,
+                  25,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "fields": {
+                  "l": "0",
+                  "g": "-1",
+                  "fu": "0"
+                }
+              }
+            ],
+            "amp": {
+              "present": 1,
+              "on": 1
+            },
+            "mix": [],
+            "xo": []
+          },
+          "gain": [
+            0,
+            -12
+          ],
+          "nominal_MHz": 360,
+          "nominal_ticks_per_ms": 60000,
+          "window_blocks": 512,
+          "eligible_windows": [
+            {
+              "window": 5344,
+              "blk": {
+                "avg_ticks": 143706,
+                "max_ticks": 147108,
+                "avg_ms_nominal": 2.3951,
+                "max_ms_nominal": 2.4518
+              },
+              "lat": {
+                "avg_ticks": 1052,
+                "max_ticks": 1884,
+                "avg_ms_nominal": 0.017533333333333335,
+                "max_ms_nominal": 0.0314
+              }
+            },
+            {
+              "window": 5345,
+              "blk": {
+                "avg_ticks": 143666,
+                "max_ticks": 148367,
+                "avg_ms_nominal": 2.394433333333333,
+                "max_ms_nominal": 2.4727833333333336
+              },
+              "lat": {
+                "avg_ticks": 1050,
+                "max_ticks": 1881,
+                "avg_ms_nominal": 0.0175,
+                "max_ms_nominal": 0.03135
+              }
+            },
+            {
+              "window": 5346,
+              "blk": {
+                "avg_ticks": 143696,
+                "max_ticks": 151568,
+                "avg_ms_nominal": 2.3949333333333334,
+                "max_ms_nominal": 2.526133333333333
+              },
+              "lat": {
+                "avg_ticks": 1048,
+                "max_ticks": 1879,
+                "avg_ms_nominal": 0.017466666666666665,
+                "max_ms_nominal": 0.031316666666666666
+              }
+            }
+          ],
+          "mean_of_three_window_averages_ms": 2.394822222222222,
+          "window_average_range_ms": [
+            2.394433333333333,
+            2.3951
+          ],
+          "largest_observed_window_maximum_ms": 2.526133333333333,
+          "elapsed_observation_ms": 6500.0,
+          "resources_before": {
+            "cost_ticks": 15741,
+            "budget_ticks": 18674,
+            "effects_bytes": 2064,
+            "fxcap": 108200,
+            "pool_largest": 100288,
+            "pool_used": 2096,
+            "pool_bad": 0
+          },
+          "A2_nproc_delta": 2439,
+          "AUD_counter_delta": {
+            "in": 4876,
+            "out": 4876,
+            "blk": 2438,
+            "ovr": 0,
+            "und": 0,
+            "full": 0
+          },
+          "DSP_counter_delta": {
+            "hw_ok": 0,
+            "mism": 0,
+            "hw_to": 0,
+            "c1_ok": 0,
+            "c1_to": 0,
+            "jobs": 4878
+          },
+          "FXS_counter_delta": {
+            "jobs": 0,
+            "to": 0,
+            "skip": 0,
+            "posts": 0,
+            "takes": 0,
+            "canc": 0,
+            "skipped": 0
+          },
+          "nonzero_fault_counter_deltas": {},
+          "observed_status_values": {
+            "AUD.err": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "DSP.rc": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "observed_clipping": [
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            },
+            {
+              "input": 0,
+              "output": 0,
+              "limiter": 0,
+              "engine": 0
+            }
+          ],
+          "no_reported_faults": true
+        }
+      ],
+      "restoration_verified": true,
+      "temporary_wrapper_detached": true,
+      "restored_gain": [
+        0,
+        0
+      ],
+      "restored_preset": 0,
+      "restored_scene": 0,
+      "restored_capture": 0,
+      "restored_ir": -1,
+      "restored_effect_count": 0
+    }
+  ]
+}

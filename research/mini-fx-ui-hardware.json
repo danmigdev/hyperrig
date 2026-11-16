@@ -1,0 +1,545 @@
+{
+  "schema": 1,
+  "kind": "mini-FX-original-editor-UI-hardware-verification",
+  "result": "pass",
+  "verified_utc": "2026-11-16T10:29:16.807974+00:00",
+  "device_io_by_reviewer": false,
+  "browser_access_by_reviewer": false,
+  "source_report": {
+    "path": "build/mini-fx-ui-smoke-01/report.json",
+    "sha256": "cf6afe6f2b8f922045534a57e36cc606f2101baa4e6c96a2cd81c8ceb6983544"
+  },
+  "source_report_result_preserved": "recorded_pending_independent_validation",
+  "image_sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+  "firmware_identity": "PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11",
+  "USB": {
+    "vid": "3654",
+    "pid": "5155"
+  },
+  "bundle": {
+    "bundle": {
+      "path": "build/hyperrig-mini-fx-editor/bundle.json",
+      "sha256": "a76f3b40825750cf3c52955fc7b36b008ccd75cd140755f9d0ebf7686d249221"
+    },
+    "qualification": {
+      "path": "build/hyperrig-mini-fx-editor/qualification.json",
+      "sha256": "3e40430319add5c26045fb8d4daa615b01ae2843266e899f124dd3fec6509a14"
+    },
+    "manifest": {
+      "path": "build/hyperrig-mini-fx-editor/firmware-manifest.json",
+      "sha256": "5c1d9094b6fd327c8310b9168af9eda4dd84c4f6452596640a9afbb08e7c96d1"
+    }
+  },
+  "source_sha256": {
+    "analysis/hardware/mini_fx_ui_operator.py": "cbb14d9756c2f071d7d95206c84d8a8f4fe4bb016560a021986e59c91411f35c",
+    "analysis/hardware/observe_mini_fx_ui.js": "88d77f519b5cda539fdee42915202e8e77872a04e51ce2c0866c84ba33e0668e"
+  },
+  "launcher_source_sha256": {
+    "tools/launch_mini_fx_editor.py": "c0371984bbd617a2a5cf54f62e06fc51359d0d9bc8457b569342260b23938381",
+    "tools/mini_browser_serial_open.js": "d04ba183de40513d9f490ae4107ea778fffa9fab631104d3f774fb0915439d9f",
+    "tools/activate_mini_editor_ui.py": "6317d4b8b533dcbbf490500a528b693ccd75dd86732773b32c2d774c3c12c1d7",
+    "tools/mini_browser_windows.py": "92b6e259da3ff7eb79d38d4b290a2ea5372310bc1a8993cdbfe2af9296467410",
+    "tools/qualify_mini_fx_editor.py": "63744b846ee08a3c928a91ffa96649e8174d8316c771e6ea50b69daf636a4612",
+    "tools/launch_mini_desktop_readonly.py": "ffe876c4ab1ac0f4ea051056369dc70f124d5ba0a3168dff71aea9bc5425f412",
+    "tools/probe_mini_browser_readonly.py": "82c76d9011a4b393e375fdcfe072c10dc17f8e275e102bd0c78529f2229a0d5a",
+    "tools/verify_mini_browser.py": "2aea89bf6619cdc7bed44e5e2a34f236f8981188d2878ba69e19d600202fe19e",
+    "tools/mini_host_journal.py": "1105371aeede4094739c5e8d34b441770ea700db861ed504fbc98167842b5f1f"
+  },
+  "session_prepared_sha256": "4a9d16593e684cf02f90a6ea51f808973179ed534dd67f2fcb9e82ffaf47360e",
+  "serial_session_was_kept_open": true,
+  "passive_observer_detached": true,
+  "command_policy_modified_by_smoke": false,
+  "native_trace": {
+    "commands": 1438,
+    "complete_native_TX_arguments_and_resolved_writes": 1438,
+    "raw_RX_bytes": 239761,
+    "fully_raw_RX_bound_replies": 1437,
+    "all_mutations_bound_to_complete_TX_and_raw_RX": true,
+    "event_sequence_complete": true,
+    "priming_exception": {
+      "command_index": 0,
+      "request": "PING",
+      "not_used_as_full_native_identity_proof": true,
+      "capture_started_at_ONG": true
+    },
+    "independent_full_PONG_command_index": 1,
+    "errors_reported": 0,
+    "truncated": false
+  },
+  "UI_inputs": {
+    "operator_actions": 13,
+    "trusted_browser_events": 13,
+    "input_source": "root-operated CDP dispatch to original visible UI",
+    "untrusted_derived_clicks": 2,
+    "derived_click_reason": "Original preset Enter handler invokes pn.click(); trusted keydown is the initiating input.",
+    "actions": [
+      {
+        "action_index": 0,
+        "selector": "#chain .cell.tail > .add",
+        "input_seq": 155,
+        "input_time_ms": 350737.6999999881,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 1,
+        "selector": "#menu .mcr[data-cat=dynamics]",
+        "input_seq": 1411,
+        "input_time_ms": 378503.8000000119,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 2,
+        "selector": "#menuSub button[role=menuitem]:first-of-type",
+        "input_seq": 2349,
+        "input_time_ms": 399424.1999999881,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 3,
+        "selector": "#edKnobs .knob[role=slider]",
+        "input_seq": 3370,
+        "input_time_ms": 417688.90000000596,
+        "event": "keydown",
+        "key": "ArrowDown",
+        "trusted": true
+      },
+      {
+        "action_index": 4,
+        "selector": "#edOn",
+        "input_seq": 3665,
+        "input_time_ms": 423475.5,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 5,
+        "selector": "#edOn",
+        "input_seq": 4290,
+        "input_time_ms": 434635.90000000596,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 6,
+        "selector": "#presetBtn",
+        "input_seq": 7012,
+        "input_time_ms": 489706.1999999881,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 7,
+        "selector": "#pList [data-preset=\"1\"] [data-a=s]",
+        "input_seq": 7696,
+        "input_time_ms": 503767.6999999881,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 8,
+        "selector": "#edDel",
+        "input_seq": 10109,
+        "input_time_ms": 550767.8000000119,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 9,
+        "selector": "#presetBtn",
+        "input_seq": 12653,
+        "input_time_ms": 605350.8000000119,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 10,
+        "selector": "#pList [data-preset=\"1\"] .n",
+        "input_seq": 12712,
+        "input_time_ms": 606509,
+        "event": "keydown",
+        "key": "Enter",
+        "trusted": true
+      },
+      {
+        "action_index": 11,
+        "selector": "#presetBtn",
+        "input_seq": 14318,
+        "input_time_ms": 635461.5,
+        "event": "click",
+        "key": null,
+        "trusted": true
+      },
+      {
+        "action_index": 12,
+        "selector": "#pList [data-preset=\"0\"] .n",
+        "input_seq": 14383,
+        "input_time_ms": 636674.8000000119,
+        "event": "keydown",
+        "key": "Enter",
+        "trusted": true
+      }
+    ]
+  },
+  "mutations": [
+    {
+      "request": "FXA Q 99 gate",
+      "reply": [
+        "FXA id=0 gate",
+        "FX cpu=490/20119 ticks (2%) mem_fx=0 B"
+      ],
+      "command_index": 239,
+      "command_seq": 2350,
+      "native_TX_seq": 2351,
+      "command_end_seq": 2355,
+      "action_index": 2,
+      "trusted_input_seq": 2349,
+      "input_to_command_ms": 0.8,
+      "TX_sha256": "44b965c49b67c581e8722bb1406f5ac447a3d8972b0840a08c92c1e354fb3823",
+      "raw_RX_interval_sha256": "1847531c40b09370a7c939fc9b48867304b976d82f0547e2228cb7aaee9a3635"
+    },
+    {
+      "request": "FXP 0 0 -71",
+      "reply": [
+        "FXP ok -71"
+      ],
+      "command_index": 335,
+      "command_seq": 3371,
+      "native_TX_seq": 3372,
+      "command_end_seq": 3375,
+      "action_index": 3,
+      "trusted_input_seq": 3370,
+      "input_to_command_ms": 74.7,
+      "TX_sha256": "86e01ce657a79f3f8e77b187fb7ccacd3a711c3e812b56cd9c72cccb85a02a7b",
+      "raw_RX_interval_sha256": "cf3a1b692526bc1dce2038ded208cdb8d8f4262688771c77a60254b647a4ccc2"
+    },
+    {
+      "request": "FXE 0 0",
+      "reply": [
+        "FXE ok cpu=0/20286 ticks (0%) mem_fx=0 B"
+      ],
+      "command_index": 362,
+      "command_seq": 3666,
+      "native_TX_seq": 3667,
+      "command_end_seq": 3670,
+      "action_index": 4,
+      "trusted_input_seq": 3665,
+      "input_to_command_ms": 0.2,
+      "TX_sha256": "aca16f50c5d59e48eddec181a5e53b9c583e06b0f740786800d9f22c64948596",
+      "raw_RX_interval_sha256": "b50f25e8617ae634f33820ce9dd04b868a4c22009a6e915c1e34539aa49f45f5"
+    },
+    {
+      "request": "FXE 0 1",
+      "reply": [
+        "FXE ok cpu=1972/20679 ticks (9%) mem_fx=0 B"
+      ],
+      "command_index": 428,
+      "command_seq": 4291,
+      "native_TX_seq": 4292,
+      "command_end_seq": 4295,
+      "action_index": 5,
+      "trusted_input_seq": 4290,
+      "input_to_command_ms": 0.1,
+      "TX_sha256": "b7beb54ca50d668a9f6def74e1c1e0ab6995056690c0f91ace5ceeaff33e9d67",
+      "raw_RX_interval_sha256": "81f8fcf566e795731d5e48ddc7fd16513b8273b99abf194102ae0720dddf7d80"
+    },
+    {
+      "request": "PSAVE 1 Preset 1A",
+      "reply": [
+        "PSAVE ok 1 'Preset 1A' 1 blocks capture=0 ir=-1"
+      ],
+      "command_index": 744,
+      "command_seq": 7720,
+      "native_TX_seq": 7721,
+      "command_end_seq": 7724,
+      "action_index": 7,
+      "trusted_input_seq": 7696,
+      "input_to_command_ms": 322.3,
+      "TX_sha256": "0c8d5a73fa5bb7a1488d7b23d775ee5f85de04e968d65b972f62c7121ad7ec26",
+      "raw_RX_interval_sha256": "abbeccd14d38eb3bf84fd34d101da0c08f5667e8e418be921e15fdc5c1e3c277"
+    },
+    {
+      "request": "SNAPSAVE 0",
+      "reply": [
+        "SNAPSAVE ok 0 preset=1"
+      ],
+      "command_index": 747,
+      "command_seq": 7766,
+      "native_TX_seq": 7767,
+      "command_end_seq": 7770,
+      "action_index": 7,
+      "trusted_input_seq": 7696,
+      "input_to_command_ms": 904.0,
+      "TX_sha256": "dd87846cec5932c31126d6518fc530f9f73549e7208c5e25ea12a08231a80ed0",
+      "raw_RX_interval_sha256": "620ed8fbff6380934c6dc5be654ffba7065f06fb675377c9d13cb59badc85ccc"
+    },
+    {
+      "request": "FXR 0",
+      "reply": [
+        "FXR ok cpu=0/18925 ticks (0%) mem_fx=0 B"
+      ],
+      "command_index": 964,
+      "command_seq": 10110,
+      "native_TX_seq": 10111,
+      "command_end_seq": 10115,
+      "action_index": 8,
+      "trusted_input_seq": 10109,
+      "input_to_command_ms": 0.3,
+      "TX_sha256": "1ed22a974e069a267babd5d1bb5f46a17d87f1143a0df7f59e89a657c0e35983",
+      "raw_RX_interval_sha256": "9edc4773c9a65bb7fdcb2e20a9efa26db0abd6c12a79c26514506a22c64f7835"
+    },
+    {
+      "request": "PLOAD 1",
+      "reply": [
+        "PLOAD ok 1 'Preset 1A' missing=0 capture=0 ir=0 ms=8"
+      ],
+      "command_index": 1228,
+      "command_seq": 12714,
+      "native_TX_seq": 12715,
+      "command_end_seq": 12718,
+      "action_index": 10,
+      "trusted_input_seq": 12712,
+      "input_to_command_ms": 0.3,
+      "TX_sha256": "67a42c3b24df49d34f773bc8f1b8232e17d590f226d8c6abefc872e990753c93",
+      "raw_RX_interval_sha256": "4d06218e8980c325e0670d03ae51e79bf3b05074f31efec3e13642130d00f59a"
+    },
+    {
+      "request": "PLOAD 0",
+      "reply": [
+        "PLOAD ok 0 'Preset 1A' missing=0 capture=0 ir=0 ms=8"
+      ],
+      "command_index": 1386,
+      "command_seq": 14385,
+      "native_TX_seq": 14386,
+      "command_end_seq": 14389,
+      "action_index": 12,
+      "trusted_input_seq": 14383,
+      "input_to_command_ms": 0.1,
+      "TX_sha256": "68976b3c608ccccf81943c3a76ef9828f9e0693147f01795c22d95ee1e14b540",
+      "raw_RX_interval_sha256": "709d90a4fe75c85b74bae70e1cd8bd7318745007d54e0ff7662a47426e1e745a"
+    }
+  ],
+  "actual_mutation_count": 9,
+  "automatic_mutation_retry": false,
+  "snapshots": {
+    "baseline": {
+      "command_indices": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "low_seq_exclusive": 9,
+      "high_seq_exclusive": 2350,
+      "state_sha256": "f81457fb5ca1ee2936e26ca20cd293b3de5a458d278b20db5b01cba53674496a"
+    },
+    "added": {
+      "command_indices": [
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276
+      ],
+      "low_seq_exclusive": 2355,
+      "high_seq_exclusive": 3371,
+      "state_sha256": "00484449629ad7bdf1fc270e10d0d94dc12705f844a6746a6b88803cdca26ecf"
+    },
+    "edited_bypassed": {
+      "command_indices": [
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402
+      ],
+      "low_seq_exclusive": 3670,
+      "high_seq_exclusive": 4291,
+      "state_sha256": "485fd94e29c3a9076290cf7234267d8ab20414dd84ab9e61f483ef1122542a9b"
+    },
+    "saved": {
+      "command_indices": [
+        926,
+        927,
+        928,
+        929,
+        930,
+        931,
+        932,
+        933,
+        934,
+        935,
+        936,
+        937,
+        938,
+        939
+      ],
+      "low_seq_exclusive": 7770,
+      "high_seq_exclusive": 10110,
+      "state_sha256": "922418fae8f92116d39f27ec3467a415c71e642ae76061671eb1e599891d41df"
+    },
+    "removed": {
+      "command_indices": [
+        989,
+        990,
+        991,
+        992,
+        993,
+        994,
+        995,
+        996,
+        997,
+        998,
+        999,
+        1000,
+        1001,
+        1002
+      ],
+      "low_seq_exclusive": 10115,
+      "high_seq_exclusive": 12714,
+      "state_sha256": "091c45d3394cfa8f38edd342fb43b9f08817b503344dc3e7b095242af3b78b46"
+    },
+    "reloaded": {
+      "command_indices": [
+        1242,
+        1243,
+        1244,
+        1245,
+        1246,
+        1247,
+        1248,
+        1249,
+        1250,
+        1251,
+        1252,
+        1253,
+        1254,
+        1255
+      ],
+      "low_seq_exclusive": 12718,
+      "high_seq_exclusive": 14385,
+      "state_sha256": "922418fae8f92116d39f27ec3467a415c71e642ae76061671eb1e599891d41df"
+    },
+    "restored": {
+      "command_indices": [
+        1400,
+        1401,
+        1402,
+        1403,
+        1404,
+        1405,
+        1406,
+        1407,
+        1408,
+        1409,
+        1410,
+        1411,
+        1412,
+        1413
+      ],
+      "low_seq_exclusive": 14389,
+      "high_seq_exclusive": 14869,
+      "state_sha256": "cc4f31f58a9fb22a713f4003f694180d1f9c962172b4d5debd7b359bbabd5ce6"
+    }
+  },
+  "snapshot_count": 7,
+  "verified_operations": {
+    "original_UI_serial_append": true,
+    "original_UI_parameter_edit": true,
+    "original_UI_disable_enable": true,
+    "original_UI_single_effect_removal": true,
+    "original_UI_new_preset_save": true,
+    "automatic_scene_A_save": true,
+    "original_UI_preset_reload_recreates_effect": true,
+    "original_UI_baseline_preset_reload": true
+  },
+  "retained_preset": {
+    "slot": 1,
+    "UI_slot": "1B",
+    "name": "Preset 1A",
+    "name_HyperRig_Test_was_not_sent": true,
+    "intentionally_retained": true,
+    "capture_slot": 0,
+    "IR_slot": -1,
+    "scene": "A",
+    "effect": {
+      "type": "gate",
+      "bank": "Q",
+      "on": true,
+      "threshold_db": -71,
+      "release_ms": 120
+    }
+  },
+  "final_state": {
+    "selected_preset": 0,
+    "UI_slot": "1A",
+    "gain_db": [
+      0,
+      0
+    ],
+    "effects": [],
+    "capture_slot": 0,
+    "capture_model": "A2",
+    "scene": "A",
+    "preset_0_state_and_metadata_preserved": true,
+    "preset_inventory_changed_only_by_retained_slot_1": true
+  },
+  "limitations": {
+    "cold_power_retention_of_preset_1_tested": false,
+    "all_effect_types_or_parameter_values_tested": false,
+    "acoustic_audio_quality_tested_by_this_review": false,
+    "analog_latency_measured_by_this_smoke": false,
+    "routing_BLE_Android_panel_or_firmware_update_qualified_by_this_smoke": false,
+    "full_NOR_byte_comparison_after_UI_writes": false,
+    "sealed_bundle_historical_qualification_rewritten": false
+  },
+  "original_UI_source": {
+    "path": "recovered/ultrarig-original/web/tankg.html",
+    "sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+    "preset_Enter_handler_line": 12134,
+    "normalized_LF_sha256": "e57a8f24780b4f4cc2d10d97cc53824bc129c40e7c3f0199c24e412609d51f50"
+  },
+  "evidence_interval_utc": {
+    "started": "2026-11-16T10:17:08.617084+00:00",
+    "finished": "2026-11-16T10:22:54.194093+00:00"
+  }
+}
