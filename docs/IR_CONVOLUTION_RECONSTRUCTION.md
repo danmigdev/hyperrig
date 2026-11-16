@@ -265,3 +265,10 @@ The final source and artifact bindings were rechecked after completion.
 Independent source/instruction review found no remaining mismatch within the
 declared domain after the reset-layout guard correction. All earlier verified
 modules, images and reports remain unchanged.
+
+The later [IR runtime reconstruction](IR_PROCESSING_RECONSTRUCTION.md) executes
+these constructor objects through the full 128-sample software convolution path.
+It adds sixteen complete bodies and 399 comparisons, covering all 2,266 new
+instructions. Accelerator control executes against explicit simulated register
+responses and output; this is separate from physical accelerator validation.
+The installation/effect caller still needs to be joined to that runtime.

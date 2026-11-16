@@ -211,3 +211,9 @@ adapter and follows initialization with actual Q28 processing. Its separate
 report adds 1,914 comparisons. The dynamics sample processor and enclosing audio
 task remain open; the earlier report's external platform boundary remains an
 accurate description of that earlier corpus.
+
+The later [dynamics sample reconstruction](DSP_DYNAMICS_PROCESSING_RECONSTRUCTION.md)
+executes the fixed 128-sample processor, both direct callers, reset and state
+cloning through actual configuration/startup and meter updates. It adds 756
+comparisons and exercises all 515 new instructions. The earlier configuration
+report remains unchanged; this later corpus is still an offline comparison.

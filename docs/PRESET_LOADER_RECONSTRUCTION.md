@@ -7,6 +7,13 @@ through the existing availability checks and [preflight](PRESET_PREFLIGHT_RECONS
 into this loader. The application handler at `0x020092fa` remains an explicit
 callback; its DSP implementation is not executed by this component.
 
+The later [application reconstruction](PRESET_APPLICATION_RECONSTRUCTION.md)
+executes the complete handler's reuse/rebuild control flow and asset/query
+dependencies, with 1,775 comparisons. It establishes that the handler returns an
+effect failure count while retaining separate capture/IR statuses. The loader's
+frozen callback-based comparison remains unchanged; joining these callers and
+their downstream DSP implementations is still required.
+
 Sources: [`hyperrig_preset_loader.c`](../firmware/src/hyperrig_preset_loader.c) and
 [`hyperrig_preset_loader.h`](../firmware/include/hyperrig/hyperrig_preset_loader.h).
 The original Required Notice and license are retained. Earlier sources and

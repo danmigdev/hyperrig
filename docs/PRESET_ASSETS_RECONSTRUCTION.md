@@ -7,6 +7,11 @@ on the unchanged [storage header reader](PRESET_STORAGE_RECONSTRUCTION.md).
 They are independently executable components; the application handler at
 `0x020092fa` remains outside the integrated [loader model](PRESET_LOADER_RECONSTRUCTION.md).
 
+The later [application reconstruction](PRESET_APPLICATION_RECONSTRUCTION.md)
+executes that complete handler and these asset dependencies. Its separate
+evidence covers both effect reuse and rebuild, with downstream effect,
+capture/IR application and scheduling services still explicit.
+
 Sources: [`hyperrig_preset_assets.c`](../firmware/src/hyperrig_preset_assets.c) and
 [`hyperrig_preset_assets.h`](../firmware/include/hyperrig/hyperrig_preset_assets.h).
 The original Required Notice and license are retained. Original images, earlier

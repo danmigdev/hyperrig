@@ -13,6 +13,11 @@ The new [C adapter](../firmware/src/hyperrig_capture_live.c) and
 [processing caller](CAPTURE_PROCESSING_RECONSTRUCTION.md). Earlier source files,
 images and completed reports remain unchanged.
 
+The later [audio-task reconstruction](AUDIO_TASK_RECONSTRUCTION.md) separately
+joins these warm-up/reset kernels to their original wrapper and task. It does
+not yet join this full loading/processing adapter: asynchronous capture at
+`0x01c04cda`, platform scheduling and sample services remain explicit boundaries.
+
 Required Notice: Copyright (c) 2026 Manuel Aguirre. The reconstructed source
 retains the [UltraRig license](../third_party/ultrarig/LICENSE.md). These are
 offline instruction comparisons and relocatable objects. No device, audio,

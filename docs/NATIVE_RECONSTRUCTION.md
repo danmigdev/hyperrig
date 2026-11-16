@@ -32,10 +32,14 @@ comparisons. [Dynamics configuration](DSP_DYNAMICS_RECONSTRUCTION.md) now execut
 its actual numerical body through that startup, adding 2,930 comparisons. The
 [startup input and four-section sample path](DSP_AUDIO_PATH_RECONSTRUCTION.md)
 close the remaining startup service and add 1,914 comparisons through actual Q28
-processing and gain ramps. Physical units and the enclosing audio task remain open.
+processing and gain ramps. Physical units remain open; the later audio-task
+milestone below joins those processors to their enclosing caller.
 [Parameter transitions](DSP_TRANSITION_RECONSTRUCTION.md) add 1,812 comparisons
 through the actual request producer, generated staged records and that sample
 path. The optional sixth-parameter callback body remains external.
+[Dynamics sample processing](DSP_DYNAMICS_PROCESSING_RECONSTRUCTION.md) adds
+756 comparisons through the full 128-sample kernel, reset, state cloning and
+both callers, with actual configuration/startup and meter updates.
 Separately,
 the [capture slot loader](CAPTURE_LOADER_RECONSTRUCTION.md) adds 6,091 comparisons
 for gain metadata, reuse and partial rollback. The [container installer/reader](CAPTURE_CONTAINER_RECONSTRUCTION.md)
@@ -52,17 +56,31 @@ ring. [Native warm-up](CAPTURE_WARMUP_RECONSTRUCTION.md) adds 216 comparisons.
 [Live capture integration](CAPTURE_LIVE_RECONSTRUCTION.md) joins loading,
 warm-up and processing on unchanged native state, with 695 comparisons and a
 new adapter for the parser's small head rings. Surrounding audio scheduling remains open.
+The [complete audio task](AUDIO_TASK_RECONSTRUCTION.md) adds 317 comparisons
+through the recovered filter chains, dynamics and capture warm-up on shared RAM,
+alongside queue handling, recording FIR and statistics. Its new runner exposes
+bounded observations of the nonreturning original task. Asynchronous capture,
+other unrecovered sample services and platform scheduling remain explicit
+boundaries; it does not join the complete native-loading chain into the task.
 [IR installation](IR_INSTALLATION_RECONSTRUCTION.md) adds 1,143 comparisons for
 gain/trimming, stored reads and ownership.
 [IR convolution construction](IR_CONVOLUTION_RECONSTRUCTION.md) adds 479
 comparisons through the real resampler, FFT, quantization and publication,
-including 32-partition objects. Runtime convolution remains open.
+including 32-partition objects. The [IR runtime](IR_PROCESSING_RECONSTRUCTION.md)
+adds 399 comparisons through actual objects and all software numerical stages.
+Accelerator control is compared using simulated registers and transform output;
+the owning effect/audio caller remains a separate integration boundary.
 [Journal writes and readback](CAPTURE_JOURNAL_RECONSTRUCTION.md)
 add 655 synthetic-storage comparisons. The
 [complete metadata command](CAPTURE_COMMAND_RECONSTRUCTION.md) adds 1,114 through
 text parsing, reload, retries and active gain updates; physical storage drivers
 remain external. These modules do not yet form a complete firmware
 replacement. Coverage is tracked in the [inventory](REVERSE_INVENTORY.md).
+The separate [complete preset application](PRESET_APPLICATION_RECONSTRUCTION.md)
+adds 1,775 comparisons through the full reuse/rebuild caller, asset decisions and
+parameter queries. It preserves independent capture/IR statuses and the effect
+failure count; downstream effect and capture/IR service implementations still
+need to be joined to that caller.
 
 ## Reconstructed functions
 

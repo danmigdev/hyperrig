@@ -12,6 +12,11 @@ rate, timing or audio behavior was tested. The complete audio task and dynamics
 sample processor remain outside this module. Previous sources, models, tested
 images and completed reports remain unchanged.
 
+Later milestones recover the [dynamics sample processor](DSP_DYNAMICS_PROCESSING_RECONSTRUCTION.md)
+and [complete audio task](AUDIO_TASK_RECONSTRUCTION.md). The task executes these
+unchanged filter and gain-ramp kernels on borrowed native state. The static
+caller windows and earlier validation below retain their original scope.
+
 Required Notice: Copyright (c) 2026 Manuel Aguirre
 
 The reconstruction retains the original project's
@@ -193,9 +198,10 @@ The parameter-request producer at `0x02028a34..0x02028b6c` is not recovered by
 this module. Its later [transition reconstruction](DSP_TRANSITION_RECONSTRUCTION.md)
 executes real requests and mathematical coefficient generation through this
 unchanged sample processor. Transition records in this earlier module remain
-deliberate fixture inputs. The surrounding
-audio task, platform-input writers, peripheral behavior, dynamics sample kernel
-at `0x01c1a636`, and execution of installed callback tokens remain separate work.
+deliberate fixture inputs. The later audio-task and dynamics-processing modules
+recover the surrounding task and sample kernel at `0x01c1a636` under their stated
+domains. Platform-input writers, peripheral behavior and an exhaustive inventory
+of installed callback targets remain separate work.
 The earlier shared ISA/binary32 model assumptions remain in force; no processor
 or audio measurement is added by these comparisons.
 

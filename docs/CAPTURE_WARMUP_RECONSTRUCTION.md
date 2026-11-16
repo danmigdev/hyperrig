@@ -165,3 +165,8 @@ images, decoded inputs and generated evidence remain ignored local files. The
 builder performs no device access or firmware installation. Platform scheduling,
 audio I/O, invocation by the complete native firmware and hardware timing remain
 separate integration work.
+
+The later [audio-task reconstruction](AUDIO_TASK_RECONSTRUCTION.md) recovers
+the complete warm-up wrapper at `0x01c04c42..0x01c04cd8` and invokes this
+unchanged warm-up/reset path from the task's original shared RAM. Its separate
+asynchronous capture-processing service at `0x01c04cda` remains unreconstructed.

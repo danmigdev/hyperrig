@@ -216,4 +216,8 @@ test, audio test, device-flashing result or proof of complete IR convolution.
 The later [convolution construction](IR_CONVOLUTION_RECONSTRUCTION.md) executes
 effect allocation, both coefficient producers, resampling, FFT, fixed-point
 packing, reset and object publication with 479 further comparisons. The
-runtime consumer, accelerator access and enclosing audio task remain open.
+subsequent [IR runtime](IR_PROCESSING_RECONSTRUCTION.md) adds 399 comparisons
+through actual constructor objects and software convolution, plus accelerator
+control with explicitly simulated register responses and transform output.
+Joining installation, effect ownership and the enclosing audio caller remains
+open; neither later module changes this installation report.

@@ -128,7 +128,21 @@ add 1,812 comparisons from real requests and coefficient generation through
 sample processing, including complete 1,020-step transitions.
 [IR convolution construction](docs/IR_CONVOLUTION_RECONSTRUCTION.md) adds 14
 function regions and 479 comparisons through resampling, FFT, fixed-point packing
-and object publication. Runtime convolution remains a separate next step.
+and object publication. The [IR runtime](docs/IR_PROCESSING_RECONSTRUCTION.md)
+adds sixteen function regions and 399 comparisons through actual constructor
+objects, software FFT/convolution, gain ramps and accelerator control. Register
+responses and accelerator output are explicitly simulated.
+The [complete preset application](docs/PRESET_APPLICATION_RECONSTRUCTION.md)
+adds seven function regions and 1,775 comparisons through effect reuse/rebuild
+and asset decisions, retaining explicit downstream services. The
+[dynamics sample processor](docs/DSP_DYNAMICS_PROCESSING_RECONSTRUCTION.md)
+adds five regions and 756 comparisons, connecting configuration and startup
+to actual 128-sample processing, retained history and meter updates.
+The [complete audio task](docs/AUDIO_TASK_RECONSTRUCTION.md) adds six regions
+and 317 comparisons, joining the recovered filters, dynamics and capture warm-up
+on shared native state. Its recording FIR, queue handling and bounded task
+continuations are verified; unrecovered sample and platform services remain
+explicit dependencies.
 The [audited inventory](docs/REVERSE_INVENTORY.md) separates recovered functions,
 partial regions and candidate entries; a firmware-wide completion percentage
 is not yet established.
