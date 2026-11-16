@@ -179,7 +179,7 @@ def run(prepared,output):
         cdp.evaluate('__miniDesktopGuard.installApp(SerialTransport,Pedal,HyperRigMini.profile)')
         # Explain actual scope without changing capability flags or app files.
         cdp.evaluate("""(()=>{const n=document.createElement('div');n.id='miniDesktopReadonlyNote';
-          n.textContent='MINI USB · verifica collegamento · sola lettura';
+          n.textContent='MINI USB · connection check · read only';
           n.style.cssText='position:fixed;bottom:4px;left:50%;transform:translateX(-50%);z-index:99999;background:#202a30;color:#fff;padding:7px 14px;border-radius:7px;font:12px sans-serif;pointer-events:none';
           document.body.appendChild(n);})()""")
         time.sleep(.55)
@@ -212,7 +212,7 @@ def run(prepared,output):
         answered={row['line'] for row in full['commands'] if row['lines'] and not any(line.startswith('ERR') for line in row['lines'])}
         require({'PING','MODEL','MEM','FXT','FXS','PLIST','SNAPS'}<=answered,'actual initial readonly responses incomplete')
         report['phase']='connected_readonly';report['connected_utc']=now();report['initial_state']=snapshot
-        cdp.evaluate("document.getElementById('miniDesktopReadonlyNote').textContent='MINI USB reale · sola lettura · recupero con tasti e audio ancora da verificare'")
+        cdp.evaluate("document.getElementById('miniDesktopReadonlyNote').textContent='Live MINI USB · read only · footswitch recovery and audio still require verification'")
         report['connected_screenshot']=cdp.screenshot(output/'connected.png')
         with (output/'connected-proof.json').open('x',encoding='utf-8') as stream:
             json.dump({'observed_utc':now(),'state':snapshot,'guard':full,'inputs':prepared['inputs'],
@@ -227,7 +227,7 @@ def run(prepared,output):
             except Exception as close_error:report['disconnect_error']=repr(close_error)
             try:report['failed_guard']=cdp.evaluate('__miniDesktopGuard.state')
             except Exception:pass
-            try:cdp.evaluate("document.getElementById('miniDesktopReadonlyNote').textContent='Collegamento non verificato: vedere il report locale. Nessun tentativo automatico.'")
+            try:cdp.evaluate("document.getElementById('miniDesktopReadonlyNote').textContent='Connection not verified: see the local report. No automatic retry.'")
             except Exception:pass
             try:save()
             except Exception as publication_error:report['publication_error']=repr(publication_error)

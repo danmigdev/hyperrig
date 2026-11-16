@@ -1,140 +1,140 @@
-# Primo preset HyperRig sul MINI
+# First HyperRig preset on the MINI
 
-Il probe persistente precedente non copre il primo avvio senza preset G:
-`validate_saved_baseline()` richiede un preset corrente salvato e il suo
-backup; il ciclo finale lo ricarica ed elimina il temporaneo. Con
-`PLIST ... current=-1` si ferma prima di PSAVE. Quel probe e il client
-readonly restano invariati.
+The previous persistence probe does not cover the first boot without a G
+preset: `validate_saved_baseline()` requires a currently selected saved preset
+and its backup; the final cycle reloads it and deletes the temporary preset.
+With `PLIST ... current=-1`, it stops before PSAVE. That probe and the
+read-only client remain unchanged.
 
 [probe_mini_app_first_preset.py](../tools/probe_mini_app_first_preset.py)
-gestisce separatamente questo caso. Crea `HyperRig_Test` in uno slot
-osservato libero e lo lascia intenzionalmente salvato, con scena A. Non
-invia PDEL e non tenta di ripristinare un preset inesistente. Se esiste già
-un preset corrente, questo percorso si ferma prima di scrivere: è il caso
-coperto dal probe precedente.
+handles this case separately. It creates `HyperRig_Test` in a slot observed
+to be free and intentionally leaves it saved, with scene A. It does not
+send PDEL or try to restore a nonexistent preset. If a preset is already
+selected, this path stops before writing: that case is covered by the
+previous probe.
 
-## Sequenza effettiva
+## Actual sequence
 
-Prima di qualsiasi scrittura acquisisce PONG, FXT, FXS, PLIST, SNAPS,
-GAIN, AMPEQ, BPM, PCOLOR, STW, MODEL e SNAPNAME. Conserva sia le risposte
-sia lo stato interpretato in un file nuovo. Rilegge l'intero stato prima
-di PSAVE e richiede che sia rimasto uguale. Non serve un export di un
-presunto banco G vuoto; gli eventuali altri slot elencati devono rimanere
-presenti con gli stessi metadata e non vengono caricati o cancellati.
+Before any write, it acquires PONG, FXT, FXS, PLIST, SNAPS, GAIN, AMPEQ,
+BPM, PCOLOR, STW, MODEL and SNAPNAME. It retains both the responses and the
+parsed state in a new file. It rereads the entire state before PSAVE and
+requires it to remain unchanged. No export of a presumed empty G bank is
+needed; any other listed slots must remain present with the same metadata
+and are neither loaded nor deleted.
 
-1. `PSAVE <slot> HyperRig_Test`, ACK esatto e nuovo PLIST/FXS/stato.
-2. Un marcatore live verificato; `PLOAD <slot>` deve ripristinare i valori
-   salvati. Se c'è una scena iniziale selezionata viene riapplicata.
-3. Solo dopo la prima prova di PSAVE, `SNAPSAVE 0` crea o aggiorna la
-   scena A del nuovo slot. ACK, inventario scene e stato devono coincidere.
-4. Un secondo marcatore; PLOAD e `SNAP 0` devono ripristinare
-   separatamente lo stato della scena appena salvata.
-5. Una lettura finale deve essere stabile. Il nuovo preset e la scena A
-   rimangono memorizzati e selezionati, con il suono osservato verificato
-   tramite il protocollo.
+1. `PSAVE <slot> HyperRig_Test`, exact ACK and a fresh PLIST/FXS/state.
+2. A verified live marker; `PLOAD <slot>` must restore the saved values.
+   If an initial scene is selected, it is reapplied.
+3. Only after the first PSAVE test, `SNAPSAVE 0` creates or updates scene A
+   in the new slot. The ACK, scene inventory and state must match.
+4. A second marker; PLOAD and `SNAP 0` must independently restore the state
+   of the scene just saved.
+5. A final read must be stable. The new preset and scene A remain stored
+   and selected, with the observed sound configuration verified through
+   the protocol.
 
-L'originale `sceneAOnSave()` in
-[tankg.html](../recovered/ultrarig-original/web/tankg.html) aggiunge
-`SNAPSAVE 0` dopo PSAVE quando non esistono scene. La prova separata
-impedisce a SNAPSAVE di mascherare un PSAVE non persistito. Le risposte,
-gli intervalli FXT, i parser e i timeout sono riusati dal probe precedente.
-Gli ID runtime degli effetti possono cambiare con PLOAD: si confrontano
-posizione, tipo e valori, non l'identità numerica appena riassegnata.
+The original `sceneAOnSave()` in
+[tankg.html](../recovered/ultrarig-original/web/tankg.html) adds
+`SNAPSAVE 0` after PSAVE when no scenes exist. The separate test prevents
+SNAPSAVE from masking a PSAVE that was not persisted. Responses, FXT ranges,
+parsers and timeouts are reused from the previous probe. Runtime effect IDs
+can change with PLOAD: the comparison uses position, type and values, not
+the numeric identity that was just reassigned.
 
-## Marcatore anche con catena vuota
+## A marker even with an empty chain
 
-In modalità `auto` viene preferito un parametro FXP realmente presente,
-con un passo verso il basso entro il suo range FXT. Se manca un parametro
-adatto, viene diminuito di 1 dB il gain di uscita; se è già a -30 dB si
-può diminuire quello d'ingresso. Non si aumenta un gain per fare la prova.
-Se entrambi sono al minimo e non esiste un altro marcatore ammesso, non
-viene inviato PSAVE. FXE può essere scelto esplicitamente su un blocco
-reale; non viene inventato un blocco per superare una catena vuota.
+In `auto` mode, an actual available FXP parameter is preferred, with one
+downward step within its FXT range. If no suitable parameter exists, output
+gain is reduced by 1 dB; if it is already at -30 dB, input gain can be
+reduced instead. Gain is not increased for the test. If both gains are at
+their minimum and no other allowed marker exists, PSAVE is not sent.
+FXE can be explicitly selected on a real block; no block is invented to
+work around an empty chain.
 
-Il frontend originale `buildGains()` usa `GAIN <in> <out>`, con range
-`-30..12` dB. Il firmware G effettua il clamp a `0x02008DE2..0x02008E2C`,
-richiamato dal ramo `0x02013140`; la stringa di risposta è a offset
-`0x365BE` di `app.bin`. Il probe richiede ACK e nuova lettura GAIN,
-insieme agli altri campi, prima di tentare PLOAD. Non invia GSAVE.
+The original `buildGains()` frontend uses `GAIN <in> <out>`, with a
+`-30..12` dB range. The G firmware clamps at `0x02008DE2..0x02008E2C`,
+called from the `0x02013140` branch; the response string is at offset
+`0x365BE` in `app.bin`. The probe requires an ACK and a fresh GAIN read,
+along with the other fields, before attempting PLOAD. It does not send GSAVE.
 
-Un capture attivo che PSAVE dichiara non associato alla libreria non viene
-trattato come salvato: la prova si ferma prima del marcatore/reload.
-Il protocollo non permette qui di ripristinare una selezione scena -1
-quando esistono già scene RAM non selezionate; questo caso si ferma prima
-di scrivere. Nessun errore provoca retry, cancellazione o ripristino cieco.
-Il report incompleto indica la fase raggiunta e se il nuovo slot era già
-comparso nella lista.
+An active capture that PSAVE reports as unassociated with the library is
+not treated as saved: the test stops before the marker/reload. Here, the
+protocol cannot restore a scene selection of -1 when unselected RAM scenes
+already exist; that case stops before writing. No error triggers a retry,
+deletion or blind restoration. An incomplete report states the phase reached
+and whether the new slot had already appeared in the list.
 
-## Uso e prove offline
+## Usage and offline tests
 
-Import e comando predefinito non enumerano dispositivi e non importano
-pyserial:
+Importing the module and running the default command neither enumerate
+devices nor import pyserial:
 
 ```powershell
 python -B -X utf8 tools/probe_mini_app_first_preset.py
 python -B -X utf8 -m unittest tests.test_mini_app_first_preset tests.test_mini_app_families tests.test_mini_app_mutation tests.test_mini_app_transport tests.test_mini_app_protocol
 ```
 
-Il coordinatore può usare il sottocomando esplicito `create` solo con il
-manifest della candidata realmente avviata, con letture qualificate. Gli
-output devono essere nuovi, distinti e nella workspace. Esempio da adattare
-alla porta e al manifest reali; non è una prova hardware già eseguita:
+The coordinator can use the explicit `create` subcommand only with the
+manifest of the candidate actually booted, with qualified reads. Outputs
+must be new, distinct and inside the workspace. Adapt this example to the
+actual port and manifest; it is not evidence of a hardware test already
+performed:
 
 ```powershell
 python -B -X utf8 tools/probe_mini_app_first_preset.py create --port COM8 --firmware-manifest build/mini-app-manifest.json --slot 0 --log build/first-001.jsonl --backup build/first-001-before.json --report build/first-001-proof.json
 ```
 
-Senza `--slot` sceglie il primo slot libero dal PLIST completo. `--operation
-GAIN` seleziona il marcatore sui gain; FXP richiede `--block` e `--parameter`,
-FXE soltanto `--block`. La prova termina mantenendo il nuovo preset,
-anziché simulare un ritorno allo stato di selezione iniziale.
+Without `--slot`, it selects the first free slot from the complete PLIST.
+`--operation
+GAIN` selects the gain marker; FXP requires `--block` and `--parameter`,
+whereas FXE requires only `--block`. The test ends with the new preset
+retained, rather than simulating a return to the initial selection state.
 
-## Evidenza distinta e revisione delle capability app
+## Separate evidence and revised app capabilities
 
-Il nuovo report è `mini-app-first-preset-validation`, modello
-`representative-first-preset-v1`. Dichiara esplicitamente:
+The new report is `mini-app-first-preset-validation`, using the
+`representative-first-preset-v1` model. It explicitly declares:
 
-- `restoration_verified=false`: non esisteva un preset corrente da ripristinare;
-- `preset_intentionally_retained=true` e `final_sound_verified=true` solo
-  dopo entrambi i reload e la lettura finale;
-- `physically_exercised_requests` soltanto per le operazioni realmente
-  eseguite sul trasporto indicato; i mock compilano invece `simulated_requests`.
+- `restoration_verified=false`: there was no currently selected preset to restore;
+- `preset_intentionally_retained=true` and `final_sound_verified=true` only
+  after both reloads and the final read;
+- `physically_exercised_requests` only for operations actually performed on
+  the stated transport; mocks populate `simulated_requests` instead.
 
-Il builder accetta questa forma tramite un ramo distinto. Verifica gli
-stessi binding di immagine, versione, fonti e trasporto delle prove
-precedenti, poi **riesegue il probe offline sul TX/RX grezzo conservato**.
-La riproduzione deve consumare tutti i comandi nello stesso ordine e
-ottenere esattamente stato iniziale, FXT, risultato finale e osservazioni
-dichiarati. È fissato anche l'hash dell'implementazione del nuovo probe.
-I flag da soli o il solo ACK non bastano; questa verifica prova coerenza
-documentale, non autentica fisicamente un log. La semantica delle vecchie
-prove con ripristino e cleanup resta invariata.
+The builder accepts this form through a separate branch. It checks the same
+image, version, source and transport bindings as the previous tests, then
+**replays the probe offline against the retained raw TX/RX**. The replay
+must consume every command in the same order and obtain exactly the
+declared initial state, FXT, final result and observations. The new probe
+implementation's hash is also pinned. Flags alone or an ACK alone are
+insufficient; this check proves consistency of the evidence, not the physical
+authenticity of a log. The semantics of the older restoration and cleanup
+tests remain unchanged.
 
-La revisione aggiunge la famiglia operativa GAIN. Viene abilitata soltanto
-con una prova rappresentativa sullo stesso trasporto; il runtime valida
-la sintassi e `-30..12`, e richiede un contesto GAIN o LVL valido. Un ACK
-incoerente, PLOAD, SNAP o disconnessione invalidano quel contesto finché
-viene riletto. I due knob originali usano la stessa coda e gli stessi
-comandi. La prova su una catena vuota può qualificare GAIN, PSAVE, PLOAD,
-SNAPSAVE e SNAP; **non qualifica FXP o FXE non eseguiti**. USB non abilita
-automaticamente Android/BLE. Non viene attribuito supporto generale a
-upload, FXAdd o comandi del pannello.
+This revision adds the operational GAIN family. It is enabled only by a
+representative test on the same transport; the runtime validates syntax and
+`-30..12`, and requires valid GAIN or LVL context. An inconsistent ACK,
+PLOAD, SNAP or disconnection invalidates that context until it is reread.
+The two original knobs use the same queue and commands. A test with an
+empty chain can qualify GAIN, PSAVE, PLOAD, SNAPSAVE and SNAP; **it does not
+qualify FXP or FXE if they were not exercised**. USB does not automatically
+enable Android/BLE. General support for uploads, FXAdd or panel commands
+is not claimed.
 
-## Effetti attesi su USR e limiti
+## Expected effects on USR and limitations
 
-La normale gestione G dei preset può ruotare fra i 18 settori fisici del
-journal e riscrivere la coppia di preset in un settore. Un salvataggio
-intenzionale non promette quindi di cambiare una sola pagina, né di
-conservare USR identica byte per byte. Mapper, limiti di scrittura e
-distinzione da VM/OTA/BTIF sono documentati in
+Normal G preset management can rotate among the journal's 18 physical
+sectors and rewrite a pair of presets within a sector. An intentional save
+therefore does not promise to change only one page or keep USR byte-for-byte
+identical. The mapper, write bounds and distinction from VM/OTA/BTIF are
+documented in
 [MINI_PRESET_STORAGE_REVIEW.md](MINI_PRESET_STORAGE_REVIEW.md).
-La conservazione verificata dall'installer riguarda il momento prima
-dell'avvio app; non impedisce le successive scritture normali autorizzate
-dal salvataggio.
+The preservation verified by the installer applies to the point before
+the app starts; it does not prevent later normal writes authorized by a save.
 
-Il confronto degli altri slot copre i loro metadata PLIST, non tutti i
-payload nascosti. Il backup di stato copre i campi osservati, non la storia
-interna di delay/reverb. Reload e readback non costituiscono prova di
-tenuta dopo un'interruzione di alimentazione, né una misura dell'audio.
-I test di questa revisione sono mock: non dichiarano avvio G, salvataggio
-reale, editor desktop o Android fisicamente qualificati.
+The comparison of other slots covers their PLIST metadata, not every hidden
+payload. The state backup covers observed fields, not the internal history
+of delay/reverb effects. Reload and readback do not prove retention after
+a power interruption or measure audio. This revision's tests use mocks:
+they do not claim a G boot, an actual save, or physical qualification of
+the desktop or Android editor.

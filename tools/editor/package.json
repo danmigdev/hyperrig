@@ -1,0 +1,9 @@
+{
+  "name": "hyperrig-editor-build-tools",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Pinned JavaScript parser for reviewed HyperRig editor presentation changes",
+  "dependencies": {
+    "acorn": "8.15.0"
+  }
+}

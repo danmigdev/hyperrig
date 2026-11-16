@@ -1,185 +1,182 @@
-# Avvio e linker HyperRig per TANK MINI
+# HyperRig startup and linker for TANK MINI
 
-Sono disponibili **tre ELF di verifica per pi32v2**, con entry, copia RAM,
-azzeramento BSS e stack dedicati. Il secondo collega anche il motore capture
-HyperRig, la capture A2 originale e l'adattatore audio. Il terzo aggiunge
-platform, codec e worker, con un'autoverifica RAM del percorso audio.
-Non sono stati avviati sul pedale e non sono pacchetti installabili.
-`research/mini-boot.json` mantiene esplicitamente
-`boot_validated_on_device=false` e `flashable=false`.
+**Three verification ELF files for pi32v2** are available, with an entry point,
+RAM copy, BSS clearing, and dedicated stacks. The second also links the HyperRig
+capture engine, the original A2 capture, and the audio adapter. The third adds
+platform, codec, and worker components, with a RAM self-test of the audio path.
+They have not been booted on the pedal and are not installable packages.
+`research/mini-boot.json` explicitly retains
+`boot_validated_on_device=false` and `flashable=false`.
 
-## Contratto osservato nel firmware stock
+## Contract observed in the stock firmware
 
-Campione: `TANK MINI_009`, FWSC SHA-256
+Sample: `TANK MINI_009`, FWSC SHA-256
 `13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209`.
-La build ricontrolla SHA, CRC FWSC/JLFS e uguaglianza di `app.bin` decodificato.
-Il report conserva indirizzi e hash dei frammenti originali usati come prova.
+The build rechecks SHA, FWSC/JLFS CRCs, and equality of the decoded `app.bin`.
+The report preserves addresses and hashes of original fragments used as evidence.
 
-| Elemento | Evidenza stock |
+| Item | Stock evidence |
 |---|---|
-| Entry applicazione | CPU `0x02000120`, primi byte di `app.bin` |
-| SP iniziale CPU0 | `0x01C1899C` a `0x02000124` |
-| SSP iniziale CPU0 | `0x01C1999C` a `0x0200012A` |
-| BSS azzerata | `[0x01C0E018, 0x01C1F414)`, loop `0x02000136` |
-| Copia RAM | flash `0x0206ED20` → RAM `0x01C00000`, `0xE018` byte |
-| Heap iniziale | `0x01C1F420`, caricamento a `0x02040C52` |
-| Limite heap | `0x01C7FD30`, confronto a `0x02040C5A` |
-| Informazioni di boot | campi salvati da `0x020001E6` nella regione `0x01C7FD50` |
-| Tabella handler IRQ | `0x01C7FE00`, scrittura a `0x02001786` |
-| Controller IRQ CPU0/CPU1 | `0x01EEF100` / `0x01EEF300` |
-| Slot avvio CPU1 | `0x01C7FFF8`, scritto da `0x0204462C` |
-| Entry stock CPU1 | `0x020001B8`: USP `0x01C19C9C`, SP `0x01C1AC9C`, RETI `0x01C020AA`, `rti` |
+| Application entry | CPU `0x02000120`, first bytes of `app.bin` |
+| Initial CPU0 SP | `0x01C1899C` at `0x02000124` |
+| Initial CPU0 SSP | `0x01C1999C` at `0x0200012A` |
+| Cleared BSS | `[0x01C0E018, 0x01C1F414)`, loop `0x02000136` |
+| RAM copy | flash `0x0206ED20` → RAM `0x01C00000`, `0xE018` bytes |
+| Initial heap | `0x01C1F420`, loaded at `0x02040C52` |
+| Heap limit | `0x01C7FD30`, comparison at `0x02040C5A` |
+| Boot information | fields saved from `0x020001E6` into region `0x01C7FD50` |
+| IRQ handler table | `0x01C7FE00`, write at `0x02001786` |
+| CPU0/CPU1 IRQ controller | `0x01EEF100` / `0x01EEF300` |
+| CPU1 startup slot | `0x01C7FFF8`, written by `0x0204462C` |
+| Stock CPU1 entry | `0x020001B8`: USP `0x01C19C9C`, SP `0x01C1AC9C`, RETI `0x01C020AA`, `rti` |
 
-Sono indirizzi ricavati dal campione software. Non costituiscono una misura
-della RAM libera o della geometria fisica dell'esemplare collegato.
+These addresses come from the software sample. They are not measurements of
+free RAM or the physical geometry of the connected unit.
 
-L'area applicativa fisica MINI è `[0x4000, 0x82000)` e corrisponde al range
-CPU flash `[0x02000000, 0x0207E000)`. L'entry dista `0x120` dall'inizio
-dell'area. I primi `0x120` byte appartengono al contenitore JLFS, non al codice
-dell'ELF. VM, BTIF e USR restano fuori dal contratto del linker applicativo.
+The MINI physical application area is `[0x4000, 0x82000)`, corresponding to the
+CPU flash range `[0x02000000, 0x0207E000)`. The entry is `0x120` bytes from the
+area's start. The first `0x120` bytes belong to the JLFS container, not the ELF
+code. VM, BTIF, and USR remain outside the application linker's contract.
 
-Prima di azzerare la RAM, lo stock conserva dal descrittore in `r0`:
-otto byte da `r0+4` a contesto+16, il word a `*(r0)+8` a contesto+24,
-il byte a `*(r0)+13` a contesto+0, quattro byte da `r0+12` a contesto+28,
-otto byte da `r0+16` a contesto+32. Il nuovo startup conserva gli stessi
-campi, senza attribuire significati non dimostrati. Per prove con debugger
-ammette anche `r0=0`, saltando la lettura del descrittore.
+Before clearing RAM, stock code preserves these fields from the descriptor in
+`r0`: eight bytes from `r0+4` to context+16, the word at `*(r0)+8` to context+24,
+the byte at `*(r0)+13` to context+0, four bytes from `r0+12` to context+28, and
+eight bytes from `r0+16` to context+32. The new startup preserves the same fields
+without assigning unproven meanings. For debugger tests, it also accepts
+`r0=0`, skipping the descriptor read.
 
-## Layout nuovo e controlli
+## New layout and checks
 
-`firmware/mini/boot/mini.ld` usa RAM `[0x01C00000, 0x01C7FD30)` e lascia
-intatta la regione alta `[0x01C7FD30, 0x01C80000)` destinata a boot/IRQ.
-Non incorpora puntatori, task, heap o tabelle callback dell'applicazione stock.
+`firmware/mini/boot/mini.ld` uses RAM `[0x01C00000, 0x01C7FD30)` and leaves the
+high region `[0x01C7FD30, 0x01C80000)` reserved for boot/IRQ untouched. It does
+not incorporate pointers, tasks, heap, or callback tables from the stock application.
 
-- `.text` parte esattamente da `0x02000120`.
-- `.ram` contiene dati inizializzati e eventuale codice RAM, con LMA flash
-  esplicito e simboli `__ram_load_start/end`, `__ram_start/end`.
-- `.bss` è distinta da `.noinit`; le sezioni `.dma` e `.dma32` sono raccolte
-  con allineamento 32. Questo allineamento non dimostra coerenza DMA/cache.
-- Stack normale `[0x01C7CD30, 0x01C7ED30)` da 8 KiB e SSP
-  `[0x01C7ED30, 0x01C7FD30)` da 4 KiB sono scelte HyperRig. Non derivano
-  dalla misura del fabbisogno reale di interrupt o motore.
-- Assert del linker impediscono sovrapposizione con stack/riserva alta e
-  superamento del limite flash MINI.
+- `.text` starts exactly at `0x02000120`.
+- `.ram` contains initialized data and any RAM code, with an explicit flash LMA
+  and symbols `__ram_load_start/end`, `__ram_start/end`.
+- `.bss` is separate from `.noinit`; `.dma` and `.dma32` sections are collected
+  with 32-byte alignment. This alignment does not establish DMA/cache coherence.
+- The 8 KiB normal stack `[0x01C7CD30, 0x01C7ED30)` and 4 KiB SSP
+  `[0x01C7ED30, 0x01C7FD30)` are HyperRig choices. They are not based on measured
+  interrupt or engine requirements.
+- Linker assertions prevent overlap with the stacks/high reserved area and
+  exceeding the MINI flash limit.
 
-Il linker JieLi produceva per default `p_align=0x500`, valore non conforme
-al vincolo ELF di potenza di due. La build imposta esplicitamente
-`-z max-page-size=0x20 -z common-page-size=0x20`: offset e VMA dei segmenti
-ora rispettano l'allineamento e passano il validatore indipendente
-`tools/check_mini_image.py`. I segmenti BSS/stack con `p_filesz=0` non sono
-interpretati come dati flash.
+By default, the JieLi linker produced `p_align=0x500`, which does not satisfy
+the ELF power-of-two constraint. The build explicitly sets
+`-z max-page-size=0x20 -z common-page-size=0x20`: segment offsets and VMAs now
+respect alignment and pass the independent validator `tools/check_mini_image.py`.
+BSS/stack segments with `p_filesz=0` are not interpreted as flash data.
 
-`startup.S` tiene disabilitati gli IRQ, imposta i due stack, salva il contesto
-di boot, azzera BSS, copia `.ram`, esegue `csync` e passa alla funzione C.
-I loop software gestiscono anche sezioni di lunghezza zero senza dipendere
-dalla semantica di `REP 0`.
+`startup.S` keeps IRQs disabled, sets both stacks, saves the boot context,
+clears BSS, copies `.ram`, executes `csync`, and enters the C function. The
+software loops also handle zero-length sections without depending on `REP 0`
+semantics.
 
-La simulazione limitata decodifica **le istruzioni dell'ELF appena collegato**,
-inizializza la RAM con un pattern e confronta tutta l'area RAM finale con il
-contratto ELF. Controlla copia, zero BSS, conservazione dei campi di boot,
-zone non interessate, SP, SSP e IRQ disabilitati. Prova sia descrittore valido
-sia descrittore nullo. Si ferma prima dell'entry C: non esegue né simula
-boot ROM, periferiche o motore DSP target.
+The limited simulation decodes **the instructions of the newly linked ELF**,
+initializes RAM with a pattern, and compares the entire final RAM area with
+the ELF contract. It checks copying, BSS clearing, preservation of boot fields,
+unaffected regions, SP, SSP, and disabled IRQs. It tests both a valid descriptor
+and a null descriptor. It stops before the C entry: it neither executes nor
+simulates the boot ROM, peripherals, or target DSP engine.
 
-## Probe C e motore capture
+## C probe and capture engine
 
-Il probe minimo scrive `hyperrig_mini_probe` in `.noinit`: magic, fase,
-indirizzo del contesto e risultati dei controlli su un word inizializzato e
-un word BSS. Senza applicazione aggiuntiva riporta stato `-100` e resta in
-un ciclo con IRQ disabilitati. Il marker è destinato a un eventuale debugger;
-non è una segnalazione visibile su LED, USB o Bluetooth.
+The minimal probe writes `hyperrig_mini_probe` in `.noinit`: magic, phase,
+context address, and results of checks on an initialized word and a BSS word.
+Without an additional application, it reports status `-100` and remains in a
+loop with IRQs disabled. The marker is intended for a possible debugger; it
+is not an indication visible through LEDs, USB, or Bluetooth.
 
-Con `--dsp`, vengono aggiunti il motore ricostruito, la capture A2, il driver audio e
-implementazioni locali freestanding di `memcpy`/`memset`. Non restano simboli
-non risolti. Il probe riserva 16 KiB per il modello e 192 KiB per l'arena
-runtime e controlla le dimensioni richieste prima dell'inizializzazione.
-Queste sono capacità riservate per la prova, non il fabbisogno minimo misurato.
+With `--dsp`, the reconstructed engine, A2 capture, audio driver, and local
+freestanding `memcpy`/`memset` implementations are added. No unresolved symbols
+remain. The probe reserves 16 KiB for the model and 192 KiB for the runtime
+arena, and checks the required sizes before initialization. These are reserved
+test capacities, not measured minimum requirements.
 
-Il self-test è preparato per elaborare 64 zeri dopo reset e confrontare
-il CRC32 little-endian dell'uscita con `f10b5e4c`. Il risultato atteso deriva
-dall'interpretazione dei kernel originali del G, non dal C HyperRig. Se il
-codice verrà eseguito, il mailbox conserverà CRC, frame elaborati e stato;
-`-104` indicherebbe un confronto fallito.
+The self-test is prepared to process 64 zeros after reset and compare the
+little-endian output CRC32 with `f10b5e4c`. The expected result comes from
+interpreting the original G kernels, not from the HyperRig C code. If the code
+is executed, the mailbox will preserve the CRC, processed frames, and status;
+`-104` would indicate a failed comparison.
 
-Poi il probe azzera lo stato del motore e chiama
-`hyperrig_mini_audio_process_half` su due array RAM fittizi da 1024 byte,
-allineati a 32 e raccolti in `.dma32`. La callback esegue il motore con
-ingresso Q30 e uscita Q31. Verifica il CRC `f0a44a06` sui 128 slot TX della
-prima metà, in formato low24 duplicato nei due canali, e controlla che la
-seconda metà conservi il pattern iniziale. Non chiama `prepare`, `start`,
-codec, IRQ o MMIO. Il mailbox aggiunge `audio_status`, `audio_frames` e
-`tx_checksum`; `-105` segnala CRC TX diverso, `-106` una scrittura nell'altra
-metà, `-107` prova audio non raggiunta.
+The probe then clears engine state and calls `hyperrig_mini_audio_process_half`
+on two dummy 1024-byte RAM arrays, aligned to 32 and collected in `.dma32`.
+The callback runs the engine with Q30 input and Q31 output. It verifies CRC
+`f0a44a06` over the first half's 128 TX slots, in low24 format duplicated into
+both channels, and checks that the second half retains its initial pattern.
+It does not call `prepare`, `start`, the codec, IRQs, or MMIO. The mailbox adds
+`audio_status`, `audio_frames`, and `tx_checksum`; `-105` indicates a different
+TX CRC, `-106` a write to the other half, and `-107` that the audio test was not reached.
 
-La stessa `hyperrig_mini_application_probe` è stata **eseguita sull'host Linux
-sotto ASan/UBSan** tramite `probe_host.c`, con capture, motore e adattatore:
-stato zero, 64 frame per ciascuna prova e i due CRC attesi. L'harness host
-sostituisce soltanto la definizione del mailbox ed esclude il main di boot
-e lo startup pi32v2. La simulazione target si ferma prima dell'entry C;
-**il self-test C target non è stato eseguito sul MINI**.
+The same `hyperrig_mini_application_probe` was **executed on a Linux host under
+ASan/UBSan** through `probe_host.c`, with the capture, engine, and adapter:
+status zero, 64 frames for each test, and the two expected CRCs. The host harness
+replaces only the mailbox definition and excludes boot main and pi32v2 startup.
+The target simulation stops before the C entry; **the target C self-test has
+not been executed on the MINI**.
 
-Nella build verificata, il probe DSP comprende 11.984 byte caricati dalla
-flash (capture inclusa), 216.768 byte BSS, 52 byte `.noinit`, quattro byte di
-dati inizializzati e 12 KiB di stack riservati. Restano spazi liberi nel layout,
-ma latenza, stack effettivo e comportamento del target non sono misurati.
+In the verified build, the DSP probe comprises 11,984 bytes loaded from flash
+(capture included), 216,768 BSS bytes, 52 `.noinit` bytes, four initialized-data
+bytes, and 12 KiB of reserved stacks. Space remains in the layout, but latency,
+actual stack usage, and target behavior have not been measured.
 
-## Probe integrato del worker audio
+## Integrated audio-worker probe
 
-`--bringup` aggiunge un terzo ELF, `hyperrig-mini-bringup-probe.elf`, che collega
-runtime IRQ/worker, platform e codec. L'autoverifica usa lo stesso ingresso
-zero e gli stessi CRC del probe DSP, facendo passare la prova audio attraverso
-`hyperrig_mini_runtime_ready` e `hyperrig_mini_runtime_work`. Il motore A2 viene
-eseguito nel worker; l'evento simulato non entra nel wrapper hardware IRQ11.
+`--bringup` adds a third ELF, `hyperrig-mini-bringup-probe.elf`, linking the
+IRQ/worker runtime, platform, and codec. Its self-test uses the same zero input
+and CRCs as the DSP probe, routing the audio test through
+`hyperrig_mini_runtime_ready` and `hyperrig_mini_runtime_work`. The A2 engine
+runs in the worker; the simulated event does not enter the IRQ11 hardware wrapper.
 
-`runtime_probe.c` fornisce callback controllate per esclusione, possesso dei
-buffer e sincronizzazione di **array RAM privati senza periferica DMA**.
-Verifica un evento, un blocco completato, due transazioni RX/TX, bilanciamento
-delle callback e assenza di lavoro pendente. Quelle callback non sono una
-soluzione per la coerenza del DMA reale e non possono essere usate per abilitarlo.
+`runtime_probe.c` supplies controlled callbacks for exclusion, buffer ownership,
+and synchronization of **private RAM arrays without a DMA peripheral**. It
+verifies one event, one completed block, two RX/TX transactions, balanced
+callbacks, and no pending work. Those callbacks are not a solution for real
+DMA coherence and cannot be used to enable it.
 
-Anche questa applicazione C viene eseguita sull'host sotto ASan/UBSan. Il suo
-CRC TX atteso resta `f0a44a06`; il risultato e l'hash dell'eseguibile host sono
-nel report. Gli oggetti platform e codec vengono collegati, ma nessuna loro
-operazione MMIO viene chiamata. PLL, watchdog, codec e percorso analogico non
-sono inizializzati dal probe.
+This C application also runs on the host under ASan/UBSan. Its expected TX CRC
+remains `f0a44a06`; the result and host executable hash are in the report.
+Platform and codec objects are linked, but none of their MMIO operations are
+called. The probe does not initialize the PLL, watchdog, codec, or analog path.
 
-La build rifiuta sorgenti o oggetti diversi dagli hash dei report dei
-componenti, per evitare una prova host aggiornata accanto a codice target
-vecchio. Le unità che attraversano il confine flash/RAM usano
-`-mllvm -pi32v2-large-program`: la chiamata ordinaria della toolchain non
-copre sempre la distanza fra `0x0200....` e `0x01C0....`. Le chiamate estese
-`call.xl` risolvono il link senza spostare arbitrariamente RAM o stack.
+The build rejects sources or objects that differ from the component reports'
+hashes, preventing an updated host test from accompanying stale target code.
+Units crossing the flash/RAM boundary use `-mllvm -pi32v2-large-program`:
+the toolchain's ordinary call does not always span the distance between
+`0x0200....` and `0x01C0....`. Extended `call.xl` calls resolve the link without
+arbitrarily relocating RAM or stacks.
 
-Il nuovo ELF contiene funzioni `.ramtext`, copiate dallo startup. La simulazione
-verifica i byte copiati, ma non dimostra la visibilità delle nuove istruzioni
-alle cache del processore. L'handover cache/MMU e l'esecuzione dalla RAM devono
-essere verificati prima di considerare questo programma avviabile sul MINI.
+The new ELF contains `.ramtext` functions copied by startup. The simulation
+verifies the copied bytes but does not establish visibility of the new
+instructions to the processor caches. Cache/MMU handover and execution from
+RAM must be verified before treating this program as bootable on the MINI.
 
-## IRQ e cache: cosa è ricostruito
+## IRQ and cache: reconstructed behavior
 
-`irq.c` espone registrazione e rimozione dei soli IRQ fisici 0–65. Il codice
-deriva da `0x02001756` e dalla rimozione a `0x020148B4`: handler nella tabella
-alta, word controller `index>>3`, nibble `(index&7)*4`, valore
-`(priority<<1)|1`. Preserva ICFG al termine, elimina eventuali route precedenti
-su entrambe le CPU e richiede serializzazione esterna fra CPU. Il probe non
-chiama questi hook e non abilita interrupt. Il numero 126 non viene esposto:
-il corrispondente word di tabella coincide con lo slot osservato di avvio CPU1.
+`irq.c` exposes registration and removal only for physical IRQs 0–65. The code
+comes from `0x02001756` and removal at `0x020148B4`: handlers in the high table,
+controller word `index>>3`, nibble `(index&7)*4`, value `(priority<<1)|1`. It
+preserves ICFG on completion, removes any previous routes on both CPUs, and
+requires external serialization between CPUs. The probe does not call these
+hooks or enable interrupts. Number 126 is not exposed: the corresponding table
+word coincides with the observed CPU1 startup slot.
 
-Il [linker SFC del SDK AC79 fissato nel riferimento](https://github.com/amitv87/fw-AC79_AIoT_SDK/blob/ffbb2a8d925682ba6880d643a83a63ee0691ec09/cpu/wl82/sdk_ld_sfc.c)
-conferma la separazione RAM/boot-info e l'uso di vie cache come RAM aggiuntiva.
-In particolare `0x01F28000` è `.cache_ram_data`, non la tabella IRQ. Il reset
-stock configura sette vie D-cache libere e copia lì 32 byte che contengono
-callback SDK. HyperRig non usa quella regione e non ricopia tali puntatori.
-Il [contratto IRQ del SDK](https://github.com/amitv87/fw-AC79_AIoT_SDK/blob/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/hwi.h)
-conferma ALNK all'indice 11; gli handler hardware richiedono l'ABI interrupt
-del compilatore pi32v2, non una normale funzione C.
+The [SFC linker from the pinned AC79 SDK reference](https://github.com/amitv87/fw-AC79_AIoT_SDK/blob/ffbb2a8d925682ba6880d643a83a63ee0691ec09/cpu/wl82/sdk_ld_sfc.c)
+confirms the RAM/boot-info separation and the use of cache ways as additional
+RAM. In particular, `0x01F28000` is `.cache_ram_data`, not the IRQ table. Stock
+reset configures seven free D-cache ways and copies 32 bytes containing SDK
+callbacks there. HyperRig does not use that region or copy those pointers.
+The [SDK IRQ contract](https://github.com/amitv87/fw-AC79_AIoT_SDK/blob/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/hwi.h)
+confirms ALNK at index 11; hardware handlers require the pi32v2 compiler's
+interrupt ABI, not an ordinary C function.
 
-Restano da verificare l'handover del boot ROM, stato cache/MMU, watchdog,
-clock, driver GPIO/codec/mute, coerenza DMA, gestione IRQ effettiva e
-installazione/ripristino sul singolo esemplare. Il nuovo startup non clona il
-scheduler o l'avvio del secondo core stock e non dichiara di sostituirli.
+Boot ROM handover, cache/MMU state, watchdog, clocks, GPIO/codec/mute drivers,
+DMA coherence, actual IRQ handling, and installation/restoration on the
+individual unit remain to be verified. The new startup does not clone the
+stock scheduler or second-core startup and does not claim to replace them.
 
-## Riproduzione
+## Reproduction
 
 ```powershell
 python tools/build_native.py
@@ -188,7 +185,7 @@ python tools/build_mini_boot.py --dsp
 python tools/check_mini_image.py --elf build/mini-boot/hyperrig-mini-boot-probe.elf --elf build/mini-boot/hyperrig-mini-dsp-link-probe.elf
 ```
 
-Per il terzo probe:
+For the third probe:
 
 ```powershell
 python tools/verify_mini_platform.py
@@ -197,8 +194,7 @@ python tools/verify_mini_runtime.py
 python tools/build_mini_boot.py --bringup
 ```
 
-Servono WSL Ubuntu, la toolchain JieLi già fissata dal bootstrap, firmware
-decodificati e tabella ISA locale. Gli artefatti sono in `build/mini-boot/`;
-il report versionato è [mini-boot.json](../research/mini-boot.json).
-I comandi non aprono trasporti verso il pedale e non generano file FWSC o
-immagini pronte per il flashing.
+WSL Ubuntu, the JieLi toolchain already pinned by bootstrap, decoded firmware,
+and the local ISA table are required. Artifacts are in `build/mini-boot/`;
+the versioned report is [mini-boot.json](../research/mini-boot.json). The commands
+do not open transports to the pedal or generate FWSC files or ready-to-flash images.

@@ -1,46 +1,46 @@
-# Recupero limitato delle query del writer
+# Bounded recovery of writer queries
 
-`tools/recover_mini_read_v2.py` aggiunge una composizione separata al client
-operativo congelato. Non cambia il firmware RAM, il core dell'installer o il
-recupero v1. Importare il modulo non apre dispositivi. L'esecuzione richiede
-trasporto, factory di riapertura, journal persistente e sessione espliciti.
+`tools/recover_mini_read_v2.py` adds a separate wrapper around the frozen
+operational client. It does not change the RAM firmware, installer core, or
+v1 recovery. Importing the module opens no devices. Execution requires an
+explicit transport, reopen factory, durable journal, and session.
 
-La terza installazione ha perso una risposta `FC7E`, dopo una lettura `FD7F`
-riuscita. In quel punto `session.expected` contiene già il nuovo contatore di
-lettura e il CRC dei byte ricevuti; il precedente audit ha ancora il contatore
-vecchio. Confrontare sempre con il precedente audit sarebbe scorretto.
+The third installation lost an `FC7E` response after a successful `FD7F` read.
+At that point, `session.expected` already contains the new read counter and
+the CRC of received bytes; the preceding audit still has the old counter.
+Always comparing against the preceding audit would be incorrect.
 
-| Comando fallito con Win32 31 | Evidenza necessaria dopo riapertura | Risultato |
+| Command failing with Win32 31 | Evidence required after reopening | Result |
 | --- | --- | --- |
-| `FD7F` lettura NOR | Identità HYW1, audit identico nei 128 byte all'audit immediatamente precedente, già validato; tutti i campi uguali a `expected` | Una sola ripetizione della lettura; i contatori provano che la prima non ha avuto effetto |
-| `FC7E` stato | Identità HYW1 e audit fresco uguale a tutti i campi correnti di `expected` | Una sola ripetizione della query, priva di effetti sul NOR o sui contatori |
-| `FD88` audit | Identità HYW1 e audit fresco uguale a `expected` | Il record fresco viene restituito direttamente al normale validator dell'installer |
-| `FD88` subito dopo risposta erase/program validata | Come sopra, con il solo incremento `status_polls` ammesso nell'intervallo 1..65536 già imposto dal core | L'installer riceve e valida il record; il wrapper non modifica i contatori attesi |
+| `FD7F` NOR read | HYW1 identity, all 128 audit bytes identical to the immediately preceding, already validated audit; all fields equal to `expected` | One read reissue; counters prove the first had no effect |
+| `FC7E` status | HYW1 identity and a fresh audit matching every current `expected` field | One query reissue, with no NOR or counter effects |
+| `FD88` audit | HYW1 identity and a fresh audit matching `expected` | The fresh record is returned directly to the installer's normal validator |
+| `FD88` immediately after a validated erase/program response | As above, allowing only the `status_polls` increase within 1..65536 already required by the core | The installer receives and validates the record; the wrapper does not change expected counters |
 
-CRC, tag della build, slot, gate operativo, stato, token, sequenza, contatori,
-bitmap, guardie e stato NOR devono essere validi. Un errore nel recupero termina
-la sessione. `FD7F` eseguito ma con risposta persa cambia l'audit e resta un
-errore terminale: questo strumento non nasconde una lettura già contabilizzata.
+CRC, build tag, slot, operational gate, state, token, sequence, counters,
+bitmap, guards, and NOR state must be valid. An error during recovery terminates
+the session. An executed `FD7F` whose response was lost changes the audit and
+remains a terminal error: this tool does not hide a read already counted.
 
-Il budget complessivo è esplicito, da 1 a 8 recuperi. Ogni combinazione di CDB e
-stato atteso può usarlo una sola volta. La stessa chiamata non ricorre mai nel
-recupero; un errore su identità, audit o ripetizione interrompe il percorso.
-La riapertura deve usare la stessa classe di trasporto, path, slot e profilo.
-Il runner deve applicare anche logging e pacing alla nuova istanza.
+The overall budget is explicit, from 1 to 8 recoveries. Each CDB/expected-state
+combination may use it only once. The same call never recursively enters
+recovery; an identity, audit, or reissue error terminates the path. Reopening
+must use the same transport class, path, slot, and profile. The runner must
+also apply logging and pacing to the new instance.
 
-Erase, programmazione, arm, stage, echo, finish, upload, jump e reset non sono
-ripetibili da questo wrapper. Un'altra eccezione, Win32 diverso da 31, comando
-non inviato, identità diversa, audit incompatibile o journal non persistibile
-interrompe la sessione. L'installer congelato resta responsabile dei confronti
-esatti dei dati e di tutte le verifiche successive.
+Erase, program, arm, stage, echo, finish, upload, jump, and reset cannot be
+repeated by this wrapper. Any other exception, Win32 error other than 31,
+unsubmitted command, different identity, incompatible audit, or journal that
+cannot be persisted terminates the session. The frozen installer remains
+responsible for exact data comparisons and all subsequent checks.
 
-`python -B -m unittest tests.test_mini_read_recovery_v2 -v` esegue 20 test con
-il vero core Python e un NOR simulato: perdita di risposte prima/dopo query,
-audit dopo erase/PP, vincoli sui delta, errori nelle guardie e nell'identità,
-esaurimento budget, errore durante il recupero e nessuna mutazione duplicata.
-Non costituiscono una prova sul dispositivo. Il report separato
-`research/mini-read-recovery-v2.json` vincola sorgenti e dipendenze congelate.
+`python -B -m unittest tests.test_mini_read_recovery_v2 -v` runs 20 tests with
+the actual Python core and simulated NOR: response loss before/after queries,
+audits after erase/PP, delta constraints, guard and identity errors, budget
+exhaustion, errors during recovery, and no duplicated mutations. These are
+not device tests. The separate `research/mini-read-recovery-v2.json` report
+binds the sources and frozen dependencies.
 
-La causa Windows e la correlazione con le richieste automatiche sono descritte
-in [MINI_WINDOWS_FAILURES.md](MINI_WINDOWS_FAILURES.md). Il recupero non pretende
-di correggere il driver né dimostra l'affidabilità di una futura installazione.
+The Windows cause and correlation with automatic requests are described in
+[MINI_WINDOWS_FAILURES.md](MINI_WINDOWS_FAILURES.md). Recovery does not claim
+to fix the driver or establish the reliability of a future installation.

@@ -1,246 +1,245 @@
-# Recupero ROM e primo codice RAM sul TANK MINI
+# ROM recovery and first RAM code on TANK MINI
 
-Il firmware ufficiale `TANK MINI_009` contiene un comando USB MIDI per
-richiedere la modalità download ROM. Il comando è stato ricostruito dai byte
-del MINI; l'allowlist MIDI di m-flasher non include questo modello.
-`tools/probe_mini_recovery.py` produce evidenze e vettori offline, e offre una
-API Windows esplicita per trasferimenti limitati a RAM e letture NOR.
-Importare il modulo o eseguire la sua CLI non apre un dispositivo.
+Official `TANK MINI_009` firmware contains a USB MIDI command to request
+ROM download mode. The command was reconstructed from MINI bytes;
+m-flasher's MIDI allowlist does not include this model.
+`tools/probe_mini_recovery.py` produces offline evidence and vectors and
+provides an explicit Windows API for transfers restricted to RAM and NOR reads.
+Importing the module or running its CLI opens no device.
 
-I test del client usano trasporti in memoria e API Windows sostituite. I risultati
-fisici sono registrati separatamente in `analysis/hardware/`: il rapporto
-`research/mini-recovery.json` descrive la verifica offline, non certifica
-l'avvio hardware né il recupero dopo una flash corrotta.
+Client tests use in-memory transports and substituted Windows APIs.
+Physical results are recorded separately in `analysis/hardware/`:
+`research/mini-recovery.json` describes offline verification; it does not
+certify hardware boot or recovery after corrupted flash.
 
-La successiva prova fisica del 15 novembre 2026 è riportata in
-[mini-hardware-rom.json](../research/mini-hardware-rom.json). Sono riusciti
-l'ingresso USB nella ROM, l'esecuzione del probe DSP, l'avvio del reader NOR
-e il reset verso lo stock. Il ritorno è stato verificato con una nuova
-enumerazione `4C4A:C755`, risposta `TANK MINI_009` e doppia lettura dei preset
-identica al backup precedente. Dopo una prima acquisizione parziale per
-errore USB e un reset dell'hub, sono riuscite due letture integrali da 1 MiB
-identiche e con contenuto stock 009 valido. Recupero da flash corrotta e
-ripristino NVM restano da provare.
+The subsequent physical test of 15 November 2026 is recorded in
+[mini-hardware-rom.json](../research/mini-hardware-rom.json). USB entry into
+ROM, DSP-probe execution, NOR-reader startup, and reset to stock succeeded.
+Return was verified by a new `4C4A:C755` enumeration, a `TANK MINI_009`
+response, and two preset reads identical to the preceding backup.
+After a first partial acquisition interrupted by a USB error and a hub reset,
+two identical full 1 MiB reads with valid stock 009 content succeeded.
+Recovery from corrupted flash and NVM restoration remain to be tested.
 
-## Comando MINI e percorso verificato nei byte stock
+## MINI command and path verified in stock bytes
 
-Il contenitore di riferimento è `artifacts/tank-mini/TANK-MINI.fwsc`, SHA256
+The reference container is `artifacts/tank-mini/TANK-MINI.fwsc`, SHA256
 `13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209`.
-Un contenitore differente viene rifiutato prima dell'analisi.
+A different container is rejected before analysis.
 
-| Oggetto | Valore |
+| Object | Value |
 | --- | --- |
 | SysEx | `F0 22 24 35 7D F7` |
-| Due pacchetti USB MIDI, cable 0 | `04 F0 22 24 07 35 7D F7` |
-| Pattern stock in RAM | `0x01C0AFC4` |
-| Guardia del comando | `0x0200869A..0x020086DE` |
-| Routine di richiesta download | `0x01C02332..0x01C02382` |
-| Stringa conservata | `usb_update_mode\0`, 16 byte |
-| Origine/destinazione della stringa | `0x0203FD2A` / `0x01C7FD80` |
+| Two USB MIDI packets, cable 0 | `04 F0 22 24 07 35 7D F7` |
+| Stock pattern in RAM | `0x01C0AFC4` |
+| Command guard | `0x0200869A..0x020086DE` |
+| Download-request routine | `0x01C02332..0x01C02382` |
+| Preserved string | `usb_update_mode\0`, 16 bytes |
+| String source/destination | `0x0203FD2A` / `0x01C7FD80` |
 
-La guardia richiede otto byte, confronta i primi sei con il pattern e controlla
-separatamente `F7` finale e comando `7D`. Il modello esegue il flusso delle
-istruzioni decodificate fino alla chiamata di recupero: un caso positivo e
-73 varianti negative, compresi tutti i singoli bit modificati, lunghezze
-troncate e un byte in più. `memcmp` è stato ispezionato separatamente.
+The guard requires eight bytes, compares the first six against the pattern,
+and separately checks the final `F7` and command `7D`. The model executes
+the decoded instruction flow up to the recovery call: one positive case and
+73 negative variants, including every single-bit change, truncated lengths,
+and an extra byte. `memcmp` was inspected separately.
 
-La routine successiva disabilita gli interrupt, serializza l'accesso, copia il
-marker e chiama l'helper P33 `0x01C0108C` con argomenti `(0xA0,4,1,1)`, poi
-attende. Il modello offline non esegue tale scrittura né un reset.
+The following routine disables interrupts, serialises access, copies the
+marker, and calls P33 helper `0x01C0108C` with arguments `(0xA0,4,1,1)`,
+then waits. The offline model performs neither that write nor a reset.
 
-La registrazione USB `0x02007ED0` installa la callback `0x02008864`, che legge
-i dati USB e li passa a `0x02008784`, quindi alla guardia. Non è stato provato
-un percorso BLE equivalente verso questa callback. La possibilità di leggere
-i preset BLE non dimostra che il comando di modalità USB sia inoltrabile lì.
+USB registration `0x02007ED0` installs callback `0x02008864`, which reads
+USB data and passes it to `0x02008784`, then to the guard. No equivalent
+BLE path into this callback has been proven. Being able to read BLE presets
+does not establish that the USB-mode command can be forwarded there.
 
-## Protocollo ROM e trasformazione dei dati
+## ROM protocol and data transformation
 
-Le fonti AC791N descrivono due slot RAM, `0x01C20000` e `0x01C28000`, ciascuno
-di `0x8000` byte. Uno slot deve essere noto libero oppure contenere un upload
-mai eseguito con cronologia completa. La sola risposta INQUIRY non prova che
-uno slot sia libero.
+AC791N sources describe two RAM slots, `0x01C20000` and `0x01C28000`,
+each `0x8000` bytes. A slot must be known free or contain an upload never
+executed, with complete history. INQUIRY alone does not prove a slot is free.
 
-Ogni CDB privato è lungo 16 byte, con riempimento `FF`:
+Each private CDB is 16 bytes long, padded with `FF`:
 
-| Operazione | CDB e fase dati |
+| Operation | CDB and data phase |
 | --- | --- |
-| Upload ROM | `FB06`, indirizzo BE32 a +2, lunghezza BE16 a +6, zero a +8, CRC16 LE a +9; OUT massimo 512 byte |
-| Lettura ROM | `FD07`, indirizzo BE32 a +2, lunghezza BE16 a +6; IN massimo 512 byte nel client |
-| Chiamata RAM | `FB08`, entry BE32 a +2, parametro BE16 `1` a +6; IN 16 byte |
-| Identità/selftest HyperRig | `FC60`; IN 16 byte |
-| Lettura del plugin HyperRig | `FD61`, indirizzo BE32 e lunghezza BE16; IN massimo 4096 byte per comando, callback in blocchi da 512 |
+| ROM upload | `FB06`, BE32 address at +2, BE16 length at +6, zero at +8, LE CRC16 at +9; OUT maximum 512 bytes |
+| ROM read | `FD07`, BE32 address at +2, BE16 length at +6; IN maximum 512 bytes in the client |
+| RAM call | `FB08`, BE32 entry at +2, BE16 parameter `1` at +6; IN 16 bytes |
+| HyperRig identity/selftest | `FC60`; IN 16 bytes |
+| HyperRig plugin read | `FD61`, BE32 address and BE16 length; IN maximum 4096 bytes per command, callback in 512-byte chunks |
 
-`FB06` trasmette dati trasformati con `jl_crc_cipher`, chiave `FFFFFFFF`.
-Lo stato riparte per ogni comando. Il CRC16/XMODEM del CDB usa seed zero e
-copre i byte **trasmessi**, già trasformati. La trasformazione è simmetrica
-e distinta dalla cifratura ENC/SFC della flash.
+`FB06` transmits data transformed with `jl_crc_cipher`, key `FFFFFFFF`.
+State restarts for each command. The CDB's CRC16/XMODEM uses a zero seed
+and covers the **transmitted**, already transformed bytes. The transformation
+is symmetric and separate from flash ENC/SFC encryption.
 
-**Anche `FD07` restituisce dati trasformati.** Il client decodifica ogni
-risposta separatamente, verifica la lunghezza e confronta l'intera immagine
-con il file di SHA256 approvato. Non prova automaticamente altre codifiche
-e non accetta una corrispondenza parziale.
+**`FD07` also returns transformed data.** The client decodes each response
+separately, verifies its length, and compares the entire image with the
+approved SHA256 file. It does not automatically try other encodings or accept
+a partial match.
 
-Questa distinzione è documentata dalla disassembly dell'installer originale:
-`UbootSession.reboot`, linee originali 2786 e 2791, applica `enc(mem_read(...))`
-prima di verificare sentinel e immagine. `enc` usa `cipher_bytes(jl_crc_cipher,
-b)`, con chiave predefinita `FFFFFFFF`; `JL_LoaderV2.mem_read` restituisce la
-risposta grezza.
+This distinction is documented in the original installer disassembly:
+`UbootSession.reboot`, original lines 2786 and 2791, applies
+`enc(mem_read(...))` before checking the sentinel and image.
+`enc` uses `cipher_bytes(jl_crc_cipher,
+b)`, with default key `FFFFFFFF`; `JL_LoaderV2.mem_read` returns the raw
+response.
 
-Nel primo tentativo MINI del 15 novembre 2026, il client precedente ha
-confrontato erroneamente la risposta grezza con il file e si è fermato senza
-emettere `FB08`. L'analisi offline di `analysis/hardware/rom-probe-trace.jsonl`
-ha trovato tutti i dieci hash ricevuti uguali ai blocchi attesi trasformati
-(nove blocchi da 512 byte e uno da 320), nessuno uguale al plaintext.
-La correzione mantiene la verifica completa prima del salto. Una sessione
-con cronologia che prova zero `FB08` può rileggere l'upload già presente;
-non occorre sovrascriverlo.
+In the first MINI attempt on 15 November 2026, the earlier client incorrectly
+compared the raw response with the file and stopped without issuing `FB08`.
+Offline analysis of `analysis/hardware/rom-probe-trace.jsonl` found all ten
+received hashes equal to the expected transformed blocks (nine 512-byte blocks
+and one of 320), none equal to plaintext. The correction retains full
+verification before jumping. A session with history proving zero `FB08`
+commands can reread the upload already present; it need not overwrite it.
 
-`FD61` appartiene al plugin caricato. m-flasher `run-ram --read` usa `FD61`;
-non è una prova che la ROM implementi direttamente tale comando. Dopo un
-`FB08` con risposta persa, il codice potrebbe essere già stato eseguito:
-il client marca la sessione prima della chiamata e non ripete il salto.
+`FD61` belongs to the uploaded plugin. m-flasher `run-ram --read` uses
+`FD61`; this does not prove that ROM directly implements that command.
+After an `FB08` with a lost response, code may already have executed:
+the client marks the session before the call and never repeats the jump.
 
-## Contratto del plugin RAM
+## RAM plugin contract
 
-L'entry è il primo byte del file flat. La ROM lo chiama come funzione C:
-`r0` punta a tre word contenenti callback send, callback receive e indirizzo
-della variabile ROM che contiene la callback del protocollo.
+Entry is the first byte of the flat file. ROM calls it as a C function:
+`r0` points to three words containing the send callback, receive callback,
+and address of the ROM variable holding the protocol callback.
 
-Il plugin conserva questi valori, inizializza solo il proprio stato, pubblica
-il proprio handler con sincronizzazione e ritorna normalmente. Il contratto
-mantiene stack ROM, clock, interrupt, servizio USB e RAM degli altri slot.
-Non usa lo startup dell'applicazione MINI né azzera tutta la RAM.
+The plugin preserves these values, initialises only its own state, publishes
+its handler with synchronisation, and returns normally. The contract preserves
+the ROM stack, clocks, interrupts, USB service, and other slots' RAM.
+It neither uses MINI application startup nor clears all RAM.
 
-L'handler riceve `CBW31 *` in `r0` e un buffer risposta da 16 byte in `r1`;
-ritorna uno per comando gestito, zero per delegare alla ROM. Il CBW contiene
-firma LE `0x43425355`, tag a +4, conteggio LE a +8, direzione a +12,
-lunghezza CDB a +14 e CDB a +15. Il plugin invia i dati con la callback fornita;
-la ROM produce il CSW. La semantica esatta dei valori restituiti dalle callback
-non è interamente deducibile dalle fonti: il client controlla comunque fase
-dati, identità e contenuti.
+The handler receives `CBW31 *` in `r0` and a 16-byte response buffer in
+`r1`; it returns one for a handled command and zero to delegate to ROM.
+The CBW contains LE signature `0x43425355`, tag at +4, LE count at +8,
+direction at +12, CDB length at +14, and CDB at +15. The plugin sends data
+through the supplied callback; ROM produces the CSW. The exact semantics
+of callback return values cannot be fully deduced from sources; the client
+still checks the data phase, identity, and contents.
 
-Il probe HYR1 è costruito da `tools/build_mini_rom_probe.py`. Le risposte `FC60`
-contengono conteggio BE32 a +2, `HYR1` a +6, stato BE32 a +10 e versione BE16
-a +14. Il client richiede stato zero, versione uno e conteggio positivo.
-Il manifest del probe stabilisce gli otto casi e i CRC attesi; un risultato
-positivo non equivale all'esecuzione dell'intero motore A2 o del percorso audio.
+The HYR1 probe is built by `tools/build_mini_rom_probe.py`. `FC60`
+responses contain a BE32 count at +2, `HYR1` at +6, BE32 status at +10,
+and BE16 version at +14. The client requires zero status, version one,
+and a positive count. The probe manifest defines the eight cases and expected
+CRCs; a positive result is not equivalent to execution of the entire A2 engine
+or audio path.
 
-## Client Windows e sequenza degli slot
+## Windows client and slot sequence
 
-`WindowsRomTransport` richiede Python Windows a 64 bit e un percorso esplicito
-`\\.\PhysicalDriveN`. Prima di aprirlo controlla che la catena PnP abbia
-antenato `USB\VID_4C4A&PID_8057`; dopo l'apertura richiede INQUIRY
-`WL82` / `UBOOT1.00`. Una periferica con errore descrittore 43 non soddisfa
-queste condizioni.
+`WindowsRomTransport` requires 64-bit Windows Python and an explicit
+`\\.\PhysicalDriveN` path. Before opening, it checks the PnP chain for
+ancestor `USB\VID_4C4A&PID_8057`; after opening, it requires INQUIRY
+`WL82` / `UBOOT1.00`. A device with descriptor error 43 does not meet
+these conditions.
 
-Il trasferimento usa `SCSI_PASS_THROUGH_DIRECT`, IOCTL `0x4D014`, target 1,
-timeout 10 secondi e sense buffer di 32 byte. Su Windows a 64 bit la struttura
-SPTD è di 56 byte; il buffer con sense è di 88 byte. Il driver Windows costruisce
-il framing USB BOT: il client non aggiunge manualmente un CBW. L'apertura
-richiede i diritti di protocollo READ/WRITE del device handle; i CDB rimangono
-limitati dall'allowlist. Non esistono elevazione, cambio modalità o retry
-automatici nel modulo.
+Transfers use `SCSI_PASS_THROUGH_DIRECT`, IOCTL `0x4D014`, target 1,
+a 10-second timeout, and a 32-byte sense buffer. On 64-bit Windows, the
+SPTD structure is 56 bytes; the buffer including sense is 88 bytes.
+The Windows driver constructs USB BOT framing: the client does not manually
+add a CBW. Opening requires protocol READ/WRITE rights on the device handle;
+CDBs remain restricted by the allowlist. The module has no automatic elevation,
+mode change, or retry.
 
-Se `DeviceIoControl` fallisce, `RomCommandError` conserva immediatamente il
-codice Win32 e include in `details` stato SCSI, lunghezza trasferimento,
-byte restituiti dalla IOCTL e sense buffer. Non include il buffer dati NOR.
-Questi campi possono essere incompleti quando la IOCTL fallisce e non vengono
-interpretati come prova di un trasferimento riuscito. Per misurare la durata
-il chiamante deve registrare un tempo di fine distinto da quello di inizio.
+If `DeviceIoControl` fails, `RomCommandError` immediately preserves the
+Win32 code and includes SCSI status, transfer length, bytes returned by the
+IOCTL, and sense buffer in `details`. It does not include the NOR data buffer.
+These fields may be incomplete when the IOCTL fails and are not interpreted
+as evidence of a successful transfer. To measure duration, the caller must
+record an end time separate from the start time.
 
-| API | Condizione ed effetto |
+| API | Condition and effect |
 | --- | --- |
-| `upload_only` | Slot noto libero, hash del manifest verificato; solo `FB06` |
-| `verify_upload_only` | Upload noto mai eseguito; solo `FD07`, decodifica e confronto completo |
-| `verify_and_start` | Ripete la verifica completa, emette un `FB08`, verifica HYR1/HYRN |
-| `upload_and_start` | Combina upload, verifica ed esecuzione |
-| `read` | Solo dopo HYR1; espone esclusivamente lo slot del plugin |
-| `start_reset_once` | Verifica manifest, ELF e nuova lettura RAM; un salto senza handshake HYR1 |
+| `upload_only` | Slot known free, manifest hash verified; `FB06` only |
+| `verify_upload_only` | Upload known never to have executed; `FD07` only, decoding and full comparison |
+| `verify_and_start` | Repeats full verification, issues one `FB08`, verifies HYR1/HYRN |
+| `upload_and_start` | Combines upload, verification, and execution |
+| `read` | Only after HYR1; exposes only the plugin's slot |
+| `start_reset_once` | Verifies manifest, ELF, and a fresh RAM read; one jump without HYR1 handshake |
 
-`known_free_slot=True` e `known_uploaded_unstarted=True` sono dichiarazioni
-esplicite basate sulla cronologia del chiamante, reciprocamente esclusive.
-Creare un nuovo oggetto Python non rende libero lo slot fisico. Dopo che un
-plugin nello slot B ha pubblicato e confermato il proprio handler, lo slot A
-del vecchio plugin può essere riutilizzato, purché non siano rimasti altri
-puntatori o attività verso di esso. Se il salto a B ha esito ambiguo, non si
-deduce quale handler sia attivo e non si sovrascrive nessuno dei due slot.
+`known_free_slot=True` and `known_uploaded_unstarted=True` are explicit,
+mutually exclusive declarations based on caller history. Creating a new Python
+object does not free the physical slot. After a plugin in slot B has published
+and confirmed its handler, the old plugin's slot A can be reused, provided
+no other pointers or activity toward it remain. If the jump to B has an
+ambiguous outcome, the active handler is not inferred and neither slot
+is overwritten.
 
-## Lettura NOR separata, senza scritture non volatili
+## Separate NOR reading, without nonvolatile writes
 
-Il profilo `nor-reader` usa il reader sorgente in
+The `nor-reader` profile uses the source reader in
 `firmware/mini/recovery_reader/`, manifest `research/mini-flash-reader.json`.
-Il caricamento registra il protocollo HYRN senza inizializzare SPI.
-`MiniNorSession.initialize_spi()` è una fase successiva esplicita.
+Loading registers the HYRN protocol without initialising SPI.
+`MiniNorSession.initialize_spi()` is a subsequent explicit phase.
 
-| Comando HYRN | Risposta/azione |
+| HYRN command | Response/action |
 | --- | --- |
-| `FC70` | Identità `HYRN`, versione 1, flags 3, base e span dello slot; nessun MMIO |
-| `FC72` | Setup PIO, uscita continuous-read, JEDEC; stato, capacità e divisore |
-| `FD71` | Lettura fisica di 1..512 byte entro la capacità verificata |
-| `FC73` | Errore persistente, inizializzazione, snapshot clock e contatore byte letti |
+| `FC70` | Identity `HYRN`, version 1, flags 3, slot base and span; no MMIO |
+| `FC72` | PIO setup, exit from continuous-read, JEDEC; status, capacity, and divisor |
+| `FD71` | Physical read of 1..512 bytes within verified capacity |
+| `FC73` | Sticky error, initialisation, clock snapshot, and read-byte counter |
 
-Il reader emette i comandi SPI `FF FF`, `9F` e `03`. Non contiene comandi
-write-enable, program, erase o scrittura status. Il setup modifica registri
-volatili SFC/SPI/pinmux, mantenendo codice e dati in RAM. La capacità deve
-risultare esattamente 1 MiB dal JEDEC, non dalla dimensione del pacchetto FWSC.
+The reader issues SPI commands `FF FF`, `9F`, and `03`. It contains no
+write-enable, program, erase, or status-write commands. Setup changes volatile
+SFC/SPI/pinmux registers while keeping code and data in RAM. Capacity must
+be exactly 1 MiB from JEDEC, not from the FWSC package size.
 
-Ogni `FD71` è seguito obbligatoriamente da `FC73`. Un errore persistente,
-contatore inatteso o trasferimento corto invalida il blocco e la sessione.
-Questo impedisce di confondere il riempimento `FF` usato dal reader in caso
-di errore con dati flash validi. Le letture successive nella stessa sessione
-mantengono il contatore cumulativo, anche tra due passaggi completi.
+Every `FD71` must be followed by `FC73`. A sticky error, unexpected counter,
+or short transfer invalidates the block and session. This prevents confusing
+the reader's error-fill `FF` with valid flash data. Subsequent reads in the
+same session retain the cumulative counter, including between two complete
+passes.
 
-Un backup completo richiede due letture fisiche da `0x000000` a `0x100000`,
-stati validi per ogni blocco, lunghezze esatte e confronto byte per byte/hash.
-Né la lettura dello slot RAM, né la finestra CPU SFC, né il file FWSC stock
-costituiscono tale backup. Una copia completa non dimostra da sola il recupero
-di una flash corrotta: manca ancora la verifica del percorso ROM indipendente
-dall'applicazione e della procedura di ripristino.
+A full backup requires two physical reads from `0x000000` to `0x100000`,
+valid status for every block, exact lengths, and byte-for-byte/hash comparison.
+Neither a RAM-slot read, the CPU SFC window, nor the stock FWSC file constitutes
+such a backup. A full copy alone does not prove recovery from corrupted flash:
+the application-independent ROM path and restoration procedure still require
+verification.
 
-La SPEC AC791N descrive anche il dongle fisico `USB_KEY` come ingresso nella
-mask ROM indipendente dal bootloader. La fonte riguarda FM-1/SMK-37; non è
-una prova di funzionamento sul MINI. Non è stata stabilita una combinazione
-dei pedali MINI che sostituisca questo percorso quando l'applicazione non parte.
+The AC791N SPEC also describes the physical `USB_KEY` dongle as mask-ROM
+entry independent of the bootloader. The source concerns FM-1/SMK-37; it does
+not prove operation on MINI. No MINI footswitch combination has been established
+as a substitute for this path when the application fails to start.
 
-## Reset RAM controllato
+## Controlled RAM reset
 
-Il reset è un artefatto separato (`research/mini-rom-reset.json`), senza
-protocollo HYR1. `start_reset_once` richiede il manifest dell'artefatto,
-i byte ELF e i byte flat, verifica i digest, l'entry, il singolo segmento
-pi32v2 nello slot e l'assenza di BSS/relocation. Il manifest deve provenire
-dalla build reset già revisionata: il parser del client prova il collegamento
-tra file e layout, non la semantica di codice arbitrario.
+Reset is a separate artifact (`research/mini-rom-reset.json`), without the
+HYR1 protocol. `start_reset_once` requires the artifact manifest, ELF bytes,
+and flat bytes; it verifies digests, entry, the single pi32v2 segment inside
+the slot, and the absence of BSS/relocations. The manifest must come from the
+already reviewed reset build: the client parser proves the file/layout
+relationship, not the semantics of arbitrary code.
 
-Il reset revisionato invalida la prima word del marker `0x01C7FD80`, imposta
-il bit 4 di `0x10000` e attende. Dopo una nuova verifica integrale `FD07`,
-il client emette un solo `FB08`. Una disconnessione successiva alla chiamata
-IOCTL viene registrata come esito ambiguo; non viene convertita in successo.
-Gli errori di validazione, lettura o trasporto precedenti all'invio restano
-eccezioni. Occorre osservare separatamente la nuova identità USB normale
-`4C4A:C755` e identificare `TANK MINI_009`.
+The reviewed reset invalidates the first word of marker `0x01C7FD80`, sets
+bit 4 of `0x10000`, and waits. After a new full `FD07` verification, the
+client issues only one `FB08`. A disconnect following the IOCTL call is
+recorded as an ambiguous outcome; it is not converted to success.
+Validation, read, or transport errors before submission remain exceptions.
+The new normal USB identity `4C4A:C755` must be observed separately and
+`TANK MINI_009` identified.
 
-## Riproduzione offline e fonti
+## Offline reproduction and sources
 
 ```powershell
 python -X utf8 tools/probe_mini_recovery.py
 python -X utf8 -m unittest tests.test_mini_recovery -v
 ```
 
-I 20 test verificano la guardia MINI, un modello CRC bitwise indipendente,
-endianness/CDB, upload e readback nei due slot, mancata esecuzione dopo mismatch,
-divieto di retry dopo salto ambiguo, resume con nuova lettura, profilo NOR,
-stati per ogni blocco, manifest/reset e layout Windows completamente simulato,
-inclusa la conservazione dei dettagli di una IOCTL fallita.
-Non modellano elettricamente USB, flash o reset.
+The 20 tests check the MINI guard, an independent bitwise CRC model,
+endianness/CDB, upload and readback in both slots, no execution after mismatch,
+no retry after an ambiguous jump, resume with a fresh read, NOR profile,
+per-block status, manifest/reset, and a fully simulated Windows layout,
+including preservation of failed-IOCTL details.
+They do not electrically model USB, flash, or reset.
 
-Fonti primarie fissate:
+Pinned primary sources:
 
-- [m-bootloader SPEC, commit 3ac7651](https://github.com/jvitkauskas/m-bootloader/blob/3ac7651a019fa44daba061b05654278496477b64/docs/SPEC.md), sezioni 6.3 e 10.1; copia locale `upstream/m-bootloader/`.
+- [m-bootloader SPEC, commit 3ac7651](https://github.com/jvitkauskas/m-bootloader/blob/3ac7651a019fa44daba061b05654278496477b64/docs/SPEC.md), sections 6.3 and 10.1; local copy `upstream/m-bootloader/`.
 - [pi32v2 hwtest runner, commit 1f09804](https://github.com/jvitkauskas/pi32v2-isa/blob/1f09804d36ddcba36dbd84cb6242ef88f35f15b7/tools/hwtest/runner.S).
-- [m-flasher, commit 8fbece7](https://github.com/jvitkauskas/m-flasher/tree/8fbece7348d758ac284325eed455781675ac95ff), `src/jl.rs`, `usb.rs`, `scsi.rs`, `midi.rs`; hash dei sorgenti nel rapporto.
-- Firmware MINI e disassembly dell'installer originale in `recovered/installer/`; nessun installer o loader FM1/SMK37 è stato eseguito per questa analisi.
+- [m-flasher, commit 8fbece7](https://github.com/jvitkauskas/m-flasher/tree/8fbece7348d758ac284325eed455781675ac95ff), `src/jl.rs`, `usb.rs`, `scsi.rs`, `midi.rs`; source hashes in the report.
+- MINI firmware and original-installer disassembly in `recovered/installer/`; no FM1/SMK37 installer or loader was executed for this analysis.
 
-`ota.bin` ufficiale è un contenitore JLFS con `usb_hid_ota.bin` da 19958 byte
-complessivi, SHA256 `9c62bbdfd55f6527a3cffe43abc16c621d0900a8ff47685240abb1ee596eb66e`.
-Il suo percorso è un aggiornamento con staging in flash; non corrisponde al
-plugin flat con callback ROM e non viene usato per questa prova RAM.
+Official `ota.bin` is a JLFS container with `usb_hid_ota.bin`, 19958 bytes
+in total, SHA256 `9c62bbdfd55f6527a3cffe43abc16c621d0900a8ff47685240abb1ee596eb66e`.
+Its path is an update with flash staging; it is not the flat plugin with ROM
+callbacks and is not used for this RAM test.

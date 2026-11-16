@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a HyperRig firmware or editor problem.
+title: "[Bug]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the problem in English and explain what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the controls or editor actions that trigger the problem.
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Pedal and connection
+      placeholder: TANK MINI, USB, Windows 11, Edge
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: HyperRig version and diagnostics
+      description: Paste the version and relevant output from Copy diagnostics. Review it before submitting. Do not attach full device dumps, private presets, captures, or signing keys.
+      render: text
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add relevant screenshots or a short, reviewed log excerpt.

@@ -1,213 +1,98 @@
 # HyperRig
 
-Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
-firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
+Independently maintained UltraRig-derived firmware and editor for the
+M-VAVE TANK MINI.
 
-**Stato documentato al 16 novembre 2026: port UltraRig v3 installato
-e verificato sulla NOR completa. Dopo il riavvio fisico, firmware normale,
-A2 attivo e “Preset 1A” con scena A e capture conservati. L'utente conferma
-suono regolare. Letture reali riuscite via Bluetooth e USB. Nell'editor sono
-verificati volume, salvataggio e richiamo di “Preset 1A”, con rilettura dello
-stato sul pedale. Anche aggiunta, parametro, bypass, rimozione e salvataggio/
-richiamo di un preset con effetti sono verificati nell'interfaccia reale.
-L'editor è disponibile; la misura reale con nove
-effetti attivi riporta circa 2,40 ms medi per blocco e 2,53 ms come massimo
-osservato, senza errori audio segnalati. È tempo interno di elaborazione,
-non latenza analogica ingresso–uscita.** HyperRig
-è il nome scelto per questo progetto indipendente.
+[Repository](https://github.com/danmigdev/hyperrig) ·
+[Report an issue](https://github.com/danmigdev/hyperrig/issues/new/choose)
 
-L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
-UltraRig completa adattata al MINI, in sostituzione dello stock, e copie
-locali di firmware e app con strumenti di reverse engineering e modifica.
+## Current status
 
-## Provare l'editor sul MINI
+The minimum working system was verified on November 16, 2026:
 
-Con il MINI acceso e collegato tramite USB dati, aprire
-[launch_mini_fx_editor.cmd](tools/launch_mini_fx_editor.cmd). Non richiede UAC.
-L'app supera la guida iniziale e apre il selettore USB: scegliere
-**Tank-M HyperRig (COM3)**. Su questo PC l'apertura USB può impiegare circa
-15–21 secondi. Usare una sola finestra collegata al pedale.
+- The UltraRig-derived v3 application is installed on the MINI, replacing its
+  stock application. A complete NOR readback verified the installed bytes.
+- Normal boot, A2 capture retention, preset retention after restart, and
+  communication over USB and Bluetooth were observed.
+- The owner reported normal audio with the instrument and output connected.
+- The desktop editor was physically tested for volume, effect addition,
+  parameter changes, bypass, removal, preset saving, and preset loading.
+- With nine active effects, internal processing averaged about **2.40 ms per
+  block**, with **2.53 ms maximum observed**. Analog input-to-output latency
+  has not been measured.
 
-Il bundle verificato è `build/hyperrig-mini-fx-editor`: abilita volume,
-salvataggio del preset/scena, richiamo preset, aggiunta seriale, parametri,
-bypass e rimozione degli effetti via USB. Il firmware controlla CPU e memoria.
-Per aggiungere usare il **+** in fondo a Pre o Post; selezionare un blocco per
-le manopole, Bypass e Remove. Per salvare o richiamare usare Presets.
-Routing parallelo, spostamento/sostituzione dei blocchi, controlli AMP e
-scritture BLE restano fuori da questa versione.
-[Istruzioni di avvio](docs/MINI_FX_EDITOR_LAUNCHER.md).
+The original buildable UltraRig firmware C project has **not** been recovered.
+This working firmware is a port of the distributed binary, with reconstructed
+MINI-specific components. The separate C reconstruction remains incomplete.
+Full panel/LED mapping and the integrated held-switch cold-start recovery test
+remain outstanding.
 
-La prova reale ha creato **1B**, con il nome copiato “Preset 1A”, capture A2
-e Noise Gate Post attivo a −71 dB. Dopo aver rimosso il blocco dall'interfaccia,
-il richiamo di 1B lo ha ripristinato con lo stesso parametro. Il MINI è stato
-lasciato sul preset originale **1A**, con volume 0/0 e catena FX vuota.
-La [verifica indipendente dell'interfaccia](docs/MINI_FX_UI.md) controlla
-comandi USB, risposte native e riletture dello stato. La prova è conservata
-in `build/mini-fx-ui-smoke-01/report.json`;
-non comprende un nuovo riavvio fisico per il preset 1B.
+The [agreed objective](docs/HYPERRIG_GOAL.md) and
+[integrated port](docs/MINI_INTEGRATED_PORT.md) document the scope and evidence.
 
-## Risultati disponibili
+## Launch the editor
 
-- UltraRig alpha 11 / M5.71: quattro immagini G/B, v1/v2, scaricate da GitHub,
-  verificate con SHA-256, decodificate e separate in `app.bin` e `cfg_tool.bin`.
-- Firmware ufficiale `TANK MINI_009`: contenitore FWSC e applicazione estratti,
-  con verifica dei CRC. Confermato AC791N/pi32v2, con una mappa flash diversa.
-- HTML/JavaScript distribuiti nell'editor e nell'APK originali, estratti e
-  conservati senza modifiche; copie derivate HyperRig separate.
-- Bytecode Python dell'installer estratto e disassemblato senza eseguirlo.
-- Pseudocodice C generato da Ghidra per tutti e cinque i firmware e listati
-  pi32v2 delle aree flash/RAM. Il C è **parziale, inferito e non compilabile**.
-- Parser Python utilizzabili per SFC/JLFS/FWSC, capture A2L1 e preset del MINI;
-  CLI di identificazione e backup dei preset via MIDI, limitata alle letture.
-- Modello A2-Lite in virgola mobile con rendering WAV offline, confrontato
-  con il convertitore originale; non riproduce ancora il DSP intero del pedale.
-- Motore capture C con caricatore, bias, ingresso mono/tre canali, layer
-  dilatati, attivazioni, residuali e testa finale. **7.509 confronti con le
-  istruzioni originali interpretate**, inclusi tutti i 23 layer della capture
-  A2. Profilo supportato: tre canali/int32 e shift del percorso ottimizzato.
-  Orchestrazione portabile propria; in questo motore C separato IR, effetti e
-  frontend restano da integrare. La candidata binaria conserva i componenti originali.
-  Build UBSan/ASan e oggetto pi32v2 prodotti dalla toolchain JieLi.
-- Percorso audio ALNK0 ricostruito per G e MINI: pin, buffer, IRQ e blocchi
-  da 64 frame; differenza tra 44,1 kHz stock MINI e 48 kHz UltraRig identificata.
-- Driver audio MINI compilato, con conversione campioni e gestione dei mezzi
-  buffer DMA verificate sul PC. Codec/clock a 48 kHz, mute e coerenza cache
-  restano da verificare sul dispositivo.
-- Startup e linker MINI con tre ELF diagnostici, controllo delle aree flash/RAM
-  e simulazione della copia dati/azzeramento BSS. Il probe DSP include la
-  capture A2 e un'autoverifica numerica; **non è stato avviato sul pedale**.
-- Watchdog P33, lettura dei clock, manutenzione cache, bus codec PA1/PA2 e
-  coordinamento IRQ/worker ricostruiti; verifiche locali e oggetti pi32v2.
-  I contributi sono documentati separatamente con i limiti hardware ancora aperti.
-- Compositore dell'area applicativa MINI da ELF: directory e configurazione
-  originali conservate, vecchio codice rimosso e CRC verificati. Produce un
-  artefatto sperimentale offline, non un aggiornamento FWSC installabile.
-- **Primo codice HyperRig eseguito sul MINI in RAM:** 8 casi delle primitive
-  DSP superati, con CRC uguali ai kernel originali interpretati. Il probe ROM
-  ha restituito un record verificato; motore A2 completo e audio restano da provare.
-- **Motore A2L sintetico eseguito sul MINI in RAM:** tre layer, 230 frame,
-  sei blocchi e ripetizione dopo reset con CRC corretti; stack privato e arena
-  integri. È una prova distinta dalla capture originale a 23 layer e dall'audio.
-- Identità `TANK MINI_009` confermata via BLE e USB prima dell'installazione.
-  Ritorno dalla ROM al firmware stock verificato nove volte, con preset invariati.
-  **Backup completo
-  della NOR: due copie da 1 MiB identiche**, CRC validi e firmware corrispondente
-  allo stock 009. L'installazione della candidata è completata: una nuova lettura
-  indipendente di tutta la NOR conferma l'applicazione esatta e ogni byte esterno
-  invariato prima del riavvio. Il pedale ha poi avviato HyperRig e risponde
-  all'editor via USB; la prima v2 è entrata in modalità `safe`. La successiva
-  correzione v3 e il nuovo avvio normale sono descritti sotto.
-  Stato e prove in
-  [mini-installation-interruptions.json](research/mini-installation-interruptions.json).
-- Handover del bootloader, varianti applicative interamente in flash e selettore
-  dei clock ricostruiti. Candidato codec OSR64 preparato, ancora da provare sul pedale.
-- Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
-  APK Android `com.hyperrig.app`, ricostruito e firmato localmente. Sono in
-  `build/hyperrig/`: **queste copie G/B non sono il port MINI**.
-- Prima candidata integrale MINI v2 da **516.096 byte**, con applicazione UltraRig G,
-  20 patch, shim audio v2 da 2.332 byte e guardia footswitch da 298 byte. Struttura, CRC e confronto inverso
-  con l'originale verificati. La base applicativa è UltraRig G; lo stock MINI
-  fornisce il riferimento hardware e il backup di ripristino.
-  L'editor MINI è associato all'hash dell'immagine. Il primo collegamento reale
-  ha completato 25 query con 302 righe ricevute; il PONG identifica
-  `tankm_fw M5.71 rel ble` con suffisso `safe`. Prove di questa prima sessione in
-  [MINI_DESKTOP_READONLY_HARDWARE.md](docs/MINI_DESKTOP_READONLY_HARDWARE.md).
-  L'immagine v2, poi sostituita dalla v3, ha SHA-256
-  `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`.
-- Correzione v3 del crash installata e verificata: il limite PC originale
-  escludeva il codice audio aggiunto. Cambiano 11 byte nel solo settore
-  `0x4000`, inclusi i CRC. Una lettura completa prima e dopo l'aggiornamento,
-  insieme alla [verifica indipendente](research/mini-pc-limit-install-independent.json),
-  conferma app esatta e dati esterni conservati rispetto al dump fresco.
-  SHA-256 applicazione: `9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c`.
-  Il nuovo avvio ha prodotto un PONG normale; due `STAT` reali mostrano
-  `T.nproc` da 328986 a 329126, con `AUD mode=2` e nessun errore I/O segnalato.
-  Questa prova digitale non certifica ancora l'ascolto analogico. Dettagli in
-  [MINI_PC_LIMIT_UPGRADE.md](docs/MINI_PC_LIMIT_UPGRADE.md).
-- La capture A2 è stata salvata nello slot 0 e riletta integralmente: tutti i
-  4.892 byte corrispondono all'originale. L'editor ha poi eseguito realmente
-  `GAIN 0 -1`, `GAIN 0 0`, `PSAVE 0 Preset 1A` e `SNAPSAVE 0`, con ACK e
-  riletture dello stato. La prova si è fermata prima del marker successivo:
-  il pannello preset aveva chiuso il popup del volume. Il preset viene
-  conservato; il richiamo è stato verificato separatamente, senza riscriverlo.
-  Report originale: `build/mini-first-preset-ui-04/report.json`.
-  La continuazione `build/mini-saved-reload-ui-v2-07/report.json` ha superato
-  la prova reale: due comandi dall'interfaccia, 99 scambi USB, risposte native
-  verificate e porta chiusa. Il bundle unisce le due prove senza promuovere
-  a successo il primo report parziale.
-  La [correzione dei nodi dell'interfaccia](docs/MINI_UI_CONNECTION_FIX.md)
-  risolve il precedente blocco delle manopole mantenendo `setLock` originale.
-- Dopo il riavvio dell'utente, Bluetooth e USB rileggono il firmware normale,
-  la capture A2, il preset 0 e la scena A. L'utente riferisce audio regolare.
-  I precedenti timeout del client con DTR disattivato non dimostravano un
-  blocco dell'applicazione: la [corrigenza](research/mini-usb-negative-probes-correction.json)
-  conserva e distingue quei risultati. Il nuovo [diagnostico CDC](docs/MINI_CDC_HANDSHAKE.md)
-  richiede DTR attivo e riprende il collegamento iniziale dell'editor originale.
-- [Misura reale dei tempi interni](docs/MINI_LATENCY.md): con A2, la prova
-  `build/mini-fx-latency-03/report.json` misura tre finestre aggiornate per
-  ciascuna configurazione a 0, 4, 8 e 9 effetti attivi. Con nove effetti:
-  **2,3944–2,3951 ms medi per blocco e 2,5261 ms di massimo osservato**, usando
-  la scala nominale del timer. Nessun errore audio segnalato; preset iniziale
-  ripristinato e riletto. Una precedente prova ha rifiutato l'attivazione del
-  decimo effetto per CPU insufficiente. Il risultato riguarda la catena e i
-  parametri provati, non tutte le combinazioni possibili né la latenza analogica.
-- Recupero tramite tre footswitch e reset verso ROM verificati in RAM; la guardia
-  integrata deve ancora essere eseguita all'accensione. Ricezione, lettura NOR e
-  restituzione della pagina dell'installatore verificate sul MINI con tutte le
-  scritture disabilitate. Otto sessioni di installazione si sono fermate per
-  Win31: cinque durante letture/stato, una durante la restituzione della pagina
-  RAM, una sulla risposta a PROGRAM e una sulla verifica finale di settore
-  FINISH. Per il PROGRAM fallito, audit invariato e
-  rilettura completa confermano che il comando non aveva programmato la pagina.
-  Il nono tentativo ha completato i 16 settori residui, scrivendo il settore
-  dell'header e la sua prima pagina per ultimi. Sono verificati **tutti i 126
-  settori dell'applicazione** e la NOR completa da 1 MiB; SHA-256 del dump finale
-  `a35868ab3a4beb42454070ce46d67efaf695615a670de177343860e88d107c47`.
-  La [verifica indipendente](research/mini-final-install-independent.json)
-  controlla anche ordine delle scritture, contatori, log e regioni preservate.
-  Quattro errori di lettura/stato/echo RAM sono stati recuperati con controlli
-  dello stato; nessuna mutazione NOR è stata ripetuta in questa sessione.
-  La causa degli errori Windows non è dimostrata. Il completamento della
-  scrittura non prova l'avvio o il funzionamento dell'applicazione.
+With the MINI powered on and connected by a USB data cable, open
+[launch_hyperrig_editor.cmd](tools/launch_hyperrig_editor.cmd).
+No UAC prompt is needed.
 
-Il progetto sorgente C originale del firmware UltraRig **non è stato recuperato**: il repository,
-la sua cronologia e i fork pubblici controllati non li contengono. La
-decompilazione non recupera nomi, commenti, tipi e struttura del progetto
-originale. Il dettaglio delle ricerche è in [source-audit.json](research/source-audit.json).
-Gli originali conservano autore, avvisi e licenze; il nome HyperRig identifica
-le copie derivate e il lavoro di adattamento, non la paternità del codice originale.
+The launcher dismisses the first-use tour and opens the USB selector. Choose
+**Tank-M HyperRig (COM3)** on the development PC. Opening USB can take about
+15–21 seconds on this PC. Use one connected editor window at a time.
 
-## Dove leggere
+The current product bundle is `build/hyperrig-mini-english-editor`.
+It has an English-only interface, HyperRig GitHub links, and a **Report an
+issue on GitHub** action. GitHub lets the user review and submit the issue.
+Donation controls and automatic online update checks have been removed.
 
-- [Reverse engineering e risultati verificati](docs/REVERSE_ENGINEERING.md).
-- [Copie locali, stato dei sorgenti e percorsi di modifica](docs/LOCAL_SOURCES.md).
-- [Build integrata MINI e piano di sostituzione](docs/MINI_INTEGRATED_PORT.md).
-- [Porting TANK MINI: profilo, differenze e lavoro restante](docs/PORTING_TANK_MINI.md).
-- [C nativo ricostruito e verifiche numeriche](docs/NATIVE_RECONSTRUCTION.md).
-- [Percorso audio del MINI e confronto con il G](docs/TANK_MINI_AUDIO.md).
-- [Driver audio MINI e conversione dei campioni](docs/MINI_AUDIO_DRIVER.md).
-- [Startup, linker e programmi diagnostici MINI](docs/MINI_BOOT.md).
-- [Prima esecuzione fisica del probe ROM HyperRig](docs/MINI_ROM_PROBE.md).
-- [Motore A2L sintetico verificato sul MINI in RAM](docs/MINI_ROM_ENGINE.md).
-- [Diagnostico codec in RAM: NACK e ripristino verificato](docs/MINI_ROM_CODEC.md).
-- [Port dell'applicazione UltraRig completa](docs/MINI_ULTRARIG_PORT.md).
-- [Editor HyperRig per il target MINI](docs/MINI_APP.md).
-- [Protocollo ROM, verifica RAM e ritorno allo stock](docs/MINI_RECOVERY.md).
-- [Lettura completa della NOR e verifica del backup](docs/MINI_FLASH_BACKUP.md).
-- [Handover stock e varianti XIP](docs/MINI_HANDOVER.md).
-- [Clock e vincoli di campionamento del MINI](docs/MINI_CLOCK.md).
-- [Validazione ELF e contenitore stock MINI](docs/MINI_IMAGE.md).
-- [Watchdog, clock e cache MINI](docs/MINI_PLATFORM.md).
-- [Bus codec, mute e vincoli del campionamento](docs/MINI_CODEC.md).
-- [Interrupt, worker audio e gestione dei ritardi](docs/MINI_RUNTIME.md).
-- [Applicazioni e firmware rinominati HyperRig](docs/REBRANDING.md).
-- [Provenienza e licenze](docs/PROVENIENZA.md).
-- [Versioni esatte degli strumenti](research/sources.lock.json).
+The English presentation changes are checked offline, separately from the
+original hardware tests. They preserve the firmware binding, command policy,
+converter, and eight qualified USB command families:
 
-## Riprodurre l'analisi
+`GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`, `FXA`, `FXP`, `FXE`, `FXR`.
 
-Python 3.12 è necessario per leggere il bytecode 3.12 dell'installer. I parser
-offline usano soltanto la libreria standard.
+Use **+** at the end of Pre or Post to add an effect. Select a block for its
+parameters, Bypass, and Remove. Use Presets to save or load. The firmware
+enforces CPU and memory limits. Parallel routing, moving/replacing blocks,
+AMP controls, and Bluetooth writes are outside the qualified scope.
+
+The real UI test created **1B**, with the copied name **Preset 1A**, the A2
+capture, and an enabled Post Noise Gate at **−71 dB**. Loading 1B restored the
+effect after it had been removed in the editor. The pedal was left on the
+original **1A**, with gain 0/0 and an empty FX chain. A further physical restart
+of preset 1B was not part of that test.
+[UI evidence](docs/MINI_FX_UI.md) · [Timing measurements](docs/MINI_LATENCY.md)
+
+## Build the English editor
+
+Python 3.12 and Node.js are required. The local, sealed
+`build/hyperrig-mini-fx-editor` bundle is the input; it is not included in Git.
+
+```powershell
+npm.cmd ci --prefix tools/editor --ignore-scripts --no-audit --no-fund
+python tools/build_hyperrig_editor.py --build build/hyperrig-mini-english-editor-new
+python tools/verify_hyperrig_editor.py --bundle build/hyperrig-mini-english-editor-new --output build/hyperrig-english-check-new
+```
+
+Use new output directories. The builder preserves historical bundles and
+hardware reports. The offline browser check blocks device access, verifies
+English behavior with a non-English browser preference, checks GitHub issue
+navigation without sending a report, and exercises the demo controls.
+
+Project destinations are defined in [app/project.json](app/project.json).
+All maintained documentation, UI text, comments, and new contributions use
+English; see [AGENTS.md](AGENTS.md). Required third-party notices, protocol
+identifiers, original inputs, and immutable evidence retain their original
+wording and bytes.
+
+## Development and reverse engineering
+
+The repository includes parsers for SFC/JLFS/FWSC and A2L1, extracted-protocol
+analysis, binary port builders, reconstructed C components, tests, board
+profiles, and hardware investigation records.
+
+Python 3.12 is needed to read the original installer's Python 3.12 bytecode.
+Offline parsers use only the standard library.
 
 ```powershell
 python tools/bootstrap.py
@@ -215,132 +100,86 @@ python tools/fetch_artifacts.py
 python -m hyperrig analyze
 python tools/disassemble.py
 python tools/map_audio.py
-python -m unittest discover -s tests -v
 python -m hyperrig port-status
 ```
 
-Per la decompilazione, Java 21 o successivo e Ghidra 12.2; il bootstrap opzionale
-scarica circa 570 MB e installa il modulo JieLi nella copia locale di Ghidra:
+Ghidra decompilation requires Java 21 or later and Ghidra 12.2. The optional
+bootstrap downloads about 570 MB and installs the JieLi processor module into
+the local Ghidra copy:
 
 ```powershell
 python tools/bootstrap.py --decompiler
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/decompile.ps1 -Target tank-mini
 ```
 
-Gli altri target sono `tank-g-v1`, `tank-g-v2`, `tank-b-v1`, `tank-b-v2`.
-L'opzione ExecutionPolicy vale per quel processo e non modifica la configurazione
-Windows. Gli strumenti di analisi non eseguono gli installer dei pedali.
+Other targets are `tank-g-v1`, `tank-g-v2`, `tank-b-v1`, and `tank-b-v2`.
+ExecutionPolicy applies only to that process. Analysis tools do not run the
+pedal installers.
 
-Per compilare e verificare i componenti C su Windows serve WSL Ubuntu con
-GCC e Python 3. Il compilatore JieLi viene scaricato nella directory locale:
+Building the reconstructed C components on Windows requires WSL Ubuntu with
+GCC and Python 3:
 
 ```powershell
 python tools/bootstrap.py --toolchain
 python tools/build_native.py
 ```
 
-Risultato: `build/native/hyperrig_dsp.pi32v2.o`, oggetto relocatable per il
-target, e `analysis/native/verification.json`. Non è un'immagine da flashare.
+This produces `build/native/hyperrig_dsp.pi32v2.o` and local verification
+evidence, not a flashable firmware image. Documented DSP checks include
+**7,509 comparisons against interpreted original instructions**. The working
+binary port and the separate portable C engine have different completion
+states; their evidence is documented separately.
 
-Per costruire e controllare i programmi diagnostici MINI:
+Historical hardware-proof builders pin the exact source bytes used for their
+tests. Reproduce those results from the recorded Git revision; translations
+and later UI changes do not rewrite historical evidence.
 
-```powershell
-python tools/verify_mini_audio.py
-python tools/build_mini_boot.py --dsp
-python tools/check_mini_image.py --elf build/mini-boot/hyperrig-mini-boot-probe.elf --elf build/mini-boot/hyperrig-mini-dsp-link-probe.elf
-```
+## Local artifacts
 
-Per includere anche i tre componenti MINI e provare il worker con il DSP:
-
-```powershell
-python tools/verify_mini_platform.py
-python tools/verify_mini_codec.py
-python tools/verify_mini_runtime.py
-python tools/build_mini_boot.py --bringup
-python tools/package_mini_probe.py --elf build/mini-boot/hyperrig-mini-bringup-probe.elf --output build/mini-boot/hyperrig-mini-bringup-probe.app-area.bin --report research/mini-package.json
-```
-
-Questi comandi producono ELF, un'area applicativa sperimentale e prove locali.
-Non generano un aggiornamento FWSC installabile e non inviano comandi al
-dispositivo. Il probe integrato usa RAM fittizia: codec, clock e DMA reali
-restano inattivi.
-
-## Materiale locale recuperato
-
-| Percorso | Contenuto |
+| Path | Contents |
 |---|---|
-| `recovered/ultrarig-original/web/` | HTML e JavaScript originali, compreso `nam2chip.js` |
-| `recovered/android/` | asset web e configurazione dell'APK |
-| `recovered/installer/` | bytecode, disassembly e costanti dell'installer |
-| `recovered/ghidra/<target>/decompiled.c` | pseudocodice C e indice delle funzioni |
-| `analysis/firmware/<immagine>/` | binari decodificati, stringhe, mappe, assembly, capture A2L |
-| `analysis/tank-mini/` | firmware ufficiale MINI estratto e analizzato |
-| `analysis/summary.json` | verifica automatica delle cinque immagini |
-| `artifacts/` | pacchetti originali scaricati |
-| `upstream/` | repository e header SDK usati come riferimento |
+| `recovered/ultrarig-original/web/` | Original editor HTML/JavaScript and NAM converter |
+| `recovered/android/` | Original APK assets and configuration |
+| `recovered/installer/` | Installer bytecode, disassembly, and constants |
+| `recovered/ghidra/<target>/decompiled.c` | Inferred, non-buildable C pseudocode |
+| `analysis/firmware/<image>/` | Decoded binaries, maps, assembly, and captures |
+| `analysis/tank-mini/` | Official MINI firmware analysis |
+| `artifacts/` | Original packages and local device backups |
+| `upstream/` | Reference repositories and SDK headers |
+| `build/` | Generated firmware, editors, and test artifacts |
 
-Queste directory restano locali e sono escluse da Git. Il repository versiona
-strumenti, test, profili e documentazione; conserva le licenze insieme ai file
-recuperati. Nessun repository remoto è stato creato.
+Recovered binaries, full device dumps, user presets, and generated builds
+remain local and are excluded from Git. The repository versions tools,
+tests, profiles, documentation, and selected evidence/source snapshots.
+Historical G/B packages in `build/hyperrig/` are separate from the current
+MINI product and must not be used as MINI installers.
 
-## Collegamento del MINI
+## Documentation
 
-Prima dell'installazione, l'esemplare ha risposto `TANK MINI_009` tramite il servizio BLE proprietario
-AE40, caratteristiche AE41/AE42. La prova è registrata in
-[hardware-observation.json](research/hardware-observation.json). La CLI qui sotto
-usa RtMidi: su questo Windows il pedale Bluetooth non compare fra le sue porte.
-La prova BLE è separata dal supporto RtMidi della CLI. Dopo un primo errore
-nell'abilitazione delle notifiche, una nuova connessione ha confermato l'identità
-e acquisito i 1.942 byte dei preset, con due letture identiche e struttura valida.
-Il backup locale è in `artifacts/my-mini-presets/ble-20261115/`; hash e limiti
-sono registrati nell'osservazione hardware. Non è un backup completo della flash.
+- [Goal and remaining work](docs/HYPERRIG_GOAL.md)
+- [Reverse engineering and verified results](docs/REVERSE_ENGINEERING.md)
+- [Local sources and modification paths](docs/LOCAL_SOURCES.md)
+- [Integrated MINI port](docs/MINI_INTEGRATED_PORT.md)
+- [MINI board profile and porting constraints](docs/PORTING_TANK_MINI.md)
+- [Reconstructed native C and numerical verification](docs/NATIVE_RECONSTRUCTION.md)
+- [MINI audio path](docs/TANK_MINI_AUDIO.md)
+- [MINI audio driver](docs/MINI_AUDIO_DRIVER.md)
+- [Startup, linker, and diagnostics](docs/MINI_BOOT.md)
+- [ROM probe](docs/MINI_ROM_PROBE.md)
+- [Synthetic A2L engine in RAM](docs/MINI_ROM_ENGINE.md)
+- [Complete UltraRig application port](docs/MINI_ULTRARIG_PORT.md)
+- [Editor architecture](docs/MINI_APP.md)
+- [ROM recovery](docs/MINI_RECOVERY.md)
+- [Complete NOR backup](docs/MINI_FLASH_BACKUP.md)
+- [Bootloader handover](docs/MINI_HANDOVER.md)
+- [Clocks and sampling](docs/MINI_CLOCK.md)
+- [Image validation](docs/MINI_IMAGE.md)
+- [Watchdog, clocks, and cache](docs/MINI_PLATFORM.md)
+- [Codec and mute](docs/MINI_CODEC.md)
+- [Interrupts and audio worker](docs/MINI_RUNTIME.md)
+- [Historical package branding](docs/REBRANDING.md)
+- [Provenance and licenses](docs/PROVENANCE.md)
+- [Pinned tools and sources](research/sources.lock.json)
 
-Le istruzioni USB-MIDI seguenti riguardano il firmware stock in esecuzione;
-non si applicano allo stato ROM né al protocollo dell'applicazione HyperRig.
-Elencare le porte e scegliere gli indici corretti:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\python -m pip install -e ".[midi]"
-.venv\Scripts\python -m hyperrig ports
-.venv\Scripts\python -m hyperrig identify --input 0 --output 0
-.venv\Scripts\python -m hyperrig backup --input 0 --output 0 --directory artifacts\my-mini-presets
-```
-
-`0` è un esempio: usare gli indici restituiti da `ports`. Il programma verifica
-l'identità `TANK MINI_...` prima di leggere i dati e confronta due letture della
-banca. Questo salva i **preset**, non l'intera flash e non un'immagine di recupero.
-
-Conversione NAM locale con il convertitore originale recuperato:
-
-```powershell
-node tools/nam_convert.cjs input.nam output.a2l
-```
-
-Il risultato è nel formato UltraRig A2L1; non è un file AM3/AM4 da caricare nel
-firmware originale del MINI.
-
-## Riferimento DSP sul PC
-
-Il motore di riferimento legge i pesi quantizzati A2L1 e li interpreta in
-virgola mobile. Mantiene convoluzioni causali, dilatazioni, residuali e stato
-fra blocchi. Serve per verificare la ricostruzione: non è il DSP intero originale,
-non simula le sue saturazioni e non è ottimizzato per il tempo reale.
-
-```powershell
-python -m hyperrig render-a2l analysis/firmware/m571_g_app/embedded-0.a2l input.wav output.wav
-```
-
-L'ingresso deve essere WAV mono PCM16 a 48 kHz; l'uscita deve essere un file
-nuovo. Il comando segnala eventuale clipping. Per il confronto automatico con
-il JavaScript originale serve Node.js; i test indicano esplicitamente gli skip
-quando mancano Node o gli artefatti.
-
-Le verifiche DSP documentate comprendono **7.509 confronti nativi**,
-112 controlli del layout A2L, 4.905 input non validi rifiutati e
-6.942 casi con buffer di dimensione esatta e 400 blocchi del motore sotto
-ASan/UBSan. Due flussi da 7.001 campioni verificano reset e continuità tra blocchi.
-Comprendono CRC e
-hash dei campioni, vettori MIDI catturati, trasporto simulato, casi DSP con
-risultato analitico e confronto delle 49 misure di calibrazione su tre segnali.
-Le prove audio e di avvio dell'applicazione completa sul pedale restano da eseguire.
+HyperRig is a derivative project. Original authorship, required notices, and
+component licenses are preserved. The new name does not change those licenses.

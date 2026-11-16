@@ -1,68 +1,68 @@
-# Agganci codec per il port integrale G → MINI
+# Codec hooks for the complete G → MINI port
 
-Questo componente mantiene DSP, RTOS, IRQ e driver ALNK della G M5.71 v2.
-Aggiunge la sequenza di scheda ricostruita dal MINI. Non contiene un backend
-DSP MINI, un plugin ROM o un programma di flash.
+This component retains the DSP, RTOS, IRQ, and ALNK driver from G M5.71 v2.
+It adds the board sequence reconstructed from MINI. It contains no MINI
+DSP backend, ROM plugin, or flashing program.
 
 ```powershell
 python -B -X utf8 firmware/mini/audio_port/verify.py
 ```
 
-La build produce `build/mini-audio-port/hyperrig-mini-g-audio.{elf,bin,asm}`
-e `manifest.json`. L'append XIP è di 2068 byte a `0x02076AAC`, senza `.data`
-o `.bss`. Il linker rifiuta una necessità di RAM statica o un superamento del
-limite riservato alla configurazione. I puntatori originali G sono fissi:
-il modulo vale soltanto per gli hash G verificati dal builder.
+The build produces `build/mini-audio-port/hyperrig-mini-g-audio.{elf,bin,asm}`
+and `manifest.json`. The XIP append is 2068 bytes at `0x02076AAC`, without
+`.data` or `.bss`. The linker rejects static RAM requirements or overflow
+of the space reserved for configuration. Original G pointers are fixed:
+the module applies only to the G hashes verified by the builder.
 
-`audio_patches(g_plain, manifest['elf']['symbols'])` in `patches.py` restituisce
-due `BinaryPatch` per il formatter integrale: 34 byte a `0x020053A4` e quattro
-byte a `0x0200541E`. Richiede l'immagine G decodificata originale. Il payload
-compilato viene passato separatamente come `append_code`; non si scrive
-direttamente il payload nella NOR cifrata.
+`audio_patches(g_plain, manifest['elf']['symbols'])` in `patches.py` returns
+two `BinaryPatch` entries for the complete formatter: 34 bytes at `0x020053A4`
+and four bytes at `0x0200541E`. It requires the original decoded G image.
+The compiled payload is passed separately as `append_code`; the payload
+is not written directly into encrypted NOR.
 
-Il preambolo conserva `r6=1`, chiama `hyperrig_mini_g_audio_pre_current_clock`
-e salta a `0x02005436` se fallisce. Dopo successo continua il codice G
-originale a `0x020053C6`: IRQ, apertura ALNK e selezione nominale 48kHz.
-La chiamata post passa da un piccolo stub a `0x020053AE` che salva RETS/r4,
-chiama `hyperrig_mini_g_audio_post`, ripristina i registri e controlla l'esito.
-Il successo torna a `0x02005422`; un errore salta a `0x02005436`, evitando
-il flag di successo originale. Lo stub usa temporaneamente otto byte dello
-stack applicativo e ripristina SP al valore entrante. Non scrive esplicitamente
-SSP o registri IRQ e conserva la convenzione ABI.
+The preamble preserves `r6=1`, calls `hyperrig_mini_g_audio_pre_current_clock`,
+and jumps to `0x02005436` on failure. After success, original G code
+continues at `0x020053C6`: IRQ, ALNK open, and nominal 48 kHz selection.
+The post call goes through a small stub at `0x020053AE` that saves RETS/r4,
+calls `hyperrig_mini_g_audio_post`, restores the registers, and checks the result.
+Success returns to `0x02005422`; an error jumps to `0x02005436`,
+bypassing the original success flag. The stub temporarily uses eight bytes
+of application stack and restores SP to its incoming value. It does not
+explicitly write SSP or IRQ registers and preserves the ABI convention.
 
-Il pre legge MHz nominali da `0x020057C6`, rifiuta zero e valori superiori a
-2147 prima della moltiplicazione per un milione. Porta PA9 basso, attende
-100000 iterazioni, configura il bus PA1/PA2 e invia i 22 record originali,
-fermando la sequenza al primo errore. Conserva OSR256; non applica una nuova
-configurazione di rate o filtri. Il post controlla lo stato software G
-`0x01C278DC=1` e il rate `0x01C278E4=48000`, chiama l'originale `0x02005194`,
-richiede stato finale 2, attende 100000 iterazioni e porta PA9 alto.
+The pre hook reads nominal MHz from `0x020057C6`, rejecting zero and values above
+2147 before multiplying by one million. It drives PA9 low, waits
+100000 iterations, configures the PA1/PA2 bus, and sends the 22 original records,
+stopping at the first error. It retains OSR256; it applies no new rate or
+filter configuration. The post hook checks G software state
+`0x01C278DC=1` and rate `0x01C278E4=48000`, calls the original `0x02005194`,
+requires final state 2, waits 100000 iterations, and drives PA9 high.
 
-| Operazione GPIO | Helper originale G |
+| GPIO operation | Original G helper |
 |---|---:|
-| OUT e direzione output | `0x02004998` |
-| Direzione input | `0x02004AD6` |
-| Ingresso digitale | `0x0200187C` |
+| OUT and output direction | `0x02004998` |
+| Input direction | `0x02004AD6` |
+| Digital input | `0x0200187C` |
 | Pull-down | `0x02004BAC` |
 | Pull-up | `0x02004C9A` |
 
-Questi helper mantengono il protocollo G: critical entry `0x01C00E2E`, lock
-del banco a `0x01C25CE0`, critical exit `0x01C00E46`. **Non aggiungere un lock
-esterno del banco**, che verrebbe acquisito nuovamente dagli helper. Per DIR=0
-il binding legge il latch e usa OUT con quel valore. Questo richiede proprietà
-esclusiva dei pin interessati, oltre al lock per la modifica del banco.
+These helpers retain the G protocol: critical entry `0x01C00E2E`, bank lock
+at `0x01C25CE0`, and critical exit `0x01C00E46`. **Do not add an external
+bank lock**, which the helpers would acquire again. For DIR=0,
+the binding reads the latch and uses OUT with that value. This requires
+exclusive ownership of the affected pins, in addition to the bank-update lock.
 
-Le prove ASan/UBSan controllano ordine PA9/attese/bus/start originale, i 22
-record sul bus, 110 posizioni NACK, errore di timing, due errori di avvio e
-quattro precondizioni. Il modello dei soli hook percorre 42 combinazioni
-ABI/esito; tutti i byte generati sono decodificati anche dal tool vendor.
-Tre casi negativi controllano identità sorgente, LMA e memoria non inizializzata.
-Non è un bound dell'intero stack G o una simulazione di periferiche/interrupt.
+ASan/UBSan tests check PA9/wait/bus/original-start ordering, the 22 bus records,
+110 NACK positions, a timing error, two startup errors, and four
+preconditions. The hook-only model exercises 42 ABI/result combinations;
+all generated bytes are also decoded by the vendor tool.
+Three negative cases check source identity, LMA, and uninitialized memory.
+This is not a bound for the entire G stack or a peripheral/interrupt simulation.
 
-Prima dell'avvio servono la patch pannello che elimina il conflitto PA1/PA2,
-la verifica degli altri proprietari GPIO e la stabilità del clock durante
-il bus. Il getter non impedisce cambi di clock. Restano inoltre il contratto
-boot/storage e la qualifica fisica di codec, OSR256 a rate G, clock e audio.
-PA9 basso non dimostra mute analogico; i loop non sono microsecondi calibrati.
-Un errore post non annulla i passi G open/clock già eseguiti. Non è stata
-composta o eseguita una candidata audio da questo verificatore.
+Before booting, the panel patch removing the PA1/PA2 conflict, verification
+of other GPIO owners, and clock stability during bus transactions are required.
+The getter does not prevent clock changes. The boot/storage contract and
+physical qualification of the codec, OSR256 at the G rate, clocks, and audio
+also remain. PA9 low does not demonstrate analog mute; the loops are not
+calibrated microseconds. A post error does not undo G open/clock steps
+already performed. This verifier has neither composed nor executed an audio candidate.

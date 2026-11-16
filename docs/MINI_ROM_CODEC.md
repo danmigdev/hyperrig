@@ -1,85 +1,85 @@
-# Diagnostico codec in RAM
+# RAM codec diagnostic
 
-Il 15 novembre 2026 il MINI ha eseguito il diagnostico `HYC1`. Upload e
-rilettura dei 3.376 byte sono riusciti; il programma ha completato la prima
-transazione e ripristinato i bit GPIO di PA1/PA2. Il codec ha risposto con
-**NACK al primo byte, indirizzo `0x36`**, nella lettura del registro `0x58`.
-Non è stato ottenuto alcun valore. Le altre nove letture sono state omesse,
-senza ritentare né modificare alimentazione o clock.
+On November 15, 2026, the MINI ran the `HYC1` diagnostic. Upload and
+readback of the 3,376 bytes succeeded; the program completed the first
+transaction and restored the PA1/PA2 GPIO bits. The codec returned
+**NACK on the first byte, address `0x36`**, while reading register `0x58`.
+No value was obtained. The other nine reads were skipped,
+without retrying or changing power or clocks.
 
-Le [osservazioni fisiche](../research/mini-codec-hardware.json) conservano hash,
-record completo, stato GPIO e ritorno allo stock. Lo stack privato ha mostrato
-256 byte modificati, con guard integre. Il pedale è tornato a `TANK MINI_009`;
-due letture dei preset erano uguali al backup precedente. La flash non è
-stata scritta dal diagnostico.
+The [physical observations](../research/mini-codec-hardware.json) retain hashes,
+the complete record, GPIO state, and return to stock. The private stack showed
+256 modified bytes, with intact guards. The pedal returned to `TANK MINI_009`;
+two preset reads matched the previous backup. The diagnostic did not
+write the flash.
 
-Il NACK in ROM non identifica il componente e non dimostra un guasto. Lo
-stato di alimentazione, reset e MCLK in questa modalità non è qualificato.
-Il programma non applica la sequenza di inizializzazione audio del firmware.
+A NACK in ROM does not identify the component or demonstrate a fault. The
+power, reset, and MCLK state in this mode has not been qualified.
+The program does not apply the firmware's audio initialization sequence.
 
-## Sorgenti e protocollo
+## Sources and protocol
 
 ```powershell
 python -B -X utf8 tools/build_mini_rom_codec.py
 python -B -X utf8 -m unittest tests.test_mini_codec_protocol
 ```
 
-Il [builder](../tools/build_mini_rom_codec.py) non apre dispositivi. Compila
-gli slot RAM `0x01C20000` e `0x01C28000`, ciascuno da 32 KiB. Codice e stato
-occupano 7.704 byte, inclusi 4 KiB di stack privato. La build usa soltanto
-quattro funzioni del componente codec: inizializzazione bus, allowlist,
-lettura e attesa finita. Scrittura dei registri codec e reset sono esclusi
-dal link. Il [manifest](../research/mini-rom-codec.json) conserva i test offline
-separatamente dalla prova fisica.
+The [builder](../tools/build_mini_rom_codec.py) does not open devices. It builds
+the 32 KiB RAM slots at `0x01C20000` and `0x01C28000`. Code and state
+occupy 7,704 bytes, including 4 KiB of private stack. The build uses only
+four functions from the codec component: bus initialization, the allowlist,
+reading, and bounded waiting. Codec register writes and reset are excluded
+from the link. The [manifest](../research/mini-rom-codec.json) retains the offline
+tests separately from the physical trial.
 
-| Comando | Fase IN | Effetto |
+| Command | IN phase | Effect |
 |---|---:|---|
-| `FC64` | 16 byte | Identità `HYC1`, versione e slot; nessun accesso GPIO |
-| `FC65 reg_BE16` | 16 byte | Una lettura, con snapshot e ripristino PA1/PA2 |
-| `FD66` | 128 byte | Record dell'ultima transazione; nessun nuovo accesso GPIO |
+| `FC64` | 16 bytes | `HYC1` identity, version, and slot; no GPIO access |
+| `FC65 reg_BE16` | 16 bytes | One read, with PA1/PA2 snapshot and restoration |
+| `FD66` | 128 bytes | Record of the last transaction; no new GPIO access |
 
-Le CDB hanno 16 byte e padding `FF` esatto. Le letture sono limitate a
-`01,03,1C,1D,2B,2C,31,32,58,59`. La fase di selezione invia soltanto
-`36 reg_hi reg_lo`, poi repeated START e `37`; seguono due byte letti e STOP.
-Non vengono inviati dati di configurazione al codec. Ogni lettura conserva
-cinque registri GPIO e ripristina soltanto i bit 1/2, lasciando agli altri
-pin il loro stato corrente. Le attese sono finite, `units × 1024` iterazioni,
-senza attribuzione di una durata in microsecondi.
+The CDBs are 16 bytes long with exact `FF` padding. Reads are limited to
+`01,03,1C,1D,2B,2C,31,32,58,59`. The selection phase sends only
+`36 reg_hi reg_lo`, then a repeated START and `37`; two bytes are then read,
+followed by STOP. No configuration data is sent to the codec. Each read
+preserves five GPIO registers and restores only bits 1/2, leaving the
+other pins in their current state. Waits are bounded to `units × 1024` iterations,
+without assigning them a duration in microseconds.
 
-Il client [probe_mini_codec.py](../tools/probe_mini_codec.py) verifica risposta,
-sequenza, registro, build tag, CRC, contatori e ripristino. Una risposta persa
-o incoerente invalida la sessione e non viene ripetuta. Un NACK completo viene
-registrato come tale. Il profilo USB `ram-codec` rifiuta gli altri comandi
-diagnostici e non dispone di comandi di scrittura della flash.
+The [probe_mini_codec.py](../tools/probe_mini_codec.py) client verifies the reply,
+sequence, register, build tag, CRC, counters, and restoration. A lost
+or inconsistent reply invalidates the session and is not retried. A complete
+NACK is recorded as such. The `ram-codec` USB profile rejects other
+diagnostic commands and has no flash write commands.
 
-I test ASan/UBSan comprendono guardie del protocollo, tutti i registri esclusi,
-NACK nelle quattro posizioni, ripristino fallito e rientro durante l'operazione.
-Il decoder indipendente delle transizioni sul bus prova tutti i 65.536 valori
-di ritorno e 221 errori. Questi controlli non sostituiscono una prova elettrica
-né qualificano il percorso audio a 48 kHz.
+The ASan/UBSan tests cover protocol guards, all excluded registers,
+NACK at each of the four positions, failed restoration, and reentry during an
+operation. The independent bus-transition decoder tests all 65,536 return
+values and 221 errors. These checks do not replace an electrical test
+or qualify the 48 kHz audio path.
 
-## Seconda prova: HYC2 e clock della ROM
+## Second trial: HYC2 and the ROM clock
 
-Il 15 novembre 2026 è stato eseguito anche il diagnostico HYC2 separato:
-5.856 byte caricati e riletti, build tag `0x71A0F2B7`. La prima snapshot
-dei 17 registri è stabile e il record di 512 byte supera la validazione.
-Lo stack privato mostra 472 byte modificati e guard integre.
+The separate HYC2 diagnostic also ran on November 15, 2026:
+5,856 bytes uploaded and read back, build tag `0x71A0F2B7`. The first snapshot
+of the 17 registers is stable, and the 512-byte record passes validation.
+The private stack shows 472 modified bytes and intact guards.
 
-La configurazione `CLK_CON0=0x1C1`, `CLK_CON2=0x80`,
-`PLL_CON0=0x0940022B`, `PLL_CON1=0x3F5030EE` non soddisfa il controllo
-del riferimento PLL basato sul boot dell'applicazione. HYC2 restituisce
-`gate=4`, `status=-3`; non è stato inviato alcun comando `FC69`.
-Non ci sono state operazioni GPIO né transazioni codec. Questi valori
-sono registri osservati, non una misura della frequenza.
+The configuration `CLK_CON0=0x1C1`, `CLK_CON2=0x80`,
+`PLL_CON0=0x0940022B`, `PLL_CON1=0x3F5030EE` does not satisfy the
+PLL reference check based on application boot. HYC2 returns
+`gate=4`, `status=-3`; no `FC69` command was sent.
+There were no GPIO operations or codec transactions. These values
+are observed registers, not a frequency measurement.
 
-Il ritorno a MINI_009 e l'uguaglianza dei preset sono verificati per la
-quinta volta. Il [resoconto fisico HYC2](../research/mini-codec-board-hardware.json)
-conserva record, pin dei sorgenti e log; il
-[manifest offline](../research/mini-rom-codec-board.json) resta separato.
-La prova chiarisce il contesto ROM ma non risolve il NACK HYC1 né qualifica
-audio, identità codec o avvio della candidata integrale.
+Return to MINI_009 and preset equality were verified for the
+fifth time. The [HYC2 physical report](../research/mini-codec-board-hardware.json)
+retains the record, pinned sources, and logs; the
+[offline manifest](../research/mini-rom-codec-board.json) remains separate.
+The trial clarifies the ROM context but does not resolve the HYC1 NACK or
+qualify audio, codec identity, or booting the complete candidate.
 
-La terza prova HYC3 ha poi accettato il profilo ROM nominale da 48 MHz ma
-ha ricevuto ancora NACK al primo indirizzo, con GPIO ripristinati e ritorno
-allo stock verificato. Il risultato e la distinzione dal completo startup
-applicativo sono descritti in [MINI_ROM_CODEC_CLOCK.md](MINI_ROM_CODEC_CLOCK.md).
+The third trial, HYC3, subsequently accepted the nominal 48 MHz ROM profile but
+again received NACK at the first address, with GPIO restored and return
+to stock verified. The result and its distinction from complete application
+startup are described in [MINI_ROM_CODEC_CLOCK.md](MINI_ROM_CODEC_CLOCK.md).

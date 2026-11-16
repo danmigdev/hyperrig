@@ -1,104 +1,105 @@
-# Aggiornamento MINI v2 → v3
+# MINI v2 → v3 upgrade
 
-Il desktop ha comunicato realmente con il MINI su COM3: PONG HyperRig MINI,
-37 tipi di effetti, modello e diagnostica. La prima v2 installata era in modalità
-`safe`, con audio disattivato. La prova è in
-`research/mini-desktop-readonly-hardware.json`; non certifica modifiche o
-salvataggi dei preset.
+The desktop actually communicated with the MINI on COM3: HyperRig MINI PONG,
+37 effect types, model and diagnostics. The first installed v2 was in
+`safe` mode, with audio disabled. Evidence is in
+`research/mini-desktop-readonly-hardware.json`; it does not certify preset
+editing or saving.
 
-La candidata v3 corregge il limite di esecuzione che ha provocato il crash
-all'ingresso del codice audio aggiunto. SHA256 dell'area applicazione:
+Candidate v3 corrects the execution limit that caused the crash on entry
+to the appended audio code. Application-area SHA256:
 
 ```text
 9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c
 ```
 
-Rispetto alla v2 cambiano 11 byte nel settore fisico `0x4000`, inclusi i CRC
-del contenitore. Il codice audio, il recupero tramite footswitch e la copia
-RAM restano identici. Il 16 novembre 2026 alle 05:00 UTC l'aggiornamento reale
-ha completato una cancellazione e 16 programmazioni, con la pagina `0x4000`
-per ultima. La verifica indipendente in
+Compared with v2, 11 bytes change in physical sector `0x4000`, including
+container CRCs. Audio code, footswitch recovery and the RAM copy remain
+identical. On November 16, 2026 at 05:00 UTC, the real upgrade completed
+one erase and 16 page programs, with page `0x4000` last.
+Independent verification in
 [`mini-pc-limit-install-independent.json`](../research/mini-pc-limit-install-independent.json)
-conferma l'applicazione esatta e tutti i byte esterni preservati dal dump
-fresco; USR era già cambiata durante l'esecuzione della v2.
+confirms the exact application and preservation of every external byte
+from the fresh dump; USR had already changed while v2 was running.
 
-Il boot v11 ha osservato COM3 alle 05:04 UTC. La successiva sessione
-`build/mini-desktop-v3-real-02/` ha ricevuto il PONG reale senza `safe`,
-`CLKSTATE safe=0` e `LVL m=2`. Due letture `STAT` hanno osservato
-`T.nproc=328986` e `329126`, oltre a input/output e blocchi audio crescenti.
-Ascolto analogico, modifica/salvataggio dei preset e recupero integrato con
-i footswitch restano prove distinte da completare.
+Boot v11 observed COM3 at 05:04 UTC. The subsequent
+`build/mini-desktop-v3-real-02/` session received the real PONG without
+`safe`, `CLKSTATE safe=0` and `LVL m=2`.
+Two `STAT` reads observed `T.nproc=328986` and `329126`, as well as
+advancing audio input/output and block counters. Analog listening,
+preset editing/saving and integrated footswitch recovery remain separate
+trials to complete.
 
-Il launcher congelato aveva un limite di 8 MiB per i file di prova, superato
-da due trace chiusi. Il [driver di compatibilità](MINI_V3_EDITOR_DRIVER.md)
-legge soltanto quei due file fino a 32 MiB e ne controlla dimensione e SHA256;
-registra questa estensione nelle nuove prove dell'editor.
+The frozen launcher had an 8 MiB evidence-file limit, exceeded by two closed
+traces. The [compatibility driver](MINI_V3_EDITOR_DRIVER.md) reads only those
+two files up to 32 MiB and checks their size and SHA256;
+it records this extension in new editor evidence.
 
-## Sequenza predisposta
+## Prepared sequence
 
-1. Conservare la prova del desktop e chiudere la sua porta nativa.
-2. Aprire una nuova sessione WebSerial sulla riga esatta
-   `Tank-M HyperRig (COM3)`, ricevere il PONG e inviare una sola volta `UBOOT`.
-3. Verificare separatamente la nuova enumerazione ROM, il suo orario di
-   arrivo e INQUIRY. Un ACK o una disconnessione non provano da soli la ROM.
-4. Caricare il lettore B e conservare una nuova lettura completa di 1 MiB.
-   L'applicazione deve essere esattamente v2; SPL e keymac devono coincidere
-   con il backup della stessa unità. VM, BTIF e USR sono conservati nella
-   versione appena letta: dopo l'avvio possono differire dal backup stock.
-5. Derivare il piano dal dump fresco, caricare il writer A e verificare
-   tutta l'applicazione prima della scrittura. Aggiornare il solo settore
-   `0x4000`, programmando la pagina dell'header per ultima.
-6. Ricaricare il lettore B ed effettuare una seconda lettura completa.
-   Il confronto deve corrispondere esattamente alla v3 più tutti i byte
-   esterni dell'immagine appena acquisita. Il verificatore indipendente
-   controlla anche il registro grezzo dei comandi.
-7. Solo dopo la verifica completa, eseguire un singolo riavvio software e
-   aprire l'editor WebSerial v3 come primo client. Nessun PING Python prima
-   dell'editor; questo percorso non aveva comunicato con la v2.
+1. Retain the desktop evidence and close its native port.
+2. Open a new Web Serial session on the exact
+   `Tank-M HyperRig (COM3)` row, receive PONG and send `UBOOT` once.
+3. Separately verify the new ROM enumeration, arrival time and INQUIRY.
+   An ACK or disconnection alone does not prove ROM.
+4. Load reader B and retain a fresh complete 1 MiB read.
+   The application must be exactly v2; SPL and keymac must match the backup
+   from the same unit. VM, BTIF and USR are preserved as just read:
+   after boot, they may differ from the stock backup.
+5. Derive the plan from the fresh dump, load writer A and verify the entire
+   application before writing. Update only sector `0x4000`,
+   programming the header page last.
+6. Reload reader B and perform a second complete read.
+   The comparison must match v3 exactly plus every external byte from the
+   newly acquired image. The independent verifier also checks the raw
+   command log.
+7. Only after full verification, perform one software reboot and open the
+   v3 Web Serial editor as the first client. No Python PING before the editor;
+   that path had not communicated with v2.
 
-Il runner di installazione non riavvia il dispositivo, non ripristina lo
-stock automaticamente e non ripete salti o mutazioni dall'esito ignoto.
-Riusa i wrapper già verificati per riconciliare errori Win31 con lo stato
-esatto del dispositivo. La pausa MCN temporanea viene chiusa su ogni uscita.
+The installation runner does not reboot the device, automatically restore
+stock, or repeat jumps or mutations with unknown outcomes.
+It reuses the already verified wrappers to reconcile Win31 errors with
+the device's exact state. The temporary MCN pause is closed on every exit.
 
-## File e verifiche
+## Files and checks
 
-- `tools/plan_mini_pc_limit_upgrade.py`: piano offline da dump fresco;
-  quattro test, più ricomposizione indipendente sulla candidata reale.
-- `analysis/hardware/run_mini_pc_limit_install.py`: sequenza controllata;
-  otto test con lettore, writer e wrapper reali su protocolli simulati.
-- `tools/inspect_mini_pc_limit_upgrade.py`: verifica indipendente di dump,
-  CDB e audit grezzi; 13 test, incluso un bundle completo con lettura
-  ripetuta giustificata da un errore di trasporto e contatore reale maggiore
-  di 1 MiB. Nessun rapporto di successo hardware è stato emesso.
-- `tools/enter_mini_rom_webserial.py`: ingresso ROM dall'applicazione;
-  nove test Python e 61 condizioni JavaScript, senza prova fisica UBOOT.
-- `tools/build_mini_ultrarig_v3.py` e
-  `firmware/mini/pc_limit_port/patches.py`: sette test della derivazione e
-  14 del limite PC.
-- `analysis/hardware/run_mini_first_boot_v11.py`: otto test del riavvio
-  separato. Il contatore del lettore deve coincidere con quello realmente
-  ricostruito dal verificatore, comprese eventuali letture perse e spiegate.
-- `tools/launch_mini_desktop_v3.py`: nove test dell'editor associato alla v3
-  e 11 regressioni della base desktop. Attende la selezione UIA della porta
-  esatta per 120 secondi; non usa DeviceAccess per il selettore WebSerial.
+- `tools/plan_mini_pc_limit_upgrade.py`: offline plan from a fresh dump;
+  four tests, plus independent recomposition using the real candidate.
+- `analysis/hardware/run_mini_pc_limit_install.py`: controlled sequence;
+  eight tests with real reader, writer and wrappers on simulated protocols.
+- `tools/inspect_mini_pc_limit_upgrade.py`: independent verification of dumps,
+  CDBs and raw audits; 13 tests, including a complete bundle with a read
+  repeated after a justified transport error and an actual counter above
+  1 MiB. Those tests emitted no hardware-success report.
+- `tools/enter_mini_rom_webserial.py`: ROM entry from the application;
+  nine Python tests and 61 JavaScript conditions, without a physical UBOOT trial.
+- `tools/build_mini_ultrarig_v3.py` and
+  `firmware/mini/pc_limit_port/patches.py`: seven derivation tests and
+  14 PC-limit tests.
+- `analysis/hardware/run_mini_first_boot_v11.py`: eight tests of the separate
+  reboot. The reader counter must match the value actually reconstructed
+  by the verifier, including any explained lost reads.
+- `tools/launch_mini_desktop_v3.py`: nine tests of the v3-bound editor and
+  11 desktop-base regressions. It waits 120 seconds for UIA selection of
+  the exact port; it does not use DeviceAccess for the Web Serial chooser.
 
-I pin del riavvio sono stati completati usando i rapporti hardware conclusi,
-i dump e la verifica indipendente. Il preflight del nuovo driver dell'editor
-è passato sulle stesse prove reali prima del collegamento.
+Reboot pins were completed using finalized hardware reports, dumps and
+independent verification. The new editor driver's preflight passed against
+the same real evidence before connection.
 
-Il preflight statico dell'installazione era passato con 251 input vincolati
-tramite SHA256. Prima dell'esecuzione il manifesto è arrivato a 254 input,
-includendo chiusura desktop, selezione UIA e rapporto UBOOT reali. Il preflight
-verifica questi file senza accedere al dispositivo.
+Static installation preflight had passed with 251 SHA256-bound inputs.
+Before execution, the manifest reached 254 inputs, including actual desktop
+closure, UIA selection and UBOOT reports. Preflight verifies these files
+without accessing the device.
 
-La precedente sessione amministratore era scaduta alle 00:17:03 UTC.
-Al ritorno dell'utente è stata avviata una nuova sessione temporanea alle
-04:54 UTC, con la conferma UAC di Windows. Ha eseguito aggiornamento e boot;
-l'editor WebSerial funziona senza elevazione. Le impostazioni UAC, i servizi
-e le attività pianificate non sono stati modificati.
+The previous administrator session expired at 00:17:03 UTC.
+When the user returned, a new temporary session started at 04:54 UTC with
+Windows UAC confirmation. It performed the upgrade and boot;
+the Web Serial editor runs without elevation.
+UAC settings, services and scheduled tasks were not modified.
 
-L'avvio normale e la comunicazione reale dell'editor sono verificati.
-Ascolto audio, modifica/salvataggio dall'app e recupero integrato con i
-footswitch restano da completare. I test simulati restano distinti dalle
-osservazioni hardware.
+Normal boot and real editor communication are verified.
+Audio listening, in-app editing/saving and integrated footswitch recovery
+remain to be completed. Simulated tests remain distinct from hardware
+observations.

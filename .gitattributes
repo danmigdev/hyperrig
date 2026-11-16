@@ -29,3 +29,4 @@ research/mini-usb-negative-probes-correction.json -text whitespace=blank-at-eol,
 research/mini-usb-live-ble-diagnostic-routes.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 research/mini-cdc-reopen-packet-audit.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tools/launch_mini_fx_editor.cmd -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+tools/launch_hyperrig_editor.cmd -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

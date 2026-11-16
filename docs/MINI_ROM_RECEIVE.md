@@ -1,114 +1,114 @@
-# Ricezione ROM HYRX sul TANK MINI
+# HYRX ROM reception on the TANK MINI
 
-Il 15 novembre 2026 HYRX ha ricevuto sul MINI **260 byte esatti**, con
-ritorno grezzo della callback pari a **260**. Due record successivi conservano
-gli stessi dati, CRC e guard intatti. È una prova fisica di questa singola
-transazione; non qualifica una convenzione generale per i ritorni della ROM,
-il writer NOR o l'avvio dell'applicazione HyperRig.
+On November 15, 2026, HYRX received **exactly 260 bytes** on the MINI, with
+a raw callback return value of **260**. Two successive records retain
+the same data and CRC, with intact guards. This is a physical test of this
+single transaction; it does not qualify a general convention for ROM return
+values, the NOR writer, or HyperRig application boot.
 
-Il resoconto sigillato è
-[mini-receive-hardware.json](../research/mini-receive-hardware.json). Include
-entrambi i record completi, il payload diagnostico e gli hash dei log originali.
-Il [manifest di compilazione](../research/mini-rom-receive.json) rimane
-immutato: il suo `hardware_executed: false` descrive il lavoro offline del
-builder, mentre la prova fisica è attestata dal resoconto separato.
+The sealed report is
+[mini-receive-hardware.json](../research/mini-receive-hardware.json). It includes
+both complete records, the diagnostic payload, and hashes of the original logs.
+The [build manifest](../research/mini-rom-receive.json) remains
+unchanged: its `hardware_executed: false` describes the builder's offline work,
+while the separate report attests to the physical trial.
 
-## Artefatto e protocollo
+## Artifact and protocol
 
-| Elemento | Valore |
+| Item | Value |
 |---|---|
 | Manifest SHA256 | `a2528e6019de515b9d06055127e93cfc01a3e6d6773fbbee4179e83290feed07` |
 | Builder SHA256 | `d5081295beb2785904088e2b08056c746321b1ff2c4fbff44ebac13389fec6c6` |
-| Dispatcher alla prova SHA256 | `1d512173776f5f87424e7870731df2871cdf1f9293636765a6371c7bb44191e8` |
-| Slot eseguito | `0x01C20000`, estensione massima 32 KiB |
+| Dispatcher SHA256 at the time of the trial | `1d512173776f5f87424e7870731df2871cdf1f9293636765a6371c7bb44191e8` |
+| Executed slot | `0x01C20000`, maximum span 32 KiB |
 | Build tag | `0xE539470B` |
-| Immagine / RAM propria | 2.160 / 3.304 byte; stato privato 628 byte |
-| Payload eseguito SHA256 | `ae427be74db2b12e2170713e6600f19d3c8b8ab1f396040d48fadd687caff403` |
+| Image / owned RAM | 2,160 / 3,304 bytes; private state 628 bytes |
+| Executed payload SHA256 | `ae427be74db2b12e2170713e6600f19d3c8b8ab1f396040d48fadd687caff403` |
 | ELF SHA256 | `339d715b6597402d165d3e2e5bf04ebe385e7dfff7fe12f80004ea75d5462cd7` |
 
-La ROM fornisce le callback `send`, `receive` e il puntatore allo slot del
-gestore. HYRX inizializza esplicitamente lo stato privato, registra il gestore
-e ritorna. Entry e handshake non chiamano `receive`. Le callback usano lo
-stack ROM entrante: i frame generati esaminati arrivano a 68 byte per
-dispatcher più helper, escludendo il consumo interno della ROM. Non è una
-misura della capacità dello stack né un limite completo della catena.
+The ROM supplies the `send` and `receive` callbacks and a pointer to the
+handler slot. HYRX explicitly initializes its private state, registers the
+handler, and returns. Entry and handshake do not call `receive`. The callbacks
+use the incoming ROM stack: the examined generated frames reach 68 bytes for
+the dispatcher plus helpers, excluding the ROM's internal usage. This is
+neither a measurement of stack capacity nor a complete bound for the call chain.
 
-Il [contratto C](../firmware/mini/rom_receive/rom_receive.h) e il
-[README del componente](../firmware/mini/rom_receive/README.md) descrivono i
-campi esatti. `FC82` identifica HYRX; `FC83` associa sequenza, lunghezza,
-nonce, CRC e seed; un solo `FB84` trasferisce i dati OUT; `FD85` restituisce
-un record LE da 512 byte. Il record termina con CRC32 a offset 504 e `DONE`
-a 508. Il nonce previene invii accidentali, non autentica il comando.
-Il client consuma l'autorizzazione prima dell'OUT e non ritenta una
-transazione ambigua. Il componente non contiene accesso SPI, GPIO o NOR.
+The [C contract](../firmware/mini/rom_receive/rom_receive.h) and
+[component README](../firmware/mini/rom_receive/README.md) describe the
+exact fields. `FC82` identifies HYRX; `FC83` binds the sequence, length,
+nonce, CRC, and seed; a single `FB84` transfers the OUT data; `FD85` returns
+a 512-byte LE record. The record ends with CRC32 at offset 504 and `DONE`
+at 508. The nonce prevents accidental submissions; it does not authenticate
+the command. The client consumes its authorization before OUT and does not
+retry an ambiguous transaction. The component contains no SPI, GPIO, or NOR access.
 
-## Osservazione fisica
+## Physical observation
 
-La lettura FD07 dei 2.160 byte caricati coincide con il payload dell'ELF,
-dopo la trasformazione USB originale riavviata per ogni comando. Questa
-corrispondenza è stata ricontrollata offline sul trace, senza ricompilare.
+The FD07 read of the 2,160 uploaded bytes matches the ELF payload
+after applying the original USB transformation, restarted for each command.
+This match was rechecked offline against the trace, without rebuilding.
 
-Il singolo OUT del `2026-11-15T19:45:27.556347Z` usa sequenza 1,
-nonce `0x1234ABCD`, seed `0x55` e CRC atteso `0xA14F7A5A`. Il payload è il
-complemento bit per bit del pattern iniziale; SHA256
+The single OUT at `2026-11-15T19:45:27.556347Z` uses sequence 1,
+nonce `0x1234ABCD`, seed `0x55`, and expected CRC `0xA14F7A5A`. The payload
+is the bitwise complement of the initial pattern; SHA256
 `10d2653bf84c5e82647589c1efb0111ea72918d3a6fd1fcd6c9fe4d0feb0081e`.
 
 | Record | SHA256 |
 |---|---|
-| Campione 1 | `ae29db1045ffcfd9693a495b0f983539438f76909662cf4dc0a8469e299127de` |
-| Campione 2 | `8a544e62f4862be688b2e8a5b8be49f6fc4b45727e278894a60f068d4e51e216` |
+| Sample 1 | `ae29db1045ffcfd9693a495b0f983539438f76909662cf4dc0a8469e299127de` |
+| Sample 2 | `8a544e62f4862be688b2e8a5b8be49f6fc4b45727e278894a60f068d4e51e216` |
 
-Entrambi attestano una chiamata alla callback, stato `RETURNED`, errore 0,
-dati attesi e guard integri. Differiscono soltanto nel contatore campioni
-a offset 92 e nel CRC finale. Il conteggio di 260 byte diversi dal pattern
-iniziale è una misura dei dati, distinta dal ritorno grezzo 260. Due campioni
-stabili non provano sincronicità della callback o coerenza DMA/cache generale.
+Both attest to one callback invocation, `RETURNED` state, error 0,
+expected data, and intact guards. They differ only in the sample counter
+at offset 92 and the final CRC. The count of 260 bytes differing from the initial
+pattern measures the data, separately from the raw return value of 260.
+Two stable samples do not prove callback synchrony or general DMA/cache coherence.
 
-| Puntatore registrato | Valore osservato |
+| Recorded pointer | Observed value |
 |---|---|
 | `send` | `0x01E008E4` |
 | `receive` | `0x01E0089A` |
 | `handler_slot` | `0x01C01264` |
 
-Sono nuovi valori osservati in questa sessione fisica, non una mappa ROM
-presunta. Il probe non legge né disassembla la memoria puntata. I valori
-troncati dei test host nel manifest non rappresentano indirizzi della ROM.
+These are new values observed in this physical session, not an assumed ROM
+map. The probe neither reads nor disassembles the pointed-to memory. The
+truncated host-test values in the manifest do not represent ROM addresses.
 
-## Reset e ritorno allo stock
+## Reset and return to stock
 
-La ricezione era già riuscita quando è stato caricato e riletto nello slot B
-`0x01C28000` il reset separato da 26 byte, SHA256
+Reception had already succeeded when the separate 26-byte reset was uploaded
+and read back in slot B at `0x01C28000`, SHA256
 `cf3526d914eef007649f88f1f22e085a908359b9ad0e9f4743427b4757c0540f`.
-Il suo unico salto ha prodotto un errore di trasporto 121. Il run originale
-termina con `stock_return_verified: false` e rimane immutato: la risposta
-al salto non dimostra il completamento del reset.
+Its single jump produced transport error 121. The original run
+ends with `stock_return_verified: false` and remains unchanged: the reply
+to the jump does not demonstrate reset completion.
 
-Il successivo riavvio dell'hub è registrato separatamente. Il helper fissato
-può eseguirlo soltanto dopo aver trovato il problema USB 43 su un dispositivo
-figlio di quell'hub; questo è il supporto documentale per il codice 43,
-senza presumere un ulteriore snapshot PnP. Non è stato ritentato né il reset
-del pedale né l'OUT HYRX.
+The subsequent hub restart is recorded separately. The pinned helper
+can perform it only after finding USB problem 43 on a child device
+of that hub; this supplies documentary support for code 43 without assuming
+an additional PnP snapshot. Neither the pedal reset nor the HYRX OUT
+was retried.
 
-Solo il resoconto `mini-receive-stock-return.json`, completato alle
-`2026-11-15T19:51:35.367773Z`, attesta il ritorno a `TANK MINI_009` e due
-letture uguali dei preset: 1.942 byte, SHA256
+Only `mini-receive-stock-return.json`, completed at
+`2026-11-15T19:51:35.367773Z`, attests to the return to `TANK MINI_009` and two
+matching preset reads: 1,942 bytes, SHA256
 `c6216783618016998488515ecf4272a78ace8e82ca22e3a27a42bc2d76100427`,
-invariato rispetto al backup. È il sesto ritorno allo stock verificato;
-questo episodio comprende il riavvio dell'hub. Non prova il recupero da
-flash corrotta né un reset autonomo sempre funzionante.
+unchanged from the backup. This is the sixth verified return to stock;
+this episode includes the hub restart. It does not prove recovery from
+corrupt flash or an autonomous reset that always works.
 
-## Verifiche offline
+## Offline checks
 
-Il manifest già fissato attesta 291 casi C con ASan/UBSan, inclusi tutti i
-260 prefissi parziali da 0 a 259 byte, ritorni differenti, guard corrotti,
-scritture tardive e comandi malformati. Questi test non sono stati
-ricompilati durante la sigillatura. La nuova verifica ha controllato
-14 file fissati da hash, il layout ELF, il payload riletto dal trace,
-entrambi i record e 19 coppie comando/esito; nessun accesso al dispositivo.
+The previously pinned manifest attests to 291 C cases with ASan/UBSan, including
+all 260 partial prefixes from 0 to 259 bytes, differing return values,
+corrupted guards, late writes, and malformed commands. These tests were
+not rebuilt while sealing the evidence. The new verification checked
+14 files pinned by hash, the ELF layout, the payload read back in the trace,
+both records, and 19 command/result pairs; there was no device access.
 
-Per ricontrollare i record inclusi nel report, dalla radice del repository
-si può eseguire questo codice Python. Non chiama il builder né richiede
-i log privati in `analysis/hardware`:
+To recheck the records included in the report, run the following Python code
+from the repository root. It does not invoke the builder or require
+the private logs in `analysis/hardware`:
 
 ```python
 import hashlib
@@ -134,6 +134,6 @@ for sample in report["records"]:
     assert checked["raw_return"] == 260
 ```
 
-La prova non abilita scritture NOR, non installa firmware e non convalida
-avvio applicativo o audio. Un callback ROM bloccato resta non interrompibile
-da HYRX; i casi di errore e le altre lunghezze non sono qualificati sul pedale.
+This trial does not enable NOR writes, install firmware, or validate
+application boot or audio. HYRX cannot interrupt a blocked ROM callback;
+error cases and other lengths have not been qualified on the pedal.

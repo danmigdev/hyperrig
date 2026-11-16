@@ -1,25 +1,25 @@
-# Connessione reale dell'editor MINI: sessione 03
+# Real MINI editor connection: session 03
 
-Il **16 novembre 2026 alle 00:08:26 UTC**, l'editor HyperRig aperto in una
-finestra Chromium visibile ha comunicato con il MINI tramite WebSerial su
-`COM3`, VID/PID `3654:5155`. La prova è separata dai mock e dai tentativi
-precedenti; non modifica la manifest frozen dell'app.
+On **16 November 2026 at 00:08:26 UTC**, the HyperRig editor in a visible Chromium
+window communicated with the MINI through WebSerial on `COM3`, VID/PID
+`3654:5155`. This test is separate from mocks and earlier attempts; it does not
+change the app's frozen manifest.
 
-La risposta realmente ricevuta è:
+The actual received response is:
 
 ```text
 PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11 safe
 ```
 
-La snapshot stabile registra una richiesta di porta, un'apertura nativa
-completata, **25 scritture readonly completate e 302 righe di risposta**.
-L'app è connessa, la demo è disattivata e le letture iniziali `MODEL`, `MEM`,
-`FXT`, `FXS`, `PLIST` e `SNAPS` sono terminate. L'interfaccia mostra 37 tipi
-di effetti e il modello dichiarato `A2`, 23 layer/3 canali. La catena effetti
-è vuota; `PLIST end current=-1` e `SNAPS 0000 current=-1` descrivono lo stato
-letto, senza dimostrare salvataggio o modifica dei preset.
+The stable snapshot records one port request, one completed native open,
+**25 completed read-only writes and 302 response lines**.
+The app is connected, demo mode is off, and initial `MODEL`, `MEM`,
+`FXT`, `FXS`, `PLIST`, and `SNAPS` reads have finished. The interface shows
+37 effect types and the reported `A2` model, 23 layers/3 channels. The effect chain
+is empty; `PLIST end current=-1` and `SNAPS 0000 current=-1` describe the
+read state without demonstrating preset saving or editing.
 
-Prove conservate:
+Preserved evidence:
 
 | File | SHA256 |
 |---|---|
@@ -28,53 +28,50 @@ Prove conservate:
 | `build/mini-desktop-real-03/connected.png` | `ee8346b83431ed150c21ed3d0fba9fe60ff07e11f4d69dd90676193b4d199890` |
 | `research/mini-desktop-readonly-hardware.json` | `7ecc81b7d4ca41a91e5dfd926c873a5b6c19a3c04aba61455765e03b2b5773af` |
 
-La candidata associata resta l'immagine app
+The associated candidate remains application image
 `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`,
-verificata dal readback NOR precedente. Il PONG conferma versione/build, non
-misura l'hash dell'immagine sul dispositivo. Il proof contiene righe RX
-realmente passate dal reader dell'app, non una cattura USB né un dump dei byte
-nativi di ogni trasferimento.
+verified by the preceding NOR readback. PONG confirms version/build, not the
+device image's hash. The proof contains RX lines that actually passed through
+the app's reader, not a USB capture or a dump of every transfer's native bytes.
 
-## Selezione del dispositivo
+## Device selection
 
-Il chooser WebSerial nativo di Chrome non emetteva l'evento CDP DeviceAccess
-atteso. Root ha selezionato tramite **Windows UIAutomation SelectionItem e
-Invoke** la riga univoca `Tank-M HyperRig (COM3)` nella sola finestra della
-sessione, browser PID `154888`, origine `http://127.0.0.1:2047`.
-Il guard ha poi ricontrollato VID/PID prima dell'apertura. Questa selezione
-non altera l'allowlist readonly né fabbrica una risposta seriale.
+Chrome's native WebSerial chooser did not emit the expected CDP DeviceAccess
+event. Root used **Windows UIAutomation SelectionItem and Invoke** to select the
+unique `Tank-M HyperRig (COM3)` row in the session's window only, browser PID
+`154888`, origin `http://127.0.0.1:2047`.
+The guard then rechecked VID/PID before opening. This selection changes neither
+the read-only allowlist nor fabricates a serial response.
 
-La procedura pertinente per questo browser è: nuova sessione isolata,
-verifica del PID/origine, riga COM esatta e univoca nel chooser nativo,
-SelectionItem sulla riga e Invoke sul pulsante Connect. Occorre completare
-la selezione durante l'attesa del launcher; una sessione già fermata non va
-riattivata alterando il guard. Il limite CDP e le fonti Chromium della
-revisione osservata sono in [MINI_WEBSERIAL_CHOOSER.md](MINI_WEBSERIAL_CHOOSER.md).
+The relevant procedure for this browser is: a new isolated session, verify the
+PID/origin, find the exact unique COM row in the native chooser, use SelectionItem
+on the row and Invoke on Connect. Selection must finish while the launcher is
+waiting; an already stopped session must not be reactivated by altering the
+guard. The CDP limitation and Chromium sources for the observed revision are in
+[MINI_WEBSERIAL_CHOOSER.md](MINI_WEBSERIAL_CHOOSER.md).
 
-La sessione **01** aveva soltanto il chooser aperto: zero aperture e zero
-TX/RX. La **02** si era fermata al preflight per un hash errato, prima del
-browser. La **03** è la prova effettiva di comunicazione; i tre risultati non
-vanno uniti né contati come tre prove firmware.
+Session **01** only had the chooser open: zero opens and zero TX/RX.
+Session **02** stopped at preflight because of an incorrect hash, before the
+browser. Session **03** is the actual communication test; the three results must
+neither be merged nor counted as three firmware tests.
 
-## Limiti e diagnostica ottenuta
+## Limits and diagnostics obtained
 
-Il suffisso `safe` è presente nel PONG. `CLKSTATE` riporta nominalmente
-`mhz=360` e `safe=1`; `LIFE` registra `boots=2`, `exc=1`, `wdg=0`. La risposta
-`CRASH` conservata riporta `reti=0x02076AAE`, `rets=0x020053AA` e il trace ETM
-inizia da `0x02076AAC`. Sono dati utili per l'analisi dell'ingresso nello shim
-audio; questa prova non attribuisce da sola la causa dell'eccezione.
+The `safe` suffix is present in PONG. `CLKSTATE` reports nominal
+`mhz=360` and `safe=1`; `LIFE` records `boots=2`, `exc=1`, `wdg=0`.
+The preserved `CRASH` response reports `reti=0x02076AAE`, `rets=0x020053AA`,
+and an ETM trace starting at `0x02076AAC`. These data support analysis of entry
+into the audio shim; this test alone does not attribute the exception's cause.
 
-La comunicazione readonly è provata. Restano separati e non qualificati:
-avvio audio normale e stabile, audio analogico, modifica reale dalla UI,
-salvataggio/ricaricamento preset, BLE, recupero mediante footswitch e ciclo
-di alimentazione a freddo.
+Read-only communication is proven. The following remain separate and unqualified:
+normal stable audio startup, analogue audio, actual UI editing, preset
+saving/reloading, BLE, footswitch recovery, and a cold power cycle.
 
-Alla snapshot la porta è intenzionalmente aperta (`closes=0`) e la finestra
-è lasciata disponibile all'utente. Il report non dichiara una chiusura non
-avvenuta. Prima di un futuro diagnostico CLI o trial di modifica occorrerà
-la disconnessione e la relativa prova di chiusura. `session.json` è ancora
-un report attivo e va letto con il helper shared-delete; il suo hash non è
-usato come prova immutabile.
+At the snapshot, the port is intentionally open (`closes=0`) and the window is
+left available to the user. The report does not claim a closure that did not
+happen. A future CLI diagnostic or editing trial requires disconnection and its
+closure evidence first. `session.json` is still an active report and must be
+read with the shared-delete helper; its hash is not used as immutable evidence.
 
-Durante questa sigillatura sono stati letti soltanto file locali. Launcher,
-guard, editor e firmware frozen non sono stati modificati.
+Only local files were read while sealing this evidence. The frozen launcher,
+guard, editor, and firmware were not changed.

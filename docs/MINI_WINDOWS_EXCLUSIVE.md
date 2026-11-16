@@ -1,73 +1,75 @@
-# Handle Windows con share mode zero
+# Windows handle with share mode zero
 
-`tools/mini_windows_exclusive.py` espone
+`tools/mini_windows_exclusive.py` exposes
 `ExclusiveBufferedRomTransport(attestation, slot=..., profile=...)`.
-Riusa la selezione immutabile e i controlli CfgMgr di `mini_windows_quiet`,
-numero del disco, adapter e INQUIRY; tutte le transazioni ereditano il
-buffered SPT congelato. La sola differenza nell'apertura è
+It reuses the immutable selection and CfgMgr checks from `mini_windows_quiet`,
+the disk number, adapter, and INQUIRY; all transactions inherit the
+frozen buffered SPT. The only difference when opening is
 `CreateFileW(interface, GENERIC_READ|GENERIC_WRITE, 0, ..., OPEN_EXISTING)`.
-Una sharing violation termina il tentativo. Nessun fallback condiviso,
-scansione WMI, retry, reset o modifica di servizi/registro/driver.
+A sharing violation ends the attempt. There is no shared-mode fallback,
+WMI scan, retry, reset, or service/registry/driver change.
 
-La documentazione [CreateFileW](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew)
-richiede FILE_SHARE_WRITE per volumi e floppy; non formula quel requisito
-per un physical disk. Qui viene aperta l'interfaccia disco identificata,
-non un volume. Share0 richiede l'esclusione di successive aperture con
-accesso dati read/write/delete, ma esenta gli accessi ai soli attributi.
-Gli handle dati già esistenti possono far fallire il tentativo. Il modulo
-non chiude handle appartenenti ad altri processi.
+The [CreateFileW documentation](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew)
+requires FILE_SHARE_WRITE for volumes and floppy drives; it does not state
+that requirement for a physical disk. This opens the identified disk
+interface, not a volume. Share0 requests exclusion of subsequent opens
+with read/write/delete data access, but exempts attribute-only access.
+Existing data handles may cause the attempt to fail. The module
+does not close handles belonging to other processes.
 
-Non è dimostrato che questo stack raw-device applichi ogni controllo di
-sharing. Nel [sample Classpnp Microsoft](https://github.com/microsoft/Windows-driver-samples/blob/main/storage/class/classpnp/src/create.c),
-`ClasspCreateClose` prepara il contesto del file e inoltra CREATE al driver
-inferiore, senza un controllo ShareAccess nel proprio corpo. È un sample,
-non il binario Windows installato. Inoltre l'[esclusività del device object](https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/specifying-exclusive-access-to-device-objects)
-dipende dalla proprietà dell'oggetto nominato e dal suo stack; non viene
-aggiunta da questo modulo.
+It has not been demonstrated that this raw-device stack applies every
+sharing check. In the [Microsoft Classpnp sample](https://github.com/microsoft/Windows-driver-samples/blob/main/storage/class/classpnp/src/create.c),
+`ClasspCreateClose` prepares the file context and forwards CREATE to the lower
+driver, without a ShareAccess check in its own body. This is a sample,
+not the installed Windows binary. In addition,
+[device-object exclusivity](https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/specifying-exclusive-access-to-device-objects)
+depends on the named object's property and its stack; this module
+does not add it.
 
-## Prova esplicita della seconda apertura
+## Explicit second-open test
 
-Il costruttore non esegue una prova di contesa. Il coordinatore può chiamare
-separatamente `probe_competing_data_open(transport)`: un solo secondo
-CreateFile sulla stessa interfaccia, GENERIC_READ e share READ|WRITE,
-senza DeviceIoControl o CDB. La funzione restituisce:
+The constructor does not perform a contention test. The coordinator can
+separately call `probe_competing_data_open(transport)`: one second CreateFile
+on the same interface, GENERIC_READ and share READ|WRITE,
+without DeviceIoControl or CDBs. The function returns:
 
-| `data_open_exclusion_result` | Significato osservato |
+| `data_open_exclusion_result` | Observed meaning |
 |---|---|
-| `denied32` | Il secondo open è stato negato con ERROR_SHARING_VIOLATION. |
-| `not_enforced` | Il secondo open è riuscito ed è stato chiuso subito. |
-| `inconclusive` | Errore diverso da32; non prova esclusività. |
+| `denied32` | The second open was denied with ERROR_SHARING_VIOLATION. |
+| `not_enforced` | The second open succeeded and was closed immediately. |
+| `inconclusive` | An error other than 32; does not prove exclusivity. |
 
-Un errore di CloseHandle è propagato; nessun nuovo open/retry viene tentato.
-La prova non cambia l'handle principale. Anche CreateFile può generare
-attività interna dello stack: l'assenza di CDB espliciti non garantisce
-assenza di richieste implicite del driver.
+A CloseHandle error is propagated; no further open or retry is attempted.
+The test does not change the main handle. CreateFile itself may generate
+internal stack activity: the absence of explicit CDBs does not guarantee
+the absence of implicit driver requests.
 
-## MCN e polling rimangono distinti
+## MCN and polling remain separate
 
-L'handle MCN mantiene FILE_READ_ATTRIBUTES/share3 e il proprio ciclo
-disable/enable/close, secondo [IOCTL_STORAGE_MCN_CONTROL](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_mcn_control).
-La sua compatibilità con share0 deriva dall'eccezione per gli attributi;
-deve comunque essere osservata sul device. Il nuovo costruttore non lo
-crea né lo prende in gestione.
+The MCN handle retains FILE_READ_ATTRIBUTES/share3 and its own
+disable/enable/close lifecycle, according to
+[IOCTL_STORAGE_MCN_CONTROL](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_mcn_control).
+Its compatibility with share0 follows from the attribute exception;
+it must nevertheless be observed on the device. The new constructor
+neither creates nor manages it.
 
-La stessa eccezione impedisce di promettere la scomparsa dei TUR:
+The same exception prevents any promise that TUR requests will disappear:
 [CHECK_VERIFY2](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_check_verify2)
-può operare con FILE_READ_ATTRIBUTES. Restano inoltre richieste kernel e
-filter driver. Perfino `denied32` qualifica soltanto quella specifica
-seconda apertura: `polling_exclusion_proven` resta false.
+can operate with FILE_READ_ATTRIBUTES. Kernel and filter-driver requests
+also remain. Even `denied32` qualifies only that specific second open:
+`polling_exclusion_proven` remains false.
 
-## Verifica offline
+## Offline verification
 
 ```powershell
 python -B -X utf8 -m unittest tests.test_mini_windows_exclusive tests.test_mini_windows_quiet tests.test_mini_windows_spt tests.test_mini_windows_mcn
 ```
 
-72 test PASS, di cui27 sul nuovo modulo. Tutte le API Windows sono mock;
-i test verificano share0 esatto, identità/attestation, cleanup, errori senza
-fallback, esiti del secondo open, assenza di IOCTL nel probe di contesa e
-parametri/cleanup MCN separati. Non sono prove fisiche di esclusione.
-Il SDK locale10.0.19041.0 conferma accessi0x80000000/0x40000000,
-FILE_READ_ATTRIBUTES0x80 e share1/2; CHECK_VERIFY2 e MCN_CONTROL usano
-FILE_ANY_ACCESS. Fonti/hash e limiti sono in
-`research/mini-windows-exclusive.json`. Nessuna I/O hardware eseguita.
+72 tests PASS, including 27 for the new module. All Windows APIs are mocked;
+the tests verify exact share0, identity/attestation, cleanup, errors without
+fallback, second-open results, no IOCTL in the contention probe, and
+separate MCN parameters/cleanup. They are not physical exclusion tests.
+Local SDK 10.0.19041.0 confirms access values 0x80000000/0x40000000,
+FILE_READ_ATTRIBUTES 0x80, and share values 1/2; CHECK_VERIFY2 and MCN_CONTROL use
+FILE_ANY_ACCESS. Sources, hashes, and limitations are in
+`research/mini-windows-exclusive.json`. No hardware I/O was performed.

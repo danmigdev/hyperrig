@@ -1,264 +1,263 @@
-# Ricostruzione nativa di UltraRig TANK-G
+# Native reconstruction of UltraRig TANK-G
 
-È disponibile un **motore capture A2-Lite a tre canali, int32, in C compilabile**,
-con caricatore, ingresso, layer dilatati, attivazioni, residuali e testa finale.
-Ricostruisce il percorso ottimizzato osservato in UltraRig alpha11/M5.71 TANK-G
-v2, nel dominio di shift descritto sotto. Non sono i sorgenti originali e non
-costituisce il firmware completo: effetti/IR, frontend audio e driver restano
-componenti distinti. L'avvio sul MINI non è stato verificato.
-Mantengono il Required Notice e la licenza UltraRig: vedere
-[PROVENIENZA.md](PROVENIENZA.md).
+A **three-channel, int32 A2-Lite capture engine in compilable C** is available,
+with a loader, input stage, dilated layers, activations, residuals, and final
+head. It reconstructs the optimized path observed in UltraRig alpha11/M5.71
+TANK-G v2, within the shift domain described below. These are not the original
+sources and do not constitute the complete firmware: effects/IR, audio frontend,
+and drivers remain separate components. Boot on the MINI has not been verified.
+The files retain the Required Notice and UltraRig license: see
+[PROVENANCE.md](PROVENANCE.md).
 
-## Funzioni ricostruite
+## Reconstructed functions
 
-| Indirizzo CPU originale | Intervallo esclusivo | Implementazione |
+| Original CPU address | Exclusive endpoint | Implementation |
 |---|---|---|
-| `0x01C12608` | fino a `0x01C126F4` | `hyperrig_dot_i16`: attivazioni int32, pesi int16 |
-| `0x01C126F4` | fino a `0x01C127DE` | `hyperrig_dot_i32`: attivazioni e pesi int32 |
-| `0x01C130B4` | fino a `0x01C1318E` | `hyperrig_head3_process`: convoluzione finale a tre canali |
-| `0x01C1453C` | fino a `0x01C145FE` | `hyperrig_rechannel3_process`: ingresso mono/tre canali e copia dry |
-| `0x01C1318E` | fino a `0x01C1349C` | layer a 6 tap, shift residuo zero |
-| `0x01C1349C` | fino a `0x01C13822` | layer a 6 tap, shift residuo diverso da zero |
-| `0x01C13822` | fino a `0x01C13D16` | layer a 15 tap, shift residuo zero |
-| `0x01C13D16` | fino a `0x01C14282` | layer a 15 tap, shift residuo diverso da zero |
-| `0x01C14282` | fino a `0x01C1452A` | layer generico; le cinque varianti sono coperte da `hyperrig_layer3_process` |
-| `0x02032586` | fino a `0x02032618` | frammento del parser per conversione/saturazione dei bias convolutivi |
-| `0x020327DE` | fino a `0x0203280C` | frammento del parser per conversione del bias finale |
+| `0x01C12608` | up to `0x01C126F4` | `hyperrig_dot_i16`: int32 activations, int16 weights |
+| `0x01C126F4` | up to `0x01C127DE` | `hyperrig_dot_i32`: int32 activations and weights |
+| `0x01C130B4` | up to `0x01C1318E` | `hyperrig_head3_process`: three-channel final convolution |
+| `0x01C1453C` | up to `0x01C145FE` | `hyperrig_rechannel3_process`: mono/three-channel input and dry copy |
+| `0x01C1318E` | up to `0x01C1349C` | 6-tap layer, zero residual shift |
+| `0x01C1349C` | up to `0x01C13822` | 6-tap layer, nonzero residual shift |
+| `0x01C13822` | up to `0x01C13D16` | 15-tap layer, zero residual shift |
+| `0x01C13D16` | up to `0x01C14282` | 15-tap layer, nonzero residual shift |
+| `0x01C14282` | up to `0x01C1452A` | generic layer; all five variants are covered by `hyperrig_layer3_process` |
+| `0x02032586` | up to `0x02032618` | parser fragment for convolution-bias conversion/saturation |
+| `0x020327DE` | up to `0x0203280C` | parser fragment for final-bias conversion |
 
-I sorgenti sono in `firmware/src/`; gli header pubblici in
-`firmware/include/hyperrig/`. Non derivano dall'output incompleto di Ghidra:
-ABI, indirizzamento e operazioni sono ricostruiti dal disassembly pi32v2.
+Sources are in `firmware/src/`; public headers are in
+`firmware/include/hyperrig/`. They are not derived from incomplete Ghidra
+output: ABI, addressing, and operations are reconstructed from pi32v2 disassembly.
 
-Il campione originale ha SHA-256
+The original sample has SHA-256
 `2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059`.
-Il reset copia `0x2030C` byte da flash CPU `0x02056780` a RAM `0x01C00000`.
-Pertanto un indirizzo RAM `a` corrisponde a offset
-`0x56780 + (a - 0x01C00000)` nell'area applicativa decodificata, oppure a
-quell'offset meno `0x120` nel file estratto `app.bin`.
+Reset copies `0x2030C` bytes from CPU flash `0x02056780` to RAM `0x01C00000`.
+Thus, RAM address `a` corresponds to offset `0x56780 + (a - 0x01C00000)` in
+the decoded application area, or that offset minus `0x120` in extracted `app.bin`.
 
-Le due funzioni dot ricevono output, stride output, input e stride input in
-`r0..r3`; pesi, numero di tap, numero di campioni e shift sono sullo stack.
-Gli stride contano elementi int32. I pesi restano gli stessi per ogni campione.
-L'accumulatore a 64 bit può andare in overflow e avvolgersi: il C lo conserva
-con aritmetica unsigned, evitando overflow signed indefinito.
+Both dot functions receive output, output stride, input, and input stride in
+`r0..r3`; weights, tap count, sample count, and shift are on the stack. Strides
+count int32 elements. Weights remain the same for every sample. The 64-bit
+accumulator can overflow and wrap: C preserves this with unsigned arithmetic,
+avoiding undefined signed overflow.
 
-Nel dominio senza overflow, lo shift destro arrotonda al più vicino con i
-pareggi lontano da zero; quello sinistro conserva il wrap a 64 bit. Segue la
-saturazione int32. I casi di overflow non vengono sostituiti con una formula
-matematica idealizzata. Il wrapper C accetta shift `[-62, 62]`, conteggi e
-stride non negativi; intervalli e non sovrapposizione dei buffer sono a carico
-del chiamante.
+Within the non-overflow domain, right shift rounds to nearest with ties away
+from zero; left shift preserves 64-bit wrapping. Int32 saturation follows.
+Overflow cases are not replaced with an idealized mathematical formula. The C
+wrapper accepts shifts `[-62, 62]` and nonnegative counts and strides; buffer
+ranges and non-overlap are the caller's responsibility.
 
-## Caricamento delle capture e bias
+## Capture loading and biases
 
-`hyperrig_a2l_size` e `hyperrig_a2l_load` ricostruiscono il formato A2L1, il
-riordino dei pesi e lo scaling individuati nel parser `0x02031C64..0x0203291C`.
-Usano un contesto portabile HyperRig, con memoria fornita dal chiamante e
-nessuna allocazione dinamica. La capture può essere liberata dopo il caricamento.
-Si controllano CRC, dimensioni, fine del file e shift prima di scrivere nel
-contesto o nell'arena. La query include fino a sette byte per allineare l'arena.
+`hyperrig_a2l_size` and `hyperrig_a2l_load` reconstruct the A2L1 format, weight
+reordering, and scaling identified in parser `0x02031C64..0x0203291C`. They use
+a portable HyperRig context, caller-supplied memory, and no dynamic allocation.
+The capture can be freed after loading. CRC, sizes, end of file, and shifts
+are checked before writing the context or arena. The size query includes up
+to seven bytes for arena alignment.
 
-Le differenze rispetto al parser originale sono esplicite: massimo 64 layer e
-15 tap per layer; contesto e disposizione delle allocazioni propri; tutti i
-bias convolutivi grezzi sono conservati. Il firmware specializza la conversione
-in int32 per un massimo di tre canali; HyperRig la espone anche per gli altri
-canali accettati dal formato, senza dichiarare un runtime nativo completo per
-essi. Non sono ricostruiti gli allocatori e tutti i percorsi opzionali del G.
+Differences from the original parser are explicit: at most 64 layers and 15
+taps per layer; an independent context and allocation layout; and preservation
+of all raw convolution biases. The firmware specializes int32 conversion for
+at most three channels; HyperRig also exposes it for other channels accepted
+by the format, without claiming a complete native runtime for them. Allocators
+and all optional G paths have not been reconstructed.
 
-Il parser originale trasforma i pesi convolutivi da `[out][in][tap]` a
-`[tap][in][out]` (`0x020324EE`), aggiunge in coda i pesi mix e traspone la
-testa da `[canale][tap]` a `[tap][canale]` (`0x02032764`). Mantiene pesi lineari
-e bias lineari nel loro ordine/scala serializzati. Il caricatore C fa lo stesso.
+The original parser transforms convolution weights from `[out][in][tap]` to
+`[tap][in][out]` (`0x020324EE`), appends mix weights, and transposes the head
+from `[channel][tap]` to `[tap][channel]` (`0x02032764`). It keeps linear
+weights and biases in their serialized order/scale. The C loader does the same.
 
-Lo scaling dei bias usa `(bias + 2^(shift-1)) >>> shift`, con wrap a 64 bit;
-shift zero lascia il valore invariato. I pareggi vanno verso più infinito
-quando non c'è overflow: `-3` con shift 1 diventa `-1`, mentre il dot restituisce
-`-2`. I bias convolutivi saturano poi a int32; quello finale resta int64.
-Nella capture A2 inclusa nel firmware, `172478924063` con shift 16 diventa
-`2631820`. Questo valore convertito viene collegato al kernel della testa.
+Bias scaling uses `(bias + 2^(shift-1)) >>> shift`, with 64-bit wrapping;
+zero shift leaves the value unchanged. Ties go toward positive infinity when
+there is no overflow: `-3` shifted by 1 becomes `-1`, whereas dot returns `-2`.
+Convolution biases then saturate to int32; the final bias remains int64. In
+the firmware's embedded A2 capture, `172478924063` shifted by 16 becomes
+`2631820`. This converted value is connected to the head kernel.
 
-L'ABI originale osservata ha il bias finale a offset 72/76 del contesto,
-i pesi a 68 e lo shift a 57. Nei record layer da 80 byte lo shift convolutivo
-è a 6, i pesi riordinati a 44 e i tre bias int32 a 52/56/60. Questi offset
-descrivono il G originale: l'API C HyperRig non ne riutilizza i puntatori RAM.
+The observed original ABI stores final bias at context offsets 72/76, weights
+at 68, and shift at 57. In 80-byte layer records, convolution shift is at 6,
+reordered weights at 44, and the three int32 biases at 52/56/60. These offsets
+describe original G: the HyperRig C API does not reuse its RAM pointers.
 
-## Stadio d'ingresso a tre canali
+## Three-channel input stage
 
-Il preparatore `0x01C129DC` invoca `0x01C1453C` con un contesto da 56 byte.
-Ogni campione mono viene copiato nel buffer dry e moltiplicato per tre pesi
-int16. Il MAC parte da `2^(shift-1)`, applica lo shift aritmetico e satura a
-int32: l'arrotondamento coincide con quello dei bias, senza la correzione
-di segno del dot. Le terne sono scritte nella memoria circolare del primo
-layer, con una copia dei primi 64 frame oltre il bordo del ring.
+Setup function `0x01C129DC` invokes `0x01C1453C` with a 56-byte context. Each
+mono sample is copied to the dry buffer and multiplied by three int16 weights.
+The MAC starts at `2^(shift-1)`, applies an arithmetic shift, and saturates to
+int32: rounding matches the biases, without dot's sign correction. Triplets
+are written into the first layer's circular memory, with a copy of the first
+64 frames beyond the ring boundary.
 
-`hyperrig_a2l_rechannel3_init` collega i pesi caricati e azzera la memoria;
-controlla che il ring contenga la storia dilatata del primo layer più 64 frame.
-`hyperrig_rechannel3_process` gestisce blocchi da 1 a 64 campioni, shift 1–31
-e conserva la posizione fra le chiamate. Il ring non deve essere una potenza
-di due; le prove includono i 69 frame necessari al primo layer della capture A2.
+`hyperrig_a2l_rechannel3_init` connects the loaded weights and clears memory;
+it checks that the ring contains the first layer's dilated history plus 64
+frames. `hyperrig_rechannel3_process` handles blocks of 1 to 64 samples and
+shifts 1–31, retaining position between calls. The ring need not be a power
+of two; tests include the 69 frames needed by the A2 capture's first layer.
 
-## Layer dilatati, attivazione e residui
+## Dilated layers, activation, and residuals
 
-`hyperrig_layer3_process` ricostruisce l'operazione combinata dei cinque kernel
-originali. Il preparatore `0x01C12A54` passa un contesto da 200 byte: puntatori
-ai tap da 0 a 56, campione residuo a 60, bias lineari con mezzo LSB già aggiunto
-a 64/72/80, pesi convolutivi a 88, dry a 92, somma a 96, uscita a 100,
-pesi lineari a 104, arrotondamento/shift convolutivo a 108/112, bias convolutivi
-a 116/120/124, slope Q24 a 128, shift della somma a 132, shift lineare a 140,
-shift residuo a 144 e differenza mix/conv a 148. Seguono geometria e cursori
-dei buffer. Il verificatore costruisce questo contesto; non emula il wrapper.
+`hyperrig_layer3_process` reconstructs the combined operation of the five
+original kernels. Setup function `0x01C12A54` passes a 200-byte context: tap
+pointers at 0 through 56, residual sample at 60, linear biases with half an LSB
+already added at 64/72/80, convolution weights at 88, dry at 92, sum at 96,
+output at 100, linear weights at 104, convolution rounding/shift at 108/112,
+convolution biases at 116/120/124, Q24 slope at 128, sum shift at 132, linear
+shift at 140, residual shift at 144, and mix/conv difference at 148. Buffer
+geometry and cursors follow. The verifier constructs this context; it does
+not emulate the wrapper.
 
-L'accumulatore convolutivo parte da mezzo LSB e include l'ingresso dry,
-prima spostato aritmeticamente della differenza fra shift mix e convolutivo.
-Dopo lo shift si usa la parola bassa a 32 bit e si aggiunge il bias con wrap:
-qui il firmware **non satura**. L'attivazione negativa usa slope Q24 e mezzo
-LSB, poi conserva di nuovo la parola bassa. Il contributo alla somma finale
-è spostato senza arrotondamento e aggiunto con wrap a 32 bit. Il passaggio
-lineare accumula a 64 bit, aggiunge il residuo riscalato e solo allora satura
-a int32. Il C usa aritmetica unsigned per preservare questi comportamenti
-senza overflow signed indefinito.
+The convolution accumulator starts at half an LSB and includes dry input,
+first arithmetically shifted by the difference between mix and convolution
+shifts. After shifting, the low 32-bit word is used and bias is added with
+wrapping: the firmware **does not saturate** here. Negative activation uses
+Q24 slope and half an LSB, then again retains the low word. The contribution
+to the final sum is shifted without rounding and added with 32-bit wrapping.
+The linear pass accumulates in 64 bits, adds the rescaled residual, and only
+then saturates to int32. C uses unsigned arithmetic to preserve these behaviors
+without undefined signed overflow.
 
-Il dispatcher originale seleziona varianti diverse quando lo shift residuo è
-zero: forzare la variante con shift nel caso zero produce risultati differenti
-per valori negativi. Il verificatore rispetta questo contratto e rifiuta la
-variante sbagliata; non considera intercambiabili routine fuori dal loro dominio.
+The original dispatcher selects different variants when residual shift is
+zero: forcing the shifted variant in the zero case produces different results
+for negative values. The verifier respects this contract and rejects the wrong
+variant; it does not treat routines outside their domains as interchangeable.
 
-Il percorso ricostruito accetta 1–15 tap, dilatazione positiva, shift conv/mix/
-lineare/somma 1–31, differenza mix-conv 0–31 e shift residuo da -31 a 31.
-La capture A2 originale rispetta tutti questi vincoli. Altri profili A2L
-accettati dal parser possono essere rifiutati dal runtime: non si introduce
-un fallback numerico non verificato.
+The reconstructed path accepts 1–15 taps, positive dilation, convolution/mix/
+linear/sum shifts of 1–31, a mix-conv difference of 0–31, and residual shifts
+from -31 to 31. The original A2 capture satisfies all these constraints. Other
+A2L profiles accepted by the parser may be rejected by the runtime: no
+unverified numerical fallback is introduced.
 
-## Stadio finale a tre canali
+## Three-channel final stage
 
-Il preparatore originale `0x01C12CC2` costruisce un contesto da 56 byte e
-invoca `0x01C130B4`. La routine scrive ogni terna nel buffer circolare e
-duplica i primi 64 frame dopo la fine del ring. Questo permette di leggere
-contiguamente la finestra della convoluzione quando attraversa il bordo.
+Original setup function `0x01C12CC2` builds a 56-byte context and invokes
+`0x01C130B4`. The routine writes each triplet into the circular buffer and
+duplicates the first 64 frames beyond the ring's end. This allows contiguous
+reading of the convolution window when it crosses the boundary.
 
-Il MAC parte da `2^(shift-1)-1`, aggiunge la correzione di segno, applica lo
-shift aritmetico e satura a int32. Poi aggiunge il bias int64 già convertito
-dal caricatore nativo e satura nuovamente. **Quel bias non va identificato
-automaticamente con il valore grezzo contenuto nel file A2L1**:
-`hyperrig_a2l_head3_init` collega ora il valore convertito dal caricatore C.
+The MAC starts at `2^(shift-1)-1`, adds the sign correction, applies an
+arithmetic shift, and saturates to int32. It then adds the int64 bias already
+converted by the native loader and saturates again. **That bias must not
+automatically be equated with the raw value in the A2L1 file**:
+`hyperrig_a2l_head3_init` now connects the value converted by the C loader.
 
-L'API ricostruita usa un contesto portabile proprio. Supporta 1–64 frame per
-chiamata, shift 1–31, kernel 1–65 frame e un ring di almeno 64 frame e almeno
-quanto il kernel. Il contesto reale osservato invoca blocchi di 64 frame.
-L'API non riutilizza puntatori RAM del G e non accede a periferiche.
-Il collegamento A2L usa un ring da 64 frame e 64 frame duplicati, per 384
-parole int32. L'ingresso di questo stadio è la somma dei risultati dei layer.
+The reconstructed API uses its own portable context. It supports 1–64 frames
+per call, shifts 1–31, kernels of 1–65 frames, and a ring of at least 64 frames
+and at least the kernel length. The observed actual context invokes 64-frame
+blocks. The API neither reuses G RAM pointers nor accesses peripherals. A2L
+integration uses a 64-frame ring plus 64 duplicated frames, totaling 384 int32
+words. This stage's input is the sum of the layer results.
 
-## Motore capture completo nel dominio verificato
+## Complete capture engine within the verified domain
 
-`hyperrig_a2l3_size/init/reset/process` in `hyperrig_engine.h` collegano il
-caricatore e tutti gli stadi senza heap durante l'elaborazione. L'orchestrazione
-è nuova e portabile: non riproduce scheduler RTOS, allocatore, doppi buffer o
-frontend del G. Il modello e la sua arena restano immutabili; il runtime usa
-un'arena distinta, storia iniziale zero e blocchi da 1 a 64 campioni.
+`hyperrig_a2l3_size/init/reset/process` in `hyperrig_engine.h` connect the loader
+and every stage without heap allocation during processing. Orchestration is
+new and portable: it does not reproduce G's RTOS scheduler, allocator, double
+buffers, or frontend. The model and its arena remain immutable; the runtime
+uses a separate arena, initially zero history, and blocks of 1 to 64 samples.
 
-L'ingresso è int32 nella frazione dichiarata dalla capture, l'uscita int32
-nella frazione d'uscita. Per A2 sono Q30 e Q31. Non comprende conversione dal
-codec, regolazioni di guadagno, resampling o IR/effetti. Il reset ripristina
-tutti i ring e i cursori; cambiare la suddivisione dei blocchi non modifica
-segnale e stato finale.
+Input is int32 in the capture's declared fractional format, and output is int32
+in its output fractional format. For A2, these are Q30 and Q31. This excludes
+codec conversion, gain adjustments, resampling, and IR/effects. Reset restores
+all rings and cursors; changing block subdivision does not change the signal
+or final state.
 
-Sul PC a 64 bit A2 richiede circa 115,4 KB per l'arena runtime, circa 7 KB
-per il modello caricato e 1.128 byte di contesto. Queste misure non certificano
-RAM e latenza sul pedale: ABI e budget completi del target sono da verificare.
+On a 64-bit PC, A2 requires approximately 115.4 KB for the runtime arena,
+approximately 7 KB for the loaded model, and 1,128 bytes of context. These
+measurements do not certify RAM or latency on the pedal: the target's complete
+ABI and budgets remain to be checked.
 
-## Compilare e confrontare
+## Building and comparing
 
-Su Windows sono necessari WSL Ubuntu con `gcc`, Python 3 e i runtime ASan/UBSan.
-Gli artefatti e la tabella ISA si ottengono con il bootstrap e l'analisi
-descritti nel README. La toolchain JieLi resta nella directory locale ignorata
-da Git; URL, versione `20260730.1` e SHA-256 sono fissati nel lock.
+Windows requires WSL Ubuntu with `gcc`, Python 3, and ASan/UBSan runtimes.
+Artifacts and the ISA table are obtained through the bootstrap and analysis
+described in the README. The JieLi toolchain remains in the local directory
+ignored by Git; its URL, version `20260730.1`, and SHA-256 are pinned in the lock.
 
 ```powershell
 python tools/bootstrap.py --toolchain
 python tools/build_native.py
 ```
 
-La build produce:
+The build produces:
 
-- `build/native/libhyperrig_dsp.so`: C eseguito sul PC con UBSan;
-- `build/native/hyperrig_dsp.pi32v2.o`: oggetto ELF32 pi32v2 relocatable,
-  compilato con JieLi clang `-target pi32v2 -mcpu=r3`;
-- `analysis/native/verification.json`: hash e risultati dei confronti.
-- `build/native/a2l_sanitize`: verifica autonoma dei limiti di memoria del
-  caricatore; il report è `analysis/native/a2l-sanitizers.json`.
+- `build/native/libhyperrig_dsp.so`: C executed on the PC with UBSan;
+- `build/native/hyperrig_dsp.pi32v2.o`: relocatable ELF32 pi32v2 object,
+  compiled with JieLi clang `-target pi32v2 -mcpu=r3`;
+- `analysis/native/verification.json`: hashes and comparison results.
+- `build/native/a2l_sanitize`: standalone loader memory-bound checks;
+  its report is `analysis/native/a2l-sanitizers.json`.
 
-Il compilatore del target è impiegato come strumento, senza estrarne il codice.
-L'oggetto contiene ancora rilocazioni e riferimenti a `memcpy`/`memset` che
-andranno risolti nel runtime del target. Non è un'immagine flash: manca un
-linker di applicazione con startup, IRQ, memoria e driver del MINI.
+The target compiler is used as a tool, without extracting its code. The object
+still contains relocations and references to `memcpy`/`memset` that must be
+resolved in the target runtime. It is not a flash image: an application linker
+with MINI startup, IRQs, memory, and drivers is missing.
 
-La verifica confronta il C host con un interprete limitato che decodifica ed
-esegue **i byte originali delle nove routine e di due frammenti del parser**.
-Non emula l'intero parser originale. Prima controlla l'hash del
-firmware e che `app.bin` coincida con la sua decodifica. Non accetta istruzioni
-sconosciute; le letture di memoria non inizializzata falliscono. Il REP della
-testa usa conteggi positivi; il comportamento del conteggio zero è escluso.
-La semantica REP è corroborata dal
-[resoconto hardware pi32v2-isa](https://github.com/jvitkauskas/pi32v2-isa/blob/1f09804d36ddcba36dbd84cb6242ef88f35f15b7/hw/fm1-2026-10-24-v3/README.md).
+Verification compares host C with a limited interpreter that decodes and
+executes **the original bytes of nine routines and two parser fragments**.
+It does not emulate the entire original parser. It first checks the firmware
+hash and that `app.bin` matches its decoded form. Unknown instructions are
+not accepted; reads of uninitialized memory fail. The head's REP uses positive
+counts; zero-count behavior is excluded. REP semantics are corroborated by the
+[pi32v2-isa hardware account](https://github.com/jvitkauskas/pi32v2-isa/blob/1f09804d36ddcba36dbd84cb6242ef88f35f15b7/hw/fm1-2026-10-24-v3/README.md).
 
-Risultato locale: **7.509 confronti superati**: 629 per ciascun dot, 402 per
-la testa, 367 per l'ingresso, 1.146 per ciascun frammento dei bias e 2.770
-confronti sui bias e sui due stadi collegati alle capture caricate, 240 sui
-cinque kernel dei layer e 180 invocazioni dei kernel in due motori capture
-completi. Comprendono
-segni, pareggi, saturazione, wrap a 64 bit, stride, finestre circolari e chiamate
-consecutive. Per ingresso e testa si confrontano anche memoria e posizione.
-Quattordici test separati verificano gli interpreti con risultati calcolati a mano
-e confrontano le varianti ottimizzate nei rispettivi domini.
+Local result: **7,509 comparisons passed**: 629 per dot, 402 for the head,
+367 for input, 1,146 per bias fragment, and 2,770 comparisons of biases and
+both stages connected to loaded captures, 240 on the five layer kernels, and
+180 kernel invocations in two complete capture engines. They cover signs,
+ties, saturation, 64-bit wrapping, strides, circular windows, and consecutive
+calls. Input and head comparisons also check memory and position. Fourteen
+separate tests verify interpreters against hand-calculated results and compare
+optimized variants within their respective domains.
 
-Per A2 (23 layer) e una rete sintetica (3 layer) si confrontano sei blocchi
-ciascuno, 230 campioni, uscita finale, somma, tutti i ring e tutti i cursori.
-L'oracolo esegue le istruzioni dei singoli kernel originali con un coordinatore
-ricostruito; non esegue il processo audio stock completo. Altre prove C su
-7.001 campioni per capture, oltre il campo ricettivo A2 di 6.347 campioni,
-verificano identità di uscita e memoria dopo reset e suddivisioni differenti.
-Queste ultime sono prove di continuità C, non confronti con firmware emulato.
+For A2 (23 layers) and a synthetic network (3 layers), comparisons cover six
+blocks each, 230 samples, final output, sum, all rings, and all cursors. The
+oracle executes individual original-kernel instructions with a reconstructed
+coordinator; it does not execute the complete stock audio process. Further C
+tests on 7,001 samples per capture, beyond A2's 6,347-sample receptive field,
+verify identical output and memory after reset and different subdivisions.
+These are C continuity tests, not comparisons against emulated firmware.
 
-Il caricatore è confrontato col decoder Python derivato dal packer originale:
-14 capture, otto allineamenti ciascuna, tutti i pesi e i parametri verificati.
-Si rifiutano 4.905 file con CRC/struttura errati, incluse tutte le troncature
-della capture A2 con CRC ricalcolato, e si controllano arene insufficienti e
-destinazioni intatte in caso d'errore. Un harness C separato esercita 6.942
-input con allocazioni esatte sotto AddressSanitizer e UndefinedBehaviorSanitizer,
-includendo mutazioni deterministiche del payload e dell'header, più 400 blocchi
-del motore A2 completo su otto allineamenti dell'arena.
+The loader is compared with the Python decoder derived from the original
+packer: 14 captures, eight alignments each, all weights and parameters checked.
+It rejects 4,905 files with invalid CRC/structure, including every truncation
+of the A2 capture with a recalculated CRC, and checks insufficient arenas and
+untouched destinations on error. A separate C harness exercises 6,942 inputs
+with exact allocations under AddressSanitizer and UndefinedBehaviorSanitizer,
+including deterministic payload/header mutations, plus 400 blocks of the
+complete A2 engine across eight arena alignments.
 
-Questa verifica resta dipendente dalla semantica implementata nell'interprete.
-Non esegue l'oggetto target appena compilato su un processore reale, non misura
-tempi e non dimostra equivalenza dell'intero firmware. Il report versionato è
-[native-verification.json](../research/native-verification.json).
+This verification still depends on the semantics implemented in the interpreter.
+It does not execute the newly compiled target object on a real processor,
+measure timing, or demonstrate whole-firmware equivalence. The versioned
+report is [native-verification.json](../research/native-verification.json).
 
-## Prossime funzioni identificate
+## Next identified functions
 
-I nomi seguenti sono interpretazioni del codice, non simboli originali:
+The following names are code interpretations, not original symbols:
 
-| Indirizzo | Ruolo ricostruito/inferito |
+| Address | Reconstructed/inferred role |
 |---|---|
-| `0x02031C64` | parser A2L, verifiche formato/CRC e costruzione del contesto |
-| `0x01C12850` | calcolo dello spazio necessario per il modello |
-| `0x01C12878` | reset degli stati del modello |
-| `0x01C1296C` | inizializzazione e installazione del callback dot |
-| `0x01C129DC` | preparazione rechannel specializzato a tre canali |
-| `0x01C12A54` | preparazione/dispatch dei kernel di layer |
-| `0x01C12C32` | iterazione dei layer per blocchi da 64 frame |
-| `0x01C12CC2` | preparazione del contesto della testa |
-| `0x01C12D34` | probabile wrapper del percorso di elaborazione |
+| `0x02031C64` | A2L parser, format/CRC checks, and context construction |
+| `0x01C12850` | calculation of required model space |
+| `0x01C12878` | model-state reset |
+| `0x01C1296C` | initialization and dot-callback installation |
+| `0x01C129DC` | specialized three-channel rechannel setup |
+| `0x01C12A54` | layer-kernel setup/dispatch |
+| `0x01C12C32` | layer iteration in 64-frame blocks |
+| `0x01C12CC2` | head-context setup |
+| `0x01C12D34` | probable processing-path wrapper |
 
-Restano da ricostruire i percorsi fuori dal dominio verificato, frontend audio,
-IR ed effetti e l'integrazione del scheduler con la scheda MINI. Il riferimento Float64 già presente
-serve a verificare la struttura matematica, ma non sostituisce questo lavoro.
+Paths outside the verified domain, the audio frontend, IR and effects, and
+scheduler integration with the MINI board remain to be reconstructed. The
+existing Float64 reference helps verify mathematical structure but does not
+replace this work.
 
-## Correzione degli indirizzi di salto
+## Jump-address correction
 
-Le destinazioni relative pi32v2 si calcolano da **PC + lunghezza effettiva
-dell'istruzione + displacement**. Il primo disassembler locale usava sempre
-PC+2: le annotazioni di istruzioni da 4/6 byte erano errate. È stato corretto,
-i listati rigenerati e tre encodings reali aggiunti ai test, con riscontro
-nel disassembler JieLi. La scansione lineare continua a comprendere anche dati:
-non diventa per questo un grafo di flusso completo e verificato.
+Relative pi32v2 destinations are calculated from **PC + actual instruction
+length + displacement**. The first local disassembler always used PC+2:
+annotations for 4/6-byte instructions were incorrect. It was corrected, listings
+were regenerated, and three real encodings were added to tests, cross-checked
+with the JieLi disassembler. Linear scanning still includes data: this does
+not turn it into a complete, verified control-flow graph.

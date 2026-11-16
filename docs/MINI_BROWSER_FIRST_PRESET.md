@@ -1,89 +1,93 @@
-# Prova UI del primo preset MINI v3
+# MINI v3 first-preset UI test
 
-`tools/probe_mini_browser_first_preset.py` prepara ed esegue, solo con
-`--execute`, una prova dell'editor originale in un nuovo Chrome visibile e un
-profilo temporaneo. Il profilo firmware/app v3 congelato resta readonly e non
-viene modificato. Il guard temporaneo consente soltanto il piano sperimentale
-esatto; il risultato non concede automaticamente famiglie di comandi.
+`tools/probe_mini_browser_first_preset.py` prepares and, only with
+`--execute`, runs a test of the original editor in a new visible Chrome
+window with a temporary profile. The frozen v3 firmware/app profile remains
+read-only and is not modified. The temporary guard permits only the exact
+experimental plan; the result does not automatically grant command families.
 
-Il codice e i test sono pronti per una futura esecuzione. **Questa prova non è
-stata eseguita sul pedale.** Il collegamento v2 osservato in safe mode non
-soddisfa i prerequisiti v3.
+The code and tests are ready for a future run. **This test has not been
+executed on the pedal.** The v2 connection observed in safe mode does not
+meet the v3 prerequisites.
 
-## Prerequisiti
+## Prerequisites
 
-- Installazione v3 completata e verificata: app SHA256
+- Completed and verified v3 installation: app SHA256
   `9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c`.
-- Boot normale v11, vero PONG esatto e sessione WebSerial v3 readonly chiusa,
-  verificati da `validate_mini_webserial_v3.py`. Non si inventa una prova con
-  footswitch premuti, un hash misurato dal pedale o un PING Python riuscito.
-- Nuove risposte complete: PONG senza `safe`, `CLKSTATE safe=0`, `LVL m=2`,
-  modello A2 invariato e abilitato, `PLIST current=-1`, `SNAPS 0000 current=-1`,
-  output maggiore di −30 dB, un preset libero e nessuna dipendenza IR attiva.
-- Due osservazioni mostrano avanzamento dei contatori core1 `posts` e `takes`,
-  prima della preparazione capture e prima delle azioni UI. `ci/co` sono
-  contatori di clipping e possono valere zero. `run` è una durata; `eng` viene
-  registrato, senza usarlo come contatore. Queste osservazioni non provano il
-  segnale analogico o la qualità dell'audio.
+- Normal v11 boot, an actual exact PONG and a closed read-only v3 WebSerial
+  session, verified by `validate_mini_webserial_v3.py`. No held-footswitch
+  test, device-measured hash or successful Python PING is invented.
+- Fresh complete responses: PONG without `safe`, `CLKSTATE safe=0`,
+  `LVL m=2`, the unchanged enabled A2 model, `PLIST current=-1`,
+  `SNAPS 0000 current=-1`, output above −30 dB, a free preset slot and no
+  active IR dependency.
+- Two observations show progress in the core1 `posts` and `takes` counters,
+  before capture preparation and before the UI actions. `ci/co` are clipping
+  counters and may be zero. `run` is a duration; `eng` is recorded without
+  treating it as a counter. These observations do not prove an analog signal
+  or audio quality.
 
-## Sequenza esatta
+## Exact sequence
 
-1. Il selettore seriale nativo deve scegliere l'unica riga
-   `Tank-M HyperRig (COMn)` del browser appena creato. CDP DeviceAccess non viene
-   usato per il selettore WebSerial. Il coordinatore scrive `selection.json`
-   prima di qualsiasi modifica, con PID, origine e timestamp reali.
-2. Se la capture corrente è la A2 incorporata senza slot persistente, un solo
-   `CSAVE k A2` la conserva nel primo slot capture libero. È un comando
-   diagnostico dichiarato, non un evento UI. Se la A2 corrente ha già uno slot,
-   il preambolo non la riscrive. `CREAD k` e 51 richieste `CREAD k offset`
-   verificano tutti i 4892 byte contro la A2 originale, CRC e inventario.
-   Non viene eseguito upload. `loadModelName()` originale aggiorna la UI da
-   una nuova lettura CLIST; nessun campo nascosto `S` viene assegnato.
-3. Sulla manopola Output originale: ArrowDown di 1 dB, lettura di verifica,
-   ArrowUp per ripristinare, nuova lettura. L'ingresso resta invariato.
-4. Click sul pulsante Save della prima riga preset libera, non sul suo nome
-   vuoto che avvierebbe `PNEW`. Il nome è quello scelto dall'editor originale,
-   normalmente `Preset 1A`. `savePreset` invia `PSAVE` e il suo `sceneAOnSave`
-   invia `SNAPSAVE 0`. ACK, inventario e scena vengono verificati.
-5. Un secondo ArrowDown su Output lascia un marcatore temporaneo. Enter sul
-   nome della riga appena salvata richiama il `loadPreset` originale e un solo
-   `PLOAD`. Devono tornare gain salvato, riferimento capture, MODEL, catena,
-   parametri e scena A. Non si invia `SNAP 0` per correggere un esito diverso.
-6. La coda originale viene svuotata, il polling fermato e la porta nativa
-   chiusa. I flag di successo vengono impostati solo dopo verifica dei byte RX
-   effettivi, ordine UI/TX/ACK e chiusura. Browser e server locale terminano.
+1. The native serial chooser must select the unique
+   `Tank-M HyperRig (COMn)` row in the newly created browser. CDP DeviceAccess
+   is not used for the WebSerial chooser. The coordinator writes
+   `selection.json` before any modification, with the actual PID, origin
+   and timestamp.
+2. If the current capture is the embedded A2 without a persistent slot, a
+   single `CSAVE k A2` stores it in the first free capture slot. This is an
+   explicitly declared diagnostic command, not a UI event. If the current
+   A2 already occupies a slot, the preamble does not rewrite it. `CREAD k`
+   and 51 `CREAD k offset` requests verify all 4892 bytes against the original
+   A2, its CRC and the inventory. No upload is performed. The original
+   `loadModelName()` updates the UI from a fresh CLIST read; no hidden `S`
+   field is assigned.
+3. On the original Output knob: ArrowDown by 1 dB, verification read,
+   ArrowUp to restore, and another read. Input remains unchanged.
+4. Click Save on the first free preset row, not its empty name, which would
+   invoke `PNEW`. The name is the one chosen by the original editor,
+   normally `Preset 1A`. `savePreset` sends `PSAVE`, and its
+   `sceneAOnSave` sends `SNAPSAVE 0`. The ACK, inventory and scene are verified.
+5. A second ArrowDown on Output leaves a temporary marker. Enter on the
+   newly saved row's name invokes the original `loadPreset` and a single
+   `PLOAD`. The saved gain, capture reference, MODEL, chain, parameters and
+   scene A must return. `SNAP 0` is not sent to correct a different outcome.
+6. The original queue is drained, polling is stopped and the native port is
+   closed. Success flags are set only after verification of actual RX bytes,
+   UI/TX/ACK order and closure. The browser and local server terminate.
 
-Se una risposta, un inventario o un ACK non coincide, la prova si arresta.
-Non ritenta comandi, non ricollega la porta, non invia un ripristino alla cieca
-e non elimina capture/preset. Un errore dopo una scrittura può quindi lasciare
-la modifica già eseguita: il report conserva l'intento e le osservazioni senza
-dichiarare successo. La capture e il nuovo preset rimangono intenzionalmente
-memorizzati quando la prova riesce. Il reload non prova persistenza dopo
-spegnimento e può utilizzare la cache interna della capture.
+If a response, inventory or ACK does not match, the test stops. It does not
+retry commands, reconnect the port, send a blind restoration or delete the
+capture/preset. An error after a write may therefore leave an already
+completed modification: the report retains intent and observations without
+claiming success. The capture and new preset intentionally remain stored
+when the test succeeds. Reload does not prove persistence after power-off
+and may use the internal capture cache.
 
-## Comando futuro
+## Future command
 
-Sostituire percorsi e SHA con le prove v3 realmente concluse. L'assenza di
-`--execute` non avvia browser o dispositivi. `--check-only` legge soltanto i
-file di prova; durante il lavoro attuale sono stati eseguiti solo i test.
+Replace paths and SHA values with actual completed v3 evidence. Without
+`--execute`, no browser or device is started. `--check-only` reads only
+evidence files; only tests have been run during the current work.
 
 ```powershell
 python -X utf8 tools/probe_mini_browser_first_preset.py --check-only `
   --boot analysis/hardware/mini-first-boot-v11-released-run.json --boot-sha256 <SHA-BOOT> `
-  --connected build/<SESSIONE-V3>/connected-proof.json --connected-sha256 <SHA-CONNECTED> `
-  --session build/<SESSIONE-V3>/session.json --session-sha256 <SHA-CLOSED>
+  --connected build/<SESSION-V3>/connected-proof.json --connected-sha256 <SHA-CONNECTED> `
+  --session build/<SESSION-V3>/session.json --session-sha256 <SHA-CLOSED>
 ```
 
-Per la prova autorizzata, usare gli stessi argomenti con `--execute` e
-`--output build/mini-first-preset-ui-01`, directory ancora inesistente.
-Il coordinatore attende `awaiting_exact_UIA_selection` nel report condiviso e
-fornisce un sidecar atomico con lo schema già usato nel recupero WebSerial:
+For the authorized test, use the same arguments with `--execute` and
+`--output build/mini-first-preset-ui-01`, a directory that does not yet
+exist. The coordinator waits for `awaiting_exact_UIA_selection` in the
+shared report and provides an atomic sidecar using the schema already
+used for WebSerial recovery:
 
 ```json
 {
-  "observed_utc": "<UTC reale>",
+  "observed_utc": "<actual UTC>",
   "browser_pid": 12345,
-  "origin": "http://127.0.0.1:<porta del report>",
+  "origin": "http://127.0.0.1:<port from report>",
   "selected_row": "Tank-M HyperRig (COM3)",
   "exact_unique_row_verified": true,
   "no_other_device_selected": true,
@@ -91,25 +95,26 @@ fornisce un sidecar atomico con lo schema già usato nel recupero WebSerial:
 }
 ```
 
-`report.json` comprende riferimenti di boot/installazione/identità/chiusura,
-hash dei sorgenti, snapshot, prova della capture, byte TX/RX, eventi UI trusted,
-ACK realmente ricevuti, screenshot e osservazione della chiusura. È un modello
-nuovo `mini-browser-first-preset-v3-trial`: non va passato come se fosse il
-vecchio `representative-first-preset-v1`, che verifica una sequenza diversa.
-Se CDP si interrompe dopo l'intento di apertura senza poter leggere gli eventi
-nativi, `hardware_executed` rimane `null` e `execution_status_unknown` è vero:
-non è una prova che il dispositivo non sia stato aperto.
+`report.json` includes boot/installation/identity/closure references, source
+hashes, snapshots, capture evidence, TX/RX bytes, trusted UI events, ACKs
+actually received, screenshots and the closure observation. It uses a new
+`mini-browser-first-preset-v3-trial` model: it must not be passed off as
+the older `representative-first-preset-v1`, which verifies a different
+sequence. If CDP disconnects after the open intent without being able to
+read native events, `hardware_executed` remains `null` and
+`execution_status_unknown` is true: this is not evidence that the device
+was not opened.
 
-## Verifica offline
+## Offline verification
 
 ```powershell
 python -X utf8 -m unittest tests.test_mini_browser_first_preset -v
 ```
 
-Tredici test Python includono il test Node con 69 condizioni: le funzioni
-`buildGains`, `savePreset`, `sceneAOnSave`, `loadPreset` sono estratte dall'HTML
-v3 originale e vengono eseguite su dipendenze UI/seriali finte. Le regressioni
-rifiutano ACK inventati, RX nativo PSAVE/GAIN corrotto, duplicati, ordine
-sbagliato, eventi non trusted e chiusura fallita. Nessun test apre browser,
-porta seriale o dispositivo; nessun risultato finto viene pubblicato come
-qualificazione hardware.
+Thirteen Python tests include the Node test with 69 conditions: the
+`buildGains`, `savePreset`, `sceneAOnSave` and `loadPreset` functions are
+extracted from the original v3 HTML and executed with fake UI/serial
+dependencies. Regression tests reject invented ACKs, corrupted native
+PSAVE/GAIN RX, duplicates, incorrect order, untrusted events and failed
+closure. No test opens a browser, serial port or device; no fake result is
+published as hardware qualification.

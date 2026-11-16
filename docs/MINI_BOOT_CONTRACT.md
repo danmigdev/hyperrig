@@ -1,27 +1,27 @@
-# Contratto di avvio G → MINI
+# G → MINI boot contract
 
-L'audit individua una correzione concreta all'avvio G e un percorso OTA
-autonomo già presente nel MINI. Non prova ancora l'avvio dell'applicazione G
-completa né il recupero da un'immagine valida che si blocca. Non esegue
-operazioni sul pedale e non produce immagini da installare.
+The audit identifies a concrete correction to G startup and a standalone OTA
+path already present on the MINI. It does not yet prove that the complete G
+application boots or that recovery works from a valid image that hangs.
+It performs no pedal operations and produces no installable images.
 
-Riproduzione, dalla radice del repository:
+Reproduce from the repository root:
 
 ```powershell
 python -X utf8 tools/audit_mini_boot_contract.py
 ```
 
-Il comando verifica gli input fissati, esegue 1344 casi sul getter clock
-originale, compila con l'assembler JieLi la patch di 28 byte, verifica 64
-casi di scritture entro i limiti e confronta i lettori syscfg G/MINI.
-I risultati sono in [mini-boot-contract.json](../research/mini-boot-contract.json).
-La compilazione usa Ubuntu/WSL e la toolchain già fissata nel progetto.
-Nessun compilatore o test host viene presentato come esecuzione sul MINI.
+The command verifies pinned inputs, runs 1344 cases against the original clock
+getter, compiles the 28-byte patch with the JieLi assembler, checks 64 cases
+of writes staying within bounds, and compares the G/MINI syscfg readers.
+Results are in [mini-boot-contract.json](../research/mini-boot-contract.json).
+Compilation uses Ubuntu/WSL and the toolchain already pinned in the project.
+Neither compilation nor host testing is presented as execution on the MINI.
 
-## Clock e ABI GPIO per il codec
+## Clock and GPIO ABI for the codec
 
-`0x020057C6` è un getter C senza argomenti. Restituisce in `r0` i MHz
-nominali; usa `r1`, non scrive memoria e non acquisisce lock:
+`0x020057C6` is a C getter with no arguments. It returns nominal MHz in `r0`;
+it uses `r1`, writes no memory and acquires no lock:
 
 ```c
 if (*(uint8_t *)(0x01C26890 + 680))
@@ -31,50 +31,50 @@ if ((*(uint32_t *)0x00010014 & 15) != 6)
 return (((*(uint32_t *)0x000119AC & 4095) * 4) + 8) / 3;
 ```
 
-Il valore iniziale della cache è 396 MHz, a LMA `0x0207592C`, ma non va
-usato come costante del port. Il setter `0x020054F0` aggiorna la cache a
-`0x0200557E` oppure `0x0200577C`, chiama la transizione RAM `0x01C0444E`
-a `0x0200566A` e abilita il risultato memorizzato a `0x020057B6`.
-Il getter esprime un valore nominale intero, non una misura del clock.
+The initial cached value is 396 MHz at LMA `0x0207592C`, but must not be used
+as a port constant. Setter `0x020054F0` updates the cache at `0x0200557E` or
+`0x0200577C`, calls RAM transition `0x01C0444E` at `0x0200566A`, and enables
+the stored result at `0x020057B6`. The getter expresses an integer nominal
+value, not a clock measurement.
 
-Il binding codec può moltiplicare il risultato per 1000000 dopo aver
-rifiutato zero e valori maggiori di 2147, limite degli Hz signed usati dal
-ritardo. Il getter non impedisce a un altro task di cambiare clock durante
-una transazione: clock stabile e proprietà esclusiva di PA1/PA2 restano
-precondizioni distinte.
+The codec binding can multiply the result by 1000000 after rejecting zero
+and values above 2147, the limit for the signed Hz used by the delay.
+The getter does not prevent another task from changing the clock during a
+transaction: a stable clock and exclusive ownership of PA1/PA2 remain
+separate preconditions.
 
-Le API GPIO G già usate dal binding mantengono il lock di banca a
-`0x01C25CE0`. L'ingresso critico `0x01C00E2E` disabilita gli interrupt e
-incrementa il contatore relativo al core; `0x01C00E46` lo decrementa e
-riabilita gli interrupt quando torna a zero. Non aggiungere un lock della
-stessa banca intorno alle API: il protocollo non è ricorsivo.
+The G GPIO APIs already used by the binding hold the bank lock at
+`0x01C25CE0`. Critical-section entry `0x01C00E2E` disables interrupts and
+increments the counter for that core; `0x01C00E46` decrements it and enables
+interrupts again when it reaches zero. Do not add the same bank lock around
+the APIs: the protocol is not recursive.
 
-## Contesto SPL e patch delle estensioni
+## SPL context and extension patch
 
-Il MINI passa `r0=0x01C7FE08`. Il blocco base di 24 byte è compatibile con
-il lettore G a `0x0200042E`:
+The MINI passes `r0=0x01C7FE08`. The 24-byte base block is compatible with
+the G reader at `0x0200042E`:
 
-| Offset | Campo preservato |
+| Offset | Preserved field |
 |---:|---|
-| 0 | Puntatore all'header flash decodificato |
-| 4 | Base fisica dell'area app, `0x4000` |
-| 8 | Base logica CPU, `0x02000000` |
-| 12 | Chiave/chip ID a 16 bit |
-| 14 | Trim a 16 bit |
-| 16 | Otto byte per MAC Bluetooth e CRC |
+| 0 | Pointer to the decoded flash header |
+| 4 | Physical app-area base, `0x4000` |
+| 8 | Logical CPU base, `0x02000000` |
+| 12 | 16-bit key/chip ID |
+| 14 | 16-bit trim |
+| 16 | Eight bytes for Bluetooth MAC and CRC |
 
-Il G copia inoltre 8 byte da contesto+80 a `0x01C7FD74` e 4 byte da
-contesto+88 a `0x01C7FD7C`. I tipi corrispondono a `SDRAM_CFG_INFO` e
-`EX_APP_INFO` nel [boot.h SDK fissato](https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/system/boot.h).
-L'SDK documenta dimensioni e campi; i punti di copia sono provati dai byte G.
+The G also copies 8 bytes from context+80 to `0x01C7FD74` and 4 bytes from
+context+88 to `0x01C7FD7C`. The types correspond to `SDRAM_CFG_INFO` and
+`EX_APP_INFO` in the [pinned SDK boot.h](https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/system/boot.h).
+The SDK documents sizes and fields; the copy locations are proven by the G bytes.
 
-Il MINI dichiara `ENABLE_SDRAM=0` e una sola area applicazione. Nel suo SPL,
-`0x01C04F9E..4FCE` salta l'inizializzazione delle estensioni quando manca
-il descrittore opzionale. Il trasferimento base a `0x01C051DA` copia solo
-24 byte. Non è quindi corretto presumere che i 12 byte aggiuntivi siano zero
-perché non vengono usati dallo stock MINI.
+The MINI declares `ENABLE_SDRAM=0` and a single application area. In its SPL,
+`0x01C04F9E..4FCE` skips extension initialization when the optional descriptor
+is absent. The base transfer at `0x01C051DA` copies only 24 bytes.
+It is therefore incorrect to assume that the additional 12 bytes are zero
+because stock MINI firmware does not use them.
 
-La patch sostituisce il tratto G `[0x0200045C,0x02000478)` con:
+The patch replaces G range `[0x0200045C,0x02000478)` with:
 
 ```asm
 r0 = 0x01c7fd74
@@ -82,133 +82,131 @@ r1 = 0
 [r0+0] = r1
 [r0+4] = r1
 [r0+8] = r1
-; sette nop per conservare tutti gli indirizzi originali
+; seven nops to preserve all original addresses
 ```
 
-Agisce esclusivamente sulle copie private G. Conserva il blocco base,
-`r2..r15`, stack, stato interrupt, chiave, trim e la mailbox che comincia
-a `0x01C7FD80`. Non modifica il bootloader né i byte del contesto in ingresso.
-L'assembler vendor produce esattamente i byte registrati dal verifier.
+It acts only on the G's private copies. It preserves the base block,
+`r2..r15`, stack, interrupt state, key, trim and the mailbox beginning at
+`0x01C7FD80`. It changes neither the bootloader nor incoming context bytes.
+The vendor assembler produces exactly the bytes recorded by the verifier.
 
-API per il formatter integrato:
+API for the integrated formatter:
 
 ```python
 from tools.audit_mini_boot_contract import boot_patches
-patches = boot_patches(g_plain)  # tuple[BinaryPatch, ...], una patch
+patches = boot_patches(g_plain)  # tuple[BinaryPatch, ...], one patch
 ```
 
-L'API richiede il plaintext dell'intera area G originale fissata; la patch
-include preimage completo. Non applicarla a un firmware diverso o già
-modificato. La verifica delle tre scritture non dimostra l'intero handover
-hardware, cache, IRQ o stabilità dell'applicazione.
+The API requires the plaintext of the entire pinned original G area;
+the patch includes the complete preimage. Do not apply it to different or
+already modified firmware. Checking the three writes does not establish
+the complete hardware handover, cache, IRQs or application stability.
 
-## VM, BTIF, OTP e calibrazioni
+## VM, BTIF, OTP and calibration
 
-Il lettore syscfg G `0x02024A78..24B10` e quello MINI
-`0x02003E3C..3ED2` hanno la stessa sequenza dopo una normalizzazione
-esplicita di quattro indirizzi e delle destinazioni locali. Non vengono
-ignorati registri, istruzioni o maschere MMIO. Il percorso speciale ID102
-verifica il carrier MAC del contesto e il suo CRC prima di usarlo.
+The G syscfg reader `0x02024A78..24B10` and MINI reader
+`0x02003E3C..3ED2` have the same sequence after explicit normalization of
+four addresses and local destinations. No registers, instructions or MMIO
+masks are ignored. The special ID102 path verifies the context's MAC carrier
+and its CRC before using it.
 
-L'ordine dei backend è cache RAM, VM, poi configurazione/BTIF. La VM
-comprende gli ID 1..255. Nel backup reale, i seguenti record hanno CRC
-valido e larghezze uguali a quelle richieste dalle due applicazioni:
+Backend order is RAM cache, VM, then configuration/BTIF. The VM covers
+IDs 1..255. In the real backup, the following records have valid CRCs and
+widths matching those requested by both applications:
 
-| ID | Byte | Richiesta G | Richiesta MINI |
+| ID | Bytes | G request | MINI request |
 |---:|---:|---|---|
 | 106 | 2 | `0x02024B64` | `0x02023B2E` |
 | 107 | 7 | `0x02024CB8` | `0x02023B74` |
 | 108 | 20 | `0x02024F14` | `0x02023D6C` |
 | 109 | 34 | `0x0205366A` | `0x0206873C` |
 
-Il record106 del G parte anche dai campi hardware `0x11930` e applica il
-valore VM se la lettura restituisce due byte. Questo rafforza il vincolo di
-conservare le calibrazioni del MINI. ID e larghezza non dimostrano da soli
-equivalenza di ogni significato radio o di tutti gli altri ID VM.
+G record 106 also starts from hardware fields `0x11930` and applies the VM
+value if the read returns two bytes. This reinforces the requirement to
+preserve MINI calibration data. ID and width alone do not prove equivalent
+meaning for every radio field or all other VM IDs.
 
-Il G apre BTIF per nome a `0x0201FB00`; il contenuto deve rimanere quello
-del MINI a `[0xBE000,0xBF000)`. Il backend opzionale a BTIF+512 trova una
-lunghezza zero nel backup: il codice G la rifiuta a `0x0201FB26`, invece di
-trattarla come una tabella valida. I record106..109 sono già presenti nella
-VM, che precede questo fallback.
+The G opens BTIF by name at `0x0201FB00`; its content must remain the MINI's
+data at `[0xBE000,0xBF000)`. The optional backend at BTIF+512 finds a zero
+length in the backup: G code rejects it at `0x0201FB26` instead of treating
+it as a valid table. Records 106..109 already exist in the VM, which precedes
+this fallback.
 
-La partizione G chiamata OTP occuperebbe proprio BTIF del MINI. La candidata
-usa la directory MINI e la omette. L'app G non contiene una stringa `OTP`
-terminata da zero, ma questa ricerca non esclude tutti gli accessi calcolati
-o indiretti. OTP di directory, efuse del SoC e registri OTP della NOR sono
-oggetti diversi. Il report lascia aperta la verifica completa dei
-consumatori OTP e non pubblica i valori MAC/calibrazione del pedale.
+The G partition named OTP would occupy the MINI's BTIF. The candidate uses
+the MINI directory and omits it. The G app contains no null-terminated
+`OTP` string, but this search does not rule out all computed or indirect
+accesses. Directory OTP, SoC efuse and NOR OTP registers are different
+objects. The report leaves full verification of OTP consumers open and
+does not publish the pedal's MAC/calibration values.
 
-## Recupero senza l'applicazione normale
+## Recovery without the normal application
 
-Il backup completo conferma un updater separato dall'app MINI:
+The complete backup confirms an updater separate from the MINI app:
 
-| Oggetto | Posizione | Evidenza |
+| Object | Location | Evidence |
 |---|---|---|
-| `LOADER.BIN` | `[0xB7000,0xBBDF6)` | 19958 byte, header valido |
-| Record richiesta OTA | `0xBCF00`, 80 byte | Marker `0x5441`, CRC16 valido |
-| Identità del record | `ota-TANK MINI_007` | Presente nel backup, non inferita dalla versione app |
-| Entry decompressa dichiarata | `0x01C0A800` | Header del payload |
+| `LOADER.BIN` | `[0xB7000,0xBBDF6)` | 19958 bytes, valid header |
+| OTA request record | `0xBCF00`, 80 bytes | Marker `0x5441`, valid CRC16 |
+| Record identity | `ota-TANK MINI_007` | Present in the backup, not inferred from the app version |
+| Declared decompressed entry | `0x01C0A800` | Payload header |
 
-Escluso l'header esterno di 32 byte, il loader nel backup è identico a
-`ota.bin` del FWSC MINI_009. SHA256 del payload:
+Excluding the 32-byte outer header, the loader in the backup is identical to
+`ota.bin` from the MINI_009 FWSC. Payload SHA256:
 `4844e18e5bb70f3ab7d3bfbe26d9f66d3da43e2e181b00f7121218302cda84a0`.
-L'header interno dichiara 23324 byte decompressi; questo audit non esegue
-il decompressor o l'updater. Il settore `0xBC000..0xBD000` contiene anche
-la sua VM/metadata e deve essere conservato per intero.
+The inner header declares 23324 decompressed bytes; this audit does not run
+the decompressor or updater. Sector `0xBC000..0xBD000` also contains its
+VM/metadata and must be preserved in full.
 
-Lo SPL a `0x01C03310` verifica l'header applicazione. Il fallimento può
-azzerare la base app a `0x01C04D68`; prima dell'handover viene percorsa la
-scansione di record da `0x01C04E26`, a passi di settore e con lettura degli
-80 byte a settore−256. Il record del backup soddisfa quei controlli di
-marker/CRC e porta al loader autonomo. Questa è evidenza statica di un
-percorso OTA conservato, **non una prova fisica del recupero**.
+SPL at `0x01C03310` checks the application header. Failure can clear the app
+base at `0x01C04D68`; before handover, the record scan from `0x01C04E26`
+runs in sector steps, reading 80 bytes at sector−256. The backup record passes
+those marker/CRC checks and leads to the standalone loader.
+This is static evidence of a preserved OTA path, **not physical proof of recovery**.
 
-Il ramo `0x01C0529A` copia il marker USB alla mailbox e richiede reset,
-ma non è l'unico esito di un'app danneggiata. Se non trova una richiesta,
-`0x01C05322` azzera un campo e richiede reset senza scrivere quel marker.
-Non dichiarare quindi “header invalido → ROM” come regola universale.
-Anche il bytecode dell'installer UltraRig originale distingue il fallback
-M-VAVE OTA dal disco ROM UBOOT. La conservazione di SPL, area OTA e dati
-unitari resta compatibile con la sostituzione completa dell'applicazione:
-sono infrastruttura di avvio e recupero, non codice DSP MINI innestato.
+Branch `0x01C0529A` copies the USB marker to the mailbox and requests reset,
+but this is not the only outcome of a damaged app. If it finds no request,
+`0x01C05322` clears a field and requests reset without writing that marker.
+Therefore, do not claim “invalid header → ROM” as a universal rule.
+The original UltraRig installer's bytecode also distinguishes M-VAVE OTA
+fallback from the ROM UBOOT disk. Preserving SPL, the OTA area and unit-specific
+data remains compatible with complete application replacement: they are boot
+and recovery infrastructure, not stock MINI DSP code grafted into the port.
 
-Il [manuale ufficiale MINI](https://manualf.oss-cn-hongkong.aliyuncs.com/manual/Combined-Effect-Pedals/TANK-MINI.pdf)
-non documenta una combinazione di tasti all'accensione per il recupero.
-A+B e B+C sono descritti per Bluetooth e accordatore durante l'uso.
-Nel profilo SPL mancano `PORT_INPUT` e `BOOT_DELAY`. `RESET=PB01_08_0`
-viene convertito in tre byte di metadata a `0x01C03AB6/3AC8/3ADC`: quel
-frammento non campiona il pin e non salta in recovery. Non è stata trovata
-una catena footswitch→ROM nello SPL; l'assenza di ogni funzione di recovery
-del mask ROM non è dimostrata. Il [download ufficiale](https://www.m-vave.com/download)
-offre M-UPGRADE e il FWSC MINI, ma non stabilisce un trigger indipendente
-per una futura applicazione G valida che si blocca.
+The [official MINI manual](https://manualf.oss-cn-hongkong.aliyuncs.com/manual/Combined-Effect-Pedals/TANK-MINI.pdf)
+does not document a power-on button combination for recovery.
+A+B and B+C are described for Bluetooth and tuner functions during use.
+The SPL profile lacks `PORT_INPUT` and `BOOT_DELAY`.
+`RESET=PB01_08_0` is converted into three metadata bytes at
+`0x01C03AB6/3AC8/3ADC`: that fragment neither samples the pin nor jumps into
+recovery. No footswitch→ROM chain was found in SPL; absence of every mask-ROM
+recovery function has not been proven. The [official download](https://www.m-vave.com/download)
+offers M-UPGRADE and the MINI FWSC, but does not establish an independent
+trigger for a future valid G application that hangs.
 
-## Prova necessaria prima dell'installazione
+## Required trial before installation
 
-Il comando software che ha già portato il MINI in ROM richiede un'app
-funzionante. I test RAM HYE1 e il ritorno allo stock non coprono un hang
-dell'intera candidata. La presenza dell'OTA non basta a raggiungerla se
-l'header G è valido e l'app si blocca dopo il salto.
+The software command that has already put the MINI into ROM requires a working
+app. HYE1 RAM tests and the return to stock do not cover a hang of the entire
+candidate. OTA's presence is insufficient to reach it if the G header is valid
+and the app hangs after the jump.
 
-La fonte primaria [m-bootloader §4.3](https://github.com/jvitkauskas/m-bootloader/blob/3ac7651a019fa44daba061b05654278496477b64/docs/SPEC.md#43-recovery-independent-of-a-valid-boot-image)
-documenta USB_KEY `0x16EF` su AC791N/SMK-37: un trigger del ROM prima del
-firmware. Non è ancora provato sul MINI. Prima di usarlo come rollback va
-verificato sul MINI integro, osservando l'identità ROM, una lettura RAM
-consentita e il ritorno normale con dati invariati. Non occorre corrompere
-la flash per questa prima prova del trigger.
+The primary source [m-bootloader §4.3](https://github.com/jvitkauskas/m-bootloader/blob/3ac7651a019fa44daba061b05654278496477b64/docs/SPEC.md#43-recovery-independent-of-a-valid-boot-image)
+documents USB_KEY `0x16EF` on AC791N/SMK-37: a ROM trigger before firmware.
+It is not yet proven on the MINI. Before using it as rollback, it must be
+tested on the intact MINI, observing ROM identity, a permitted RAM read and
+a normal return with data unchanged. Flash corruption is unnecessary for this
+initial trigger trial.
 
-Un guard alternativo nella primissima entry G potrebbe scrivere
-`usb_update_mode` e armarne il watchdog, cancellando il marker solo dopo
-un handshake definito. Non è implementato: lo SPL spegne il WDT e non
-possiamo assumere che un hang produca reset. Prima servono una prova RAM
-del reset WDT con conservazione mailbox e una verifica del percorso di
-entry. Un marker protegge soltanto i guasti successivi alla sua scrittura
-seguiti da un reset che conservi RAM; non protegge entry/header invalidi
-o perdita della RAM trattenuta.
+An alternative guard at the very first G entry could write
+`usb_update_mode` and arm its watchdog, clearing the marker only after a
+defined handshake. It is not implemented: SPL disables the WDT, and we cannot
+assume a hang causes reset. First, a RAM trial must establish WDT reset with
+mailbox retention, and the entry path must be verified. A marker protects only
+against failures after it is written, followed by a reset that preserves RAM;
+it does not protect against invalid entry/header data or loss of retained RAM.
 
-Le azioni concrete residue sono quindi provare un trigger indipendente sul
-MINI integro, verificare separatamente l'ingresso OTA, e predisporre un
-writer con allowlist di settori/readback e ripristino esatto da questo
-backup. La build completa può avanzare mantenendo questi gate aperti.
-Questo audit non autorizza né esegue una scrittura NVM.
+The remaining concrete actions are therefore to test an independent trigger
+on the intact MINI, verify OTA entry separately, and prepare a writer with
+sector allowlisting/readback and exact restoration from this backup.
+The complete build can progress while these gates remain open.
+This audit neither authorizes nor performs an NVM write.

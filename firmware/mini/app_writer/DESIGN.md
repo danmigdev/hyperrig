@@ -1,148 +1,150 @@
-# Writer applicazione MINI: implementazione con mutazioni target disabilitate
+# MINI application writer: implementation with target mutations disabled
 
-Questo folder contiene il protocollo HYW1, il driver PIO separato e il core
-del writer. Il target iniziale ha **gate di mutazione costante zero**: FC7B e
-FC7D non possono raggiungere WREN attraverso il dispatch. Il reader HYRN già
-provato rimane immutato. I test host abilitano le mutazioni esclusivamente su
-una NOR in memoria; la stessa macro è vietata quando si compila il target.
+This directory contains the HYW1 protocol, separate PIO driver, and writer
+core. The initial target has a **constant zero mutation gate**: FC7B and
+FC7D cannot reach WREN through dispatch. The already tested HYRN reader
+remains unchanged. Host tests enable mutations only on in-memory NOR;
+the same macro is forbidden when compiling the target.
 
-Il comando `python tools/build_mini_app_writer.py --build-locked` compila due
-payload RAM da 32 KiB massimi, esegue i test e verifica il gate zero negli ELF.
-La CLI predefinita controlla soltanto il piano locale. Non esiste un client
-writer hardware, un'opzione force o una modalità target abilitata. Il piano
-viene ricontrollato contro candidata, backup completo e rollback prima del
-report; gli hash di tutti i 126 settori e i CRC delle 2.016 pagine sono inclusi.
+Command `python tools/build_mini_app_writer.py --build-locked` builds two
+RAM payloads of at most 32 KiB, runs tests, and verifies the zero gate in the
+ELFs. The default CLI checks only the local plan. No hardware writer client,
+force option, or enabled target mode exists. The plan is rechecked against
+the candidate, full backup, and rollback before the report; hashes for all
+126 sectors and CRCs for the 2,016 pages are included.
 
-## Evidenza ROM e limite ancora esplicito
+## ROM evidence and the remaining explicit limitation
 
-La fonte fissata è `upstream/m-bootloader`, commit
+The pinned source is `upstream/m-bootloader`, commit
 `3ac7651a019fa44daba061b05654278496477b64`. In `src/loader_target.c:19`,
-`params[1]` è interpretato come `int receive(void *, uint32_t)`. In
-`src/loader.c:14`, il loader chiama la callback con chunk non superiori a512byte,
-ignora il valore restituito e avanza comunque il puntatore. Questo dimostra
-firma e convenzione usata dal loader; non dimostra una ricezione completa.
+`params[1]` is interpreted as `int receive(void *, uint32_t)`.
+In `src/loader.c:14`, the loader calls the callback with chunks no larger
+than 512 bytes, ignores its return value, and advances the pointer regardless.
+This establishes the signature and convention used by the loader; it does
+not establish a complete receive.
 
-`docs/SPEC.md:835` dichiara esplicitamente sconosciuti i valori di ritorno e le
-semantiche di trasferimento parziale/errore. Il codice disponibile non risolve
-questa lacuna generale. Assumere
-`return >= 0`, `return == 0` o `return == length` come successo sarebbe una scelta
-senza evidenza. Un CRC corretto è un controllo sui byte osservati, non una prova
-generale della semantica della callback o della fine di un trasferimento asincrono.
+`docs/SPEC.md:835` explicitly states that return values and partial/error
+transfer semantics are unknown. Available code does not resolve this general
+gap. Assuming `return >= 0`, `return == 0`, or `return == length` means
+success would be a choice unsupported by evidence. A correct CRC checks the
+observed bytes; it is not general proof of callback semantics or completion
+of an asynchronous transfer.
 
-Successivamente HYRX ha osservato sul MINI un singolo OUT da 260 byte,
-ritorno grezzo 260, dati esatti e due record stabili con canary integri. I
-record acquisiti e il manifest eseguito sono fissati nel rapporto del writer.
-I callback osservati sono send `0x01E008E4`, receive `0x01E0089A` e handler slot
-`0x01C01264`: l'entry di questo target rifiuta valori diversi prima di SPI.
-La prova non qualifica errori, durata generale del buffer o sincronicità.
+HYRX subsequently observed one 260-byte OUT on MINI, raw return 260,
+exact data, and two stable records with intact canaries.
+Captured records and the executed manifest are pinned in the writer report.
+Observed callbacks are send `0x01E008E4`, receive `0x01E0089A`, and handler
+slot `0x01C01264`: this target's entry rejects different values before SPI.
+The test does not qualify errors, general buffer lifetime, or synchrony.
 
-Per ridurre questa dipendenza il writer riceve in un'arena con guard, esige il
-ritorno 260 osservato e copia la pagina in un **secondo buffer congelato**.
-Verifica il CRC della copia, espone esattamente quei 256 byte via FD87 e
-richiede un comando FC7D separato dopo l'echo. L'host dovrà confrontare tutti
-i byte prima di FC7D. PP usa soltanto la copia congelata: scritture tardive
-nel precedente buffer RX non cambiano la sorgente programmata. Guard e CRC
-della copia sono ricontrollati prima di WREN; ogni esito incoerente rifiuta.
+To reduce this dependency, the writer receives into a guarded arena, requires
+the observed return 260, and copies the page into a **second frozen buffer**.
+It verifies the copy's CRC, exposes exactly those 256 bytes through FD87,
+and requires a separate FC7D command after echo. The host must compare every
+byte before FC7D. PP uses only the frozen copy: late writes to the preceding
+RX buffer do not change the programmed source. Copy guards and CRC are
+rechecked before WREN; any inconsistency is rejected.
 
-## Limiti del futuro writer
+## Future writer limits
 
-L'unico intervallo fisico ammesso è `[0x4000,0x82000)`: 126settori da4096byte,
-16pagine da256byte ciascuno. Un controllo deve precedere qualunque calcolo del
-comando a24bit: `address >= start`, `address < end`, lunghezza positiva e
-`length <= end-address`. Anche somma con overflow, settore disallineato,
-pagina oltre il settore e indirizzi CPU/XIP devono essere rifiutati.
+The sole allowed physical range is `[0x4000,0x82000)`: 126 sectors of
+4096 bytes, each with 16 pages of 256 bytes. A check must precede any 24-bit
+command calculation: `address >= start`, `address < end`, positive length,
+and `length <= end-address`. Addition overflow, unaligned sectors, pages
+outside the sector, and CPU/XIP addresses must also be rejected.
 
-Restano esclusi SPL/configurazione iniziale, VM completa con OTA/request,
-BTIF, USR e key_mac. Il piano di rollback deve riferirsi al backup completo di
-questa unità, non a un FWSC generico. L'ordine con settore header per ultimo
-non rende l'installazione atomica e non sostituisce un recupero indipendente.
+SPL/initial configuration, all VM including OTA/request, BTIF, USR, and
+key_mac remain excluded. The rollback plan must refer to this unit's full
+backup, not a generic FWSC. Header-sector-last ordering does not make
+installation atomic or replace independent recovery.
 
-Prima del primo accesso distruttivo occorrono JEDEC esatto `EB6014`, capacità
-1MiB, stato WIP/WEL coerente e nessuna protezione. La SPEC §3.4 documenta per
-questa famiglia SR1 `0x7C` e SR2 `0x40`: il writer deve **rifiutare**, non
-azzerare, protezioni attive. Non deve scrivere SR1/SR2, modificare QE o tentare
-una sequenza di sblocco. La configurazione volatile PIO va derivata dal reader
-MINI; il suo init non va sostituito dall'init generico upstream, che modifica
-clock e può modificare registri di stato NOR.
+Before the first destructive access, exact JEDEC `EB6014`, capacity
+1 MiB, consistent WIP/WEL status, and no protection are required.
+SPEC §3.4 documents SR1 `0x7C` and SR2 `0x40` for this family:
+the writer must **reject**, not clear, active protection.
+It must not write SR1/SR2, change QE, or attempt an unlock sequence.
+Volatile PIO configuration must derive from the MINI reader; its initialisation
+must not be replaced by generic upstream initialisation, which changes clocks
+and may change NOR status registers.
 
-## Sequenza proposta HYW1
+## Proposed HYW1 sequence
 
-Gli opcode e i campi sono descritti esattamente in `protocol-draft.json`.
-Tutti i CDB sono da16byte, con interi BE e padding inutilizzato `FF`; il CBW
-deve dichiarare direzione e lunghezza esatte. I token sono contatori monouso,
-non autenticazione. Un errore rende invalida l'autorizzazione a mutare; nessun
-retry automatico, resume implicito o comando che cancella l'errore.
+Opcodes and fields are described exactly in `protocol-draft.json`.
+Every CDB is 16 bytes, with BE integers and unused padding `FF`;
+the CBW must declare exact direction and length. Tokens are single-use
+counters, not authentication. An error invalidates mutation authorisation;
+there is no automatic retry, implicit resume, or command to clear the error.
 
-1. Entry/FC78 registrano e identificano il plugin senza MMIO. FC79 è un init
-   esplicito, con JEDEC/status letti e nessuna WREN.
-2. L'host legge il settore e verifica SHA256 contro il piano. FC7A rilegge
-   tutti4096byte e confronta il CRC32 del preimage prima di armare quel solo
-   settore. CRC32 non sostituisce il confronto SHA256 dell'host.
-3. Prima di qualsiasi WREN, anche dell'erase, occorre già una prima pagina
-   ricevuta, congelata ed esposta con FD87 per il confronto dell'host.
-   Nel percorso operativo provato sul mock, FC7B consuma token/sequenza,
-   ricontrolla preimage/status, WREN e WEL, poi
-   esegue una sola erase20. WIP ha un limite finito e ogni byte del settore
-   deve risultare FF. I limiti temporali effettivi restano da qualificare.
-4. FB7C riceve una pagina completa più CRC in RAM; **non scrive flash**.
-   È ammesso anche prima dell'erase, per verificare staging/echo nel target
-   bloccato. FC7E deve confermare lo staging e FD87 deve essere confrontato
-   byte per byte dall'host prima di FC7D. Solo FC7D può consumare la
-   pagina, ricontrollare CRC e pagina ancora cancellata, verificare WREN/WEL
-   e programmare una sola PP02 senza attraversare un confine da256byte.
-5. Dopo ogni mutazione: WIP finito, WEL/status controllati, CS alto anche
-   sull'errore, lettura completa e confronto dei byte. Un errore durante PP
-   può aver già programmato parte della pagina: non si dichiara rollback
-   automatico, né si ripete PP per nascondere un errore di trasporto.
-6. FC80 verifica bitmap delle16pagine e CRC del settore completo. L'host
-   rilegge il settore e confronta SHA256, quindi tutta l'area applicazione.
-   Il prossimo settore richiede un nuovo token. La sequenza riparte da 1
-   soltanto sotto quel nuovo token; FD87 usa la sequenza dello staging,
-   mantenuta anche se un successivo erase avanza la sequenza corrente.
+1. Entry/FC78 register and identify the plugin without MMIO. FC79 is explicit
+   initialisation, with JEDEC/status reads and no WREN.
+2. The host reads the sector and checks SHA256 against the plan.
+   FC7A rereads all 4096 bytes and compares preimage CRC32 before arming
+   only that sector. CRC32 does not replace the host's SHA256 comparison.
+3. Before any WREN, including erase WREN, a first page must already have
+   been received, frozen, and exposed through FD87 for host comparison.
+   In the operational path tested on the mock, FC7B consumes token/sequence,
+   rechecks preimage/status, WREN, and WEL, then performs one erase20.
+   WIP has a finite bound, and every sector byte must read FF.
+   Actual timing limits still need qualification.
+4. FB7C receives a full page plus CRC into RAM; **it does not write flash**.
+   It is also allowed before erase, to verify staging/echo on the locked
+   target. FC7E must confirm staging, and the host must compare FD87
+   byte-for-byte before FC7D. Only FC7D may consume the page, recheck CRC
+   and that the page remains erased, verify WREN/WEL, and program one PP02
+   without crossing a 256-byte boundary.
+5. After each mutation: bounded WIP, checked WEL/status, CS high even on
+   error, a full read, and byte comparison. A PP error may have already
+   programmed part of the page: no automatic rollback is claimed, and PP
+   is not repeated to hide a transport error.
+6. FC80 verifies the 16-page bitmap and full-sector CRC. The host rereads
+   the sector and compares SHA256, then the entire application area.
+   The next sector requires a new token. Sequence restarts at 1 only
+   under that new token; FD87 uses the staging sequence, retained even
+   when a later erase advances the current sequence.
 
-Il target iniziale rifiuta erase/program prima di ogni operazione distruttiva.
-STAGE/echo dopo ARM restano operazioni reali in RAM, senza simulare un erase.
+The initial target rejects erase/program before any destructive operation.
+STAGE/echo after ARM remain real RAM operations, without simulating erase.
 
-La risposta OUT non include un pacchetto IN extra: il risultato viene letto
-separatamente. Una risposta host fallita dopo un comando distruttivo implica
-esito ambiguo, non autorizzazione a ritentare. ROM FB06/FD07/FB08 restano parte
-del lifecycle RAM; non si devono esporre genericamente dal client writer.
-Rifiuti di comandi legacy non devono ricadere nel gestore flash della ROM.
+The OUT response includes no extra IN packet: its result is read separately.
+A failed host response after a destructive command means an ambiguous outcome,
+not permission to retry. ROM FB06/FD07/FB08 remain part of RAM lifecycle;
+the writer client must not expose them generically. Rejected legacy commands
+must not fall through to ROM's flash handler.
 
-## Record e stack
+## Record and stack
 
-FD88 restituisce 128 byte LE di stato già raccolto, senza leggere nuovamente
-la NOR. Il record contiene magic HYW1, versione, base/tag, fase/errore,
-token/sequenza, settore/pagina, CRC preimage/target/pagina/ultima lettura,
-JEDEC, SR1/SR2, contatori WREN/erase/PP/letture/poll, ritorno receive, guard,
-bitmap pagine, staged/echoed e guard/uso osservato dello stack. Gate zero a116,
-CRC32 dei primi120 byte a120 e DONE a124. FC7E non cancella errori persistenti.
+FD88 returns 128 LE bytes of already collected state, without rereading NOR.
+The record contains HYW1 magic, version, base/tag, phase/error, token/sequence,
+sector/page, preimage/target/page/last-read CRCs, JEDEC, SR1/SR2,
+WREN/erase/PP/read/poll counters, receive return, guards, page bitmap,
+staged/echoed, and stack guards/observed usage. Zero gate at 116, CRC32 of
+the first 120 bytes at 120, and DONE at 124. FC7E does not clear sticky errors.
 
-Il lavoro NOR usa lo stack privato da 4 KiB con guard, tramite il bridge
-pi32v2 già verificato. Le callback USB rimangono sullo stack originale ROM.
-Gli ELF devono avere un solo segmento RAM nello slot, entry al primo byte,
-nessun simbolo irrisolto e nessuna sovrapposizione fra codice, stato, record e
-stack. L'audit automatico verifica anche i byte esatti del bridge e il gate
-zero. La disponibilità dello stack interrupt della ROM resta fuori da questa
-prova statica; non viene dichiarata esecuzione hardware del writer.
+NOR work uses the guarded 4 KiB private stack through the already verified
+pi32v2 bridge. USB callbacks remain on the original ROM stack.
+ELFs must have a single RAM segment in the slot, entry at the first byte,
+no unresolved symbols, and no overlap among code, state, record, and stack.
+Automatic audit also checks exact bridge bytes and the zero gate.
+ROM interrupt-stack availability remains outside this static test;
+hardware execution of the writer is not claimed.
 
-## Verifiche eseguite e rimanenti
+## Completed and remaining checks
 
-I test C con ASan/UBSan coprono installazione completa di un settore ai due
-estremi dell'area, protezioni SR1/SR2, WEL assente/persistente, WIP bloccato,
-CRC errato, tutte le 260 lunghezze di ricezione corta, guard corrotti,
-token/sequenze duplicati, limiti 4000/81F00/82000, PP parziale, readback errato
-e isolamento del buffer congelato. Un modello SPI distinto inietta timeout
-su ciascuno dei 544 byte della sequenza init/status/WREN/erase/program/read:
-CS viene sempre rilasciato e una transazione fallita non viene ritentata.
-Il test con gate zero verifica staging/echo e rifiuto erase senza WREN.
+C tests with ASan/UBSan cover complete installation of a sector at both ends
+of the area, SR1/SR2 protection, absent/persistent WEL, stuck WIP, wrong CRC,
+all 260 short-receive lengths, corrupted guards, duplicate tokens/sequences,
+4000/81F00/82000 bounds, partial PP, wrong readback, and frozen-buffer isolation.
+A separate SPI model injects timeouts at each of the 544 bytes in the
+init/status/WREN/erase/program/read sequence: CS is always released, and
+a failed transaction is not retried. The zero-gate test checks staging/echo
+and erase rejection without WREN.
 
-Il limite PIO è 32.768 poll per byte; WIP ha 65.536 campioni massimi, con
-256 iterazioni di attesa fra campioni occupati. Sono limiti finiti, non una
-misura temporale certificata. La compatibilità con i timeout host e i tempi
-fisici di erase/program richiede revisione prima del build abilitato.
+The PIO bound is 32,768 polls per byte; WIP allows at most 65,536 samples,
+with 256 wait iterations between busy samples. These are finite bounds,
+not certified timing measurements. Compatibility with host timeouts and
+physical erase/program times requires review before the enabled build.
 
-Root gestisce i gate attuali: recupero con footswitch scelto dall'utente,
-codec/board e candidata esatta, quindi revisione del build abilitato. Non si
-aggiungono prerequisiti USB_KEY, cablaggi GPIO o nuove approvazioni di progetto.
-Il builder non promuove la readiness hardware e non esegue comandi al MINI.
+Root manages the current gates: the user's chosen footswitch recovery,
+codec/board and exact candidate, then review of the enabled build.
+No USB_KEY prerequisites, GPIO wiring, or new project approvals are added.
+The builder does not promote hardware readiness or execute commands on MINI.

@@ -223,7 +223,7 @@ def run(prepared,output):
         require(report['serial_open_extension'].get('timeout_ms')==30000,'serial open timeout extension failed')
         save()
         cdp.evaluate('__miniEditorObservation.install(Pedal)')
-        cdp.evaluate("(()=>{const n=document.getElementById('miniPortStatus');if(n)n.textContent='HyperRig MINI · USB: effetti, volume e preset';})()")
+        cdp.evaluate("(()=>{const n=document.getElementById('miniPortStatus');if(n)n.textContent='HyperRig MINI · USB: effects, volume and presets';})()")
         time.sleep(.55)
         report['phase']='awaiting_USB_selection'
         report['chooser_policy']={'previously_observed_COM':prepared['com'],'suggested_row':'Tank-M HyperRig ('+prepared['com']+')',

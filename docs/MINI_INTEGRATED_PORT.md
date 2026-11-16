@@ -1,67 +1,67 @@
-# Applicazione UltraRig integrale per TANK MINI
+# Complete UltraRig application for TANK MINI
 
-La candidata corrente in `build/hyperrig-mini-audio-v2/` contiene l'intera
-applicazione UltraRig G alpha11 v2/M5.71, adattata attraverso patch con
-preimage verificata, uno shim C compilato e la guardia di recupero v2
-obbligatoria all'ingresso. Il firmware applicativo stock
-MINI non viene incluso. Il [report](../research/mini-integrated-port-v2.json)
-elenca ogni cambiamento e verifica che invertendo le patch si recuperi
-esattamente l'applicazione G originale.
+The current candidate in `build/hyperrig-mini-audio-v2/` contains the complete
+UltraRig G alpha11 v2/M5.71 application, adapted through patches with verified
+preimages, a compiled C shim, and a mandatory v2 recovery guard at entry.
+The stock MINI application firmware is not included. The
+[report](../research/mini-integrated-port-v2.json) lists every change and
+verifies that reversing the patches recovers the original G application exactly.
 
-La composizione con guardia è di 516.096 byte: 20 patch complessive e 2.630 byte
-di codice aggiunto, senza nuova BSS. SHA-256:
+The composition with the guard is 516,096 bytes: 20 patches in total and 2,630
+bytes of added code, with no new BSS. SHA-256:
 `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`.
-Questa verifica riguarda il file; non certifica ancora avvio o audio fisici.
+This verification covers the file; it does not yet certify physical boot or audio.
 
-La versione con shim audio v1 e guardia v2, SHA-256
+The version with audio shim v1 and recovery guard v2, SHA-256
 `639f58864e2b7c29c4312545fe94b345b2f8c8c21eb72eceb0932712bd608f70`,
-resta in `build/hyperrig-mini-integrated/`. Il probe HYW1 con scritture
-disabilitate è stato eseguito usando una pagina di questa versione;
-le evidenze non vengono attribuite alla nuova candidata.
+remains in `build/hyperrig-mini-integrated/`. The HYW1 probe with writes disabled
+was executed using a page from that version; its evidence is not attributed
+to the new candidate.
 
-La candidata precedente, SHA-256
+The earlier candidate, SHA-256
 `f8835a7fd45b1b324d66c457434c7943d70525ed5eb98b514aaac1095031f068`,
-è conservata in `build/hyperrig-mini-integrated-before-guard/` insieme a
-manifest firmware, report canonico, report di composizione ed editor. Il file
-`archive-manifest.json` registra gli hash degli otto file archiviati prima
-della rigenerazione.
+is preserved in `build/hyperrig-mini-integrated-before-guard/` with its firmware
+manifest, canonical report, composition report, and editor. The
+`archive-manifest.json` file records hashes of the eight files archived before
+regeneration.
 
-| Gruppo | Adattamento |
+| Group | Adaptation |
 |---|---|
-| Identità e storage | HyperRig, `tankm_fw`, USB `Tank-M HyperRig`, geometria VM MINI |
-| Pannello | Tre input, writer LED G incompatibile rimosso, controlli analogici non mappati disabilitati |
-| Avvio | Estensioni del contesto G inizializzate senza leggere byte non garantiti dal bootloader MINI |
-| Audio | Codec MINI e PA9, mantenendo DSP, RTOS e percorso ALNK G |
-| Recupero | Guardia v2 prima della prima chiamata G, tre footswitch input e marker/reset ROM esplicito dopo riconoscimento della combinazione |
+| Identity and storage | HyperRig, `tankm_fw`, USB `Tank-M HyperRig`, MINI VM geometry |
+| Panel | Three inputs, incompatible G LED writer removed, unmapped analog controls disabled |
+| Startup | G context extensions initialized without reading bytes not guaranteed by the MINI bootloader |
+| Audio | MINI codec and PA9, retaining G DSP, RTOS, and ALNK path |
+| Recovery | V2 guard before the first G call, three footswitch inputs, and explicit ROM marker/reset after combination detection |
 
-Lo shim audio v2 riproduce i 22 record stock senza modificare OSR. Prepara PC5
-con i lock G e prosegue dopo NACK secondo la policy del caller stock, distinguendo
-i record tentati da quelli riconosciuti. Gli errori di timing o pulizia restano
-fatali; il STOP esplicito dopo NACK è una differenza documentata in
-[MINI_AUDIO_PORT_V2.md](MINI_AUDIO_PORT_V2.md).
-La configurazione a frequenza nominale G e l'audio completo non sono ancora
-qualificati in questa applicazione. I risultati dei diagnostici ROM codec,
-DSP e tasti/reset hanno evidenze separate; non vengono convertiti
-automaticamente in una prova di avvio di questa candidata.
+Audio shim v2 reproduces the 22 stock records without changing OSR. It prepares
+PC5 using G locks and continues after NACK according to the stock caller's
+policy, distinguishing attempted records from acknowledged ones. Timing or
+cleanup errors remain fatal; the explicit STOP after NACK is a difference
+documented in [MINI_AUDIO_PORT_V2.md](MINI_AUDIO_PORT_V2.md).
+Configuration at the nominal G frequency and complete audio are not yet
+qualified in this application. ROM codec, DSP, and switch/reset diagnostics
+have separate evidence; they are not automatically converted into boot
+evidence for this candidate.
 
-La guardia attuale occupa 298 byte da `0x020773C8` a `0x020774F2`, dopo i 2332
-byte dello shim audio. Il builder calcola l'indirizzo dalla lunghezza reale
-dello shim, applica l'eventuale padding di allineamento e ricompila la guardia;
-non usa un indirizzo fisso quando cambia l'audio. `bind_append` verifica che
-il payload effettivo e la branch d'ingresso corrispondano a quell'allocazione.
-Il manifest integrato `entry-recovery-manifest.json` conserva i 1280 casi del
-modello istruzioni e gli hash dei callable v1 invariati.
+The current guard occupies 298 bytes from `0x020773C8` to `0x020774F2`, after
+the 2332-byte audio shim. The builder calculates the address from the shim's
+actual length, applies any alignment padding, and recompiles the guard; it
+does not use a fixed address when the audio changes. `bind_append` verifies
+that the actual payload and entry branch match that allocation. The integrated
+`entry-recovery-manifest.json` preserves the 1280 instruction-model cases and
+the hashes of the unchanged v1 callables.
 
-La policy applicativa imposta `PORTA.DIR |= 0x409` prima del check. I tre pin
-restano input e gli altri bit vengono preservati; il contesto G, compreso R0,
-viene ripristinato quando l'avvio prosegue. Non dipende dalla direzione iniziale
-lasciata dal cold SPL. Il probe ROM HYK1 conserva la sua diversa policy di
-ripristino e non viene modificato. Dettagli in
+The application policy sets `PORTA.DIR |= 0x409` before the check. The three
+pins remain inputs and other bits are preserved; the G context, including R0,
+is restored when boot continues. It does not depend on the initial direction
+left by the cold SPL. The HYK1 ROM probe retains its different restoration
+policy and is unchanged. Details are in
 [MINI_ENTRY_RECOVERY_V2.md](MINI_ENTRY_RECOVERY_V2.md).
 
-## Riproduzione locale
+## Local reproduction
 
-Con originali, estrazioni e toolchain già presenti secondo il README:
+With originals, extractions, and the toolchain already present as described
+in the README:
 
 ```powershell
 python -B -X utf8 tools/audit_mini_ultrarig_port.py
@@ -73,55 +73,52 @@ python -B -X utf8 tools/plan_mini_install.py --firmware-manifest build/hyperrig-
 python -B -X utf8 tools/build_mini_android.py --firmware-manifest build/hyperrig-mini-audio-v2/firmware-manifest.json --output build/hyperrig-mini-audio-v2/android
 ```
 
-Questi comandi operano su file e test locali. Non aprono il pedale.
-Il builder controlla gli hash dello shim, la sua ELF, i simboli delle chiamate,
-la guardia obbligatoria, la disgiunzione delle patch, i limiti della partizione
-e i CRC dopo decodifica. Il gruppo `recovery` deve contenere la patch d'entry;
-non esiste un'opzione di build per ometterla. L'editor in
-`build/hyperrig-mini-audio-v2/app/web/tankmini.html` viene derivato dagli originali
-con l'hash esatto del firmware: riconosce `tankm_fw` e abilita le query previste.
-Le mutazioni richiedono evidenze fisiche riferite all'immagine e al trasporto;
-le build ordinarie non le abilitano. Il builder rigenera il web editor, non
-l'APK: l'APK finale deve essere ricostruito dopo l'ultima revisione audio e
-firmware. Anche un piano d'installazione precedente deve essere rigenerato e
-ricontrollato contro il nuovo hash. L'APK v2 è stato ricostruito: SHA-256
+These commands operate on local files and tests. They do not open the pedal.
+The builder checks shim hashes, its ELF, call symbols, the mandatory guard,
+disjoint patches, partition limits, and CRCs after decoding. The `recovery`
+group must contain the entry patch; there is no build option to omit it. The
+editor at `build/hyperrig-mini-audio-v2/app/web/tankmini.html` is derived from
+the originals with the exact firmware hash: it recognizes `tankm_fw` and enables
+the intended queries. Mutations require physical evidence bound to the image
+and transport; ordinary builds do not enable them. The builder regenerates the
+web editor, not the APK: the final APK must be rebuilt after the final audio
+and firmware revision. Any earlier installation plan must also be regenerated
+and checked against the new hash. The v2 APK has been rebuilt: SHA-256
 `69273b95adeefe3c865d1e6da8e18fc2bf612fd995e19462a77c7dae6eb1c82b`,
-associato all'immagine `3b0eac3b…`. Non è ancora stato provato sul telefono.
+associated with image `3b0eac3b…`. It has not yet been tested on the phone.
 
-## Sostituzione e ripristino
+## Replacement and restoration
 
-Il piano offline contiene 126 settori da 4 KiB nell'intervallo fisico
-`[0x4000,0x82000)`, e `stock-mini-app-area.bin` per il ripristino esatto della
-stessa area. Conserva separatamente gli hash prima/dopo di ogni settore.
-Non contiene comandi di erase o program e non rende l'aggiornamento atomico.
+The offline plan contains 126 4 KiB sectors in physical range
+`[0x4000,0x82000)` and `stock-mini-app-area.bin` for exact restoration of the
+same area. It separately preserves each sector's before/after hashes. It
+contains no erase or program commands and does not make the update atomic.
 
-La ricezione e il confronto dei dati dell'installatore sono stati verificati
-sul MINI con il gate di scrittura costantemente disabilitato: lettura del primo
-settore uguale al backup, ricezione di 260 byte e restituzione esatta della
-pagina congelata di 256 byte. WREN, erase e program restano a zero. Il ritorno
-allo stock e i preset invariati sono documentati nel
-[report HYW1](../research/mini-writer-observer-hardware.json).
-Questa prova non qualifica ancora cancellazione o programmazione reali.
+Installer data reception and comparison were verified on the MINI with the
+write gate continuously disabled: the first sector matched the backup, 260
+bytes were received, and the frozen 256-byte page was returned exactly.
+WREN, erase, and program remain zero. Return to stock and unchanged presets
+are documented in the [HYW1 report](../research/mini-writer-observer-hardware.json).
+This test does not yet qualify actual erasure or programming.
 
-SPL, configurazione di boot, VM, BTIF, USR e dati unitari restano fuori dalla
-sostituzione applicativa. Viene conservato anche l'updater di fabbrica nella
-regione `0xB7000..0xBD000`. Questa separazione è coerente con l'installer
-UltraRig originale: preservare l'infrastruttura di avvio non significa usare
-l'applicazione o il DSP MINI come base del port.
+SPL, boot configuration, VM, BTIF, USR, and unit-specific data remain outside
+the application replacement. The factory updater in `0xB7000..0xBD000` is also
+preserved. This separation is consistent with the original UltraRig installer:
+preserving boot infrastructure does not mean using the MINI application or
+DSP as the port's base.
 
-Prima di usare un writer servono una lettura corrente della flash, il controllo
-del writer per questa NOR e la qualifica del percorso di recupero previsto.
-La guardia interviene prima di RTOS/clock/DSP G e può consentire il rientro ROM
-quando un'immagine valida si blocca in seguito. Non copre un header, entry o
-guardia danneggiati. Una prova fisica dei tasti e del marker/reset tramite HYK1
-è distinta dall'esecuzione del prefix XIP a freddo e dal recupero della
-candidata effettivamente installata: il builder mantiene questi ultimi flag
-a `false`. Il dettaglio del boot è in
+Using a writer requires a current flash read, checks of the writer for this
+NOR, and qualification of the intended recovery path. The guard runs before
+the G RTOS/clocks/DSP and may allow return to ROM when a valid image hangs
+later. It does not cover a damaged header, entry, or guard. Physical switch
+and marker/reset testing through HYK1 is distinct from cold execution of the
+XIP prefix and recovery of the actual installed candidate: the builder keeps
+those latter flags `false`. Boot details are in
 [MINI_BOOT_CONTRACT.md](MINI_BOOT_CONTRACT.md).
 
-`boot_verified_on_mini`, `audio_verified_on_mini`, `flashable` e la capacità
-di scrittura dell'editor restano `false`. Nessun file target-profile o rapporto
-di osservazioni hardware viene alterato dalla composizione.
+`boot_verified_on_mini`, `audio_verified_on_mini`, `flashable`, and the editor's
+write capability remain `false`. Composition alters no target-profile file
+or hardware-observation report.
 
-Il goal resta aperto fino ad avvio stabile, audio reale e lettura/modifica dei
-preset attraverso l'app HyperRig sul MINI.
+The goal remains open until stable boot, real audio, and preset reading/editing
+through the HyperRig app on the MINI have been achieved.

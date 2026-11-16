@@ -1,237 +1,228 @@
-# Persistenza dei preset G adattati al MINI
+# Persistence of G presets adapted to MINI
 
-Review statica della candidata audio v2, eseguita il 15 novembre 2026.
-I percorsi `PSAVE`, `SNAPSAVE` e `PDEL` esaminati usano il journal dei
-preset nell'area USR, con indirizzi ammessi dal controllo NOR originale G.
-Non è stato trovato un disallineamento di geometria che indirizzi questi
-tre comandi verso OTA, BTIF o il settore finale dei dati unitari.
+Static review of the audio v2 candidate, performed on 15 November 2026.
+The examined `PSAVE`, `SNAPSAVE`, and `PDEL` paths use the preset journal
+in the USR area, with addresses allowed by the original G NOR check.
+No geometry mismatch was found that would direct these three commands into
+OTA, BTIF, or the final unit-data sector.
 
-La riduzione della VM da 64 a 16 KiB non costituisce, da sola, questa
-prova. Esiste anche un ramo di migrazione dopo aggiornamento, condizionato
-dal tipo di avvio `0x5A02`. Sono state verificate sia tale condizione sia
-le protezioni dei suoi helper finali. Il primo backend syscfg è inoltre
-basato su BTIF: non va descritto come una semplice cache RAM.
+Reducing VM from 64 to 16 KiB does not, by itself, establish this.
+There is also a post-update migration branch, conditional on boot type
+`0x5A02`. Both this condition and the protections in its final helpers were
+checked. The first syscfg backend is also BTIF-based: it must not be described
+as a simple RAM cache.
 
-Questa review non esegue codice sul pedale. Al suo completamento non c'è
-ancora un avvio G né un salvataggio fisico HyperRig verificato. Il
-[resoconto del primo tentativo](../analysis/hardware/mini-first-install-run.json)
-riporta `RomCommandError`, `installed_image_verified=false`,
-`full_NOR_verified=false` e `automatic_reset=false`. Le prove precedenti
-dei plugin ROM non sostituiscono la prova della persistenza nell'app G.
+This review executes no code on the pedal. At its completion, neither a G boot
+nor a physical HyperRig save has yet been verified.
+The [first-attempt report](../analysis/hardware/mini-first-install-run.json)
+reports `RomCommandError`, `installed_image_verified=false`,
+`full_NOR_verified=false`, and `automatic_reset=false`. Earlier ROM-plugin
+tests do not replace persistence testing in the G application.
 
-## Immagine e fonti esaminate
+## Image and sources examined
 
 | Input | SHA256 |
 |---|---|
 | `build/hyperrig-mini-audio-v2/hyperrig-mini.app-area.bin` | `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff` |
 | `artifacts/alpha11/v2/UltraRig-alpha11-v2-win/m571_g_app.bin` | `2a314010a4ccf90daa62a9797588218634e2c2957e9fe908875665c828897059` |
-| Area G decodificata | `2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334` |
-| Backup completo `artifacts/my-mini-flash/20261115-paced-resume/flash-a.bin` | `72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180` |
+| Decoded G area | `2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334` |
+| Full backup `artifacts/my-mini-flash/20261115-paced-resume/flash-a.bin` | `72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180` |
 
-Le istruzioni provengono da
-[flash.asm G](../analysis/firmware/m571_g_app/flash.asm), confrontate con
-i byte originali e quelli della candidata, non dalla sola ricerca di
-costanti in una disassemblazione lineare. La geometria è quella realmente
-decodificata dalla directory JLFS della candidata. La patch è `VM_PATCH`
-in [audit_mini_ultrarig_port.py](../tools/audit_mini_ultrarig_port.py).
-Gli offset nella tabella seguente sono indirizzi fisici NOR; gli indirizzi
-`0x020xxxxx` citati nel testo sono invece indirizzi CPU dell'applicazione.
-Tutti gli intervalli sono semiaperti: l'estremo finale è escluso.
+Instructions come from
+[G flash.asm](../analysis/firmware/m571_g_app/flash.asm), compared against
+original and candidate bytes, not just constant searches in a linear disassembly.
+The geometry is the one actually decoded from the candidate's JLFS directory.
+The patch is `VM_PATCH` in
+[audit_mini_ultrarig_port.py](../tools/audit_mini_ultrarig_port.py).
+Offsets in the following table are physical NOR addresses; `0x020xxxxx`
+addresses cited in the text are application CPU addresses.
+All ranges are half-open: the final endpoint is excluded.
 
-| Oggetto | Intervallo fisico |
+| Object | Physical range |
 |---|---|
-| Descrittore JLFS VM MINI | `[0x82000,0xBE000)` |
-| Due banchi VM dopo il clamp | `[0x82000,0x84000)`, `[0x84000,0x86000)` |
-| Area OTA da conservare, inclusi metadata | `[0xB7000,0xBD000)` |
-| BTIF MINI | `[0xBE000,0xBF000)` |
-| USR MINI | `[0xBF000,0xFF000)` |
-| Settore finale dei dati unitari | `[0xFF000,0x100000)` |
-| Settori utilizzabili dal journal preset | `[0xBF000,0xCF000)`, `[0xDD000,0xDF000)` |
+| MINI JLFS VM descriptor | `[0x82000,0xBE000)` |
+| Two VM banks after clamping | `[0x82000,0x84000)`, `[0x84000,0x86000)` |
+| OTA area to preserve, including metadata | `[0xB7000,0xBD000)` |
+| MINI BTIF | `[0xBE000,0xBF000)` |
+| MINI USR | `[0xBF000,0xFF000)` |
+| Final unit-data sector | `[0xFF000,0x100000)` |
+| Sectors usable by the preset journal | `[0xBF000,0xCF000)`, `[0xDD000,0xDF000)` |
 
-Il descrittore VM resta deliberatamente più grande della VM effettiva:
-comprende l'area in cui lo stock conserva l'updater. Non va interpretato
-come un'autorizzazione a usare l'intero intervallo per i record runtime.
+The VM descriptor deliberately remains larger than actual VM: it includes the
+area where stock stores the updater. It must not be interpreted as permission
+to use the entire range for runtime records.
 
-## Percorsi dei tre comandi
+## Paths of the three commands
 
-| Comando | Catena G rilevante |
+| Command | Relevant G chain |
 |---|---|
-| `PSAVE` | Dispatcher `0x0200B834`, ramo `0x0200BA86`, chiamata a `0x020077EC` da `0x0200BAC0` |
-| `SNAPSAVE` | Ramo `0x0200BB78`; cattura scena RAM `0x0200A256`; con preset corrente valido, `0x0200A312` chiama `0x020077EC` da `0x0200A36C` |
-| `PDEL` | Ramo `0x0200C06E`; chiamata a `0x020077EC` da `0x0200C084` con record vuoto |
+| `PSAVE` | Dispatcher `0x0200B834`, branch `0x0200BA86`, call to `0x020077EC` from `0x0200BAC0` |
+| `SNAPSAVE` | Branch `0x0200BB78`; RAM scene capture `0x0200A256`; with a valid current preset, `0x0200A312` calls `0x020077EC` from `0x0200A36C` |
+| `PDEL` | Branch `0x0200C06E`; call to `0x020077EC` from `0x0200C084` with an empty record |
 
-`PSAVE` e `PDEL` accettano indici preset 0..31. `SNAPSAVE` accetta
-indici scena 0..3; la persistenza usa il preset corrente, nuovamente
-validato nell'intervallo 0..31 da `0x0200A312`. Una scena catturata soltanto
-in RAM, senza preset corrente valido, non dimostra un salvataggio NOR.
+`PSAVE` and `PDEL` accept preset indices 0..31. `SNAPSAVE` accepts scene
+indices 0..3; persistence uses the current preset, validated again within 0..31
+by `0x0200A312`. A scene captured only in RAM without a valid current preset
+does not demonstrate a NOR save.
 
-Il writer comune `0x020077EC` conserva anche il preset vicino nella stessa
-coppia e chiama `0x02003040` da `0x02007936`. Quest'ultimo valida l'indice
-della coppia 0..15 e due lunghezze non superiori a 1920 byte. La rotazione
-usa 18 settori fisici. Il mapper `0x020026BA` restituisce:
+Common writer `0x020077EC` also preserves the neighbouring preset in the same
+pair and calls `0x02003040` from `0x02007936`. The latter validates the pair
+index 0..15 and two lengths no greater than 1920 bytes. Rotation uses 18 physical
+sectors. Mapper `0x020026BA` returns:
 
 ```text
-indice 0..15: 0xBF000 + indice * 0x1000
-indice 16:    0xDD000
-indice 17:    0xDE000
+index 0..15: 0xBF000 + index * 0x1000
+index 16:    0xDD000
+index 17:    0xDE000
 ```
 
-Il resolver `0x0200777A` aggiunge alla base 0 oppure `0x800` per le due
-metà del settore. I metadata arrivano fino al marker a settore+4092,
-restando entro i 4096 byte. La scansione di avvio `0x020031D4` percorre
-gli stessi 18 settori; rifiuta gli identificatori di coppia maggiori di 15
-a `0x020032A2`. Le dimensioni G residue in questo journal coincidono
-quindi con USR del MINI, senza passare per il descrittore VM.
+Resolver `0x0200777A` adds either 0 or `0x800` to the base for the sector's
+two halves. Metadata extends through the marker at sector+4092, staying within
+4096 bytes. Startup scan `0x020031D4` traverses the same 18 sectors;
+it rejects pair identifiers above 15 at `0x020032A2`. The remaining G dimensions
+in this journal therefore match MINI USR without going through the VM descriptor.
 
-Il writer può ruotare e riscrivere un settore contenente anche il preset
-vicino. La prova applicativa deve quindi confrontare il contenuto logico
-conservato, non presumere che cambi soltanto la pagina dello slot scelto.
+The writer can rotate and rewrite a sector that also contains the neighbouring
+preset. Application testing must therefore compare preserved logical content,
+rather than assume that only the selected slot's page changes.
 
-## Controlli finali di erase e program
+## Final erase and program checks
 
-L'erase USR `0x02002D9E` richiede base almeno `0xBF000`, allineamento
-4096 e fine non superiore a `0xFF000`. Il program USR `0x02002F16`
-controlla base e fine nello stesso intervallo e suddivide la scrittura
-secondo il limite delle pagine da 256 byte.
+USR erase `0x02002D9E` requires a base of at least `0xBF000`, alignment of
+4096, and an end no greater than `0xFF000`. USR program `0x02002F16` checks
+base and end against the same range and divides writes at 256-byte page boundaries.
 
-Un secondo controllo, già presente nel G originale e non introdotto dal
-port, è `0x02002994`. Per i valori limitati dei percorsi esaminati ammette:
+A second check, already present in original G and not introduced by the port,
+is `0x02002994`. For the bounded values in the examined paths, it allows:
 
 ```c
 base >= 0xBF000 && length <= 0x40000 && base + length <= 0xFF000
 ```
 
-Il wrapper erase `0x02002B80` lo invoca con 4096 byte per opcode 200,
-65536 per opcode 201 e 256 per opcode 204. Il wrapper program
-`0x02002EF2` lo invoca prima del callee NOR `0x02002E6A`. Un rifiuto
-registra l'indirizzo tramite `0x020029B0` e restituisce `-1`.
+Erase wrapper `0x02002B80` calls it with 4096 bytes for opcode 200,
+65536 for opcode 201, and 256 for opcode 204. Program wrapper
+`0x02002EF2` calls it before NOR callee `0x02002E6A`. Rejection records
+the address through `0x020029B0` and returns `-1`.
 
-Questo dimostra il confine per le chiamate ricostruite, con basi e
-lunghezze valide e senza overflow. Non è una verifica formale di puntatori
-arbitrari, di ogni entrypoint NOR o di tutti gli aggiornatori del firmware.
-I callee più bassi esistono ancora: il controllo va seguito nella catena
-effettiva, non attribuito indistintamente a qualunque operazione flash.
+This establishes the boundary for the reconstructed calls, with valid bases
+and lengths and no overflow. It is not formal verification of arbitrary
+pointers, every NOR entrypoint, or all firmware updaters. Lower-level callees
+still exist: the check must be followed through the actual chain, not attributed
+indiscriminately to every flash operation.
 
-## VM: geometria e limiti della persistenza
+## VM: geometry and persistence limits
 
-`0x020221E4` cerca il nome JLFS `vm` e ricava la base dalla directory;
-non conserva la base G precedente come costante. Nell'init `0x02020664`,
-la patch a `0x0202067E` cambia il clamp da `0x10000` a `0x4000`:
+`0x020221E4` looks up the JLFS name `vm` and derives the base from the directory;
+it does not retain the previous G base as a constant. In initialisation
+`0x02020664`, the patch at `0x0202067E` changes the clamp from `0x10000`
+to `0x4000`:
 
 ```text
-prima: 20 e9 80 0b 60 e0 80 0b
-dopo:  20 e9 80 0c 60 e0 80 0c
+before: 20 e9 80 0b 60 e0 80 0b
+after:  20 e9 80 0c 60 e0 80 0c
 ```
 
-Nel ramo NOR, `0x02020732..0x02020742` produce due descrittori da
-`0x2000` byte, alle basi `0x82000` e `0x84000`. Il writer
-`0x02020A5A` controlla offset e spazio residuo del banco, mentre
-`0x02020376` ricava il numero di erase dalla sua dimensione. La
-geometria non invade OTA, BTIF o dati unitari.
+In the NOR branch, `0x02020732..0x02020742` produces two `0x2000`-byte
+descriptors at bases `0x82000` and `0x84000`. Writer `0x02020A5A` checks
+the offset and remaining bank space, while `0x02020376` derives the erase count
+from its size. This geometry does not encroach on OTA, BTIF, or unit data.
 
-C'è però una distinzione ulteriore: questi helper VM usano
-`0x020201A2` per erase e `0x020201CE` per program, che raggiungono
-rispettivamente `0x02002B80` e `0x02002EF2`. Le basi VM sono sotto
-`0xBF000`, quindi il controllo originale G rifiuta tali richieste.
-`0x020201A2` ignora l'esito dell'ioctl e ritorna 1; anche il percorso
-`0x02020A5A` può avanzare lo stato RAM senza propagare l'errore dei
-program a `0x02020BBE/0x02020BCE`. Non si deve pertanto promuovere
-un esito syscfg positivo a prova di persistenza VM. Questo comportamento
-era già nel G esaminato; i tre comandi preset usano il journal USR
-separato e indirizzi ammessi. La review non propone un nuovo blocco.
+There is, however, a further distinction: these VM helpers use `0x020201A2`
+for erase and `0x020201CE` for program, reaching `0x02002B80` and
+`0x02002EF2`, respectively. VM bases lie below `0xBF000`, so the original G
+check rejects these requests. `0x020201A2` ignores the ioctl outcome and
+returns 1; path `0x02020A5A` can also advance RAM state without propagating
+program errors at `0x02020BBE/0x02020BCE`. A positive syscfg result must
+therefore not be treated as proof of VM persistence. This behaviour already
+existed in the examined G; the three preset commands use the separate USR journal
+and allowed addresses. The review proposes no new blocking mechanism.
 
-## Ramo OTA e tipo di avvio della nostra sequenza
+## OTA branch and boot type in our sequence
 
-L'init VM chiama `0x02020210` da `0x0202074E`. Il primo controllo,
-`0x02020100`, restituisce vero esclusivamente quando
-`h[0x01C21CB4] == 0x5A02`; in caso contrario si ritorna a
-`0x02020350` prima di scandire i record OTA.
+VM initialisation calls `0x02020210` from `0x0202074E`. The first check,
+`0x02020100`, returns true only when `h[0x01C21CB4] == 0x5A02`;
+otherwise, it returns at `0x02020350` before scanning OTA records.
 
-Se il tipo è `0x5A02`, il codice cerca un record valido nell'estensione
-JLFS VM, oppure a ritroso nella flash; verifica il tipo, il marker
-`0x5441`, l'header CRC e il nome `LOADER.BIN`. Il backup contiene il
-loader a `0xB7000` e il record di 80 byte a `0xBCF00`, documentati in
-[MINI_BOOT_CONTRACT.md](MINI_BOOT_CONTRACT.md). In quel percorso sono
-calcolate richieste di copia verso la VM, erase del loader a
-`0x0202033E` e riscrittura del record a `0x0202034C`.
+If the type is `0x5A02`, the code looks for a valid record in the JLFS VM
+extension or searches backward through flash; it verifies the type, marker
+`0x5441`, header CRC, and name `LOADER.BIN`. The backup contains the loader
+at `0xB7000` and the 80-byte record at `0xBCF00`, documented in
+[MINI_BOOT_CONTRACT.md](MINI_BOOT_CONTRACT.md). That path calculates requests
+to copy into VM, erase the loader at `0x0202033E`, and rewrite the record at
+`0x0202034C`.
 
-Sono **richieste**, non una prova di modifiche riuscite: entrambi gli
-helper finali passano il controllo `0x02002994`. Gli indirizzi VM,
-`0xB7000` e `0xBCF00` sono inferiori a `0xBF000` e vengono rifiutati.
-Il solo clamp non avrebbe escluso il calcolo di questi indirizzi; la
-catena completa esclude le scritture tramite gli helper esaminati.
-Non è stata qualificata una migrazione OTA funzionante del G adattato.
+These are **requests**, not evidence of successful changes: both final helpers
+pass through check `0x02002994`. VM addresses, `0xB7000`, and `0xBCF00`
+are below `0xBF000` and are rejected. The clamp alone would not have prevented
+these address calculations; the complete chain excludes writes through the
+examined helpers. A working OTA migration for adapted G has not been qualified.
 
-Il parser d'avvio G `0x020017F6`, chiamato dall'entry a `0x02000216`,
-calcola il CRC su 78 byte a `0x01C7FD8A`. Se il CRC è non nullo e
-corrisponde all'halfword a `0x01C7FD88`, carica il tipo da
-`0x01C7FD8C`; altrimenti usa `0x5A00`. Dopo aver salvato il tipo a
-`0x01C21CB4`, azzera 80 byte `[0x01C7FD88,0x01C7FDD8)`.
+G boot parser `0x020017F6`, called from entry at `0x02000216`, calculates
+the CRC over 78 bytes at `0x01C7FD8A`. If the CRC is nonzero and matches
+the halfword at `0x01C7FD88`, it loads the type from `0x01C7FD8C`;
+otherwise it uses `0x5A00`. After saving the type at `0x01C21CB4`, it clears
+80 bytes `[0x01C7FD88,0x01C7FDD8)`.
 
-La nostra sequenza software di ingresso ROM usa il marker di 16 byte
-`usb_update_mode\0` a `0x01C7FD80`. È presente nella routine stock
-MINI `0x01C02362..0x01C02372` e riprodotto in
+Our software ROM-entry sequence uses the 16-byte marker `usb_update_mode\0`
+at `0x01C7FD80`. It is present in stock MINI routine
+`0x01C02362..0x01C02372` and reproduced in
 [entry_recovery/reset.S](../firmware/mini/entry_recovery/reset.S).
-Il plugin di ritorno [rom_reset/startup.S](../firmware/mini/rom_reset/startup.S)
-azzera **solo la prima word**, non tutti i 16 byte. L'halfword a
-`0x01C7FD8C` rimane dunque `0x646F`. Per questo marker, qualunque sia
-l'esito del CRC della coda, il parser restituisce `0x5A00` oppure
-`0x646F`, mai `0x5A02`.
+The return plugin [rom_reset/startup.S](../firmware/mini/rom_reset/startup.S)
+clears **only the first word**, not all 16 bytes. The halfword at
+`0x01C7FD8C` therefore remains `0x646F`. For this marker, regardless of the
+tail CRC result, the parser returns `0x5A00` or `0x646F`, never `0x5A02`.
 
-L'esclusione riguarda il marker scritto dalla sequenza nota, mantenuto
-fino all'entry normale. Non è una lettura fisica recente della retention
-né una proprietà di ogni reset. Lo SPL copia gli 80 byte a RAM e azzera
-`h[0x01C7FD82]` nei frammenti `0x01C04DEC` e `0x01C04E66`; ciò
-non equivale ad azzerare il tipo a `0x01C7FD8C`. Un aggiornamento vero
-può scrivere `0x5A02`: lo stock MINI lo fa a `0x0206DA62..0x0206DA78`.
-Questa review non generalizza la sequenza a cold boot, updater interposto
-o applicazione parziale che prenda un diverso ramo SPL.
+This exclusion applies to the marker written by the known sequence and retained
+until normal entry. It is neither a recent physical read of retention memory
+nor a property of every reset. SPL copies the 80 bytes to RAM and clears
+`h[0x01C7FD82]` in fragments `0x01C04DEC` and `0x01C04E66`; this is not
+equivalent to clearing the type at `0x01C7FD8C`. A real update can write
+`0x5A02`: stock MINI does so at `0x0206DA62..0x0206DA78`.
+This review does not generalise the sequence to cold boot, an intervening
+updater, or a partial application taking a different SPL branch.
 
-## BTIF: controllo del formato, non promessa di immutabilità
+## BTIF: format checking, not a promise of immutability
 
-La tabella syscfg a `0x020558F4` ha come primo backend l'init
-`0x0201FEA4`, il reader `0x0201FF2A` e il writer `0x0201FFD2`.
-`0x0201FD6C` apre per nome `mnt/sdfile/app/btif`, stringa a
-`0x0203660C`. La tabella a `0x02033B40` contiene ID102/104/110/111,
-ciascuno con payload di 6 byte. Il backend verifica lunghezza e CRC
-low8; non è una cache soltanto volatile.
+The syscfg table at `0x020558F4` uses initialiser `0x0201FEA4`, reader
+`0x0201FF2A`, and writer `0x0201FFD2` as its first backend.
+`0x0201FD6C` opens the name `mnt/sdfile/app/btif`, a string at `0x0203660C`.
+The table at `0x02033B40` contains ID102/104/110/111, each with a 6-byte
+payload. The backend verifies length and low8 CRC; it is not merely a volatile cache.
 
-Sul backup fissato, senza pubblicare i valori dei payload:
+On the pinned backup, without publishing payload values:
 
-| Record | Offset | Risultato del controllo G |
+| Record | Offset | G check result |
 |---|---:|---|
-| ID102 | `0xBE000` | ID e lunghezza corretti, CRC low8 valido |
-| ID104 | `0xBE00A` | Header vuoto `0xFFFFFFFF` |
-| ID110 | `0xBE014` | Header vuoto `0xFFFFFFFF` |
-| ID111 | `0xBE01E` | Header vuoto `0xFFFFFFFF` |
+| ID102 | `0xBE000` | Correct ID and length, valid low8 CRC |
+| ID104 | `0xBE00A` | Empty header `0xFFFFFFFF` |
+| ID110 | `0xBE014` | Empty header `0xFFFFFFFF` |
+| ID111 | `0xBE01E` | Empty header `0xFFFFFFFF` |
 
-L'init salta la riparazione per record validi o vuoti. Nessuno dei quattro
-attiva quindi il ramo di repair `0x0201FEE4..0x0201FF04` sul backup
-esaminato. Quel ramo tenta un erase attraverso `0x0201FE92` e
-`0x02002B80`, anch'esso soggetto al controllo di indirizzo già descritto.
-Il terzo backend, che legge cfg_tool e la tabella BTIF+512, ha invece
-puntatore di scrittura nullo nella tabella; la lunghezza zero del fallback
-BTIF+512 del backup viene rifiutata a `0x0201FB26`.
+Initialisation skips repair for valid or empty records. None of the four
+therefore activates repair branch `0x0201FEE4..0x0201FF04` on the examined
+backup. That branch attempts an erase through `0x0201FE92` and
+`0x02002B80`, also subject to the address check described above.
+The third backend, which reads cfg_tool and the BTIF+512 table, instead has a
+null write pointer in its table; the backup's zero-length BTIF+512 fallback
+is rejected at `0x0201FB26`.
 
-Non è stato trovato un mismatch di formato che renda necessaria una
-cancellazione BTIF all'avvio della candidata con questi dati. Il normale
-uso runtime dei propri record di configurazione o bonding va distinto
-da una scrittura indebita in un'altra partizione. `preserved_regions`
-del piano installer attesta la conservazione durante l'installazione,
-prima dell'app boot; non promette che ogni dato runtime resti immutabile
-per tutta la vita dell'applicazione.
+No format mismatch requiring BTIF erasure at candidate startup was found with
+these data. Normal runtime use of the application's own configuration or
+bonding records must be distinguished from an improper write into another
+partition. The installer's `preserved_regions` attests preservation during
+installation, before app boot; it does not promise that all runtime data remain
+immutable throughout the application's lifetime.
 
-## Verifica ripetibile senza build o hardware
+## Repeatable verification without building or hardware
 
-Sono stati confrontati 25 frammenti, inclusi dispatcher, journal, guard,
-VM, parser d'avvio e tabelle. Tutti corrispondono al G originale, con la
-sola sostituzione prevista della costante VM in questi intervalli.
-Sono stati inoltre verificati gli header/CRC JLFS, i quattro record
-BTIF, 18 settori preset ammessi e sei richieste fuori area rifiutate
-dal modello aritmetico dei limiti. Il modello non è un'esecuzione ISA.
+25 fragments were compared, including the dispatcher, journal, guard, VM,
+boot parser, and tables. All match original G, with only the intended VM-constant
+replacement in these ranges. JLFS headers/CRCs, the four BTIF records,
+18 allowed preset sectors, and six out-of-area requests rejected by the
+arithmetic bounds model were also checked. The model is not ISA execution.
 
-Il seguente comando PowerShell ripete i confronti; legge soltanto gli
-artefatti locali già dichiarati e non mostra payload unitari:
+The following PowerShell command repeats the comparisons; it reads only the
+declared local artifacts and does not display unit payloads:
 
 ```powershell
 @'
@@ -286,12 +277,12 @@ for base, length in [(0x82000,4096),(0x84000,4096),(0xB7000,4096),
                      (0xBCF00,80),(0xBE000,4096),(0xFF000,1)]:
     assert not permitted(base,length)
 assert int.from_bytes(b'usb_update_mode\0'[12:14],'little') == 0x646F
-print('PASS: 25 frammenti, geometria, BTIF, limiti e marker; solo offline')
+print('PASS: 25 fragments, geometry, BTIF, bounds and marker; offline only')
 '@ | python -B -X utf8 -
 ```
 
-Gli indirizzi validi, il successo di un comando e la persistenza dopo
-reload sono prove diverse. Il ciclo applicativo preparato in
-[MINI_APP_MUTATION.md](MINI_APP_MUTATION.md) dovrà ancora verificare
-salvataggio, ricaricamento, scene e ripristino sul firmware G avviato.
-Nessun risultato di questa review abilita da solo una capacità USB o BLE.
+Valid addresses, command success, and persistence after reload are different
+forms of evidence. The application cycle prepared in
+[MINI_APP_MUTATION.md](MINI_APP_MUTATION.md) must still verify saving, reloading,
+scenes, and restoration on running G firmware. No result from this review
+alone enables a USB or BLE capability.

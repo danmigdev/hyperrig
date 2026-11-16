@@ -1,14 +1,14 @@
-<!doctype html><html lang="it"><meta charset="utf-8"><title>HyperRig MINI · recupero ROM</title>
+<!doctype html><html lang="en"><meta charset="utf-8"><title>HyperRig MINI · ROM recovery</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>body{font:17px system-ui;background:#171c24;color:#edf1f8;max-width:760px;margin:10vh auto;padding:24px}button{font:inherit;padding:14px 24px;border:0;border-radius:9px;background:#75d6b5;color:#112721}pre{white-space:pre-wrap;font:14px monospace;color:#b8c5d9}strong{color:#75d6b5}</style>
-<h1>HyperRig MINI · recupero ROM</h1>
-<p>Questa sessione verifica il PONG del MINI e invia una sola richiesta <strong>UBOOT</strong>. Non scrive la memoria flash.</p>
-<p id="target"></p><button id="connect" disabled>Seleziona il MINI</button><pre id="status">Attesa della configurazione locale.</pre>
+<h1>HyperRig MINI · ROM recovery</h1>
+<p>This session verifies the MINI PONG and sends one <strong>UBOOT</strong> request. It does not write flash memory.</p>
+<p id="target"></p><button id="connect" disabled>Select the MINI</button><pre id="status">Waiting for local configuration.</pre>
 <script src="guard.js"></script><script>
 if(globalThis.__miniRomConfig){
-  document.getElementById('target').textContent='Selezionare esclusivamente Tank-M HyperRig ('+__miniRomConfig.com+').';
+  document.getElementById('target').textContent='Select only Tank-M HyperRig ('+__miniRomConfig.com+').';
   globalThis.miniRomSession=createMiniRomSession(__miniRomConfig,navigator.serial,s=>{
-    document.getElementById('status').textContent=JSON.stringify({identita:s.identityVerified,comando_inviato:s.ubootAttempted,ACK_ricevuto:s.actualACKObserved,disconnessione:s.disconnectObserved,ROM_verificata:false,errore:s.error},null,2);
+    document.getElementById('status').textContent=JSON.stringify({identity_verified:s.identityVerified,command_sent:s.ubootAttempted,ACK_received:s.actualACKObserved,disconnected:s.disconnectObserved,ROM_verified:false,error:s.error},null,2);
   });
   const button=document.getElementById('connect');button.disabled=false;
   button.onclick=e=>{button.disabled=true;miniRomSession.connect(e.isTrusted).catch(()=>{});};

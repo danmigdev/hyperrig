@@ -1,20 +1,20 @@
 # HyperRig MINI FX editor
 
-Open `tools/launch_mini_fx_editor.cmd` by double-clicking it. It starts an isolated Edge window and a temporary localhost server, without UAC. The launcher dismisses the introductory tour using a real click and clicks Connect once. Select **Tank-M HyperRig (COM3)** in the browser's USB serial chooser. The original editor then performs its real PING and initial reads.
+Open `tools/launch_hyperrig_editor.cmd` by double-clicking it. The existing `tools/launch_mini_fx_editor.cmd` shortcut now opens the same English product. It starts an isolated Edge window and a temporary localhost server, without UAC. The launcher dismisses the introductory tour using a real click and clicks Connect once. Select **Tank-M HyperRig (COM3)** in the browser's USB serial chooser. The editor then performs its real PING and initial reads.
 
-The separate bundle is `build/hyperrig-mini-fx-editor`. Its USB policy enables volume, preset save/reload, and effect add/parameter/enable/remove (`GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`, `FXA`, `FXP`, `FXE`, `FXR`). Effect insertion is limited to the supported serial append locations. Firmware updates, routing changes, bulk operations and BLE writes are not granted. Qualification uses the real retained-preset, effect benchmark and removal evidence; it does not claim that every effect parameter or acoustic latency has been tested.
+The product bundle is `build/hyperrig-mini-english-editor`, derived from the preserved `build/hyperrig-mini-fx-editor` baseline. Its USB policy enables volume, preset save/reload, and effect add/parameter/enable/remove (`GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`, `FXA`, `FXP`, `FXE`, `FXR`). Effect insertion is limited to the supported serial append locations. Firmware updates, routing changes, bulk operations and BLE writes are not granted. Qualification uses the real retained-preset, effect benchmark and removal evidence; it does not claim that every effect parameter or acoustic latency has been tested. English UI and GitHub reporting are checked offline as described in [ENGLISH_PRODUCT.md](ENGLISH_PRODUCT.md).
 
 Offline check and an explicitly named session:
 
 ```powershell
-python tools/launch_mini_fx_editor.py --check-only
-python tools/launch_mini_fx_editor.py --execute --output build/mini-fx-editor-live-01
+python tools/launch_hyperrig_editor.py --check-only
+python tools/launch_hyperrig_editor.py --execute --output build/hyperrig-editor-session-new
 ```
 
 Keep only one editor connected to the MINI. To close a named session with an observed native port close and server shutdown:
 
 ```powershell
-python tools/launch_mini_fx_editor.py --close-session build/mini-fx-editor-live-01
+python tools/launch_hyperrig_editor.py --close-session build/hyperrig-editor-session-new
 ```
 
 Closing the browser also stops the temporary server. An observation error during manual window closure concerns the host's ability to observe cleanup; it is not evidence of a firmware fault. A new launch verifies the sealed bundle and its local app files, without replaying the large historical flash traces.
@@ -31,7 +31,10 @@ Use actual clicks/keyboard events and read back the resulting firmware state. Do
 
 The initial bundle records `UI_FX_interactions_physically_tested=false` at build time. The subsequent [real UI smoke](MINI_FX_UI.md) passed on 16 November: add, parameter change, bypass, enable, save, remove and reload were observed through the interface and verified against native USB replies. That separate evidence preserves the original bundle qualification.
 
-## Frozen launch sources
+## Historical launch sources
+
+These hashes identify the original physical-test launch sources at Git revision
+`882ccb1`; they do not identify the current English launcher or updated shortcut.
 
 - `tools/launch_mini_fx_editor.py`: `c0371984bbd617a2a5cf54f62e06fc51359d0d9bc8457b569342260b23938381`
 - `tools/launch_mini_fx_editor.cmd`: `f417d2a7d9150aee1015c23b298cb61f33365eaa2e7107a1321e49618afa33bc`

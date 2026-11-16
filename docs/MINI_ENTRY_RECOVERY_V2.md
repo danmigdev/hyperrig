@@ -1,31 +1,30 @@
-# Guardia applicativa v2 per recupero tramite footswitch
+# Application guard v2 for footswitch recovery
 
-La v2 rende PA10, PA0 e PA3 ingressi **prima** di richiamare il controllo v1.
-Questo rimuove il requisito che il cold SPL li abbia già lasciati input. La
-policy appartiene al nuovo firmware HyperRig per MINI: quei pin sono assegnati
-ai tre footswitch e rimangono input fino alla successiva inizializzazione del
-pannello. Gli altri bit GPIO vengono preservati. V1 e il probe ROM HYK1 non sono
-modificati: HYK1 continua a rifiutare direzioni output e a ripristinare lo stato
-precedente.
+V2 makes PA10, PA0, and PA3 inputs **before** calling the v1 check. This removes
+the requirement that the cold SPL must already have left them as inputs. The
+policy belongs to the new HyperRig firmware for MINI: those pins are assigned
+to the three footswitches and remain inputs until subsequent panel
+initialization. Other GPIO bits are preserved. V1 and the HYK1 ROM probe are
+unchanged: HYK1 continues to reject output directions and restore the prior state.
 
-È un componente XIP per l'applicazione UltraRig G completa adattata, non un
-plugin eseguibile dalla ROM. Non è stato inviato al dispositivo né inserito
-dal presente tool nel candidato integrato. L'esecuzione hardware e il recupero
-fisico restano qualifiche separate.
+This is an XIP component for the complete adapted UltraRig G application, not
+a plugin executable from ROM. It has not been sent to the device or inserted
+into the integrated candidate by this tool. Hardware execution and physical
+recovery remain separate qualifications.
 
-## Innesto e contesto di avvio
+## Hook and boot context
 
-La sola patch nel G originale è il blocco di 12 byte a `0x0200018A`:
+The only patch to the original G is the 12-byte block at `0x0200018A`:
 
 ```text
 preimage: eeffb850c301edffb860c301
           sp = 0x01C350B8; ssp = 0x01C360B8
-patch:    goto.l <indirizzo assegnato>; quattro nop
+patch:    goto.l <assigned address>; four nop instructions
 ```
 
-L'entry `0x02000120`, i vettori e tutti gli altri byte originali restano intatti
-per questo componente. Il prefix riproduce esattamente le due istruzioni di
-stack, salva PSR/RETS/RETI e tutti i registri r0…r15, quindi esegue:
+The `0x02000120` entry, vectors, and all other original bytes remain intact for
+this component. The prefix exactly reproduces the two stack instructions,
+saves PSR/RETS/RETI and all registers r0…r15, then executes:
 
 ```text
 PORTA.DIR = PORTA.DIR | 0x409
@@ -33,87 +32,85 @@ csync
 call hyperrig_mini_entry_recovery_check
 ```
 
-Solo l'esito `ALL_THREE_HELD` raggiunge il reset. Gli altri esiti, compreso
-l'errore di configurazione GPIO, ripristinano GPR/PSR/RETS/RETI e proseguono a
-`0x02000196`, prima della prima chiamata originale G. R0 conserva quindi il
-contesto SPL. Il ramo di reset non ritorna e non ha bisogno di riprendere il
-contesto applicativo.
+Only `ALL_THREE_HELD` reaches reset. Other outcomes, including a GPIO
+configuration error, restore GPR/PSR/RETS/RETI and continue at `0x02000196`,
+before the first original G call. R0 therefore retains the SPL context. The
+reset branch does not return and does not need to resume the application context.
 
-Il callable v1 continua a salvare e ripristinare DIR/DIE/PU/PD nei soli tre bit,
-ma ora il DIR salvato è già input: non riattiva una direzione output contro un
-tasto premuto. OUT, gli altri pin e i registri di clock/cache/IRQ non vengono
-modificati. Il reset è lo stesso v1: marker `usb_update_mode\0`, barriera,
-RST_CON bit 4, barriera e attesa. Nessun salto arbitrario alla ROM.
+The v1 callable still saves and restores DIR/DIE/PU/PD for only the three bits,
+but the saved DIR is now already input: it does not re-enable an output
+direction against a pressed switch. OUT, other pins, and clock/cache/IRQ
+registers are unchanged. Reset is the same as v1: `usb_update_mode\0` marker,
+barrier, RST_CON bit 4, barrier, and wait. There is no arbitrary jump into ROM.
 
-## Allocazione e API per il builder
+## Allocation and builder API
 
-L'indirizzo non ha un default. Deve seguire gli append già assegnati dal
-builder, partendo dalla fine originale di `app.bin`, `0x02076AAC`:
+The address has no default. It must follow the appends already allocated by
+the builder, starting from the original end of `app.bin`, `0x02076AAC`:
 
 ```powershell
 python -X utf8 tools/build_mini_entry_recovery_v2.py --address 0x020772C0
 ```
 
-`0x020772C0` è soltanto il fixture corrispondente all'audio shim da 2068 byte
-attualmente disponibile. Un nuovo audio shim richiede un nuovo indirizzo e
-una nuova build. Il codice richiede allineamento di quattro byte; eventuali
-padding devono già essere parte dell'append precedente. Il limite finale
-`0x0207DE81` riserva i 383 byte originali di `cfg_tool.bin` entro l'app-area MINI.
+`0x020772C0` is only the fixture corresponding to the currently available
+2068-byte audio shim. A new audio shim requires a new address and build. The
+code requires four-byte alignment; any padding must already belong to the
+preceding append. The final limit `0x0207DE81` reserves the original 383 bytes
+of `cfg_tool.bin` within the MINI app area.
 
-Le API di `tools.build_mini_entry_recovery_v2` sono:
+The `tools.build_mini_entry_recovery_v2` APIs are:
 
-- `build(address)`: compila e verifica; produce payload/ELF/manifest sotto
-  `build/mini-entry-recovery-v2/<indirizzo>/` e restituisce il manifest.
-- `patches(g_plain, address)`: restituisce una tupla di `BinaryPatch`, previa
-  verifica dell'hash del G decodificato originale e della preimage a 12 byte.
-- `bind_append(g_plain, preceding_append, payload, manifest)`: verifica che
-  l'indirizzo coincida con `0x02076AAC + len(preceding_append)`, controlla hash,
-  dimensioni e patch e restituisce l'append concatenato. Non scrive file e non
-  accede a dispositivi.
+- `build(address)`: compiles and verifies; produces payload/ELF/manifest under
+  `build/mini-entry-recovery-v2/<address>/` and returns the manifest.
+- `patches(g_plain, address)`: returns a tuple of `BinaryPatch` after checking
+  the original decoded G hash and the 12-byte preimage.
+- `bind_append(g_plain, preceding_append, payload, manifest)`: verifies that
+  the address equals `0x02076AAC + len(preceding_append)`, checks hashes, sizes,
+  and patches, and returns the concatenated append. It neither writes files
+  nor accesses devices.
 
-Il manifest di una build isolata dice correttamente
-`actual_preceding_payload_validated=false`: un indirizzo di link non dimostra
-che lo spazio sia assegnato. L'integratore deve chiamare `bind_append` con i
-byte reali precedenti e passare il risultato e la patch al formatter esistente.
-Il formatter rimane responsabile di CRC, directory e sovrapposizioni con le
-altre patch. Non è stato modificato da questa attività.
+An isolated build's manifest correctly states
+`actual_preceding_payload_validated=false`: a link address does not establish
+that the space is allocated. The integrator must call `bind_append` with the
+actual preceding bytes and pass the result and patch to the existing formatter.
+The formatter remains responsible for CRCs, directories, and overlap with
+other patches. It was not modified by this work.
 
-## Verifiche riproducibili
+## Reproducible checks
 
-Il componente occupa 298 byte: prefix v2 di 54 byte, check v1 di 190 e reset
-v1 di 54. Non aggiunge BSS né dati da copiare in RAM. Il massimo stack è
-100 byte; i due modelli SP indipendente/alias di SSP vengono verificati.
+The component occupies 298 bytes: a 54-byte v2 prefix, 190-byte v1 check, and
+54-byte v1 reset. It adds no BSS or data to copy into RAM. Maximum stack usage
+is 100 bytes; both independent-SP and SSP-alias models are verified.
 
-Per ciascun indirizzo il modello delle **istruzioni effettivamente collegate**
-esegue 1280 casi: otto direzioni iniziali, otto combinazioni di livelli, contesti
-variabili, i due modelli SP/SSP, errori di readback e rilascio di ciascun tasto
-in ogni punto dei 32 campioni. Disturba deliberatamente PSR dopo il salvataggio
-per controllarne il ripristino; non simula i flag della CPU. Verifica R0 sia con
-il puntatore SPL sia con valori variabili, tutti gli altri registri, i bit GPIO
-estranei, l'ordine delle barriere e l'assenza di reset sul ramo normale.
+At each address, the model of the **actually linked instructions** runs 1280
+cases: eight initial directions, eight level combinations, varying contexts,
+both SP/SSP models, readback errors, and release of each switch at every point
+in the 32 samples. It deliberately disturbs PSR after saving it to check
+restoration; it does not simulate CPU flags. It checks R0 with both the SPL
+pointer and varying values, all other registers, unrelated GPIO bits, barrier
+order, and absence of reset on the normal branch.
 
-La branch di innesto viene disassemblata anche dal toolchain vendor. Il parser
-ELF rifiuta segmenti scrivibili, BSS, simboli irrisolti, indirizzi fuori limite e
-modifiche ai callable congelati. I due corpi devono conservare questi hash
-anche dopo rilocazione:
+The hook branch is also disassembled by the vendor toolchain. The ELF parser
+rejects writable segments, BSS, unresolved symbols, out-of-range addresses,
+and changes to the frozen callables. Both bodies must retain these hashes
+even after relocation:
 
-| Corpo | SHA256 dei byte |
+| Body | Byte SHA256 |
 | --- | --- |
 | check v1 | `0872924dc1d476913a441a6d58b83025962a00ca6b9ceb0e8b66e07d8afc045d` |
 | reset v1 | `a84be9b34190a67265f001ed328372eaba2c48fcea3111b2ead481a6bb7ee48f` |
 
-È stata verificata anche la rilocazione a `0x0207DD54`, che termina a
-`0x0207DE7E`, vicino al limite riservato. Il relativo manifest resta nella sua
-directory di build; il report `research/mini-entry-recovery-v2.json` descrive
-invece il fixture a `0x020772C0`.
+Relocation to `0x0207DD54`, ending at `0x0207DE7E` near the reserved limit, was
+also verified. Its manifest remains in its build directory; the report
+`research/mini-entry-recovery-v2.json` instead describes the `0x020772C0` fixture.
 
-La qualifica fisica HYK1 riguarda tasti e marker/reset in ROM. La v2 rimuove
-la dipendenza dalla direzione iniziale del cold SPL, ma non trasforma quella
-prova in una prova dell'intero prefix XIP o del boot G. Rimangono da verificare
-sull'hardware l'effettivo mux/riconoscimento dei tasti e la durata del controllo
-con il clock ereditato. Il conteggio dei loop non è una misura temporale né
-un modello elettrico o di debounce continuo.
+Physical HYK1 qualification covers switches and marker/reset in ROM. V2 removes
+the dependency on the initial cold-SPL direction, but does not turn that test
+into evidence for the entire XIP prefix or G boot. The actual switch mux/detection
+and check duration under the inherited clock remain to be verified on hardware.
+Loop counts are neither a time measurement nor an electrical or continuous
+debounce model.
 
-La guardia è utile per un'immagine valida che si blocchi **dopo** l'entry.
-Un header, entry o prefix danneggiato è un caso diverso: non viene dichiarato
-un recupero universale di qualsiasi immagine corrotta.
+The guard is useful for a valid image that hangs **after** entry. A damaged
+header, entry, or prefix is a different case: universal recovery from any
+corrupted image is not claimed.

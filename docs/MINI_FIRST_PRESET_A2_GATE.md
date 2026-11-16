@@ -1,21 +1,21 @@
-# Prova UI del primo preset: attività A2
+# First-preset UI test: A2 activity
 
-`tools/run_mini_v3_first_preset_a2.py` delega al trial congelato e al lettore di prove di `run_mini_v3_editor.py`. Non modifica quei file, l'applicazione, il profilo, il guard o la sequenza dei sei comandi UI. L'esecuzione resta esplicita; senza argomenti non apre browser o dispositivo.
+`tools/run_mini_v3_first_preset_a2.py` delegates to the frozen trial and the evidence reader in `run_mini_v3_editor.py`. It changes neither those files, the application, profile, guard, nor the sequence of six UI commands. Execution remains explicit; without arguments, it opens neither browser nor device.
 
-Ogni snapshot originale viene seguito da una sola `STAT` nella coda originale `Pedal.cmd`, terminata dall'intera riga `NIVEL`. Il parser controlla i formati originali e le `7+n` righe, con `n≤16`. Prima della preparazione della capture e prima delle modifiche UI richiede due `T.nproc` uint32 strettamente crescenti, conservando i controlli originali su identità, A2, stato, `safe=0` e modalità2. Le dimensioni DSP devono corrispondere ad A2 (23 layer, 3 canali). Un reset o overflow del contatore non viene interpretato come progresso.
+Each original snapshot is followed by a single `STAT` in the original `Pedal.cmd` queue, terminated by the complete `NIVEL` line. The parser checks the original formats and `7+n` lines, with `n≤16`. Before capture preparation and before UI edits, it requires two strictly increasing uint32 `T.nproc` values, preserving the original identity, A2, state, `safe=0`, and mode 2 checks. DSP dimensions must match A2 (23 layers, 3 channels). A counter reset or overflow is not interpreted as progress.
 
-L'[audit del firmware](../research/mini-a2-activity-audit.json) distingue il completamento A2 dalla mailbox generica rappresentata da `FXS posts/takes`. Questi ultimi restano osservazioni e possono essere zero; la fixture reale contiene `nproc=328986→329126`. `STAT` consuma picchi diagnostici e `T.max`, senza azzerare `nproc` o scrivere configurazione/NOR. Il risultato non prova qualità audio, uscita analogica o persistenza dopo un ciclo di alimentazione.
+The [firmware audit](../research/mini-a2-activity-audit.json) distinguishes A2 completion from the generic mailbox represented by `FXS posts/takes`. Those remain observations and may be zero; the real fixture contains `nproc=328986→329126`. `STAT` consumes diagnostic peaks and `T.max`, without clearing `nproc` or writing configuration/NOR. The result proves neither audio quality, analogue output, nor persistence after a power cycle.
 
-Il report conserva risposte STAT e RX nativi attraverso il guard originale, oltre ad `A2_gate_extension`, audit/fixture con SHA256 e hash del nuovo driver. La chiusura nativa e il confronto RX restano necessari per promuovere il risultato finale.
+The report preserves STAT responses and native RX through the original guard, plus `A2_gate_extension`, audit/fixture SHA256 values, and the new driver's hash. Native closure and RX comparison remain necessary to qualify the final result.
 
-Per la sessione desktop già chiusa, il nuovo `validate_mini_webserial_v3_close.py` conserva i controlli del validatore congelato e classifica soltanto l'esatta `WebSocketConnectionClosedException('Connection to remote host was lost.')` della seconda osservazione CDP nel launcher v3. Richiede chiusura seriale nativa riuscita una volta, guard fermo senza errori, richiesta locale di chiusura con hash e cronologia coerente, browser/server terminati e fonti esatte. L'errore originale resta nel contesto e nel report con `desktop_close_observation`; la perdita CDP non costituisce una prova di chiusura seriale. Nessuna prova o SHA precedente viene riscritto.
+For the already closed desktop session, the new `validate_mini_webserial_v3_close.py` preserves the frozen validator's checks and classifies only the exact `WebSocketConnectionClosedException('Connection to remote host was lost.')` from the second CDP observation in the v3 launcher. It requires one successful native serial closure, a stopped guard without errors, a local close request with a hash and consistent chronology, terminated browser/server, and exact sources. The original error remains in the context and report as `desktop_close_observation`; losing CDP is not evidence of serial closure. No earlier evidence or SHA is rewritten.
 
-Usare tre riferimenti reali e chiusi: boot v11, connected-proof della sessione desktop v3 e relativo `session.json` dopo la chiusura verificata. Eseguire prima:
+Use three real, closed references: boot v11, the v3 desktop session's connected-proof, and its `session.json` after verified closure. First run:
 
 ```powershell
 python tools/run_mini_v3_first_preset_a2.py --check-only --boot <boot.json> --boot-sha256 <SHA> --connected <connected-proof.json> --connected-sha256 <SHA> --session <session.json> --session-sha256 <SHA>
 ```
 
-Per la prova autorizzata sostituire `--check-only` con `--execute` e aggiungere `--output build/<directory-nuova>`. Il selettore UIA, `selection.json`, capture/preset conservati, assenza di retry e chiusura finale seguono il [trial originale](MINI_BROWSER_FIRST_PRESET.md). Nessuna prova fisica è stata eseguita durante lo sviluppo di questo adattatore.
+For the authorised test, replace `--check-only` with `--execute` and add `--output build/<new-directory>`. The UIA selector, `selection.json`, retained capture/preset, absence of retries, and final closure follow the [original trial](MINI_BROWSER_FIRST_PRESET.md). No physical test was performed during development of this adapter.
 
-Verifica offline: `python -m unittest tests.test_mini_v3_first_preset_a2`.
+Offline verification: `python -m unittest tests.test_mini_v3_first_preset_a2`.

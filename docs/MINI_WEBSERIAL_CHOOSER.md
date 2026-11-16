@@ -1,49 +1,49 @@
-# Limite del chooser CDP osservato nella sessione desktop 01
+# CDP chooser limitation observed in desktop session 01
 
-La sessione `build/mini-desktop-real-01/session.json`, letta mediante
-`read_shared_bytes`, registra `requests=1`, `opens=0`, nessuna riga TX/RX e
-nessun evento `chooser_prompts`. Dopo 60 secondi il launcher ha fermato il
-guard. **Questa sessione non ha aperto la seriale né provato il firmware via
-WebSerial.** Root ha successivamente osservato con UIAutomation, nella sola
-finestra Chrome della sessione, il chooser nativo con la riga esatta
-`Tank-M HyperRig (COM3)` e il pulsante Connect.
+Session `build/mini-desktop-real-01/session.json`, read through
+`read_shared_bytes`, records `requests=1`, `opens=0`, no TX/RX lines, and
+no `chooser_prompts` events. After 60 seconds, the launcher stopped the
+guard. **This session neither opened the serial port nor tested the firmware
+through WebSerial.** Root subsequently used UIAutomation, only in that
+session's Chrome window, to observe the native chooser with the exact
+`Tank-M HyperRig (COM3)` row and the Connect button.
 
-Il Chrome osservato è `157.0.8103.52`; `/json/version` riporta la revisione
-`0985600c06a688b9c669e74afde7dacd5aaed047`. Nella sorgente corrispondente,
-`SerialChooserController` popola la lista nativa e, in `Select`, concede il
-permesso e completa la callback. Non inoltra la richiesta al dominio
-DeviceAccess. I nomi delle opzioni includono il componente COM del percorso.
-[Sorgente Chromium della revisione osservata](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/chrome/browser/ui/serial/serial_chooser_controller.cc).
+The observed Chrome version is `157.0.8103.52`; `/json/version` reports revision
+`0985600c06a688b9c669e74afde7dacd5aaed047`. In the corresponding source,
+`SerialChooserController` populates the native list and, in `Select`, grants
+permission and completes the callback. It does not forward the request to
+the DeviceAccess domain. Option names include the COM component of the path.
+[Chromium source at the observed revision](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/chrome/browser/ui/serial/serial_chooser_controller.cc).
 
-Il servizio seriale chiama il chooser tramite `SerialDelegate::RunChooser`;
-solo dopo la selezione può risolvere `requestPort`. L'apertura del dispositivo
-è un'operazione successiva, distinta. Questo concorda con `requests=1` e
-`opens=0` della sessione 01.
-[SerialService alla stessa revisione](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/content/browser/serial/serial_service.cc).
+The serial service invokes the chooser through `SerialDelegate::RunChooser`;
+only after selection can it resolve `requestPort`. Opening the device
+is a separate, subsequent operation. This agrees with `requests=1` and
+`opens=0` in session 01.
+[SerialService at the same revision](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/content/browser/serial/serial_service.cc).
 
-Alla stessa revisione è invece il controller Bluetooth a implementare
-`BluetoothDeviceRequestPromptInfo` e chiamare esplicitamente
-`UpdateDeviceRequestPrompt`. Il dominio CDP disponibile nello schema non
-dimostra quindi che anche il chooser WebSerial emetta quel tipo di evento.
-[Controller Bluetooth alla stessa revisione](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/content/browser/bluetooth/bluetooth_device_chooser_controller.cc).
+At the same revision, the Bluetooth controller implements
+`BluetoothDeviceRequestPromptInfo` and explicitly calls
+`UpdateDeviceRequestPrompt`. Availability of the CDP domain in the schema
+therefore does not demonstrate that the WebSerial chooser emits that event type.
+[Bluetooth controller at the same revision](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/content/browser/bluetooth/bluetooth_device_chooser_controller.cc).
 
-Il precedente controllo della sola presenza del dominio CDP era insufficiente
-come prova di integrazione. I test Node del guard verificano allowlist,
-identità, limiti e chiusura usando una seriale finta; non provano la consegna
-degli eventi del chooser nativo. Non è utile aggiungere un altro mock che
-presupponga proprio l'evento mancante.
+The previous check for the mere presence of the CDP domain was insufficient
+evidence of integration. The guard's Node tests verify the allowlist,
+identity, limits, and closure with a fake serial port; they do not prove
+delivery of native chooser events. Another mock that assumes the very
+event that is missing would not be useful.
 
-Per una nuova sessione, root può selezionare la riga COM esatta nel chooser
-nativo, senza cambiare le capacità del guard. Il launcher frozen non richiede
-che la selezione sia avvenuta tramite CDP: prosegue quando `requestPort`
-restituisce la porta, ricontrolla VID/PID e permette solo PING prima del PONG.
-La sessione 01 è già ferma e non va riattivata manipolando lo stato del guard.
+For a new session, root can select the exact COM row in the native chooser
+without changing the guard's capabilities. The frozen launcher does not require
+selection through CDP: it proceeds when `requestPort` returns the port,
+rechecks VID/PID, and permits only PING until PONG.
+Session 01 has already stopped and must not be reactivated by manipulating guard state.
 
-La diagnosi della nuova prova deve distinguere: selettore richiesto, porta
-restituita, apertura nativa completata, write completata e PONG ricevuto.
-Una riga nella lista TX prima della risoluzione di `write()` non prova che il
-firmware abbia letto il comando. Il risultato positivo resta il PONG reale
-seguito dalle risposte readonly, non la sola selezione della porta.
+Diagnosis of the new trial must distinguish: chooser requested, port
+returned, native open completed, write completed, and PONG received.
+An entry in the TX list before `write()` resolves does not prove that
+the firmware read the command. Success remains a real PONG followed
+by read-only replies, rather than port selection alone.
 
-Nessun sorgente frozen, browser, dispositivo o finestra è stato modificato
-durante questa analisi.
+No frozen source, browser, device, or window was modified during
+this analysis.

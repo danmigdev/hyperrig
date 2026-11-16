@@ -1,191 +1,193 @@
-# Runtime IRQ/audio HyperRig per TANK MINI
+# HyperRig IRQ/audio runtime for TANK MINI
 
-Il componente in `firmware/mini/runtime/` collega il callback ALNK al worker
-che esegue il motore a blocchi di 64 campioni. Compila per pi32v2 e dispone
-di prove host con buffer e registri simulati. **Non è stato eseguito sul
-pedale**: ownership DMA, coerenza cache, latenza IRQ e tempo DSP rimangono
-requisiti hardware aperti. Il report conserva tutti questi esiti a `false`.
+The component in `firmware/mini/runtime/` connects the ALNK callback to the
+worker that runs the engine in 64-sample blocks. It compiles for pi32v2 and has
+host tests with simulated buffers and registers. **It has not run on the pedal**:
+DMA ownership, cache coherence, IRQ latency, and DSP time remain open hardware
+requirements. The report keeps all these results at `false`.
 
-## Evidenze e scelta del protocollo
+## Evidence and protocol choice
 
-Il verificatore ricontrolla SHA-256 del FWSC MINI_009, decodifica `flash.bin`
-e confronta l'area applicativa locale. Il report registra hash e indirizzi
-dei tre frammenti stock:
+The verifier rechecks the MINI_009 FWSC SHA-256, decodes `flash.bin`, and
+compares the local application area. The report records hashes and addresses
+of three stock fragments:
 
-| Frammento | Comportamento osservato |
+| Fragment | Observed behaviour |
 |---|---|
-| IRQ11 `0x01C0374A..0x01C037DC` | Salva PSR/RETS/RETI e r0..r5, legge pending/half, callback RX, ACK, `csync; rti` |
-| Callback `0x01C03EEE..0x01C03F24` | Scrive il byte half a `0x01C1B22C`, chiama post del semaforo a `0x02044D44` |
-| Task `0x01C03F24..0x01C03FB4` | Attende a `0x020456F8`, seleziona offset `half<<9`, chiama DSP `0x01C03A18` con 64 frame |
+| IRQ11 `0x01C0374A..0x01C037DC` | Saves PSR/RETS/RETI and r0..r5, reads pending/half, RX callback, ACK, `csync; rti` |
+| Callback `0x01C03EEE..0x01C03F24` | Writes the half byte to `0x01C1B22C`, calls semaphore post at `0x02044D44` |
+| Task `0x01C03F24..0x01C03FB4` | Waits at `0x020456F8`, selects offset `half<<9`, calls DSP `0x01C03A18` with 64 frames |
 
-La mappa IRQ ALNK=11 e la tabella ISR `0x01C7FE00` sono confermate anche
-dall'[header SDK fissato a commit](https://github.com/amitv87/fw-AC79_AIoT_SDK/blob/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/hwi.h).
-HyperRig usa stato e buffer propri; non richiama task, semafori o indirizzi
-di dati dello stock.
+The ALNK=11 IRQ mapping and ISR table `0x01C7FE00` are also confirmed by the
+[SDK header pinned to a commit](https://github.com/amitv87/fw-AC79_AIoT_SDK/blob/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/hwi.h).
+HyperRig uses its own state and buffers; it does not call stock tasks,
+semaphores, or data addresses.
 
-Ogni nuova metà completata sostituisce la finestra di disponibilità della
-precedente. Per questo il runtime mantiene **un solo evento pendente**,
-un contatore di sequenza e un worker attivo. Un secondo evento con il primo
-ancora pendente segnala overrun; un evento durante il worker segnala deadline
-superata. Non viene accodata una metà ormai riutilizzabile dal DMA.
+Each newly completed half replaces the previous half's availability window.
+The runtime therefore keeps **only one pending event**, a sequence counter,
+and an active worker. A second event while the first is still pending signals
+overrun; an event during worker execution signals a missed deadline.
+A half that DMA may already reuse is not queued.
 
-Un half ripetuto dopo un blocco completato produce errore di fase. Il primo
-half può essere 0 oppure 1. Un contatore uint32 può passare da `0xffffffff`
-a zero: zero resta un token valido. Questa verifica non può rilevare ogni
-possibile IRQ perso/coalesciato, in particolare più periodi non osservati.
-Occorrono anche misure e controlli del controller nella futura integrazione.
+A repeated half after a completed block produces a phase error. The first
+half may be 0 or 1. A uint32 counter can wrap from `0xffffffff` to zero:
+zero remains a valid token. This check cannot detect every possible
+lost/coalesced IRQ, particularly multiple unobserved periods.
+Future integration also requires measurements and controller checks.
 
-## API e sincronizzazione
+## API and synchronisation
 
-`hyperrig_mini_runtime_init()` copia gli hook, controlla dimensioni implicite,
-allineamento a 32 byte, assenza di sovrapposizione fra stato/RX/TX e azzera lo
-stato. RX e TX hanno ciascuno 256 word, cioè 1024 byte in due metà da 512.
-Gli argomenti rifiutati non modificano il contesto. Init/reinit richiede DMA
-fermo, IRQ disabilitato e nessun worker attivo.
+`hyperrig_mini_runtime_init()` copies hooks, checks implicit sizes,
+32-byte alignment, and lack of overlap between state/RX/TX, then clears state.
+RX and TX each contain 256 words: 1024 bytes in two 512-byte halves.
+Rejected arguments do not change the context. Init/reinit requires stopped
+DMA, a disabled IRQ, and no active worker.
 
-Configurazione del callback dell'adattatore audio:
+Audio-adapter callback configuration:
 
 ```c
 device.ready = hyperrig_mini_runtime_ready;
 device.user = &runtime;
 ```
 
-`ready()` aggiorna solo metadati e chiama l'eventuale `wake_from_irq`.
-`work()` reclama l'evento, copia RX in staging privato, converte left/Q23
-nel Q del modello, chiama `process(process_user, input, output, 64)`, prepara
-TX dual-mono privato e pubblica nella metà autorizzata. I due Q sono espliciti
-in `ops.input_fraction` e `ops.output_fraction`; non sono calibrazione dello
-stock. DSP e copie/cache non vengono eseguiti nell'ISR.
+`ready()` updates metadata only and calls optional `wake_from_irq`.
+`work()` claims the event, copies RX into private staging, converts left/Q23
+to the model's Q format, calls `process(process_user, input, output, 64)`,
+prepares private dual-mono TX, and publishes into the authorised half.
+Both Q formats are explicit in `ops.input_fraction` and
+`ops.output_fraction`; they are not stock calibration.
+DSP and copy/cache operations do not execute in the ISR.
 
-Il worker ritorna `IDLE`, `DONE`, `BUSY`, `FAULT` o `INVALID`.
-`inspect()` fornisce una fotografia protetta di sequenza, pending/busy,
-primo errore e contatori. Il fault resta presente fino a reinit; gli eventi
-successivi vengono conteggiati e ignorati. Dopo un errore non è garantito
-silenzio: TX potrebbe ancora contenere un blocco precedente, o essere gia
-stato scritto prima del fallimento di cache/end. Il board deve fermare o silenziare
-in modo verificato la periferica e reimpostare anche il motore quando la
-sua storia temporale non è più valida.
+The worker returns `IDLE`, `DONE`, `BUSY`, `FAULT`, or `INVALID`.
+`inspect()` provides a protected snapshot of sequence, pending/busy,
+first error, and counters. A fault persists until reinit; subsequent events
+are counted and ignored. Silence is not guaranteed after an error: TX might
+still contain a previous block or might already have been written before a
+cache/end failure. The board must stop or silence the peripheral through a
+verified mechanism and reset the engine when its temporal history is no
+longer valid.
 
-Il contratto è **un solo CPU0, un solo worker, nessun altro ISR che muti
-il contesto, nessun accesso CPU1**. Gli hook enter/leave delimitano tutti i
-metadati condivisi. L'implementazione target salva ICFG, cancella bit8,
-esegue `csync`, poi ripristina esattamente i flag salvati con barriera.
-Gli asm hanno clobber `memory`; le chiamate esterne e tali barriere impediscono
-al compilatore di mantenere il mailbox fuori dalla regione protetta.
-La correttezza non deriva da `volatile`. Queste primitive non sono un lock
-fra CPU, non fermano DMA e non escludono eccezioni non mascherabili.
-Non cambiare questo contratto introducendo LTO/inlining degli hook senza
-riesaminare il codice generato e le barriere.
+The contract is **CPU0 only, one worker, no other ISR modifying the context,
+and no CPU1 access**. Enter/leave hooks bracket all shared metadata.
+The target implementation saves ICFG, clears bit8, executes `csync`, then
+restores exactly the saved flags with a barrier. The assembly has a `memory`
+clobber; external calls and these barriers prevent the compiler from retaining
+the mailbox outside the protected region. Correctness does not derive from
+`volatile`. These primitives are not an inter-CPU lock, do not stop DMA,
+and do not exclude non-maskable exceptions. Do not change this contract by
+introducing LTO/inlining of hooks without re-examining generated code and
+barriers.
 
-## Ownership e cache: obblighi del board
+## Ownership and cache: board obligations
 
-Gli hook obbligatori `begin/end(direction,half,sequence)` delimitano solo la
-copia/cache, non il DSP. `begin()` deve garantire disponibilità fisica della
-metà **per tutta la transazione**, mediante DMA fermo oppure una finestra
-temporale dimostrata che comprenda cache, copia e margine. Leggere il bit half
-e disabilitare gli IRQ CPU non basta: DMA continuerebbe autonomamente.
-Il board deve anche dimostrare l'allineamento di fase fra RX e TX prima di
-usare lo stesso numero half su entrambi.
+Mandatory hooks `begin/end(direction,half,sequence)` delimit only copy/cache
+operations, not DSP. `begin()` must guarantee physical availability of the
+half **throughout the transaction**, by stopping DMA or providing a demonstrated
+time window covering cache, copying, and margin. Reading the half bit and
+disabling CPU IRQs is insufficient: DMA would continue independently.
+The board must also establish RX/TX phase alignment before using the same
+half number for both.
 
-| Transazione | Ordine del worker |
+| Transaction | Worker order |
 |---|---|
-| RX | begin RX, controllo token, `rx_for_cpu`, controllo token, copia 128 word in staging, end RX, controllo token |
-| Elaborazione | conversione 64 campioni, DSP, controllo token, preparazione TX privato |
-| TX | begin TX, controllo token, copia 128 word, `tx_for_device`, end TX, verifica finale |
+| RX | begin RX, token check, `rx_for_cpu`, token check, copy 128 words to staging, end RX, token check |
+| Processing | convert 64 samples, DSP, token check, prepare private TX |
+| TX | begin TX, token check, copy 128 words, `tx_for_device`, end TX, final check |
 
-Ogni begin riuscito ha un end anche in caso di errore. Un begin fallito non
-deve lasciare una lease attiva; end deve rilasciarla anche quando fallisce.
-Il controllo software di sequenza impedisce pubblicazioni già riconosciute
-come scadute, ma non sostituisce la garanzia fisica della lease. Un fault
-osservato dopo una copia non può annullare scritture già avvenute.
+Every successful begin has an end, even on error. A failed begin must leave
+no active lease; end must release it even when failing. The software sequence
+check prevents publications already recognised as expired, but does not replace
+the physical lease guarantee. A fault observed after copying cannot undo
+writes that have already occurred.
 
-`rx_for_cpu` e `tx_for_device` sono hook espliciti, obbligatori anche per
-memoria dichiarata coerente, dove servono almeno barriere verificate.
-Ricevono indirizzo allineato e 512 byte, cioè 16 linee intere/esclusive.
-Una possibile integrazione con `firmware/mini/platform/` è:
+`rx_for_cpu` and `tx_for_device` are explicit hooks, mandatory even for
+memory declared coherent, where at least verified barriers are needed.
+They receive an aligned address and 512 bytes, or 16 complete/exclusive
+cache lines. One possible integration with `firmware/mini/platform/` is:
 
-- Prima di avviare DMA: inizializzare TX a zero, rendere entrambi i buffer
-  coerenti e lasciare RX rigorosamente in sola lettura per la CPU.
-- RX: `hyperrig_mini_cache_range(..., HYPERRIG_MINI_CACHE_CLEAN_INVALIDATE, ...)` solo se è
-  dimostrato che nessuna linea RX è sporca; un writeback sporco dopo DMA
-  sovrascriverebbe i campioni appena ricevuti.
-- TX: `hyperrig_mini_cache_range(..., HYPERRIG_MINI_CACHE_CLEAN, ...)` mentre la metà resta di
-  proprietà CPU, includendo il costo/cache-timeout nella finestra garantita.
+- Before starting DMA: initialise TX to zero, make both buffers coherent,
+  and keep RX strictly read-only for the CPU.
+- RX: `hyperrig_mini_cache_range(..., HYPERRIG_MINI_CACHE_CLEAN_INVALIDATE, ...)`
+  only if it is proven that no RX line is dirty; a dirty writeback after DMA would
+  overwrite newly received samples.
+- TX: `hyperrig_mini_cache_range(..., HYPERRIG_MINI_CACHE_CLEAN, ...)` while the
+  CPU retains ownership of the half, including cache cost/timeout within
+  the guaranteed window.
 
-La piattaforma ricostruisce `flush`/`flushinv`, allineamento32 e attesa del
-bit14 a `0x01EEE008`. Il runtime non trasforma questa evidenza in coerenza DMA
-presunta: mapping, cache mode, esclusione CPU1 e deadline devono essere provati.
-Gli hook dei test operano su normali array RAM host; non sono driver board
-riutilizzabili come hook vuoti su hardware.
+The platform reconstructs `flush`/`flushinv`, 32-byte alignment, and waiting for
+bit14 at `0x01EEE008`. The runtime does not turn this evidence into assumed
+DMA coherence: mapping, cache mode, CPU1 exclusion, and deadlines must be proven.
+Test hooks operate on ordinary host RAM arrays; they are not board drivers
+that can be reused as empty hardware hooks.
 
-## Wrapper interrupt e limiti dell'ABI
+## Interrupt wrapper and ABI limits
 
-`hyperrig_mini_runtime_irq_bind(device)` associa il device senza leggere
-registri. Va chiamato con DMA fermo e IRQ11 disabilitato su entrambi i core;
-NULL rimuove l'associazione. Richiede callback e contesto validi e inattivi.
-Non installa un vettore e non abilita una sorgente. Il dispatcher usa
-`hyperrig_mini_audio_irq()`, che richiede `device.prepared`; il bind può
-precedere la preparazione, ma prima di abilitare IRQ entrambi devono essere
-completati. Non abilitare un handler scollegato: non potrebbe fare ACK.
+`hyperrig_mini_runtime_irq_bind(device)` binds the device without reading
+registers. It must be called with DMA stopped and IRQ11 disabled on both cores;
+NULL removes the binding. It requires a valid, inactive callback and context.
+It neither installs a vector nor enables a source. The dispatcher uses
+`hyperrig_mini_audio_irq()`, which requires `device.prepared`; binding may
+precede preparation, but both must finish before enabling IRQs.
+Do not enable an unbound handler: it could not ACK.
 
-Il futuro vettore CPU0 può riferirsi a `hyperrig_mini_irq11_entry` (IRQ11,
-priorità 6). Il wrapper salva PSR/RETS/RETI e tutti i 16 GPR, chiama il
-dispatcher, ripristina in ordine inverso ed esegue `csync; rti`.
-Sono **20 byte di codice, 76 byte di frame**, oltre allo stack delle funzioni
-chiamate. Wrapper, dispatcher, mailbox e primitive ICFG sono in `.ramtext.*`;
-il driver audio e gli hook futuri richiedono una verifica separata del
-posizionamento se la flash non fosse disponibile durante gli IRQ.
+The future CPU0 vector can point to `hyperrig_mini_irq11_entry` (IRQ11,
+priority 6). The wrapper saves PSR/RETS/RETI and all 16 GPRs, calls the
+dispatcher, restores in reverse order, and executes `csync; rti`.
+It is **20 bytes of code, with a 76-byte frame**, plus the stack used by called
+functions. Wrapper, dispatcher, mailbox, and ICFG primitives are in
+`.ramtext.*`; the audio driver and future hooks need a separate placement
+check if flash might be unavailable during IRQs.
 
-Il verificatore compila anche una funzione `__attribute__((interrupt))` con
-lo stesso compilatore vendor e la stessa chiamata esterna: questa salva
-PSR/RETS/RETI e r0..r3, poi ripristina e fa `rti`. Il nostro set è un
-superset del prologo generato e di quello stock. Il decoder indipendente
-controlla byte e relocazione della chiamata, e ispeziona il call graph ISR
-noto per escludere REP/coproc o ulteriori registri speciali.
+The verifier also compiles an `__attribute__((interrupt))` function with
+the same vendor compiler and the same external call: it saves PSR/RETS/RETI
+and r0..r3, then restores and executes `rti`. Our set is a superset of both
+the generated and stock prologues. The independent decoder checks bytes and
+call relocation and inspects the known ISR call graph to exclude REP/coproc
+or additional special registers.
 
-Le unita C del componente usano `-mllvm -pi32v2-large-program`: le chiamate
-esterne hanno relocation `EXTEND_CALL_32M2` (tipo4, istruzione da 6 byte).
-Il salto relativo ordinario tipo2 non copre tutti gli attraversamenti fra
-flash `0x0200...` e RAM `0x01C0...`: fra questi ci sono `finish` verso
-`fault_locked` e il dispatcher RAM verso il driver audio flash. Il verifier
-controlla che l'unica chiamata relativa tipo2 con relocation rimasta sia
-quella ASM fra wrapper e dispatcher, entrambi in RAM. La futura applicazione
-deve usare chiamate estese o indirette anche quando chiama `ready()` dalla
-flash; verificare il solo oggetto relocatable non basta per il link finale.
+The component's C units use `-mllvm -pi32v2-large-program`: external calls
+have `EXTEND_CALL_32M2` relocation (type4, a 6-byte instruction).
+Ordinary relative type2 jumps do not cover every crossing between flash
+`0x0200...` and RAM `0x01C0...`: these include `finish` to
+`fault_locked` and the RAM dispatcher to the flash audio driver.
+The verifier checks that the only remaining relocated type2 relative call
+is the ASM call between wrapper and dispatcher, both in RAM.
+The future application must also use extended or indirect calls when calling
+`ready()` from flash; checking the relocatable object alone is insufficient
+for the final link.
 
-Questo **non prova consegna e ritorno IRQ sul MINI**, conservazione di stato
-hardware nascosto, IRQ durante REP/predicati del foreground, cambio di
-modalità o annidamento. Non si introduce un salvataggio arbitrario di
-registri speciali la cui semantica non è nota. `wake_from_irq` resta fuori
-dall'audit automatico: deve essere breve, seguire l'ABI C, non fare context
-switch, attivare nesting o usare REP/DSP/coproc/speciali extra. Le sue
-istruzioni vanno riesaminate nell'integrazione board. Un port RTOS richiede
-un contratto interrupt dedicato.
+This **does not prove IRQ delivery and return on MINI**, preservation of hidden
+hardware state, IRQs during foreground REP/predicates, mode changes, or nesting.
+No arbitrary save of special registers with unknown semantics is introduced.
+`wake_from_irq` remains outside automatic audit: it must be short, follow
+the C ABI, and perform no context switch, enable no nesting, or use
+REP/DSP/coproc/extra special registers. Its instructions must be re-examined
+during board integration. An RTOS port requires a dedicated interrupt contract.
 
-## Riproduzione e risultato locale
+## Reproduction and local result
 
 ```powershell
 python -X utf8 tools/verify_mini_runtime.py
 ```
 
-Il comando usa GCC con ASan/UBSan e il toolchain pi32v2 fissato nel progetto;
-su Windows li invoca tramite WSL Ubuntu. Produce
-`build/mini-runtime/hyperrig_mini_runtime_component.pi32v2.o` e
-`research/mini-runtime.json`. Il componente è relocatable, con dipendenze
-esplicite `hyperrig_mini_audio_irq`, `hyperrig_mini_audio_rx_q`,
-`hyperrig_mini_audio_tx_q` e `memcpy` già fornita dal runtime boot.
-L'audio va collegato una volta sola.
+The command uses GCC with ASan/UBSan and the pi32v2 toolchain pinned by the
+project; on Windows it invokes them through WSL Ubuntu. It produces
+`build/mini-runtime/hyperrig_mini_runtime_component.pi32v2.o` and
+`research/mini-runtime.json`. The component is relocatable, with explicit
+dependencies `hyperrig_mini_audio_irq`, `hyperrig_mini_audio_rx_q`,
+`hyperrig_mini_audio_tx_q`, and `memcpy` already supplied by the boot runtime.
+Audio must be linked only once.
 
-Risultati: 512 blocchi alternati, 55 casi di stato/argomenti/dispatch,
-7 errori hook, 7 IRQ iniettati nei punti del worker, 256 modelli di
-salvataggio/ripristino frame e 256 casi ICFG. Si controllano anche canary,
-metà TX non selezionata, ordine cache/copie, rilascio lease, reentrancy,
-wrap della sequenza e assenza di DSP nell'ISR. Le prove del frame sono un
-modello di stato vincolato ai byte decodificati, non un emulatore del
-controller interrupt.
+Results: 512 alternating blocks, 55 state/argument/dispatch cases,
+7 hook errors, 7 IRQs injected at worker points, 256 frame save/restore models,
+and 256 ICFG cases. Checks also cover canaries, the unselected TX half,
+cache/copy order, lease release, reentrancy, sequence wrap, and absence of DSP
+from the ISR. Frame tests are a state model bound to decoded bytes, not an
+interrupt-controller emulator.
 
-Sul target il contesto occupa 1668 byte (1536 di staging/campioni), gli ops
-56 e lo snapshot 64; i due DMA aggiungono 2048 byte, esclusi motore e stack.
-Il componente alloca 1180 byte tra codice e dati. A 48 kHz il budget nominale
-per metà è 1,333 ms: non è stato misurato né confrontato col costo del DSP.
-Nessun comando al pedale, flash o immagine installabile viene prodotto.
+On target, the context occupies 1668 bytes (1536 for staging/samples), ops
+56, and snapshot 64; the two DMA buffers add 2048 bytes, excluding engine
+and stack. The component allocates 1180 bytes of code and data.
+At 48 kHz, the nominal budget per half is 1.333 ms: it has neither been
+measured nor compared against DSP cost. No pedal command, flash operation,
+or installable image is produced.

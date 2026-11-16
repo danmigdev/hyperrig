@@ -1,0 +1,11 @@
+{
+  "name": "HyperRig",
+  "language": "en",
+  "repository": "https://github.com/danmigdev/hyperrig",
+  "issues": "https://github.com/danmigdev/hyperrig/issues/new/choose",
+  "releases": "https://github.com/danmigdev/hyperrig/releases",
+  "documentation": "https://github.com/danmigdev/hyperrig#readme",
+  "donations": false,
+  "telemetry": false,
+  "automatic_update_checks": false
+}

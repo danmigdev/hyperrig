@@ -1,91 +1,91 @@
-# MINI: ingresso ROM dal firmware HyperRig
+# MINI: entering ROM from HyperRig firmware
 
-Il comando originale è **`UBOOT\n`**. Il firmware G M5.71 contiene la
-risposta **`OK UBOOT\n`** e un percorso di reset che scrive il marker ROM.
-L'audit locale conferma che queste istruzioni sono identiche nella candidata
-MINI v2 installata, SHA256
+The original command is **`UBOOT\n`**. G M5.71 firmware contains the
+**`OK UBOOT\n`** response and a reset path that writes the ROM marker.
+The local audit confirms that these instructions are identical in the installed
+MINI v2 candidate, SHA256
 `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`.
-La nuova procedura è preparata e verificata offline; non è stata eseguita.
+The new procedure is prepared and verified offline; it has not been executed.
 
-## Evidenza originale
+## Original evidence
 
-Il bytecode recuperato `recovered/installer/tankg_install.dis.txt` mostra:
+Recovered bytecode `recovered/installer/tankg_install.dis.txt` shows:
 
-- `RealPedal.cdc_cmd`, righe originali 3163–3191: apre CDC a115200, invia PING,
-  poi il comando richiesto. Il ramo UBOOT tollera la chiusura della porta.
-- `_cmd`, riga originale3219: codifica e invia `line + '\n'`.
-- flusso update, riga originale5185: chiama `cdc_cmd('UBOOT')`.
+- `RealPedal.cdc_cmd`, original lines 3163–3191: opens CDC at 115200, sends PING,
+  then the requested command. The UBOOT branch tolerates port closure.
+- `_cmd`, original line 3219: encodes and sends `line + '\n'`.
+- Update flow, original line 5185: calls `cdc_cmd('UBOOT')`.
 
-L'installer originale restituisce una stringa «OK UBOOT (port closed by the
-pedal)» quando intercetta `SerialException`. Questo è un risultato sintetico
-dell'installer. Il nuovo helper conserva soltanto un ACK effettivamente ricevuto.
+The original installer returns the string “OK UBOOT (port closed by the
+pedal)” when it catches `SerialException`. This is a synthetic installer
+result. The new helper retains only an ACK actually received.
 
-Nel binario G decodificato, SHA256
+In the decoded G binary, SHA256
 `4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e`:
 
-| Passaggio | Indirizzo / effetto |
+| Step | Address / effect |
 |---|---|
-| Stringa comando | `0x02035AA3`: `UBOOT\0` |
-| Confronto | `0x020116E0..0x020116F2`, strcmp → ramo `0x020140C8` |
-| Risposta | `0x02035D77`: `OK UBOOT\n\0`, inviata tramite `0x02006E24` |
-| Attesa | `0x020140EA`: 5tick tramite `0x0203FEB8`; durata fisica non assunta |
-| Stato retention | `0x020140F2..0x020140FC`: azzera word `0x01C7FDFC` |
-| Sezione critica | `0x01C00FB6`: CLI, lock del core, `csync` |
-| Marker | `0x02000B80`: copia16byte `usb_update_mode\0` da `0x0203A135` a `0x01C7FD80` |
-| Reset | helper P33 `0x01C00F4A(0xA0,4,1,1)`: imposta bit4, poi loop |
+| Command string | `0x02035AA3`: `UBOOT\0` |
+| Comparison | `0x020116E0..0x020116F2`, strcmp → branch `0x020140C8` |
+| Response | `0x02035D77`: `OK UBOOT\n\0`, sent through `0x02006E24` |
+| Wait | `0x020140EA`: 5 ticks through `0x0203FEB8`; physical duration not assumed |
+| Retention state | `0x020140F2..0x020140FC`: clears word `0x01C7FDFC` |
+| Critical section | `0x01C00FB6`: CLI, core lock, `csync` |
+| Marker | `0x02000B80`: copies 16 bytes of `usb_update_mode\0` from `0x0203A135` to `0x01C7FD80` |
+| Reset | P33 helper `0x01C00F4A(0xA0,4,1,1)`: sets bit 4, then loops |
 
-I tre predisptach `0x0200B834`, `0x0200D60C`, `0x0200E07A` restituiscono0
-per UBOOT. Il confronto principale raggiunge il ramo di recupero. Il verifier
-segue quelle istruzioni, modella soltanto strcmp e rifiuta letture di RAM di
-stato: **nessuna flag safe viene letta lungo il percorso ricostruito**.
-Sono omessi i salvataggi dello stack; non si tratta di una simulazione completa
-dell'ABI o delle periferiche. Le funzioni di invio, scheduler, lock e reset
-devono comunque funzionare sul dispositivo. Nessuna operazione NOR è presente
-nel ramo del comando.
+The three predispatch functions `0x0200B834`, `0x0200D60C`, `0x0200E07A`
+return 0 for UBOOT. The main comparison reaches the recovery branch.
+The verifier follows those instructions, models only strcmp, and rejects
+state-RAM reads: **no safe flag is read along the reconstructed path**.
+Stack saves are omitted; this is not a complete ABI or peripheral simulation.
+Send, scheduler, lock and reset functions must still work on the device.
+The command branch contains no NOR operation.
 
-Questa evidenza rende UBOOT un candidato concreto anche dopo il PONG `safe`
-osservato, ma non prova ancora il recupero fisico da quella modalità. Un parser
-bloccato non può ricevere il comando. ACK o disconnessione da soli non provano
-una nuova enumerazione della ROM.
+This evidence makes UBOOT a concrete candidate even after the observed
+`safe` PONG, but does not yet prove physical recovery from that mode.
+A blocked parser cannot receive the command. An ACK or disconnection alone
+does not prove a new ROM enumeration.
 
-## Procedura WebSerial separata
+## Separate Web Serial procedure
 
-`tools/enter_mini_rom_webserial.py` non apre browser o dispositivi senza
-`--execute`. Non modifica l'editor, il profilo readonly o i manifest congelati.
-Usa una pagina di recupero locale separata, Chrome con profilo nuovo e porta
-seriale nuova. Non richiede né dichiara una prova con footswitch premuti.
+`tools/enter_mini_rom_webserial.py` opens no browser or device without
+`--execute`. It does not modify the editor, read-only profile or frozen
+manifests. It uses a separate local recovery page, Chrome with a new profile
+and a new serial port opening. It neither requires nor claims a held-footswitch
+trial.
 
-Prima dell'esecuzione il coordinatore deve:
+Before execution, the coordinator must:
 
-1. Completare e revisionare gli artefatti necessari al successivo upgrade.
-2. Chiudere la sessione desktop03 tramite il suo percorso di chiusura; verificare
-   il nuovo `session.json` **completato**, `native_close_verified=true`, browser
-   e server arrestati. Registrarne l'hash effettivo. Il connected-proof03 resta
-   immutato, SHA256 `96f5300a17b3d5cb18741c34857d7dda63a30edaf3a7222ee7ca615d8214ded2`.
-3. Eseguire prima il preflight qui sotto. Sostituire `CLOSED_SHA` con l'hash del
-   report realmente concluso; nessun report di chiusura va costruito a mano.
+1. Complete and review the artifacts required for the subsequent upgrade.
+2. Close desktop 03 through its own closure path; verify the new **completed**
+   `session.json`, `native_close_verified=true`, and stopped browser/server.
+   Record its actual hash. Connected-proof 03 remains unchanged, SHA256
+   `96f5300a17b3d5cb18741c34857d7dda63a30edaf3a7222ee7ca615d8214ded2`.
+3. Run the preflight below first. Replace `CLOSED_SHA` with the hash of the
+   actually completed report; never construct a closure report by hand.
 
 ```powershell
 python -X utf8 tools/enter_mini_rom_webserial.py --check-only --connected-proof build/mini-desktop-real-03/connected-proof.json --proof-sha256 96f5300a17b3d5cb18741c34857d7dda63a30edaf3a7222ee7ca615d8214ded2 --closed-session build/mini-desktop-real-03/session.json --closed-sha256 CLOSED_SHA
 ```
 
-L'esecuzione usa gli stessi argomenti, sostituendo `--check-only` con
-`--execute --output build/mini-cdc-to-rom-01`. L'output deve essere nuovo.
-La finestra mostra esclusivamente la procedura ROM; il titolo è
-`HyperRig MINI · recupero ROM`. La sessione vive al massimo120secondi prima
-del comando. Il PING è unico e deve produrre la stessa identità reale osservata
-nella sessione precedente.
+Execution uses the same arguments, replacing `--check-only` with
+`--execute --output build/mini-cdc-to-rom-01`. The output must be new.
+The window shows only the ROM procedure; its title is
+`HyperRig MINI · recupero ROM` (the historical title, meaning “HyperRig MINI · ROM recovery”). The session lasts at most 120 seconds before
+the command. PING is sent once and must produce the same real identity observed
+in the previous session.
 
-Il coordinatore legge `recovery.json` con l'helper shared-delete, individua
-`browser_process_id` e `origin`, seleziona la sola riga
-`Tank-M HyperRig (COM3)` nel chooser nativo tramite UIAutomation e pubblica
-atomicamente `build/mini-cdc-to-rom-01/selection.json`:
+The coordinator reads `recovery.json` with the shared-delete helper, identifies
+`browser_process_id` and `origin`, selects only
+`Tank-M HyperRig (COM3)` in the native chooser through UIAutomation, and
+atomically publishes `build/mini-cdc-to-rom-01/selection.json`:
 
 ```json
 {
-  "observed_utc": "TIMESTAMP_REALE_DELLA_SELEZIONE",
+  "observed_utc": "ACTUAL_SELECTION_TIMESTAMP",
   "browser_pid": 123,
-  "origin": "http://127.0.0.1:PORTA_REALE",
+  "origin": "http://127.0.0.1:ACTUAL_PORT",
   "selected_row": "Tank-M HyperRig (COM3)",
   "exact_unique_row_verified": true,
   "no_other_device_selected": true,
@@ -93,45 +93,45 @@ atomicamente `build/mini-cdc-to-rom-01/selection.json`:
 }
 ```
 
-PID, origin e timestamp sono osservazioni reali della nuova finestra. Il
-comando non parte senza questo record e un PONG fresco esatto. Il dominio
-CDP DeviceAccess non esponeva il chooser WebSerial nel Chrome provato:
-vedere `MINI_WEBSERIAL_CHOOSER.md`. Il nuovo helper non presume tale supporto.
+PID, origin and timestamp are real observations of the new window.
+The command does not proceed without this record and an exact fresh PONG.
+The CDP DeviceAccess domain did not expose the Web Serial chooser in the tested
+Chrome: see `MINI_WEBSERIAL_CHOOSER.md`. The new helper does not assume that support.
 
-Prima di chiamare `enterROM()` pubblica e sincronizza su disco l'intento.
-La pagina può trasmettere soltanto `PING\n` e `UBOOT\n`, ciascuno una volta;
-non espone un'API di scrittura arbitraria. Il guard consuma il tentativo prima
-del write nativo: timeout, errore, ACK perso o disconnessione non consentono
-un secondo UBOOT. I byte TX/RX e gli eventi restano nel report. Il cleanup
-chiude stream, porta, browser e server; un errore di close viene registrato,
-senza attribuire una chiusura nativa che non sia stata osservata.
+Before calling `enterROM()`, it publishes the intent and synchronizes it to disk.
+The page can transmit only `PING\n` and `UBOOT\n`, once each;
+it exposes no arbitrary-write API. The guard consumes the attempt before the
+native write: a timeout, error, lost ACK or disconnection permits no second UBOOT.
+TX/RX bytes and events remain in the report. Cleanup closes streams, port,
+browser and server; a close error is recorded without claiming a native closure
+that was not observed.
 
-## Contratto del risultato
+## Result contract
 
-`recovery.json` contiene sempre `command="UBOOT"`, `prior_port`,
+`recovery.json` always contains `command="UBOOT"`, `prior_port`,
 `automatic_retry=false`, `firmware_write=false`, `ROM_verified=false`.
-Campi distinti:
+Separate fields:
 
-| Campo | Significato |
+| Field | Meaning |
 |---|---|
-| `pong` | Linea realmente ricevuta dal nuovo WebSerial, identica alla prova precedente |
-| `command_intent_utc` | Timestamp host prima della pubblicazione/fsync e dell'invocazione |
-| `command_invocations` | 0 oppure1, nessuna riemissione |
-| `command_submitted_once` | Il guard ha consumato l'unico tentativo e registrato il TX nativo |
-| `command_submitted_utc` | Timestamp dell'evento TX browser effettivo, distinto dall'intento host |
-| `command_write_completed` | Risoluzione del write nativo; non equivale all'esecuzione del reset |
-| `ack_observed` | È stata ricevuta davvero la linea `OK UBOOT` dopo il tentativo |
-| `native_disconnect_observed` | Evento WebSerial di rimozione di quella porta |
-| `native_close_verified`, `serial_port_closed` | `port.close()` risolto senza errore; non inferito dalla rimozione |
+| `pong` | Line actually received through the new Web Serial connection, identical to the previous evidence |
+| `command_intent_utc` | Host timestamp before publication/fsync and invocation |
+| `command_invocations` | 0 or 1, with no reissue |
+| `command_submitted_once` | The guard consumed the single attempt and recorded native TX |
+| `command_submitted_utc` | Timestamp of the actual browser TX event, distinct from host intent |
+| `command_write_completed` | Native write resolution; not equivalent to reset execution |
+| `ack_observed` | The `OK UBOOT` line was actually received after the attempt |
+| `native_disconnect_observed` | Web Serial removal event for that port |
+| `native_close_verified`, `serial_port_closed` | `port.close()` resolved without error; not inferred from removal |
 
-Il codice di uscita0 significa che la singola richiesta è stata osservata
-dal guard e la procedura è terminata senza errore di orchestrazione; **non**
-attesta ROM o reset. Il coordinatore deve verificare nuova enumerazione ROM,
-arrival successiva al TX ed effettiva INQUIRY `WL82 / UBOOT1.00`, poi acquisire
-un dump completo dell'unità prima di qualsiasi mutazione NOR. Questo helper
-non esegue nessuno di quei passi e non richiede privilegi amministrativi.
+Exit code 0 means the guard observed the single request and the procedure ended
+without an orchestration error; it does **not** attest to ROM or reset.
+The coordinator must verify a new ROM enumeration, arrival after TX, and an
+actual `WL82 / UBOOT1.00` INQUIRY, then acquire a complete unit dump before
+any NOR mutation. This helper performs none of those steps and requires
+no administrative privileges.
 
-## Verifica offline
+## Offline verification
 
 ```powershell
 python -X utf8 tools/audit_mini_cdc_recovery.py
@@ -139,8 +139,8 @@ python -m unittest tests.test_mini_cdc_recovery -v
 node tests/mini_rom_webserial_guard_test.js tools/mini_rom_webserial/guard.js
 ```
 
-Esito:9test Python e61condizioni Node passati. Coprono bytecode originale,
-assenza del gate safe sul percorso, prove/chiusura/picker, PONG frammentato,
-device errato, duplicati, errore write, ACK realmente ricevuto o assente,
-disconnessione, limiti RX e close fallito. Tutti i trasporti dei test sono
-fittizi; nessun test ha aperto il pedale o modificato una sessione browser viva.
+Result: 9 Python tests and 61 Node conditions passed. They cover original bytecode,
+absence of the safe gate on the path, evidence/closure/picker checks, fragmented
+PONG, wrong device, duplicates, write error, actually received or absent ACK,
+disconnection, RX limits and failed close. All test transports are fake;
+no test opened the pedal or modified a live browser session.

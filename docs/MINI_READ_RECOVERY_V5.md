@@ -1,76 +1,75 @@
-# Recupero FINISH con sequenza non consumata
+# FINISH recovery with an unconsumed sequence
 
-`tools/recover_mini_read_v5.py` espone `FinishCommandRecoveryTransport`,
-con costruttore e `bind_session` compatibili con v4. Aggiunge soltanto
-FC80/FINISH dopo Win32 31 submitted. Il budget di otto recuperi resta
-condiviso con letture, query, echo e richieste erase/program ereditate.
-Importare il modulo non apre dispositivi. Writer, installer e v1–v4 sono
-immutati.
+`tools/recover_mini_read_v5.py` exposes `FinishCommandRecoveryTransport`,
+with a constructor and `bind_session` compatible with v4. It adds only
+FC80/FINISH after a submitted Win32 31 failure. The eight-recovery budget
+remains shared with inherited reads, queries, echo, and erase/program requests.
+Importing the module opens no devices. The writer, installer, and v1–v4
+are unchanged.
 
-FINISH non emette WREN, erase o page program. Il dispatcher del writer
-consuma la sequenza prima di `run_job`; il ramo FC80 controlla lo stato
-NOR, rilegge 4096 byte, confronta il CRC del settore e solo allora pone
-`phase=5`, `token=0`, `erased=0`. Anche un errore di stato o una lettura
-parziale lascia la sequenza consumata. Il contatore WIP non aumenta.
+FINISH emits no WREN, erase, or page program. The writer dispatcher consumes
+the sequence before `run_job`; the FC80 branch checks NOR status, rereads
+4096 bytes, compares the sector CRC, and only then sets `phase=5`, `token=0`,
+`erased=0`. Even a status error or partial read leaves the sequence consumed.
+The WIP counter does not increase.
 
-Nell'ELF operativo A congelato, la scrittura della sequenza è a
-`0x01C2097C`, prima della chiamata `run_job` a `0x01C20980`. L'origine C
-è `firmware/mini/app_writer/writer.c:268`; il ramo FINISH è a riga183.
-Gli hash di C, derivazione operativa ed ELF sono nel report associato.
+In frozen operational ELF A, the sequence write is at `0x01C2097C`, before
+the `run_job` call at `0x01C20980`. The C origin is
+`firmware/mini/app_writer/writer.c:268`; the FINISH branch is at line183.
+Hashes of the C source, operational derivation, and ELF are in the associated
+report.
 
-Il client incrementa soltanto `expected.sequence` prima di FC80.
-L'ultima PP è già stata verificata: `mutation_completion_unknown` deve
-essere falso. FINISH non viene riclassificato come mutazione della NOR.
+The client increments only `expected.sequence` before FC80. The last PP has
+already been verified: `mutation_completion_unknown` must be false.
+FINISH is not reclassified as a NOR mutation.
 
-Il recupero richiede:
+Recovery requires:
 
-- installer attivo, preimage verificata e settore corrente del piano;
-- FD88 immediatamente precedente, identico all'audit già validato;
-- sequenza precedente34 e richiesta35, `phase=3`, bitmapFFFF,
-  staged0/echoed0, guardie integre e NOR identificata;
-- stato host identico all'audit salvo il solo incremento di sequenza;
-- ultima pagina nell'ordine del piano, echo e readback identici alla
-  candidata, CRC pagina e CRC dei settori vecchio/nuovo coerenti;
-- stesso CDB, token e indirizzo del FINISH pendente.
+- an active installer, verified preimage, and the current plan sector;
+- an immediately preceding FD88 identical to the already validated audit;
+- previous sequence 34 and requested sequence 35, `phase=3`, bitmapFFFF,
+  staged0/echoed0, intact guards, and identified NOR;
+- host state identical to the audit except for the sequence increment;
+- the last page in plan order, echo and readback identical to the candidate,
+  and consistent page CRC and old/new sector CRCs;
+- the same CDB, token, and address as the pending FINISH.
 
-La riapertura usa il backend già scelto, lo stesso slot/percorso, FC78 e
-FD88. Tutti i128 byte freschi devono coincidere con l'audit precedente,
-compresi stack, CRC e contatori. Qualunque differenza ferma il recupero,
-anche se mostra un FINISH completamente riuscito. Nessuna sequenza,
-flag o contatore del client viene modificato dal wrapper.
+Reopening uses the already selected backend, the same slot/path, FC78, and
+FD88. All 128 fresh bytes must match the previous audit, including stack, CRC,
+and counters. Any difference stops recovery, even if it shows a fully
+successful FINISH. The wrapper changes no client sequence, flag, or counter.
 
-Solo allora viene reinviato una volta il CDB originale. Occorre un ACK
-reale FC80 con errore0, fase5, token0, sequenza35 e CRC settore atteso.
-Il client originale esegue poi il proprio audit: +4096 byte letti,
-contatori WREN/erase/program/poll invariati e stato coerente. Seguono
-la rilettura del settore e la verifica finale dell'applicazione.
-Una risposta errata, un fallimento durante il recupero o una discrepanza
-nel successivo audit terminano la sessione; non parte un secondo recupero.
+Only then is the original CDB resent once. A real FC80 ACK is required with
+error 0, phase 5, token 0, sequence 35, and the expected sector CRC. The original
+client then performs its own audit: +4096 bytes read, unchanged
+WREN/erase/program/poll counters, and consistent state. Sector reread and final
+application verification follow. A wrong response, failure during recovery,
+or discrepancy in the subsequent audit terminates the session; no second
+recovery starts.
 
-Il riepilogo distingue `finish_request_reissues` da
-`mutation_request_reissues`. `completed_FINISH_requests_repeated=0` e
-`synthetic_FINISH_ACK=false` descrivono il comportamento ammesso.
-OUT/STAGE, ARM, jump e reset non ricevono nuovi percorsi di retry.
+The summary distinguishes `finish_request_reissues` from
+`mutation_request_reissues`. `completed_FINISH_requests_repeated=0` and
+`synthetic_FINISH_ACK=false` describe the allowed behaviour.
+OUT/STAGE, ARM, jump, and reset receive no new retry paths.
 
-## Verifiche offline riproducibili
+## Reproducible offline checks
 
 ```powershell
 python -B -X utf8 -m unittest tests.test_mini_read_recovery_v5 tests.test_mini_complete_install_runner
 ```
 
-72 test PASS:59 sul wrapper, inclusi tutti i47 casi v4 riapplicati,
-e13 sull'orchestrazione dell'ottavo installer. Coprono FINISH non
-eseguito sul settore normale e su quello dell'header, richiesta già
-completata, sequenza consumata con lettura parziale, ogni word dell'audit
-modificata, CRC errato, piano/stato cambiati, ACK reale, audit successivo,
-budget condiviso e fallimenti di log/riapertura senza replay.
+72 tests PASS: 59 on the wrapper, including all 47 v4 cases reapplied,
+and 13 on orchestration of the eighth installer. They cover unexecuted
+FINISH on a normal sector and the header sector, an already completed request,
+a consumed sequence with a partial read, every changed audit word, wrong CRC,
+changed plan/state, real ACK, subsequent audit, shared budget, and
+logging/reopen failures without replay.
 
-Il test contiene inoltre `NATIVE_FINISH_HARNESS`, che include direttamente
-il C operativo congelato. Le callback simulate di status e lettura
-richiedono la sequenza35 già consumata. Sette casi ASan/UBSan verificano
-completamento, replay rifiutato e fallimenti di status, prima lettura,
-lettura intermedia, CRC e bitmap; nessuno emette nuove operazioni NOR
-mutanti durante FINISH.
+The test also contains `NATIVE_FINISH_HARNESS`, which directly includes the
+frozen operational C. Simulated status and read callbacks require sequence 35
+to be already consumed. Seven ASan/UBSan cases check completion, rejected
+replay, and failures of status, first read, intermediate read, CRC, and bitmap;
+none emits new mutating NOR operations during FINISH.
 
 ```powershell
 python -B -X utf8 -c "from pathlib import Path; from tests.test_mini_read_recovery_v5 import NATIVE_FINISH_HARNESS; p=Path('build/mini-read-recovery-v5'); p.mkdir(exist_ok=True); (p/'verify_finish.c').write_text(NATIVE_FINISH_HARNESS,encoding='utf-8')"
@@ -78,12 +77,12 @@ wsl.exe --distribution Ubuntu --exec gcc -std=c99 -Wall -Wextra -Werror -O1 -g '
 wsl.exe --distribution Ubuntu --exec ./build/mini-read-recovery-v5/host-finish
 ```
 
-Richiede il build operativo originale già generato e GCC con sanitizers
-nella distribuzione WSL Ubuntu. Non ricompila né modifica il payload
-target. `research/mini-read-recovery-v5.json` conserva hash e risultati.
+This requires the original operational build already generated, and GCC with
+sanitizers in WSL Ubuntu. It neither recompiles nor changes the target payload.
+`research/mini-read-recovery-v5.json` preserves hashes and results.
 
-Queste prove sono offline. L'audit attesta lo stato osservato dopo il
-fallimento, assumendo lo stesso writer identificato e richieste host
-serializzate; non dimostra la causa del Win32 31 né l'assenza di una
-coda pendente nel driver. Nessun FINISH eseguito o ambiguo viene
-ricostruito come ACK. Non sono prove di flash completato, boot o audio.
+These tests are offline. The audit attests the observed state after failure,
+assuming the same identified writer and serialised host requests; it proves
+neither the cause of Win32 31 nor the absence of a pending driver queue.
+No executed or ambiguous FINISH is reconstructed as an ACK.
+These are not tests of completed flashing, boot, or audio.

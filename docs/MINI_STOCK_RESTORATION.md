@@ -1,34 +1,34 @@
-# Ripristino esplicito della sola app stock MINI
+# Explicit restoration of the MINI stock application only
 
-[restore_mini_stock.py](../tools/restore_mini_stock.py) prepara e riusa il
-writer limitato per il verso HyperRig/app incompleta→app stock. L'intervallo
-scrivibile rimane esclusivamente `[0x4000,0x82000)`. Non riavvia il pedale,
-non ripete comandi ambigui e non ripristina automaticamente altre partizioni.
-Import e CLI fanno soltanto operazioni su file locali.
+[restore_mini_stock.py](../tools/restore_mini_stock.py) prepares and reuses the
+bounded writer for the HyperRig/incomplete app→stock app direction.
+The writable range remains exclusively `[0x4000,0x82000)`.
+It does not reboot the pedal, repeat ambiguous commands, or automatically
+restore other partitions. Import and CLI perform only local file operations.
 
-La destinazione è l'app estratta dal backup completo di questa unità,
+The destination is the application extracted from this unit's full backup,
 SHA256 `72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180`.
-SHA256 dell'app stock:
+Stock application SHA256:
 `11ade0ace13c48d1b633669ee8beae71d98a269690f1ffb93eb2c6ce14922eda`.
-La preimage è una nuova lettura completa della NOR, fornita come file locale
-e SHA256 atteso esplicito. Il chiamante deve provarne origine hardware e
-recenza; il planner non le deduce dal nome o dalla data del file.
+The preimage is a fresh full NOR read supplied as a local file with an explicit
+expected SHA256. The caller must prove its hardware origin and freshness;
+the planner does not infer them from the file's name or date.
 
-SPL/configurazione e key_mac devono coincidere con il backup fissato.
-Un'app con header o codice corrotti è accettata: richiederne un CRC valido
-impedirebbe il recupero. VM, OTA, BTIF e USR possono differire; il piano ne
-elenca hash, numero di byte diversi e settori interessati, poi conserva
-esattamente i byte della lettura corrente. Non equivale a riportare la NOR
-intera o i preset allo stato del backup storico.
+SPL/configuration and key_mac must match the pinned backup.
+An application with a corrupted header or code is accepted: requiring a valid
+CRC would prevent recovery. VM, OTA, BTIF, and USR may differ; the plan lists
+their hashes, differing-byte counts, and affected sectors, then preserves the
+current read's bytes exactly. This is not equivalent to returning the whole
+NOR or presets to the historical backup state.
 
-La factory verifica prima gli artefatti operativi tramite
-`prepare_installation()`, poi crea una `Installation` immutabile con
-`purpose='restore-stock'`, preimage corrente e destinazione stock. Il piano
-canonico ha un hash indipendente dal piano stock→HyperRig e può essere
-conservato con scrittura esclusiva, flush e fsync. Nessun file esistente
-viene sovrascritto da `retain_plan()`.
+The factory first verifies operational artifacts through
+`prepare_installation()`, then creates an immutable `Installation` with
+`purpose='restore-stock'`, the current preimage, and stock destination.
+The canonical plan has a hash independent of the stock→HyperRig plan and may
+be retained with exclusive creation, flush, and fsync.
+`retain_plan()` overwrites no existing file.
 
-API per un runner esplicitamente autorizzato e revisionato:
+API for an explicitly authorised and reviewed runner:
 
 ```python
 from tools.restore_mini_stock import (
@@ -59,38 +59,38 @@ result = session.restore_application()  # leaves ROM active
 validation = validate_restored_full(prepared, independently_read_full_nor)
 ```
 
-Il client verifica l'intera app prima della prima mutazione, nuovamente il settore
-prima di armarlo, la pagina congelata tramite echo, erase, ogni PP, settore e
-app completa. Il settore header va per ultimo e la sua pagina `0x4000`
-segue `0x4100..0x4F00`. Non si invalida l'header all'inizio. Una perdita di
-alimentazione può ancora lasciare codice misto: l'ordine non è atomico e il
-fallback OTA MINI non è qualificato. Un errore termina la sessione senza
-reset o tentativi automatici.
+The client checks the entire app before the first mutation, checks the sector
+again before arming it, and verifies the frozen page through echo, erase,
+every PP, the sector, and the complete app. The header sector goes last,
+and its page `0x4000` follows `0x4100..0x4F00`. The header is not
+invalidated at the start. A power loss can still leave mixed code: this
+ordering is not atomic, and MINI OTA fallback is not qualified.
+An error terminates the session without reset or automatic attempts.
 
-`restore_application()` attesta soltanto il readback dell'app stock e lascia
-non verificate le regioni esterne. `validate_restored_full()` controlla
-successivamente app stock più tutte le regioni esterne contro la preimage
-fresca e distingue l'eventuale uguaglianza con l'intero backup storico.
-L'avvio stock e l'identità/preset osservati restano prove hardware separate.
+`restore_application()` attests only the stock-app readback and leaves
+external regions unverified. `validate_restored_full()` subsequently checks
+the stock app and all external regions against the fresh preimage, separately
+reporting any equality with the whole historical backup. Stock boot and
+observed identity/presets remain separate hardware tests.
 
-Verifica locale:
+Local verification:
 
 ```powershell
 python -B -X utf8 -m unittest tests.test_restore_mini_stock -v
 python -B -X utf8 tools/restore_mini_stock.py
 ```
 
-16 test passati: app illeggibile o totalmente sconosciuta, estremi della
-partizione, dati esterni diversi, rifiuto di SPL/key_mac estranei,
-immutabilità della preimage, log durevole, header-page-last, perdita di
-risposta erase/program, mancata preimage e verifica finale indipendente.
-Il test di trasferimento usa esclusivamente NOR simulata. La factory è stata
-anche verificata sui veri artefatti locali, usando il backup storico come
-fixture senza differenze; ciò non è una lettura hardware recente.
+16 tests passed: an unreadable or wholly unknown app, partition endpoints,
+different external data, rejection of foreign SPL/key_mac, preimage immutability,
+durable logging, header-page-last, lost erase/program responses, missing
+preimage, and independent final verification. The transfer test uses simulated
+NOR only. The factory was also checked against the real local artifacts,
+using the historical backup as a fixture without differences; this is not
+a recent hardware read.
 
-Sorgente congelato SHA256
+Frozen source SHA256
 `aca0b65237210b5cd30a9363e66d72cc22dc5f77c0cb0ef8ddceed0653f22324`;
 test SHA256
 `93880e8fcc758f4d56cd6b27734c92e9741454a700f198c72a6908b2b45e46a6`.
-Il [report dedicato](../research/mini-stock-restoration.json) distingue
-queste verifiche dall'esecuzione fisica del ripristino, non effettuata.
+The [dedicated report](../research/mini-stock-restoration.json) distinguishes
+these checks from physical restoration, which has not been performed.

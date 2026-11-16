@@ -1,68 +1,65 @@
-# Recupero limitato dell'echo FD87
+# Bounded FD87 echo recovery
 
-`tools/recover_mini_read_v3.py` estende il wrapper v2 senza modificarlo.
-Importare il modulo non enumera né apre dispositivi. Il coordinatore deve
-fornire trasporto già identificato, logger durevole e riapertura esplicita
-dello stesso backend; la classe resta `ReadOnlyStateRecoveryTransport`.
+`tools/recover_mini_read_v3.py` extends the v2 wrapper without modifying it.
+Importing the module neither enumerates nor opens devices. The coordinator
+must supply an already identified transport, durable logger, and explicit
+reopening of the same backend; the class remains `ReadOnlyStateRecoveryTransport`.
 
-La sola nuova operazione recuperabile è un FD87 da 256 byte che fallisce con
-Win32 31 dopo la submission. Deve seguire immediatamente l'audit validato
-dello staging, durante un'installazione con preimage interamente verificata.
-Token, sequenza dello staging, indirizzo e CRC devono coincidere con la
-pagina della candidata immutabile già posseduta dall'installer.
+The only newly recoverable operation is a 256-byte FD87 that fails with
+Win32 31 after submission. It must immediately follow the validated staging
+audit during an installation with a fully verified preimage. Token, staging
+sequence, address, and CRC must match the immutable candidate page already
+held by the installer.
 
-Il ramo FD87 del C congelato, `writer.c:257..265`, controlla staging, fase,
-token, sequenza, indirizzo, guardie RX e CRC della copia congelata. Poi invia
-quella copia e può impostare `echoed=1`. Non chiama `run_job`, non accede
-alla NOR e non consuma una sequenza. La build operativa deriva lo stesso
-ramo cambiando soltanto il macro del gate; nell'ELF A, a `0x01C207F6`
-compare la chiamata `send_data`, seguita a `0x01C207FE` dallo store di
-`echoed`. Il ritorno è a `0x01C2081E`. Non è ammessa una variazione del
-watermark dello stack: `stack_used` viene assegnato dentro `run_job`.
+The frozen C FD87 branch, `writer.c:257..265`, checks staging, phase, token,
+sequence, address, RX guards, and the frozen copy's CRC. It then sends that copy
+and may set `echoed=1`. It does not call `run_job`, access NOR, or consume a
+sequence. The operational build derives the same branch by changing only the
+gate macro; in ELF A, `0x01C207F6` calls `send_data`, followed by the `echoed`
+store at `0x01C207FE`. Return is at `0x01C2081E`. No stack-watermark change is
+allowed: `stack_used` is assigned inside `run_job`.
 
-Dopo la riapertura, FC78 deve identificare lo stesso HYW1 gate1 e FD88
-deve restituire un audit valido. I 128 byte devono essere identici al
-precedente salvo la word `echoed` a offset104, che può essere zero oppure
-uno, e il CRC del record a offset120. Guardie, stato NOR, contatori,
-sequenza, CRC pagina e uso dello stack restano invariati. Un callback
-send negativo rende il writer fallito: il nuovo audit lo rifiuta.
+After reopening, FC78 must identify the same gate1 HYW1, and FD88 must return
+a valid audit. All 128 bytes must be identical to the previous record except
+for the `echoed` word at offset 104, which may be zero or one, and the record
+CRC at offset 120. Guards, NOR state, counters, sequence, page CRC, and stack
+usage remain unchanged. A negative send callback puts the writer in a failed
+state: the new audit rejects it.
 
-Solo allora viene reinviato **lo stesso CDB FD87 una volta**. La risposta
-deve essere `bytes`, lunga256 e identica a tutti i byte della pagina della
-candidata; viene ricontrollato anche il CRC. Il wrapper non aggiorna lo
-stato atteso dell'installer e non genera risposte: il core originale
-confronta nuovamente l'echo e richiede il suo normale audit successivo
-prima di proseguire con erase/program.
+Only then is **the same FD87 CDB reissued once**. The response must be `bytes`,
+256 bytes long, and identical to every byte of the candidate page; the CRC is
+also rechecked. The wrapper neither updates the installer's expected state nor
+generates responses: the original core compares the echo again and requires
+its normal subsequent audit before continuing with erase/program.
 
-Il flag `echoed=1` prova che il ramo target ha accettato il risultato del
-proprio callback, non che l'host abbia ricevuto la prima risposta. Proprio
-per questo la seconda risposta deve essere verificata integralmente.
+`echoed=1` proves that the target branch accepted the result of its callback,
+not that the host received the first response. That is precisely why the
+second response must be checked in full.
 
-Il budget totale rimane massimo8, condiviso con i recuperi v2 di FC7E,
-FD88 e FD7F. Un errore durante identità, audit o reinvio termina il
-recupero; lo stesso CDB/stato non può aprirne un secondo. OUT/STAGE, ARM,
-erase, program, FINISH, jump e reset non sono ripetuti. Un FD7F già
-eseguito mantiene il rifiuto v2 quando il contatore letture è cambiato.
+The total budget remains at most 8, shared with v2 recovery of FC7E, FD88, and
+FD7F. An identity, audit, or reissue error terminates recovery; the same CDB/state
+cannot start a second recovery. OUT/STAGE, ARM, erase, program, FINISH, jump,
+and reset are not repeated. An already executed FD7F retains v2's rejection
+when the read counter has changed.
 
-## Verifiche locali
+## Local checks
 
-La suite usa il vero installer Python con handle/NOR simulati. Include
-echo perduto prima e dopo esecuzione, prima dell'erase e a metà settore,
-alterazioni di ciascuna word del record, risposta corta/corrotta, audit
-successivo del core, errore del logger, budget misto e nessuna ripetizione
-di operazioni mutanti. Il report è
-`research/mini-read-recovery-v3.json`.
+The suite uses the actual Python installer with simulated handles/NOR. It
+includes echo loss before and after execution, before erase and mid-sector,
+changes to each record word, short/corrupted responses, the core's subsequent
+audit, logger failure, a mixed budget, and no repetition of mutating operations.
+The report is `research/mini-read-recovery-v3.json`.
 
 ```powershell
 python -B -X utf8 -m unittest tests.test_mini_read_recovery_v3 tests.test_mini_read_recovery_v2 tests.test_mini_read_recovery tests.test_mini_app_install tests.test_mini_quiet_install_runner
 ```
 
-Risultato:87 test PASS, inclusi33 test v3. Separatamente, otto casi sul C
-operativo congelato con ASan/UBSan verificano echo ripetuto, stato/audit
-invariati salvo `echoed`, callback send negativo, sequenza errata,
-guardia corrotta e separazione fra RX e pagina congelata. Il mock conta
-tutti i callback NOR: nessuno viene chiamato dall'echo. Per riprodurre
-quest'ultima prova su Windows con il WSL già usato dal progetto:
+Result: 87 tests PASS, including 33 v3 tests. Separately, eight cases against
+the frozen operational C under ASan/UBSan verify repeated echo, unchanged
+state/audit except `echoed`, a negative send callback, incorrect sequence,
+corrupted guard, and separation between RX and the frozen page. The mock counts
+all NOR callbacks: none is called by echo. To reproduce this last check on
+Windows using the WSL installation already used by the project:
 
 ```powershell
 New-Item -ItemType Directory -Path build/mini-read-recovery-v3 -Force | Out-Null
@@ -70,7 +67,7 @@ wsl.exe --distribution Ubuntu --exec gcc -std=c99 -Wall -Wextra -Werror -O1 -g '
 wsl.exe --distribution Ubuntu --exec build/mini-read-recovery-v3/host-echo
 ```
 
-Queste sono prove offline. Non provano la causa di Win32 31, non garantiscono
-la disponibilità del trasporto e non attestano completamento dell'installazione,
-avvio firmware o audio. Non è stato eseguito alcun comando sul dispositivo
-durante questa revisione; writer, v2 e installer restano congelati.
+These are offline checks. They do not prove the cause of Win32 31, guarantee
+transport availability, or attest to installation completion, firmware boot,
+or audio. No device command was executed during this revision; the writer,
+v2, and installer remain frozen.

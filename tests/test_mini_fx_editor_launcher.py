@@ -90,8 +90,8 @@ class FXEditorLauncherTests(unittest.TestCase):
 
     def test_cmd_targets_only_new_bundle_and_launcher(self):
         text=(launcher.ROOT/'tools/launch_mini_fx_editor.cmd').read_text()
-        self.assertIn('launch_mini_fx_editor.py',text)
-        self.assertIn('build\\hyperrig-mini-fx-editor',text)
+        self.assertIn('launch_hyperrig_editor.py',text)
+        self.assertIn('build\\hyperrig-mini-english-editor',text)
         self.assertNotIn('hyperrig-mini-qualified-editor',text)
 
 

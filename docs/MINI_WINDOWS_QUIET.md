@@ -1,81 +1,82 @@
-# Apertura Windows da dispositivo attestato
+# Opening Windows devices from an attested selection
 
-`tools/mini_windows_quiet.py` elimina la nuova enumerazione `Win32_DiskDrive`
-da ogni apertura e riapertura. Eredita senza modifiche `exchange`,
-`_exchange_once`, `close` e il context manager del trasporto SPT buffered.
-Il costruttore precedente e tutti i protocolli congelati restano invariati.
+`tools/mini_windows_quiet.py` removes fresh `Win32_DiskDrive` enumeration
+from each open and reopen. It inherits `exchange`, `_exchange_once`,
+`close`, and the buffered SPT transport's context manager unchanged.
+The previous constructor and all frozen protocols remain unchanged.
 
-L'importazione e `RomDiskAttestation.from_discovery()` non eseguono I/O.
-La costruzione esplicita di `QuietBufferedRomTransport` apre il dispositivo
-selezionato e legge la sua INQUIRY; non installa, ritenta o resetta nulla.
+Importing the module and calling `RomDiskAttestation.from_discovery()` perform
+no I/O. Explicit construction of `QuietBufferedRomTransport` opens the selected
+device and reads its INQUIRY; it installs, retries, and resets nothing.
 
 ```python
 from tools.mini_windows_quiet import RomDiskAttestation, QuietBufferedRomTransport
 
-# disk è un unico descrittore già scelto dal chiamante, oppure un descrittore
-# conservato e verificato nel proprio piano. Qui non viene eseguita discovery.
+# disk is a single descriptor already selected by the caller, or a descriptor
+# retained and verified in its plan. No discovery takes place here.
 attestation = RomDiskAttestation.from_discovery(disk)
 with QuietBufferedRomTransport(attestation, slot=0x01C20000,
                                profile="app-writer-operational") as transport:
     attestation = transport.attestation
     journal(transport.open_metadata)
-    # Il chiamante verifica ancora HYW1, slot, build e audit del writer.
+    # The caller still verifies HYW1, slot, build, and writer audit.
 
-# Ogni riapertura deve riutilizzare attestation, non ricrearla da disk:
-# così conserva anche interfaccia esatta e LastArrivalDate dell'antenato USB.
+# Each reopen must reuse attestation rather than recreate it from disk:
+# this also preserves the exact interface and USB ancestor's LastArrivalDate.
 ```
 
-La selezione impone una catena immutabile di 2–12 devnode, terminata dal
-dispositivo USB `4C4A:8057`. Configuration Manager localizza soltanto il
-`pnp_id` attestato con `CM_LOCATE_DEVNODE_NORMAL`, confronta ogni genitore e
-richiede nodi avviati senza problemi. Ricava soltanto l'interfaccia disco di
-quell'istanza, usando `CM_GET_DEVICE_INTERFACE_LIST_PRESENT`; non enumera tutti
-i dischi. Sono accettati un solo nome e al massimo 8192 caratteri. Qualunque
-errore, ambiguità o cambiamento termina l'apertura senza fallback. Questi
-filtri seguono i contratti Microsoft di [CM_Locate_DevNodeW](https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_locate_devnodew)
-e [CM_Get_Device_Interface_ListW](https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_get_device_interface_listw).
+Selection requires an immutable chain of 2–12 devnodes ending at the
+`4C4A:8057` USB device. Configuration Manager locates only the attested
+`pnp_id` with `CM_LOCATE_DEVNODE_NORMAL`, compares every parent, and
+requires started nodes with no problems. It obtains only that instance's
+disk interface using `CM_GET_DEVICE_INTERFACE_LIST_PRESENT`; it does not enumerate
+all disks. Exactly one name and at most 8192 characters are accepted.
+Any error, ambiguity, or change ends the open without fallback. These
+filters follow the Microsoft contracts for
+[CM_Locate_DevNodeW](https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_locate_devnodew)
+and [CM_Get_Device_Interface_ListW](https://learn.microsoft.com/en-us/windows/win32/api/cfgmgr32/nf-cfgmgr32-cm_get_device_interface_listw).
 
-La prima apertura lega `interface_path` e `last_arrival_filetime` all'oggetto
-restituito. Le successive li confrontano esattamente. La proprietà è
+The first open binds `interface_path` and `last_arrival_filetime` to the
+returned object. Subsequent opens compare them exactly. The property is
 `DEVPKEY_Device_LastArrivalDate`, GUID `83da6326-97a6-4088-9453-a1923f573b29`,
-PID 102, tipo FILETIME 16, otto byte, come negli header SDK Windows
-10.0.19041.0 `shared/devpkey.h` e `shared/devpropdef.h`.
-Una nuova enumerazione USB richiede una nuova selezione esplicita.
+PID 102, FILETIME type 16, eight bytes, as defined in Windows SDK
+10.0.19041.0 headers `shared/devpkey.h` and `shared/devpropdef.h`.
+A new USB enumeration requires a new explicit selection.
 
-Il codice apre il nome dell'interfaccia disco, quindi usa
-`IOCTL_STORAGE_GET_DEVICE_NUMBER` (`0x002D1080`) e accetta esattamente 12 byte:
-tipo disco 7, numero uguale all'alias `PhysicalDrive` attestato, partizione
-0 oppure `0xffffffff`. Questo controllo mantiene compatibile il controllo
-MCN congelato, che apre l'alias PhysicalDrive. L'IOCTL recupera il numero
-assegnato dal driver, senza chiedere dimensioni o geometria del supporto.
-[Contratto Microsoft](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_get_device_number).
+The code opens the disk-interface name, then uses
+`IOCTL_STORAGE_GET_DEVICE_NUMBER` (`0x002D1080`) and accepts exactly 12 bytes:
+disk type 7, a number matching the attested `PhysicalDrive` alias, and
+partition 0 or `0xffffffff`. This preserves compatibility with the frozen
+MCN control, which opens the PhysicalDrive alias. The IOCTL retrieves the
+driver-assigned number without requesting media size or geometry.
+[Microsoft contract](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ni-ntddstor-ioctl_storage_get_device_number).
 
-Seguono le due query del descrittore adattatore già usate dal backend e una
-INQUIRY buffered di 36 byte, con vendor `WL82` e prodotto `UBOOT1.00` esatti.
-La catena PnP, l'interfaccia e LastArrivalDate vengono controllate nuovamente
-dopo INQUIRY. Un cambiamento chiude l'handle. Il record `open_metadata`
-conserva interfaccia effettiva, numero del disco, attestazione e durata.
-`transport.disk['path']` resta l'alias originale; `opened_interface` indica
-il percorso realmente aperto.
+Next come the two adapter-descriptor queries already used by the backend
+and a 36-byte buffered INQUIRY, with exact vendor `WL82` and product `UBOOT1.00`.
+The PnP chain, interface, and LastArrivalDate are checked again after INQUIRY.
+A change closes the handle. The `open_metadata` record retains the actual
+interface, disk number, attestation, and duration.
+`transport.disk['path']` remains the original alias; `opened_interface` indicates
+the path actually opened.
 
-Il nuovo costruttore rimuove un comportamento osservato: nelle prime quattro
-riaperture del quarto tentativo, la precedente discovery coincideva con una
-READ CAPACITY, due TUR e circa 11,1 secondi prima della nuova identità HYW1.
-L'esportazione locale è
+The new constructor removes an observed behavior: in the first four reopens
+of the fourth attempt, the previous discovery coincided with a READ CAPACITY,
+two TURs, and approximately 11.1 seconds before the new HYW1 identity.
+The local export is
 `build/mini-windows-diagnostics/stordiag-mcn-install-initial.json`.
-Separati gruppi di sei TUR coincidevano con Win31 già prima della riapertura.
-Quindi questa modifica non dimostra di eliminare tutti i Win31 o il traffico
-di altri componenti Windows. L'attestazione identifica la continuità della
-selezione PnP; non è autenticazione crittografica del pedale.
+Separate groups of six TURs coincided with Win31 before reopening.
+This change therefore does not demonstrate elimination of all Win31 errors
+or traffic from other Windows components. Attestation identifies continuity
+of the PnP selection; it is not cryptographic authentication of the pedal.
 
-La verifica offline ha superato 20 test nuovi e 58 test complessivi con
-backend e recupero v2. Tutte le API native sono simulate. I test coprono
-dispositivo assente/sostituito, cambio di enumerazione durante l'apertura,
-catena errata, interfacce multiple/troncate, limiti, errore INQUIRY, numero
-disco differente, chiusura degli handle e identità delle funzioni ereditate.
-Non è stata eseguita alcuna prova fisica da questo strumento. La prima
-qualifica reale deve precedere ogni WREN: INQUIRY, identità del plugin
-atteso e lettura completa della preimage prevista restano gate del runner.
+Offline verification passed 20 new tests and 58 tests in total with
+the backend and v2 recovery. All native APIs are simulated. Tests cover
+an absent/replaced device, enumeration changes during opening,
+an incorrect chain, multiple/truncated interfaces, limits, INQUIRY failure,
+a different disk number, handle closure, and identity of inherited functions.
+No physical trial was performed by this tool. Initial physical qualification
+must precede any WREN: INQUIRY, the expected plugin identity, and a complete
+read of the expected preimage remain runner gates.
 
 ```text
 python -B -X utf8 -m unittest tests.test_mini_windows_quiet tests.test_mini_windows_spt tests.test_mini_read_recovery_v2 -q

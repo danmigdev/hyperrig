@@ -1,42 +1,41 @@
-# Trial grafico GAIN del MINI
+# MINI graphical GAIN trial
 
-`tools/probe_mini_browser_gain.py` prepara una prova strettamente limitata del
-vero editor generato. Il comando senza opzioni stampa soltanto il piano: non
-legge prove, non avvia server o browser, non enumera dispositivi. In questa
-consegna sono stati eseguiti soltanto test offline; non esiste un esito fisico
-del trial GAIN.
+`tools/probe_mini_browser_gain.py` prepares a narrowly bounded trial of the
+actual generated editor. With no options, it prints only the plan: it does not
+read evidence, start a server or browser, or enumerate devices. Only offline
+tests were run for this delivery; no physical GAIN-trial result exists.
 
-La prova eseguita usa un nuovo profilo Chromium e il server localhost, CDP e
-chooser dei moduli readonly già congelati. Seleziona soltanto il COM della
-prova PONG fornita, richiede VID:PID `3654:5155` prima dell'unica apertura a
-115200 baud e non permette reconnect. USB diretto, Bluetooth e MIDI sono
-inibiti. Nessun file dell'editor viene modificato.
+When executed, the trial uses a new Chromium profile and the localhost server,
+CDP, and chooser from the already frozen read-only modules. It selects only
+the COM port from the supplied PONG evidence, requires VID:PID `3654:5155`
+before the single open at 115200 baud, and does not allow reconnection. Direct
+USB, Bluetooth, and MIDI are disabled. No editor file is modified.
 
-## Prerequisiti
+## Prerequisites
 
-- Una **nuova** manifest della candidata `3b0eac3b…00a78ff`, con qualifica
-  fisica USB read e famiglia `GAIN`, senza permesso write generale, panel o
-  famiglie BLE. La manifest frozen `audio-v2` resta immutata.
-- Il report fisico first-preset referenziato dalla manifest, con roundtrip
-  GAIN terminato, preset intenzionalmente conservato e traccia conclusa da
-  `port_closed`. Il loader originale delle famiglie ripete il replay dei byte
-  della traccia; i flag di un mock non bastano.
-- `browser-evidence.json` con COM/PONG esatti e SHA256, riferito alla medesima
-  qualifica USB. La prova precedente deve aver chiuso la seriale e nessun
-  altro programma deve averla riaperta.
-- Editor generato da quella manifest: HTML e script sono confrontati con la
-  derivazione originale. Il guadagno ripristinato dalla prova first-preset deve
-  avere uscita maggiore di `-30 dB`.
+- A **new** manifest for candidate `3b0eac3b…00a78ff`, with physical USB read
+  qualification and the `GAIN` family, without general write, panel, or BLE
+  family permission. The frozen `audio-v2` manifest remains unchanged.
+- The physical first-preset report referenced by the manifest, with a completed
+  GAIN roundtrip, an intentionally retained preset, and a trace ending in
+  `port_closed`. The original family loader repeats the trace-byte replay;
+  mock flags are insufficient.
+- `browser-evidence.json` with exact COM/PONG and SHA256, referring to the same
+  USB qualification. The preceding test must have closed the serial port, and
+  no other program may have reopened it.
+- An editor generated from that manifest: HTML and scripts are compared with
+  the original derivation. The gain restored by the first-preset test must have
+  an output greater than `-30 dB`.
 
-Il binder precedente richiede prove held/released. Un eventuale nuovo binder
-di avvio normale deve registrare esplicitamente che il recupero con tasti non
-è stato provato; questo strumento non fabbrica una prova held né cambia quel
-binder. L'editor USB readonly già disponibile è indipendente da questo trial.
+The preceding binder requires held/released evidence. Any new normal-boot
+binder must explicitly record that button recovery was not tested; this tool
+does not fabricate a held test or change that binder. The already available
+read-only USB editor is independent of this trial.
 
-## Comandi, da eseguire soltanto dopo la qualifica reale
+## Commands, to run only after actual qualification
 
-I percorsi seguenti sono esempi di nuovi output; i file di prova devono già
-esistere ed essere reali. Il preflight non avvia browser o dispositivi.
+The following paths are examples of new outputs; evidence files must already
+exist and be real. Preflight does not start browsers or devices.
 
 ```powershell
 python -B -X utf8 tools/probe_mini_browser_gain.py
@@ -50,59 +49,56 @@ python -B -X utf8 tools/probe_mini_browser_gain.py --check-only `
   --app-dir build/hyperrig-mini-usb-qualified-01/editor/web
 ```
 
-Per la prova fisica, sostituire `--check-only` con `--execute` e aggiungere un
-percorso nuovo, per esempio `--output build/mini-browser-gain-01`. Non usare
-questo comando mentre un altro helper comunica col pedale.
+For the physical test, replace `--check-only` with `--execute` and add a new
+path, for example `--output build/mini-browser-gain-01`. Do not use this command
+while another helper is communicating with the pedal.
 
-## Sequenza verificata dal guard
+## Sequence enforced by the guard
 
-1. PONG esatto e letture iniziali dell'app; letture fresche `GAIN`, `LVL`,
-   `FXS`, `PLIST`, `SNAPS` tramite la coda originale.
-2. Confronto con lo stato finale della prova first-preset. `GAIN` e `LVL`
-   devono coincidere; catena, inventario preset e scena devono essere gli
-   stessi. Controllo del valore in `S.gain` e nell'attributo ARIA del vero
-   selettore `#gOut .knob[role="slider"]`.
-3. Apertura del popup `#meters`, focus sul selettore Output, eventi CDP
-   `keyDown`/`keyUp` `ArrowDown`. Il listener dell'editor produce l'unico
-   `GAIN in out-1` ammesso. Il guard esige un evento trusted sul selettore
-   corretto e registra l'origine UI prima di lasciar passare la scrittura.
-4. ACK reale esatto e nuove letture complete. Soltanto dopo questi controlli
-   viene armato `ArrowUp`, che invia `GAIN in out` attraverso lo stesso
-   listener dell'editor.
-5. Nuove letture devono mostrare lo stato iniziale. La normale disconnessione
-   dell'app deve completare il `close()` nativo della porta; controllare solo
-   `SerialTransport.isOpen()` non basterebbe perché il frontend intercetta
-   alcuni errori di chiusura.
+1. Exact PONG and the app's initial reads; fresh `GAIN`, `LVL`, `FXS`, `PLIST`,
+   and `SNAPS` reads through the original queue.
+2. Comparison with the final state of the first-preset test. `GAIN` and `LVL`
+   must agree; chain, preset inventory, and scene must be unchanged. Check the
+   value in `S.gain` and the ARIA attribute of the actual
+   `#gOut .knob[role="slider"]` control.
+3. Open the `#meters` popup, focus the Output control, and send CDP
+   `keyDown`/`keyUp` `ArrowDown` events. The editor listener produces the only
+   allowed `GAIN in out-1`. The guard requires a trusted event on the correct
+   control and records its UI origin before allowing the write.
+4. Exact real ACK and new complete reads. Only after these checks is `ArrowUp`
+   armed; it sends `GAIN in out` through the same editor listener.
+5. New reads must show the initial state. The app's normal disconnection must
+   complete the port's native `close()`; checking only
+   `SerialTransport.isOpen()` would be insufficient because the frontend
+   catches some closure errors.
 
-Il guard alla funzione di scrittura blocca ogni altra mutazione, comandi GAIN
-duplicati o fuori ordine, framing aggiuntivo e tentativi di ripetere un
-comando fallito. Non esegue `PSAVE`, `SNAPSAVE`, `PDEL` o comandi firmware.
-I tentativi automatici dell'editor di usare `LVLSUB`/`BLEKEY`, già negati
-localmente dal profilo MINI, sono registrati separatamente e non trattati
-come risposte del dispositivo.
+The write-function guard blocks every other mutation, duplicated or out-of-order
+GAIN commands, additional framing, and attempts to repeat a failed command.
+It does not execute `PSAVE`, `SNAPSAVE`, `PDEL`, or firmware commands. Automatic
+editor attempts to use `LVLSUB`/`BLEKEY`, already denied locally by the MINI
+profile, are recorded separately and are not treated as device responses.
 
-`report.json`, scritto una volta dopo la chiusura del browser, contiene
-hash degli input e sorgenti, screenshot prima/durante/dopo, eventi UI,
-scritture ASCII e byte TX, byte RX del reader nativo, righe e risultati della
-coda originale, letture prima/dopo e prova della chiusura nativa. Un errore
-interrompe la sequenza: non avviene un ripristino automatico non verificato.
-Se l'errore segue la prima modifica, il report può quindi mostrare un'uscita
-ancora ridotta di 1 dB.
+`report.json`, written once after browser closure, contains input and source
+hashes, screenshots before/during/after, UI events, ASCII writes and TX bytes,
+RX bytes from the native reader, original queue lines and results, before/after
+reads, and native closure evidence. An error interrupts the sequence: there
+is no unverified automatic restoration. If the error follows the first change,
+the report may therefore show an output still reduced by 1 dB.
 
-La strumentazione prova il percorso editor→protocollo→readback; non è
-un'autenticazione contro modifiche malevole della pagina. Una qualifica
-riuscita non dimostra audio analogico, BLE o persistenza dopo spegnimento.
-La persistenza resta documentata separatamente dal trial first-preset.
+Instrumentation establishes the editor→protocol→readback path; it is not
+authentication against malicious page changes. Successful qualification does
+not demonstrate analog audio, BLE, or persistence after power-off. Persistence
+remains separately documented by the first-preset trial.
 
-## Test offline
+## Offline tests
 
 ```powershell
 python -B -X utf8 -m unittest tests.test_mini_browser_gain -v
 node tests/mini_browser_gain_guard_test.js tools/mini_browser_gain_guard.js
 ```
 
-Dieci test Python e 120 condizioni del guard JS passano con porte e tasti
-finti. Coprono replay delle prove, derivazione esatta dell'app, default senza
-I/O, letture incomplete/incoerenti, origine UI, ordine e duplicati delle
-mutazioni, ACK errato, ripristino senza lettura fresca e chiusura fallita.
-Questi risultati non vengono pubblicati come evidenza hardware.
+Ten Python tests and 120 JS guard conditions pass with fake ports and keys.
+They cover evidence replay, exact app derivation, no-I/O defaults,
+incomplete/inconsistent reads, UI origin, mutation order and duplicates,
+incorrect ACKs, restoration without a fresh read, and failed closure. These
+results are not published as hardware evidence.

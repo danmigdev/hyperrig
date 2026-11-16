@@ -1,44 +1,44 @@
-# Completare il ricaricamento del preset salvato
+# Completing reload of the saved preset
 
-Il trial `mini-first-preset-ui-04` ha realmente eseguito GAIN giù/ripristino, PSAVE e SNAPSAVE 0. Il suo report resta un fallimento parziale: l'apertura del pannello Presets aveva chiuso il popup del volume, quindi il controllo del focus ha fermato il marker successivo prima di inviarlo.
+Trial `mini-first-preset-ui-04` actually executed GAIN down/restore, PSAVE, and SNAPSAVE 0. Its report remains a partial failure: opening the Presets panel had closed the volume popup, so the focus check stopped the next marker before sending it.
 
-`tools/probe_mini_browser_saved_reload.py` accetta quel report verificato da `validate_partial_saved_report`. Una sessione nuova rilegge lo stato completo e due STAT; richiede lo stesso preset/scena/capture, gain salvato, A2 attivo in modalità 2 e safe=0, con T.nproc crescente. Non ripete CSAVE, PSAVE o SNAPSAVE.
+`tools/probe_mini_browser_saved_reload.py` accepts that report as verified by `validate_partial_saved_report`. A new session rereads the complete state and two STAT responses; it requires the same preset/scene/capture, saved gain, active A2 in mode 2 and safe=0, with increasing T.nproc. It does not repeat CSAVE, PSAVE, or SNAPSAVE.
 
-Il guard separato consente esattamente due comandi, originati dai controlli originali:
+The separate guard allows exactly two commands originating from the original controls:
 
-1. Apre il popup meters e invia ArrowDown alla manopola Output: volume salvato meno 1 dB.
-2. Apre Presets e invia Enter alla riga già salvata: PLOAD della stessa slot.
+1. Open the meters popup and send ArrowDown to the Output knob: saved volume minus 1 dB.
+2. Open Presets and send Enter to the already saved row: PLOAD of the same slot.
 
-Il secondo passaggio deve ripristinare gain, modello, capture e scena 0 salvati. L'attesa dell'aggiornamento UI osserva solo lo stato JavaScript; non ripete comandi o tasti. ACK e risposte devono essere presenti nei byte RX nativi. Il successo viene registrato solo dopo la chiusura nativa della porta; il rapporto precedente non viene alterato e non vengono simulati sei comandi nella nuova sessione.
+The second step must restore the saved gain, model, capture, and scene 0. Waiting for the UI update only observes JavaScript state; it repeats no commands or key presses. ACKs and responses must be present in native RX bytes. Success is recorded only after native port closure; the previous report is not altered, and six commands are not simulated in the new session.
 
-Controllo offline:
+Offline check:
 
 ```powershell
 python tools/probe_mini_browser_saved_reload.py --check-only --partial-report build/mini-first-preset-ui-04/report.json --partial-report-sha256 0eb9836638dd2025d9e75f380db4cc9c765c53dcc7ff4e0316ab810c3d2479ff
 ```
 
-L'esecuzione esplicita usa `--execute` al posto di `--check-only` e richiede `--output` nuovo. Il selettore USB deve essere attestato in `selection.json`, come nelle prove precedenti. Il programma non autorizza famiglie generali, non ritenta scritture e non certifica qualità acustica, pannello fisico, BLE o conservazione dopo spegnimento.
+Explicit execution uses `--execute` instead of `--check-only` and requires a new `--output`. USB selection must be attested in `selection.json`, as in previous tests. The program does not authorise general command families, retry writes, or certify acoustic quality, the physical panel, BLE, or retention after power-off.
 
-I test eseguono le funzioni originali `buildGains` e `loadPreset` con seriale/DOM simulati; verificano ordine, focus, trusted event, ACK/RX, chiusura e il preflight sui file reali. Nessun test software qui apre browser o pedale.
+Tests execute original `buildGains` and `loadPreset` functions with simulated serial/DOM; they check order, focus, trusted events, ACK/RX, closure, and preflight against real files. No software test here opens a browser or the pedal.
 
-## Tentativi reali del 16 novembre 2026
+## Real attempts on 16 November 2026
 
-Le sessioni `mini-saved-reload-ui-01` e `02` non hanno chiamato `requestPort`:
-il tour introduttivo copriva Connect dopo un clic troppo precoce su Skip.
-Una diagnosi offline con API hardware bloccate ha verificato la sequenza
-Skip/Connect tramite eventi trusted. Portare la pagina in primo piano,
-acquisire una schermata e verificare il bersaglio del clic permette di
-distinguere questo problema dal protocollo USB.
+Sessions `mini-saved-reload-ui-01` and `02` did not call `requestPort`:
+the introductory tour covered Connect after Skip was clicked too early.
+An offline diagnosis with hardware APIs blocked checked the Skip/Connect
+sequence using trusted events. Bringing the page to the foreground, taking
+a screenshot, and checking the click target distinguishes this problem from
+the USB protocol.
 
-Nella sessione `03`, Skip e Connect reali hanno aperto il selettore nativo,
-rimasto su “Finding devices…” fino alla scadenza. Nessuna porta è stata aperta,
-nessun comando è stato trasmesso e nessuna modifica al preset è avvenuta.
-Alle 06:47–06:48 UTC anche due sessioni seriali dirette, esterne al browser,
-hanno fallito: prima nessuna risposta al PING, poi timeout di scrittura.
-Entrambe hanno chiuso la porta. Windows continuava a elencare COM3 con
-VID `3654` e PID `5155`. Queste osservazioni non identificano la causa del
-blocco; la riaccensione fisica è stata richiesta e resta da verificare.
+In session `03`, actual Skip and Connect actions opened the native chooser,
+which remained on “Finding devices…” until timeout. No port was opened,
+no command transmitted, and no preset changed. At 06:47–06:48 UTC, two direct
+serial sessions outside the browser also failed: first no PING response,
+then a write timeout. Both closed the port. Windows continued to list COM3
+with VID `3654` and PID `5155`. These observations do not identify the
+cause of the stall; a physical power cycle was requested and remains to
+be verified.
 
-I tre report falliti e i log diretti sono conservati nei percorsi riportati
-in `analysis/hardware/CURRENT_STATE.json`. Nessun bundle qualificato è stato
-emesso sulla base di questi tentativi.
+The three failed reports and direct logs are preserved at the paths listed
+in `analysis/hardware/CURRENT_STATE.json`. No qualified bundle was issued
+on the basis of these attempts.

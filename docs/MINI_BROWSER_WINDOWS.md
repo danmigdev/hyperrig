@@ -1,31 +1,31 @@
-# Enumerazione WebSerial su Windows
+# Web Serial enumeration on Windows
 
-Il selettore Chrome 157 può restare su “Finding devices” prima di aprire la
-seriale. Nella revisione Chromium `0985600c06a688b9c669e74afde7dacd5aaed047`,
-`SerialUsbDisplayNameWin` è abilitato per default: legge descrittori USB tramite
-chiamate sincrone al driver hub per ricavare il nome della porta. Il percorso
-alternativo usa le proprietà del dispositivo già registrate in Windows.
-Fonti: [definizione del feature](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/services/device/public/cpp/device_features.cc)
-e [enumeratore Windows](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/services/device/serial/serial_device_enumerator_win.cc).
+The Chrome 157 chooser can remain on “Finding devices” before opening the
+serial port. In Chromium revision `0985600c06a688b9c669e74afde7dacd5aaed047`,
+`SerialUsbDisplayNameWin` is enabled by default: it reads USB descriptors through
+synchronous hub-driver calls to obtain the port name. The alternative path uses
+device properties already registered in Windows.
+Sources: [feature definition](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/services/device/public/cpp/device_features.cc)
+and [Windows enumerator](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/services/device/serial/serial_device_enumerator_win.cc).
 
-`tools/mini_browser_windows.py` aggiunge soltanto `SerialUsbDisplayNameWin`
-all'unico `--disable-features` esistente, esclusivamente su Windows. Il probe
-saved-reload v2 e il launcher normale registrano gli argomenti effettivi, il
-motivo e l'hash dell'helper prima di avviare il processo isolato. Permessi,
-identificazione VID/PID, guard e protocollo rimangono quelli già verificati.
-Nessuna impostazione di sistema viene modificata.
+`tools/mini_browser_windows.py` adds only `SerialUsbDisplayNameWin` to the
+single existing `--disable-features` argument, exclusively on Windows.
+The saved-reload v2 probe and normal launcher record the actual arguments,
+reason and helper hash before starting the isolated process.
+Permissions, VID/PID identification, guard and protocol remain as already
+verified. No system setting is changed.
 
-Questa modifica elimina un percorso bloccante documentato; non dimostra che
-fosse la causa del tentativo fallito. Chrome attende anche l'inizializzazione
-dell'adattatore Bluetooth prima di completare l'elenco: il filtro USB non
-salta tale attesa ([gestore delle porte nella stessa revisione](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/services/device/serial/serial_port_manager_impl.cc)).
-I test qui verificano solo la configurazione e i flussi
-simulati; l'esito del selettore e del PONG richiede una sessione reale separata.
+This change removes a documented blocking path; it does not prove that this
+path caused the failed attempt. Chrome also waits for Bluetooth-adapter
+initialization before completing the list: the USB filter does not bypass
+that wait ([port manager in the same revision](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/services/device/serial/serial_port_manager_impl.cc)).
+These tests verify only configuration and simulated flows; chooser and PONG
+outcomes require a separate real session.
 
-Il tentativo Chrome v2-02 ha registrato COM3 in `chrome://device-log` ma il
-selettore non ha completato l'elenco. La successiva prova reale di root con
-Edge installato ha mostrato COM3 e restituito il suo `getInfo`, senza aprire
-la seriale. Per questo l'helper ora sceglie Edge su Windows, con gli stessi
-argomenti e un profilo isolato. Registra l'eseguibile scelto; non sostituisce
-silenziosamente Edge con Chrome se manca. Altrove resta la selezione originale.
-Il risultato del chooser non è ancora una prova di apertura, PONG o preset.
+Chrome attempt v2-02 recorded COM3 in `chrome://device-log`, but the chooser
+did not finish listing devices. Root's subsequent real trial with the installed
+Edge showed COM3 and returned its `getInfo` without opening the serial port.
+The helper therefore now selects Edge on Windows, with the same arguments and
+an isolated profile. It records the selected executable; if Edge is missing,
+it does not silently substitute Chrome. Other platforms retain the original
+selection. A chooser result is not yet evidence of opening, PONG or presets.

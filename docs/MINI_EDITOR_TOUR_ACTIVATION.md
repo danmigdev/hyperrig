@@ -1,26 +1,27 @@
-# Tour dell'editor durante la prova di ricaricamento
+# Editor tour during the reload test
 
-`tools/activate_mini_editor_ui.py` è un'utilità dell'operatore per la prova
-`probe_mini_browser_saved_reload.py` già congelata. Non modifica il probe,
-il guard, il qualificatore o i loro report.
+`tools/activate_mini_editor_ui.py` is an operator utility for the already frozen
+`probe_mini_browser_saved_reload.py` test. It does not modify the probe, guard,
+qualifier, or their reports.
 
-Con `--execute` seleziona soltanto la pagina locale esatta attestata dal report
-attivo, porta la finestra avanti e salva screenshot. Attende tre hit-test
-stabili del pulsante Skip, esegue un clic CDP reale e verifica la scomparsa
-di `.coach`. Poi clicca Connect una sola volta, esclusivamente con
-`requests=opens=mutations=0`, porta chiusa e stato non connesso/non in connessione.
-Verifica il clic trusted e la richiesta del chooser. Non seleziona il dispositivo,
-non invia comandi seriali e non certifica una connessione. L'eventuale selezione
-successiva resta all'operatore e il flusso originale del probe resta attivo.
+With `--execute`, it selects only the exact local page attested by the active
+report, brings the window forward, and saves screenshots. It waits for three
+stable hit-tests on the Skip button, performs a real CDP click, and verifies
+that `.coach` disappears. It then clicks Connect once, only with
+`requests=opens=mutations=0`, a closed port, and a state that is neither connected
+nor connecting. It verifies the trusted click and chooser request. It does not
+select the device, send serial commands, or certify a connection. Any subsequent
+selection remains the operator's responsibility, and the original probe flow
+remains active.
 
 ```powershell
 python tools/activate_mini_editor_ui.py --check-only --report build/mini-saved-reload-ui-NN/report.json
 python tools/activate_mini_editor_ui.py --execute --report build/mini-saved-reload-ui-NN/report.json --output build/mini-tour-operation-NN
 ```
 
-Output nuovo obbligatorio, nessuna ripetizione automatica dopo un clic incerto.
-Il default non legge input e non apre il browser. Le prove automatiche usano
-solo CDP simulato. Visibilità e focus sono osservazioni: nessuna loro proprietà
-viene falsificata. Questa procedura corregge l'intercettazione del clic da parte
-del tour; non risolve né diagnostica da sola il successivo chooser senza dispositivi
-o l'assenza di risposta USB osservata anche dal client COM.
+A new output is required; there is no automatic repetition after an uncertain
+click. The default reads no input and does not open a browser. Automated tests
+use only simulated CDP. Visibility and focus are observations: none of their
+properties is falsified. This procedure addresses click interception by the
+tour; by itself, it neither resolves nor diagnoses a subsequent empty device
+chooser or the USB nonresponse also observed by the COM client.

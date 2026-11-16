@@ -1,0 +1,27 @@
+{
+  "app/mini/mini-ui.js": {
+    "path": "analysis/hardware/source-snapshots/pre-english/app/mini/mini-ui.js",
+    "sha256": "b54aa4258391102ed66b06aeab21aa0936466d51c9e56afbaffb990837046007",
+    "git_revision": "882ccb1"
+  },
+  "app/mini/mini-ui-v2.js": {
+    "path": "analysis/hardware/source-snapshots/pre-english/app/mini/mini-ui-v2.js",
+    "sha256": "d12cfa13ed3e414b600f23ec6cb8be3989632f4990d50079855b5beebaea663d",
+    "git_revision": "882ccb1"
+  },
+  "tools/launch_mini_desktop_readonly.py": {
+    "path": "analysis/hardware/source-snapshots/pre-english/tools/launch_mini_desktop_readonly.py",
+    "sha256": "ffe876c4ab1ac0f4ea051056369dc70f124d5ba0a3168dff71aea9bc5425f412",
+    "git_revision": "882ccb1"
+  },
+  "tools/launch_mini_desktop_v3.py": {
+    "path": "analysis/hardware/source-snapshots/pre-english/tools/launch_mini_desktop_v3.py",
+    "sha256": "4bb838dd9a18839685ee5211af64ce014ac858975d9b3faca61ffa984a25d754",
+    "git_revision": "882ccb1"
+  },
+  "tools/launch_mini_fx_editor.py": {
+    "path": "analysis/hardware/source-snapshots/pre-english/tools/launch_mini_fx_editor.py",
+    "sha256": "c0371984bbd617a2a5cf54f62e06fc51359d0d9bc8457b569342260b23938381",
+    "git_revision": "882ccb1"
+  }
+}

@@ -1,79 +1,81 @@
-# Contratto delle immagini TANK MINI
+# TANK MINI image contract
 
-`tools/check_mini_image.py` valida offline il pacchetto stock e gli ELF prodotti
-per il MINI. La validazione controlla formato, CRC, indirizzi e inizializzazione
-della memoria. Il report conserva `flashable: false` e
-`boot_verified_on_device: false`: un ELF coerente non dimostra l'avvio fisico,
-la disponibilità dell'audio o la possibilità di recuperare il dispositivo.
+`tools/check_mini_image.py` validates the stock package and ELF files produced
+for the MINI offline. Validation checks format, CRCs, addresses and memory
+initialization. The report retains `flashable: false` and
+`boot_verified_on_device: false`: a consistent ELF does not prove physical
+boot, audio availability or device recoverability.
 
-## Pacchetto originale verificato
+## Verified original package
 
-La fonte fissata è `artifacts/tank-mini/TANK-MINI.fwsc`, versione incorporata
+The pinned source is `artifacts/tank-mini/TANK-MINI.fwsc`, embedded version
 `TANK MINI_009`, SHA-256
 `13a8c87f5910334eef7c818e2bd5eec41de726e28b0ad02c290ee2095969a209`.
-Si verificano l'identità del pacchetto, il chip AC791N, il CRC del contenitore
-principale `flash.bin`, i CRC dell'area JLFS e dei file applicativi.
+Checks cover package identity, the AC791N chip, the main `flash.bin`
+container CRC, JLFS-area CRCs and application-file CRCs.
 
-| Contenuto | Intervallo/dimensione |
+| Content | Range/size |
 |---|---|
-| Pacchetto FWSC | 557.044 byte |
-| Payload `flash.bin` | `[0, 0x82000)`, 532.480 byte |
-| Prefisso precedente all'applicazione | `[0, 0x4000)` |
-| Area applicazione MINI | flash fisica `[0x4000, 0x82000)` |
-| Finestra CPU corrispondente | `[0x02000000, 0x0207E000)` |
-| Inizio di `app.bin` / entry | offset area `0x120` / CPU `0x02000120` |
-| `app.bin` stock | 511.032 byte |
-| `cfg_tool.bin` stock | 383 byte |
+| FWSC package | 557,044 bytes |
+| `flash.bin` payload | `[0, 0x82000)`, 532,480 bytes |
+| Prefix before the application | `[0, 0x4000)` |
+| MINI application area | Physical flash `[0x4000, 0x82000)` |
+| Corresponding CPU window | `[0x02000000, 0x0207E000)` |
+| `app.bin` start / entry | Area offset `0x120` / CPU `0x02000120` |
+| Stock `app.bin` | 511,032 bytes |
+| Stock `cfg_tool.bin` | 383 bytes |
 | VM | `[0x82000, 0xBE000)` |
 | BTIF | `[0xBE000, 0xBF000)` |
 | USR | `[0xBF000, 0xFF000)` |
 
-Il payload `flash.bin` si interrompe all'inizio della VM. Non contiene la VM,
-BTIF o USR dell'esemplare e non costituisce un backup totale. Anche l'area
-key/MAC candidata `[0xFF000, 0x100000)` è fuori da quel payload; geometria della
-flash e dati individuali restano da verificare con una lettura del dispositivo.
-Il report distingue queste prove dal semplice possesso del file del produttore.
+The `flash.bin` payload ends at the start of VM. It contains none of the
+unit's VM, BTIF or USR and is not a complete backup.
+The candidate key/MAC area `[0xFF000, 0x100000)` is also outside that payload;
+flash geometry and individual data still require verification by reading
+the device. The report distinguishes this evidence from merely possessing
+the manufacturer's file.
 
-Il prefisso `[0, 0x4000)` è identificato separatamente dall'hash
+Prefix `[0, 0x4000)` is separately identified by hash
 `d9f43191777656de01c7bed4f9e9ba2e34e94832c5d2ed02c3fc7ab7a6d9bd67`.
-Lo strumento non genera né modifica questo prefisso. Le directory G/B hanno
-VM a `0x7B000` e BTIF a `0xBD000`: vengono rifiutate anche se il file viene
-allungato fino alla dimensione attesa per il MINI.
+The tool neither generates nor modifies this prefix.
+G/B directories have VM at `0x7B000` and BTIF at `0xBD000`:
+they are rejected even if the file is extended to the expected MINI size.
 
-Tre ausiliari del FWSC (`isd_config.ini`, `script.ver`, `blimit.bin`) non
-corrispondono al CRC calcolato sui byte grezzi. Il pacchetto fissato è integro
-rispetto al suo SHA; questi record restano opachi e potrebbero usare una
-codifica ulteriore. Il validatore non li presenta come corrotti o decodificati.
-Il record `ota.bin` contiene il nome `usb_hid_ota.bin`: questo è un indizio
-del percorso di aggiornamento, non una verifica del protocollo HID sul pedale.
+Three FWSC auxiliaries (`isd_config.ini`, `script.ver`, `blimit.bin`)
+do not match the CRC computed over raw bytes. The pinned package is intact
+according to its SHA; these records remain opaque and may use further
+encoding. The validator does not present them as corrupt or decoded.
+The `ota.bin` record contains the name `usb_hid_ota.bin`:
+this is a clue about the update path, not verification of the pedal's HID protocol.
 
-## ELF per il MINI
+## ELF for the MINI
 
-Il contratto è condiviso con [MINI_BOOT.md](MINI_BOOT.md). Sono richiesti:
+The contract is shared with [MINI_BOOT.md](MINI_BOOT.md). Requirements are:
 
-- ELF32 little-endian, macchina pi32v2 `0xF1`, tipo eseguibile e entry
-  `0x02000120`. Un oggetto relocatable del solo DSP viene rifiutato.
-- Segmenti flash entro `[0x02000120, 0x0207E000)` e segmenti RAM entro
-  `[0x01C00000, 0x01C7FD30)`, senza sovrapposizioni o payload troncati.
-- Byte iniziali della RAM presenti in flash e descritti dai simboli di copia:
-  `__ram_start/end` e `__ram_load_start/end`. Deve essere coperto **ogni byte**
-  dello span: aumentare entrambi gli end senza aggiungere payload non passa.
-- Simboli di azzeramento `__bss_start/end`, memoria preservata
-  `__noinit_start/end` e due stack `__stack_bottom/top`, `__ssp_bottom/top`.
-  Ogni sezione allocata NOBITS deve ricadere nella propria regione dichiarata.
-- Regione generale `__ram_region_start/end` e riserva boot
-  `__boot_reserved_start/end = [0x01C7FD30, 0x01C80000)`. Quest'ultima comprende
-  il contesto boot, la tabella degli handler IRQ e lo slot di ingresso CPU1
-  identificati dall'analisi stock.
-- Nessun simbolo globale o debole irrisolto, nessun interprete/linker dinamico,
-  un `__flash_image_end` coerente con i segmenti caricabili.
+- Little-endian ELF32, pi32v2 machine `0xF1`, executable type and entry
+  `0x02000120`. A relocatable DSP-only object is rejected.
+- Flash segments within `[0x02000120, 0x0207E000)` and RAM segments within
+  `[0x01C00000, 0x01C7FD30)`, without overlaps or truncated payloads.
+- RAM initialization bytes present in flash and described by copy symbols
+  `__ram_start/end` and `__ram_load_start/end`. **Every byte** of the span
+  must be covered: increasing both ends without adding payload does not pass.
+- Zeroing symbols `__bss_start/end`, preserved memory
+  `__noinit_start/end`, and two stacks `__stack_bottom/top`,
+  `__ssp_bottom/top`. Every allocated NOBITS section must lie within its
+  declared region.
+- General region `__ram_region_start/end` and boot reservation
+  `__boot_reserved_start/end = [0x01C7FD30, 0x01C80000)`. The latter includes
+  the boot context, IRQ-handler table and CPU1 entry slot identified through
+  stock analysis.
+- No unresolved global or weak symbols, no dynamic interpreter/linker, and
+  a `__flash_image_end` consistent with loadable segments.
 
-La prima prova con il linker JieLi ha prodotto `p_align = 0x500`, rifiutato
-dal validatore. Il build MINI usa ora `-z max-page-size=0x20` e
-`-z common-page-size=0x20`: i segmenti del probe rispettano gli allineamenti
-ELF senza alterazioni successive del file.
+The first JieLi linker trial produced `p_align = 0x500`, rejected by the
+validator. The MINI build now uses `-z max-page-size=0x20` and
+`-z common-page-size=0x20`: probe segments satisfy ELF alignment without
+postprocessing the file.
 
-## Esecuzione e prove
+## Execution and tests
 
 ```powershell
 python tools/build_mini_boot.py
@@ -81,59 +83,58 @@ python tools/check_mini_image.py --elf build/mini-boot/hyperrig-mini-boot-probe.
 python -m unittest tests.test_mini_image -v
 ```
 
-Per conservare insieme le evidenze dei due probe, dopo la build del probe DSP:
+To retain evidence for both probes together, after building the DSP probe:
 
 ```powershell
 python tools/check_mini_image.py --elf build/mini-boot/hyperrig-mini-boot-probe.elf --elf build/mini-boot/hyperrig-mini-dsp-link-probe.elf --report research/mini-image.json
 ```
 
-I dieci test coprono ELF troncati, tipo/CPU/entry errati, uscite dai limiti,
-sovrapposizioni, simboli runtime non risolti, copie RAM prive di byte sorgente,
-BSS non azzerabile, noinit sovrapposta, CRC stock e uso improprio di immagini G/B.
-Il risultato sui file reali, con hash, segmenti e simboli, è in
-[mini-image.json](../research/mini-image.json).
+The ten tests cover truncated ELF files, incorrect type/CPU/entry,
+out-of-bounds ranges, overlaps, unresolved runtime symbols, RAM copies without
+source bytes, BSS that cannot be zeroed, overlapping noinit, stock CRCs and
+misuse of G/B images. Results for real files, including hashes, segments
+and symbols, are in [mini-image.json](../research/mini-image.json).
 
-## Requisiti ancora aperti per avviare il dispositivo
+## Remaining requirements for device boot
 
-Il validatore controlla il contratto del file, mentre restano da provare il
-passaggio effettivo dal bootloader all'applicazione, la configurazione dei
-clock e l'integrazione IRQ/audio/DSP sul dispositivo. Il compositore descritto
-sotto copre l'area applicativa; i metadati e il trasporto dell'aggiornamento
-richiedono ancora una verifica distinta.
+The validator checks the file contract; actual bootloader-to-application
+handover, clock configuration and device IRQ/audio/DSP integration remain
+unproven. The composer described below covers the application area;
+update metadata and transport still need separate verification.
 
-Il bytecode recuperato dell'installer originale (`parse_identify` in
-`recovered/installer/tankg_install.constants.json`) ammette TANK-G/TANK-B e
-contiene controlli specifici sulle loro revisioni e mappe. La rinomina HyperRig
-non introduce supporto MINI in quei percorsi. Il collegamento BLE che ha letto
-`TANK MINI_009` non ha verificato un ingresso al bootloader o acquisito un backup
-completo. Trasporto di aggiornamento, backup individuale e ripristino richiedono
-ancora prove specifiche sul dispositivo.
+Recovered bytecode from the original installer (`parse_identify` in
+`recovered/installer/tankg_install.constants.json`) accepts TANK-G/TANK-B
+and contains checks specific to their revisions and maps.
+Renaming it HyperRig does not introduce MINI support in those paths.
+The BLE connection that read `TANK MINI_009` did not verify bootloader entry
+or acquire a complete backup. Update transport, per-unit backup and restoration
+still require specific device trials.
 
-## Composizione dell'area applicativa sperimentale
+## Composing the experimental application area
 
-`tools/package_mini_probe.py` compone esclusivamente lo slice fisico
-`[0x4000,0x82000)` a partire da un ELF che passa il validatore e dal pacchetto
-MINI 009 fissato nel manifest. Non contiene il bootloader o i dati del singolo
-esemplare e non è un file FWSC. Il layout valido non dimostra avvio o recuperabilità.
+`tools/package_mini_probe.py` composes only physical slice
+`[0x4000,0x82000)` from an ELF that passes validation and the MINI 009 package
+pinned in the manifest. It contains neither the bootloader nor unit-specific
+data and is not an FWSC file. Valid layout does not prove boot or recoverability.
 
 ```powershell
 python tools/package_mini_probe.py --elf build/mini-boot/hyperrig-mini-bringup-probe.elf --output build/mini-boot/hyperrig-mini-bringup-probe.app-area.bin --report research/mini-package.json
 ```
 
-I byte dei segmenti ELF vengono inseriti agli indirizzi **LMA in flash**, inclusa
-la sorgente dei dati inizializzati in RAM. BSS, mailbox noinit e stack non vengono
-serializzati. I vuoti e tutta la parte dell'eseguibile stock sostituita sono
-riempiti con `FF`, così il vecchio codice non rimane dietro al nuovo programma.
+ELF-segment bytes are placed at their **flash LMA addresses**, including the
+source of initialized RAM data. BSS, the noinit mailbox and stacks are not
+serialized. Gaps and the entire replaced portion of the stock executable
+are filled with `FF`, so old code is not left behind the new program.
 
-`cfg_tool.bin` rimane all'offset originale `0x7CD58`; i suoi byte e tutti i record
-delle regioni MINI sono identici allo stock. Un programma che vi si sovrappone
-viene rifiutato. Cambiano soltanto lunghezza/CRC del file applicativo e CRC
-dell'area. Il trasformato SFC usa la chiave del pacchetto stock, non una chiave
-letta dall'esemplare. Il report riporta esplicitamente questa provenienza.
+`cfg_tool.bin` stays at original offset `0x7CD58`; its bytes and every MINI
+region record are identical to stock. A program overlapping it is rejected.
+Only the application file's length/CRC and area CRC change.
+The SFC transformation uses the stock package's key, not a key read from
+the unit. The report explicitly states this provenance.
 
-Il verificatore riapre il file scritto, controlla ogni CRC, confronta tutti i
-segmenti con l'ELF e verifica i byte conservati e i riempimenti. Nove test
-aggiuntivi coprono indirizzi LMA, NOBITS, padding, corruzione, sovrapposizione
-alla configurazione (anche con ELF e CRC formalmente validi) e un eseguibile
-alterato che ha comunque CRC validi.
-I risultati e gli hash sono in [mini-package.json](../research/mini-package.json).
+The verifier reopens the written file, checks every CRC, compares all segments
+with the ELF, and verifies preserved bytes and fills.
+Nine additional tests cover LMA addresses, NOBITS, padding, corruption,
+configuration overlap (even with formally valid ELF and CRCs), and an altered
+executable whose CRCs are still valid.
+Results and hashes are in [mini-package.json](../research/mini-package.json).

@@ -1,36 +1,40 @@
-# Aprire l'editor HyperRig MINI
+# Opening the HyperRig MINI editor
 
-Il bundle verificato è disponibile in `build/hyperrig-mini-qualified-editor`.
-Con il MINI acceso e collegato tramite USB dati, aprire con doppio clic
-`tools/launch_mini_editor.cmd`. Non serve UAC. Su Windows viene usato Microsoft
-Edge già installato, con un profilo separato.
+For the current English product, use `tools/launch_hyperrig_editor.cmd` and
+follow [the current launcher guide](MINI_FX_EDITOR_LAUNCHER.md). The remainder
+of this document records the earlier four-family editor and its physical test.
 
-Se compare la guida iniziale, premere **Skip**, poi **Connect** e selezionare
-**Tank-M HyperRig (COM3)** nel selettore USB. L'apertura nativa su questo PC
-ha richiesto anche 15–20 secondi; il timeout dell'editor è esteso a 30 secondi.
-Attendere la connessione senza aprire una seconda finestra.
+The verified bundle is available in `build/hyperrig-mini-qualified-editor`.
+With the MINI powered on and connected through a USB data cable, double-click
+`tools/launch_mini_editor.cmd`. UAC is not required. On Windows, it uses the
+already installed Microsoft Edge with a separate profile.
 
-Per regolare il volume, aprire il meter e usare la manopola Output. Nel pannello
-Presets, Save salva il preset; selezionare la sua riga per richiamarlo. La prova
-reale del 16 novembre ha confermato modifica del volume e ripristino di
-“Preset 1A”, capture A2 e scena A.
+If the introductory guide appears, press **Skip**, then **Connect**, and select
+**Tank-M HyperRig (COM3)** in the USB chooser. Native opening on this PC has
+taken as long as 15–20 seconds; the editor timeout is extended to 30 seconds.
+Wait for the connection without opening a second window.
 
-Si apre una finestra dell'editor originale con un profilo browser separato. Il profilo dell'app abilita esclusivamente le famiglie USB qualificate `GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`: volume, caricamento/salvataggio preset e salvataggio scene. Il launcher non aggiunge un guard di sola lettura o un limite a una singola operazione e non invia comandi di modifica. La barra indica «USB: volume e preset».
+To adjust volume, open the meter and use the Output knob. In the Presets panel,
+Save saves the preset; select its row to recall it. The physical test on
+16 November confirmed volume adjustment and restoration of “Preset 1A”, the
+A2 capture, and scene A.
 
-Ogni avvio verifica soltanto il sigillo del bundle e i file dell'app. La validazione completa delle prove fisiche avviene durante la creazione del bundle; non è ripetuta all'apertura. Nessun bundle qualificato viene creato dal launcher.
+A window of the original editor opens with a separate browser profile. The app profile enables only the qualified USB families `GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`: volume, preset loading/saving, and scene saving. The launcher adds neither a read-only guard nor a single-operation limit and does not send mutation commands. The banner reads “USB: volume and presets” (translated from the recorded interface text).
 
-Chiudere la finestra prima di aprire una seconda sessione. Il server localhost termina insieme alla finestra; non viene installato alcun servizio. Per chiedere una chiusura ordinata da terminale, usare la directory della sessione corrente, registrata sotto `build/mini-editor-session-*`:
+Each launch verifies only the bundle seal and app files. Full validation of the physical evidence occurs when the bundle is created; it is not repeated on launch. The launcher does not create a qualified bundle.
+
+Close the window before opening a second session. The localhost server stops with the window; no service is installed. To request an orderly close from a terminal, use the current session directory recorded under `build/mini-editor-session-*`:
 
 ```powershell
-python tools/launch_mini_editor.py --close-session build/mini-editor-session-<identificativo>
+python tools/launch_mini_editor.py --close-session build/mini-editor-session-<identifier>
 ```
 
-La richiesta locale lascia finire la coda originale, chiude la porta e poi il browser/server. Una chiusura della finestra che impedisca l'ultima osservazione viene riportata come non osservata; non viene inventata una conferma seriale.
+The local request lets the original queue finish, closes the port, and then closes the browser/server. If window closure prevents the final observation, closure is reported as unobserved; no serial confirmation is invented.
 
-Controllo locale senza browser o dispositivo:
+Local check without a browser or device:
 
 ```powershell
 python tools/launch_mini_editor.py --check-only --bundle build/hyperrig-mini-qualified-editor
 ```
 
-Le sessioni conservano i riferimenti al bundle, il PONG effettivo, le osservazioni native di apertura/chiusura e gli eventuali errori. Questi dati non attestano qualità audio o nuove funzioni oltre alla qualifica già presente nel bundle.
+Sessions preserve bundle references, the actual PONG, native open/close observations, and any errors. These data do not attest to audio quality or new functionality beyond the qualification already present in the bundle.

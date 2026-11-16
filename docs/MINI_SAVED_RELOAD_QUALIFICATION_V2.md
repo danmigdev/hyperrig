@@ -1,36 +1,36 @@
-# Qualifica del preset conservato: continuazione USB v2
+# Retained-preset qualification: USB continuation v2
 
-Il modello `browser-retained-save-and-reload-two-sessions-v2` mantiene due
-sessioni reali separate. Il report `mini-first-preset-ui-04` resta fallito:
-attesta i quattro comandi UI già completati (`GAIN`, ripristino `GAIN`,
-`PSAVE`, `SNAPSAVE`), senza affermare un ricaricamento. La continuazione deve
-provare un nuovo `GAIN` e `PLOAD`, confrontare lo stato ricaricato e chiudere
-la porta nativa. Il validatore non ricostruisce una sessione artificiale di
-sei comandi e non modifica i report precedenti.
+The `browser-retained-save-and-reload-two-sessions-v2` model keeps two real
+sessions separate. The `mini-first-preset-ui-04` report remains a failure:
+it attests to the four completed UI commands (`GAIN`, restoring `GAIN`,
+`PSAVE`, `SNAPSAVE`) without claiming a reload. The continuation must prove
+a new `GAIN` and `PLOAD`, compare the reloaded state, and close the native port.
+The validator does not reconstruct an artificial six-command session or
+modify earlier reports.
 
-La v2 riguarda soltanto il collegamento iniziale:
+V2 concerns only the initial connection:
 
-- Una sola apertura Web Serial sul VID/PID `3654:5155`.
-- Fino a cinque `PING` del bootstrap originale. La ripetizione è ammessa
-  soltanto dopo un timeout interamente vuoto, con scrittura nativa conclusa,
-  nessun byte RX e nessun errore di trasporto. Nessuna mutazione è ripetuta.
-- Identità ricostruita da `getInfo()`, apertura nativa e PONG esatto presente
-  nei byte RX. Quando esiste anche una prova UIA, viene controllata
-  separatamente. La sua assenza non viene trasformata in una selezione UIA
-  inventata, né viene attribuita la selezione a una persona.
+- A single Web Serial open on VID/PID `3654:5155`.
+- Up to five `PING` requests from the original bootstrap. Repetition is allowed
+  only after an entirely empty timeout, with the native write completed, no RX
+  bytes, and no transport error. No mutation is repeated.
+- Identity reconstructed from `getInfo()`, native open, and the exact PONG
+  present in RX bytes. When UIA evidence also exists, it is checked separately.
+  Its absence is not turned into an invented UIA selection, nor is selection
+  attributed to a person.
 
-Il modello precedente resta distinto e continua a richiedere la propria
-prova UIA. La versione storica del validatore è conservata nel commit
-`b8a786e`; il nuovo report registra l'hash effettivo della versione v2 usata.
+The earlier model remains separate and still requires its own UIA evidence.
+The historical validator version is preserved in commit `b8a786e`; the new
+report records the actual hash of the v2 version used.
 
-La creazione del bundle richiede una continuazione fisica riuscita e verifica
-una volta l'intera catena locale di fonti, risposte, salvataggio e reload.
-Fixture sintetiche e tentativi incompleti non producono capacità. Le sole
-famiglie previste sono USB `GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`; BLE, upload,
-modifiche FX e le altre famiglie rimangono chiuse.
+Bundle creation requires a successful physical continuation and verifies the
+entire local chain of sources, responses, save, and reload once. Synthetic
+fixtures and incomplete attempts do not grant capabilities. The only planned
+families are USB `GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`; BLE, uploads, FX mutations,
+and other families remain disabled.
 
-L'avvio normale dell'editor verifica il sigillo e i file locali del bundle,
-senza rieseguire la catena storica o dipendere dal percorso del report del
-trial. PONG identifica il firmware dichiarato: non attesta il suo hash.
-Un reload riuscito non costituisce una misura della qualità audio né una
-prova generale di persistenza dopo spegnimento.
+Normal editor startup verifies the seal and local bundle files, without
+replaying the historical chain or depending on the trial report's path. PONG
+identifies the declared firmware; it does not attest to its hash. A successful
+reload is neither an audio-quality measurement nor a general persistence test
+after power-off.

@@ -1,50 +1,50 @@
-# Verifica del protocollo app HyperRig MINI via USB CDC
+# HyperRig MINI app protocol verification over USB CDC
 
-`tools/probe_mini_app.py` prepara la verifica del protocollo originale UltraRig
-nel port integrale MINI. La CLI apre una porta soltanto con il sottocomando
-esplicito `read`; importazione e comando predefinito non enumerano dispositivi.
-Questo lavoro ha usato esclusivamente trasporti simulati. Non dimostra ancora
-enumerazione CDC, esecuzione del port, audio o scritture sul MINI.
+`tools/probe_mini_app.py` prepares verification of the original UltraRig
+protocol in the complete MINI port. The CLI opens a port only with the explicit
+`read` subcommand; importing it or running its default command does not enumerate
+devices. This work used simulated transports only. It does not yet demonstrate
+CDC enumeration, execution of the port, audio, or writes to the MINI.
 
-La fonte delle richieste è
+The request source is
 [`tankg.html`](../recovered/ultrarig-original/web/tankg.html), SHA-256
 `247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6`.
-Il probe controlla l'hash e le ancore del protocollo prima di preparare una
-sessione. Non usa USB-MIDI, SysEx stock o il protocollo della ROM di recupero.
-L'evidenza dei descrittori è in
-[`MINI_APP.md`](MINI_APP.md) e
+The probe checks the hash and protocol anchors before preparing a session.
+It does not use USB-MIDI, stock SysEx, or the recovery ROM protocol. Descriptor
+evidence is in
+[`MINI_APP.md`](MINI_APP.md) and
 [`mini-app-protocol.json`](../research/mini-app-protocol.json).
 
-| Identità USB | Significato per il probe |
+| USB identity | Meaning to the probe |
 |---|---|
-| `3654:5155` | Candidata CDC UltraRig; anche G usa questi ID. Serve poi `PONG tankm_fw …`. |
-| `4C4A:C755` | Stock MINI USB-MIDI, incompatibile. |
-| `4C4A:8057` | ROM di recupero Jieli, incompatibile. |
-| `3654:4155` | Solo valore del template prima della modifica runtime del PID; rifiutato. |
+| `3654:5155` | UltraRig CDC candidate; G also uses these IDs. A subsequent `PONG tankm_fw …` is required. |
+| `4C4A:C755` | Stock MINI USB-MIDI; incompatible. |
+| `4C4A:8057` | Jieli recovery ROM; incompatible. |
+| `3654:4155` | Template value only, before runtime PID modification; rejected. |
 
-L'enumerazione legge soltanto le porte seriali esposte dal sistema operativo.
-Un dispositivo MIDI o ROM può quindi non comparire affatto: una lista vuota
-non dimostra che il pedale sia scollegato. ID USB mancanti non vengono dedotti
-dal nome della porta. Non c'è selezione automatica della prima porta.
+Enumeration reads only the serial ports exposed by the operating system. A MIDI
+or ROM device may therefore not appear at all: an empty list does not prove
+that the pedal is disconnected. Missing USB IDs are not inferred from the port
+name. The first port is not selected automatically.
 
-## Uso previsto dopo l'avvio del port
+## Intended use after the port boots
 
-Il piano è interamente offline e non richiede pyserial:
+The plan is entirely offline and does not require pyserial:
 
 ```powershell
 python -X utf8 tools/probe_mini_app.py
 ```
 
-Per le future operazioni seriali serve `pyserial`, installabile separatamente
-con `python -m pip install pyserial`. La seguente enumerazione non apre porte:
+Future serial operations require `pyserial`, which can be installed separately
+with `python -m pip install pyserial`. The following enumeration does not open ports:
 
 ```powershell
 python -X utf8 tools/probe_mini_app.py enumerate
 ```
 
-Preparare un manifest locale riferito all'immagine effettivamente candidata.
-Questo esempio è riferito alla candidata baseline locale del formatter, non
-certifica che sia installata o completa per la scheda:
+Prepare a local manifest referring to the actual candidate image. This example
+refers to the formatter's local baseline candidate; it does not certify that
+the image is installed or complete for the board:
 
 ```json
 {
@@ -58,139 +58,136 @@ certifica che sia installata o completa per la scheda:
 }
 ```
 
-Salvato per esempio come `build/mini-app-read-manifest.json`, può essere usato
-sia dal probe sia dall'editor. Sostituire percorso/hash quando cambia candidata;
-il caricatore ricalcola l'hash del file locale e rifiuta discrepanze. Per
-generare l'editor in una directory separata, senza sovrascrivere la build
-predefinita o il suo report:
+Saved, for example, as `build/mini-app-read-manifest.json`, it can be used by
+both the probe and the editor. Replace the path/hash when the candidate changes;
+the loader recalculates the local file's hash and rejects discrepancies. To
+generate the editor in a separate directory without overwriting the default
+build or its report:
 
 ```powershell
 python -X utf8 tools/build_mini_app.py --firmware-manifest build/mini-app-read-manifest.json --output build/hyperrig-mini-read --report build/hyperrig-mini-read/report.json
 ```
 
-Con il port realmente avviato e la sua porta nota, un primo controllo limita
-la sessione al solo `PING` usando `--queries` senza argomenti. Questi comandi
-**aprono la porta e inviano richieste**, a differenza del piano precedente:
+With the port actually running and its port known, an initial check limits the
+session to `PING` alone by passing `--queries` without arguments. These commands
+**open the port and send requests**, unlike the earlier plan:
 
 ```powershell
 python -X utf8 tools/probe_mini_app.py read --port COM8 --firmware-manifest build/mini-app-read-manifest.json --log build/mini-cdc-ping-001.jsonl --queries
 python -X utf8 tools/probe_mini_app.py read --port COM8 --firmware-manifest build/mini-app-read-manifest.json --log build/mini-cdc-read-001.jsonl
 ```
 
-`COM8` è un esempio da sostituire. La directory del log deve già esistere;
-un log esistente viene rifiutato prima di enumerare/aprire la porta. Per una
-selezione ridotta usare, per esempio, `--queries MEM PLIST PSTAT`. Ogni sessione
-inizia comunque con `PING`, una sola volta.
+`COM8` is an example to replace. The log directory must already exist; an
+existing log is rejected before enumerating/opening the port. For a smaller
+selection, use, for example, `--queries MEM PLIST PSTAT`. Every session still
+starts with `PING`, exactly once.
 
-## Framing, risposte e limiti
+## Framing, responses, and limits
 
-Le richieste sono ASCII con terminatore LF, una alla volta. Il trasporto usa
-115200 baud, 8N1, nessun flow control, timeout di lettura 50 ms e di scrittura
-1 s. La risposta viene ricomposta da chunk arbitrari e decodificata UTF-8 solo
-a riga completa; CRLF è ammesso. DTR/RTS sono impostati a false prima
-dell'apertura, senza impulsi o cambi successivi. Il comportamento fisico delle
-linee all'apertura dipende anche da OS/driver e resta da verificare sul port.
-La creazione con `Serial(port=None)` e questo limite del driver sono descritti
-nell'[API ufficiale pyserial](https://pyserial.readthedocs.io/en/latest/pyserial_api.html).
+Requests are ASCII with an LF terminator, one at a time. The transport uses
+115200 baud, 8N1, no flow control, a 50 ms read timeout, and a 1 s write timeout.
+Responses are reassembled from arbitrary chunks and decoded as UTF-8 only
+when a complete line is available; CRLF is accepted. DTR/RTS are set to false
+before opening, with no pulses or subsequent changes. The physical behavior
+of the lines at open also depends on the OS/driver and remains to be verified
+on the port. Creation with `Serial(port=None)` and this driver limitation are
+described in the [official pyserial API](https://pyserial.readthedocs.io/en/latest/pyserial_api.html).
 
-I timeout derivano dai call site originali `Pedal.cmd`; i numeri di riga
-seguenti si riferiscono al frontend fissato dall'hash, non alla build derivata.
+Timeouts come from the original `Pedal.cmd` call sites; the line numbers below
+refer to the frontend pinned by its hash, not the derived build.
 
-| Richiesta letterale | Completamento | Timeout | Riga |
+| Literal request | Completion | Timeout | Line |
 |---|---|---:|---:|
-| `PING` | `PONG …`, poi versione MINI esatta del manifest | 700 ms | 10351 |
-| `MODEL` | prefisso `MODEL` | 1500 ms | 5451 |
-| `MEM` | prefisso `MEM` | 3000 ms | 5466 |
-| `LVL` | prefisso `LVL` | 800 ms | 5413 |
-| `FXT` | riga esatta `FXT end` o `FXT fin` | 3000 ms | 5392 |
+| `PING` | `PONG …`, then the exact MINI version from the manifest | 700 ms | 10351 |
+| `MODEL` | `MODEL` prefix | 1500 ms | 5451 |
+| `MEM` | `MEM` prefix | 3000 ms | 5466 |
+| `LVL` | `LVL` prefix | 800 ms | 5413 |
+| `FXT` | exact line `FXT end` or `FXT fin` | 3000 ms | 5392 |
 | `FXS` | `^FXS (peak\|pico)\b` | 2500 ms | 5414, 5506 |
-| `FXMIX` | riga esatta `FXMIX end` o `FXMIX fin` | 1500 ms | 5426 |
-| `FXXO` | riga esatta `FXXO end` | 1200 ms | 14215 |
-| `PLIST` | `PLIST end/fin current/actual=N`, lista coerente | 4000 ms | 12067 |
-| `PSTAT` | prefisso `PSTAT` | 2000 ms | 11075 |
-| `SNAPS` | prefisso `SNAPS` | 1500 ms | 8380 |
-| `SNAPNAME` | prefisso `SNAPNAME end` | 1500 ms | 8388 |
-| `CLIST` | prefisso `CLIST end` o `CLIST fin` | 4000 ms | 14089 |
+| `FXMIX` | exact line `FXMIX end` or `FXMIX fin` | 1500 ms | 5426 |
+| `FXXO` | exact line `FXXO end` | 1200 ms | 14215 |
+| `PLIST` | `PLIST end/fin current/actual=N`, consistent list | 4000 ms | 12067 |
+| `PSTAT` | `PSTAT` prefix | 2000 ms | 11075 |
+| `SNAPS` | `SNAPS` prefix | 1500 ms | 8380 |
+| `SNAPNAME` | `SNAPNAME end` prefix | 1500 ms | 8388 |
+| `CLIST` | `CLIST end` or `CLIST fin` prefix | 4000 ms | 14089 |
 
-La selezione predefinita dopo PING è `MODEL MEM LVL FXS PLIST PSTAT SNAPS
-SNAPNAME`. Non sono accettati argomenti, comandi arbitrari, upload, reset,
-abbonamenti a eventi o modifiche. `FXS end` non è il terminatore reale.
-Il parser PLIST mantiene i 32 slot UltraRig e il limite originale di 23 unità
-UTF-16 per il nome. Rifiuta slot duplicati, disordinati, fuori intervallo,
-righe tronche e preset attivo assente. Una lista incoerente non diventa una
-lista vuota. Il probe non applica i retry del frontend originale.
+The default selection after PING is `MODEL MEM LVL FXS PLIST PSTAT SNAPS
+SNAPNAME`. Arguments, arbitrary commands, uploads, resets, event subscriptions,
+and mutations are not accepted. `FXS end` is not the actual terminator. The
+PLIST parser retains the 32 UltraRig slots and the original name limit of 23
+UTF-16 units. It rejects duplicate, unordered, or out-of-range slots, truncated
+lines, and a missing active preset. An inconsistent list does not become an
+empty list. The probe does not apply the original frontend's retries.
 
-`@…`, `NOISE ms=…`, `CALIB …` ed `ERR CALIB stopped…` sono registrati a parte;
-non completano una richiesta. Gli altri `ERR`, i timeout, una scrittura
-parziale e gli errori di decoding/trasporto chiudono logicamente la sessione:
-nessun retry, riconnessione o comando successivo. Prima di ciascuna richiesta
-i byte preesistenti vengono registrati e scartati; input che non diventa
-inattivo entro 500 ms impedisce l'invio. I limiti sono 8192 byte per riga,
-256 KiB per risposta e 4096 righe non vuote. Una risposta arrivata oltre il
-timeout rimane nel log e non viene accettata.
+`@…`, `NOISE ms=…`, `CALIB …`, and `ERR CALIB stopped…` are logged separately;
+they do not complete a request. Other `ERR` responses, timeouts, partial writes,
+and decoding/transport errors logically terminate the session: no retry,
+reconnection, or subsequent command. Before each request, pre-existing bytes
+are logged and discarded; input that does not become idle within 500 ms prevents
+the send. Limits are 8192 bytes per line, 256 KiB per response, and 4096 nonempty
+lines. A response arriving after the timeout remains in the log and is not accepted.
 
-Il log JSONL registra tempi UTC/monotonic, contesto manifest, richieste, byte
-ricevuti in esadecimale, righe e cause di interruzione; può includere nomi e
-contenuto descrittivo dei preset. I byte vengono conservati anche quando il
-parser rifiuta la risposta. `PONG` verifica identità/versione, **non legge
-l'hash del firmware dal dispositivo**: il campo
-`image_hash_attested_by_device` resta false. Completare queste letture non
-qualifica audio, stabilità, salvataggi o altri comandi dell'editor.
+The JSONL log records UTC/monotonic times, manifest context, requests, received
+bytes in hexadecimal, lines, and termination causes; it may include preset
+names and descriptive contents. Bytes are preserved even when the parser rejects
+the response. `PONG` verifies identity/version; it **does not read the firmware
+hash from the device**: `image_hash_attested_by_device` remains false. Completing
+these reads does not qualify audio, stability, saving, or other editor commands.
 
-## Verifiche offline e gate dell'editor
+## Offline checks and editor gate
 
 ```powershell
 python -X utf8 -m unittest tests.test_mini_app_transport -v
 ```
 
-I 14 test usano porte finte; non importano un driver per aprire dispositivi.
-Coprono frammentazione UTF-8/CRLF, risposte asincrone, identità G/B/stock
-rifiutate, comandi vietati, dati tardivi, timeout, disconnessione, scritture
-parziali, limiti, conservazione dei log e chiusura della porta simulata.
-Un test esegue in Node il parser PLIST originale e confronta i risultati.
+The 14 tests use fake ports; they do not import a driver to open devices. They
+cover UTF-8/CRLF fragmentation, asynchronous responses, rejected G/B/stock
+identities, forbidden commands, late data, timeouts, disconnects, partial writes,
+limits, log preservation, and simulated port closure. One test runs the original
+PLIST parser in Node and compares the results.
 
-Un altro genera davvero l'editor in una directory temporanea con l'hash
-della candidata locale, `read=true`, `write=false`, `hardware_verified=false`;
-esegue poi il gate JavaScript: PONG MINI accettato, PLIST consentito, PSAVE
-negato. La lettura non aspetta una qualificazione hardware già completata:
-serve proprio a raccoglierla. I file congelati dell'editor e il report
-`research/mini-app-protocol.json` non sono stati modificati.
+Another actually generates the editor in a temporary directory with the local
+candidate hash, `read=true`, `write=false`, and `hardware_verified=false`; it then
+runs the JavaScript gate: MINI PONG accepted, PLIST allowed, PSAVE denied. Reading
+does not wait for completed hardware qualification: its purpose is to gather
+that evidence. The frozen editor files and the
+`research/mini-app-protocol.json` report have not been modified.
 
-## Proposta per le successive prove di scrittura, non implementata
+## Proposal for subsequent write tests, not implemented
 
-Il primo ciclo utile riguarda un solo parametro live, dopo aver qualificato
-letture, recupero e condizioni audio. Dal frontend originale alle righe
-7576–7578: richiesta `FXP <id> <indice> <valore>`, risposta
-`FXP ok <valore_effettivo>`. La proposta è:
+The first useful cycle concerns a single live parameter after qualifying reads,
+recovery, and audio conditions. From the original frontend at lines 7576–7578:
+request `FXP <id> <index> <value>`, response `FXP ok <effective_value>`.
+The proposal is:
 
-1. Acquisire FXT, FXS, preset e scena attivi; scegliere un parametro esistente
-   con limiti noti e senza effetti strutturali su routing, memoria, risorse o
-   modalità audio. Conservare il valore originale e lo stato degli altri blocchi.
-2. Applicare un diverso valore ammesso; richiedere ACK con valore effettivo e
-   rileggere FXS per verificare quel valore e l'assenza di cambiamenti inattesi.
-3. Ripristinare il valore originale con FXP; richiedere ACK e FXS coerenti con
-   lo stato semantico iniziale. Un timeout interrompe la prova: non è prova
-   di ripristino riuscito e non autorizza un retry cieco.
+1. Read FXT, FXS, and the active preset and scene; choose an existing parameter
+   with known limits and no structural effects on routing, memory, resources,
+   or audio mode. Preserve the original value and the state of other blocks.
+2. Apply a different allowed value; require an ACK with the effective value and
+   reread FXS to verify that value and the absence of unexpected changes.
+3. Restore the original value with FXP; require an ACK and FXS consistent with
+   the initial semantic state. A timeout stops the test: it is not evidence of
+   successful restoration and does not authorize a blind retry.
 
-Questo verifica soltanto quella modifica live. Non dimostra assenza di
-scritture NOR automatiche, né ripristina lo storico interno di delay/reverb.
-Il profilo completo dell'app abilita le scritture in blocco e richiede un report
-con `all_required_editor_mutations_verified=true`, legato allo stesso hash
-d'immagine. Un singolo ciclo FXP **non soddisfa quel requisito**: occorre
-qualificare le altre famiglie, oppure usare le nuove capabilities per richieste
-esatte documentate in [MINI_APP.md](MINI_APP.md). Queste mantengono `write=false`
-e richiedono prove soltanto per il subset esplicito: nessuna è abilitata ora.
-Non generare il flag di qualifica completa a partire dalle sole letture o dal
-solo ciclo live. Questa estensione dell'editor non aggiunge scritture alla CLI.
+This verifies only that live change. It does not demonstrate the absence of
+automatic NOR writes or restore the internal history of delay/reverb effects.
+The full app profile enables writes broadly and requires a report with
+`all_required_editor_mutations_verified=true`, bound to the same image hash.
+A single FXP cycle **does not meet that requirement**: the other families must
+be qualified, or the new exact-request capabilities documented in
+[MINI_APP.md](MINI_APP.md) must be used. These retain `write=false` and require
+evidence only for the explicit subset: none is enabled at this point. Do not
+generate the full qualification flag from reads alone or from the live cycle
+alone. This editor extension does not add writes to the CLI.
 
-Per qualificare la persistenza serve una prova separata su uno slot
-temporaneo realmente libero e dopo backup: `PSAVE <slot> <nome>` (nome senza
-virgolette aggiunte; ACK `PSAVE ok`, timeout originale 8 s), PLIST,
-`PLOAD <slot>` (ACK `PLOAD ok`, 8 s) e lettura dello stato; infine ripristino
-del preset/scena e delle eventuali modifiche live precedenti, eliminazione
-del solo slot temporaneo con `PDEL <slot>` (ACK `PDEL ok`) e nuova PLIST.
-PSAVE cambia anche il preset corrente; gli snapshot richiedono ulteriori
-verifiche proprie. Il ripristino è logico, non annulla usura o sequenze NOR.
-Anche l'export completo originale non è una semplice lettura: le funzioni
-`pioReadPreset`/export attraversano scene con SNAP e, in alcuni percorsi,
-PLOAD. Il probe non le invoca.
+Qualifying persistence requires a separate test on a genuinely free temporary
+slot, after a backup: `PSAVE <slot> <name>` (name without added quotes; ACK
+`PSAVE ok`, original timeout 8 s), PLIST, `PLOAD <slot>` (ACK `PLOAD ok`, 8 s),
+and a state read; finally, restore the original preset/scene and any preceding
+live changes, delete only the temporary slot with `PDEL <slot>` (ACK `PDEL ok`),
+and obtain a new PLIST. PSAVE also changes the current preset; snapshots require
+additional checks of their own. Restoration is logical and does not undo NOR
+wear or sequences. Even the original full export is not a simple read: the
+`pioReadPreset`/export functions traverse scenes with SNAP and, in some paths,
+PLOAD. The probe does not invoke them.

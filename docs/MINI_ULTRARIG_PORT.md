@@ -1,247 +1,247 @@
-# Port integrale UltraRig G → HyperRig MINI
+# Complete UltraRig G → HyperRig MINI port
 
-La candidata di base conserva il codice dell'**intera applicazione UltraRig G
-v2 M5.71**: 485.772 byte, inclusi motore audio, OS, USB, BLE, gestione preset
-e driver originali. La conservazione dei componenti binari non dimostra che
-ciascuna funzione operi correttamente sull'hardware MINI.
-Non incorpora l'applicazione stock MINI. Il pacchetto stock e il backup della
-singola unità servono a ricostruire hardware, avvio e partizioni.
+The base candidate retains the code of the **entire UltraRig G
+v2 M5.71 application**: 485,772 bytes, including the audio engine, OS, USB, BLE,
+preset management, and original drivers. Preserving the binary components
+does not demonstrate that each function works correctly on MINI hardware.
+It does not incorporate the stock MINI application. The stock package and
+the individual unit's backup serve to reconstruct hardware, boot, and partitions.
 
-Questo documento descrive il formatter di base e il suo artefatto **offline
-incompleto per l'hardware**, identificato dall'hash riportato sotto. Il formatter
-non installa né avvia il firmware e questo audit non accede al pedale.
-La candidata integrata successiva, con gli adattamenti della scheda, e le prove
-fisiche hanno artefatti e report separati: vedere
-[build integrata](MINI_INTEGRATED_PORT.md) e [stato del progetto](../README.md).
+This document describes the base formatter and its **offline artifact,
+incomplete for the hardware**, identified by the hash below. The formatter
+neither installs nor boots the firmware, and this audit does not access the pedal.
+The subsequent integrated candidate, with board adaptations, and the physical
+trials have separate artifacts and reports: see the
+[integrated build](MINI_INTEGRATED_PORT.md) and [project status](../README.md).
 
 ```powershell
 python -X utf8 tools/audit_mini_ultrarig_port.py
 ```
 
-Il comando genera:
+The command generates:
 
-* `build/mini-ultrarig/hyperrig-mini-g-derived.app.bin`: area applicativa di
-  516.096 byte, SHA-256
+* `build/mini-ultrarig/hyperrig-mini-g-derived.app.bin`: a 516,096-byte
+  application area, SHA-256
   `4e74d0c0b1c1f491afdaa92e441d4504efcaff4237b4af1706e57a6e434a20ab`;
-* `research/mini-ultrarig-port.json`: provenienza, istruzioni, patch,
-  directory, confronti NOR, limiti e verifiche riproducibili.
+* `research/mini-ultrarig-port.json`: provenance, instructions, patches,
+  directory, NOR comparisons, limitations, and reproducible checks.
 
-La candidata contiene la directory MINI, cinque patch di identità/marchio
-e una patch alla geometria VM. Ogni patch confronta i byte originali prima
-di modificarli. Invertendo queste sole patch si riottiene esattamente
-`app.bin` G originale. Tutti i CRC JLFS vengono ricalcolati e verificati
-dopo una nuova decodifica SFC. Il report mantiene `flashable=false`,
-`board_port_complete=false` e `boot_verified_on_mini=false`.
+The candidate contains the MINI directory, five identity/branding patches,
+and one VM geometry patch. Each patch checks the original bytes before
+changing them. Reversing only these patches recovers the original G
+`app.bin` exactly. All JLFS CRCs are recalculated and verified
+after a fresh SFC decode. The report retains `flashable=false`,
+`board_port_complete=false`, and `boot_verified_on_mini=false`.
 
-## Formato e spazio
+## Format and space
 
-| Proprietà | UltraRig G v2 | MINI stock 009 |
+| Property | UltraRig G v2 | Stock MINI 009 |
 |---|---:|---:|
-| SoC/formato | AC791N, pi32v2, SFC/JLFS | AC791N, pi32v2, SFC/JLFS |
-| Chiave applicativa verificata dai CRC | `0x980F` | `0x980F` |
-| Area fisica applicazione | `[0x4000,0x7B000)` | `[0x4000,0x82000)` |
-| Dimensione area | `0x77000` | `0x7E000` |
-| Offset `app.bin` nell'area | `0x120` | `0x120` |
-| Entry CPU | `0x02000120` | `0x02000120` |
-| `app.bin` | 485.772 byte | 511.032 byte |
-| `cfg_tool.bin` | 383 byte | Gli stessi 383 byte |
+| SoC/format | AC791N, pi32v2, SFC/JLFS | AC791N, pi32v2, SFC/JLFS |
+| Application key verified by CRCs | `0x980F` | `0x980F` |
+| Physical application area | `[0x4000,0x7B000)` | `[0x4000,0x82000)` |
+| Area size | `0x77000` | `0x7E000` |
+| `app.bin` offset within the area | `0x120` | `0x120` |
+| CPU entry | `0x02000120` | `0x02000120` |
+| `app.bin` | 485,772 bytes | 511,032 bytes |
+| `cfg_tool.bin` | 383 bytes | The same 383 bytes |
 
-Il formato e lo spazio sono compatibili; ciò non dimostra compatibilità
-elettrica o dei parametri di inizializzazione. L'area MINI offre 28.672 byte
-in più della confezione G. Considerando la fine effettiva dei file, il
-limite massimo per codice aggiuntivo è **29.653 byte**, prima di eventuali
-allineamenti. Il codice può iniziare a `0x02076AAC`; `cfg_tool.bin` viene
-spostato dopo di esso e la sua voce JLFS aggiornata. G apre questo file
-tramite `mnt/sdfile/app/cfg_tool.bin` nel frammento `0x0201FAB8..1FAF6`.
+The format and space are compatible; this does not demonstrate electrical
+compatibility or compatible initialization parameters. The MINI area provides
+28,672 bytes more than the G package. Considering the actual end of the files,
+the maximum space for additional code is **29,653 bytes**, before any
+alignment. Code can start at `0x02076AAC`; `cfg_tool.bin` is
+moved after it and its JLFS entry updated. G opens this file
+through `mnt/sdfile/app/cfg_tool.bin` in fragment `0x0201FAB8..1FAF6`.
 
-Questo spazio appartiene all'applicazione da sostituire. Il builder non
-occupa flash vuota nelle partizioni dati e non produce un'immagine completa
-dell'unità da 1 MiB né un contenitore FWSC.
+This space belongs to the application being replaced. The builder does not
+occupy empty flash in data partitions and does not produce a complete
+image of the 1 MiB unit or an FWSC container.
 
-## Bootloader e RAM
+## Bootloader and RAM
 
-L'installer UltraRig originale distribuisce una **area applicativa**, non
-un nuovo bootloader persistente. Il bytecode recuperato `build_target`,
-linee sorgente 1623–1652, copia il dump corrente e sostituisce `APP_AREA`.
-SPL rimane invariato; USR ha politica predefinita `keep`. Esistono rami
-separati di migrazione VM per firmware G97/Tank-B, riparazione e ripristino:
-non è corretto affermare che ogni operazione dell'installer scriva soltanto
-l'app. Il loader `wl82loader.bin` viene eseguito in RAM. Il pacchetto
-originale non dichiara supporto MINI.
+The original UltraRig installer distributes an **application area**, not
+a new persistent bootloader. The recovered `build_target` bytecode,
+source lines 1623–1652, copies the current dump and replaces `APP_AREA`.
+SPL remains unchanged; the default USR policy is `keep`. There are separate
+branches for VM migration on G97/Tank-B firmware, repair, and restoration:
+it is incorrect to claim that every installer operation writes only the
+application. The `wl82loader.bin` loader runs in RAM. The original
+package does not declare MINI support.
 
-Conservare il bootloader factory del MINI è dunque coerente con
-l'architettura UltraRig; l'applicazione factory viene sostituita per intero.
-La compatibilità completa del passaggio di controllo resta da provare.
+Retaining the MINI factory bootloader is therefore consistent with
+the UltraRig architecture; the factory application is replaced entirely.
+Full compatibility of the handover remains to be demonstrated.
 
-| Regione o registro G ricostruito | Valore |
+| Reconstructed G region or register | Value |
 |---|---|
-| Copia RAM iniziale | `[0x01C00000,0x01C2030C)` da `0x02056780` |
+| Initial RAM copy | `[0x01C00000,0x01C2030C)` from `0x02056780` |
 | BSS | `[0x01C2030C,0x01C38050)` |
-| SP / SSP iniziali | `0x01C350B8` / `0x01C360B8` |
-| USP / SP CPU1 | `0x01C363B8` / `0x01C373B8` |
-| Heap | `[0x01C38060,0x01C7FBA0)`, 293.696 byte |
-| Copie/clear esterni richiesti dal reset | Zero byte |
-| Copia privata contesto boot G | `0x01C7FD4C` |
+| Initial SP / SSP | `0x01C350B8` / `0x01C360B8` |
+| USP / CPU1 SP | `0x01C363B8` / `0x01C373B8` |
+| Heap | `[0x01C38060,0x01C7FBA0)`, 293,696 bytes |
+| External copies/clears required by reset | Zero bytes |
+| Private copy of G boot context | `0x01C7FD4C` |
 
-Il reset e l'heap rientrano nella RAM interna da 512 KiB. Questo non prova
-l'assenza di ogni altro accesso a RAM esterna. Gli slot usati dai probe ROM
-non restano liberi: ricadono nelle allocazioni dell'applicazione completa.
+The reset and heap fit within the 512 KiB internal RAM. This does not prove
+the absence of every other external RAM access. The slots used by the ROM
+probes do not remain free: they fall within allocations of the complete application.
 
-Il bootloader MINI passa `r0=0x01C7FE08`. G legge anche otto byte a
-`r0+80` e quattro a `r0+88`, ai siti `0x0200045C` e `0x0200046A`.
-La corretta inizializzazione di queste estensioni nel percorso MINI senza
-SDRAM non è ancora dimostrata. Questo è un controllo di handover residuo,
-separato dai CRC validi del bootloader stock.
+The MINI bootloader passes `r0=0x01C7FE08`. G also reads eight bytes at
+`r0+80` and four at `r0+88`, at sites `0x0200045C` and `0x0200046A`.
+Correct initialization of these extensions in the MINI path without
+SDRAM has not yet been demonstrated. This is a remaining handover check,
+separate from the valid stock bootloader CRCs.
 
-## Partizioni: directory, geometria e contenuto
+## Partitions: directory, geometry, and content
 
-| Nome | G originale | Candidata MINI |
+| Name | Original G | MINI candidate |
 |---|---|---|
 | VM | `[0x7B000,0xBD000)` | `[0x82000,0xBE000)` |
 | PRCT | `[0,0x7B000)` | `[0,0x82000)` |
 | BTIF | `[0xBD000,0xBE000)` | `[0xBE000,0xBF000)` |
-| OTP | `[0xBE000,0xBF000)` | Voce rimossa, assente nel MINI |
-| USR | `[0xBF000,0xFF000)` | Identica |
+| OTP | `[0xBE000,0xBF000)` | Entry removed, absent on MINI |
+| USR | `[0xBF000,0xFF000)` | Identical |
 
-Le partizioni si ricavano dalle directory originali, con CRC verificati.
-Conservare alla cieca la voce OTP G la farebbe sovrapporre a BTIF del MINI.
-Il builder usa i soli header di partizione MINI e segnala esplicitamente
-la rimozione di OTP. Non copia o riscrive i contenuti VM/BTIF/USR/key_mac.
+The partitions are derived from the original directories, with verified CRCs.
+Blindly retaining the G OTP entry would make it overlap MINI BTIF.
+The builder uses only MINI partition headers and explicitly records
+OTP removal. It does not copy or rewrite VM/BTIF/USR/key_mac contents.
 
-Le prove di accesso G sono distinte:
+The G access evidence is separate for each partition:
 
-* **VM:** il loop `0x02022208..0x0202225A` confronta il nome `vm`
-  (`0x02035851`) con le voci JLFS, ne carica offset/dimensione e passa i
-  metadati tramite ioctl205. La base non è semplicemente fissata a `0x7B000`.
-* **BTIF:** apertura di `mnt/sdfile/app/btif` a `0x0201FB00`, lettura
-  dei metadati e accesso a base+512 per la configurazione. La nuova
-  posizione viene quindi espressa dalla directory in questo percorso.
-* **USR:** `0xBF000` è anche hardcoded; la funzione `0x020026BA` restituisce
-  le posizioni degli slot, con casi speciali `0xDD000` e `0xDE000`.
-  Questi indirizzi restano invariati.
-* **OTP:** nessuna stringa `OTP` compare dentro `app.bin`; la sola occorrenza
-  nell'area G è il nome in directory. Questa ricerca **non dimostra**
-  l'assenza di accessi indiretti, per indice o a registri security della NOR.
-  L'OTP hardware della NOR e la partizione JLFS denominata OTP sono oggetti
-  diversi. La compatibilità di tutti i consumatori resta un gate aperto.
+* **VM:** loop `0x02022208..0x0202225A` compares the name `vm`
+  (`0x02035851`) with JLFS entries, loads the offset and size, and passes
+  the metadata through ioctl205. The base is not simply fixed at `0x7B000`.
+* **BTIF:** `mnt/sdfile/app/btif` is opened at `0x0201FB00`, followed by
+  metadata reads and access to base+512 for configuration. The new
+  position is therefore represented by the directory in this path.
+* **USR:** `0xBF000` is also hardcoded; function `0x020026BA` returns
+  slot positions, with special cases `0xDD000` and `0xDE000`.
+  These addresses remain unchanged.
+* **OTP:** no `OTP` string occurs inside `app.bin`; its only occurrence
+  in the G area is the directory name. This search **does not prove**
+  the absence of indirect access, access by index, or access to NOR security
+  registers. Hardware NOR OTP and the JLFS partition named OTP are different
+  objects. Compatibility of all consumers remains an open gate.
 
-La VM fisica dichiarata dalla directory è più grande dei banchi effettivi
-usati dal SDK. G limita la parte attiva a 64 KiB, due banchi da 32 KiB;
-MINI stock limita NOR a 16 KiB, due banchi da 8 KiB. La candidata modifica
-solo la coppia di immediati G:
+The physical VM declared in the directory is larger than the actual banks
+used by the SDK. G limits the active part to 64 KiB, two 32 KiB banks;
+stock MINI limits NOR to 16 KiB, two 8 KiB banks. The candidate changes
+only the pair of G immediates:
 
-| CPU | Prima | Dopo |
+| CPU | Before | After |
 |---|---|---|
 | `0x0202067E` | `20 e9 80 0b`: `if (r0 >= 65536)` | `20 e9 80 0c`: `if (r0 >= 16384)` |
 | `0x02020682` | `60 e0 80 0b`: `r0 = 0x10000` | `60 e0 80 0c`: `r0 = 0x4000` |
 
-La modifica viene ricodificata dalla tabella ISA pinned: cambiano solo i
-campi immediati, conservando registro, predicato e lunghezza. Il reset MINI
-avvia l'inizializzazione VM con limite NOR16384 nel frammento
+The change is re-encoded from the pinned ISA table: only the immediate
+fields change, preserving the register, predicate, and length. MINI reset
+starts VM initialization with NOR limit 16384 in fragment
 `0x0201FD72..0x0201FD9C`.
 
-Sul backup congelato SHA-256 `72db5e70…5f8a180`, il banco B a `0x84000`
-contiene 134 record con CRC validi; write pointer `0x8531E`, uso 59,7412%.
-Altro banco e coda sono cancellati. Il parser ricostruito dalle regole
-`vm_state`/`vm_entries` dell'installer non richiede manutenzione con la
-geometria MINI. Con la geometria G e la sola nuova base, entrambi gli header
-risultano `FF`: verrebbe richiesta formattazione. **Nessuna migrazione VM
-è necessaria per correggere questa discrepanza geometrica.**
+In the frozen backup, SHA-256 `72db5e70…5f8a180`, bank B at `0x84000`
+contains 134 records with valid CRCs; write pointer `0x8531E`, usage 59.7412%.
+The other bank and the tail are erased. The parser reconstructed from the
+installer's `vm_state`/`vm_entries` rules requires no maintenance with MINI
+geometry. With G geometry and only the new base, both headers are `FF`:
+formatting would be requested. **No VM migration is necessary to correct
+this geometry mismatch.**
 
-Questa prova non interpreta il significato di ciascun ID, la calibrazione
-radio né il formato dei preset USR. Non rende permanente lo stato del
-backup: un futuro candidato dovrà ricontrollare la VM corrente. Il firmware
-G conserva la sua guardia contro le scritture fuori USR.
+This evidence does not interpret the meaning of each ID, radio calibration,
+or the USR preset format. It does not make the backup state permanent:
+a future candidate must recheck the current VM. The G firmware retains
+its guard against writes outside USR.
 
-## Driver NOR
+## NOR driver
 
-Sedici frammenti originali G/MINI coincidono dopo normalizzazione esplicita
-di call target, due globali e destinazioni dei salti locali. MMIO, mask,
-registri, ordine delle istruzioni e opcodes rimangono nel confronto.
-Il report conserva intervalli e hash dei frammenti normalizzati.
+Sixteen original G/MINI fragments match after explicitly normalizing
+call targets, two globals, and local jump destinations. MMIO, masks,
+registers, instruction order, and opcodes remain part of the comparison.
+The report retains ranges and hashes of the normalized fragments.
 
-| Funzione | G | MINI |
+| Function | G | MINI |
 |---|---|---|
 | CS PD0 | `0x01C00088` | `0x01C0008A` |
-| Letture SPI secondo modalità | `0x01C00290` | `0x01C00288` |
+| SPI reads by mode | `0x01C00290` | `0x01C00288` |
 | JEDEC9F + UID4B | `0x01C0044C` | `0x01C00500` |
-| Lettura stato05/35 | `0x01C004D0` | `0x01C00678` |
-| Attesa busy05 | `0x01C00600` | `0x01C005A4` |
+| Status read 05/35 | `0x01C004D0` | `0x01C00678` |
+| Busy wait 05 | `0x01C00600` | `0x01C005A4` |
 | Erase dispatcher | `0x01C00640` | `0x01C005E4` |
-| Scrittura stato01/31 | `0x01C006D2` | `0x01C006B2` |
-| Politica aggiornamento stato | `0x01C0079E` | `0x01C0077E` |
-| Page program02 | `0x01C00840` | `0x01C00820` |
+| Status write 01/31 | `0x01C006D2` | `0x01C006B2` |
+| Status update policy | `0x01C0079E` | `0x01C0077E` |
+| Page program 02 | `0x01C00840` | `0x01C00820` |
 
-Il JEDEC osservato fisicamente dal reader separato, `EB6014`, produce
-1 MiB anche nell'algoritmo G: byte finale `0x14`, esponente meno16,
-potenza di2 e shift16 ai siti `0x02002746..0x02002750`. I frammenti
-confrontati non introducono un rifiuto specifico per manufacturer EB.
-Anche il bytecode dell'installer originale elenca `EB6014` fra gli
-`ALT_FLASH_IDS` accettati; questo non estende il suo supporto al modello MINI.
-Sono condivise anche sequenze status/QE; non ne è stata provata sul chip
-la programmazione. Gli opcodes sono qui descritti per audit: il tool non
-li invia e non espone alcuna interfaccia hardware.
+The JEDEC ID physically observed by the separate reader, `EB6014`, also
+produces 1 MiB in the G algorithm: final byte `0x14`, exponent minus 16,
+power of 2, and shift by 16 at `0x02002746..0x02002750`. The compared fragments
+introduce no rejection specific to manufacturer EB.
+The original installer bytecode also lists `EB6014` among accepted
+`ALT_FLASH_IDS`; this does not extend its support to the MINI model.
+Status/QE sequences are also shared; programming them has not been tested
+on the chip. Opcodes are described here for audit purposes: the tool
+does not send them or expose any hardware interface.
 
-Restano separati: lock/CPU1, invalidazione cache chiamata dal driver,
-timing SFC alla politica clock G, provenienza delle richieste di modifica
-stato e tutti i percorsi non confrontati. L'equivalenza dei frammenti non
-equivale a una prova di erase/program o recupero sul MINI.
+The following remain separate: lock/CPU1 behavior, cache invalidation called
+by the driver, SFC timing under the G clock policy, the origin of status-change
+requests, and all paths not compared. Fragment equivalence does not amount
+to an erase/program or recovery test on MINI.
 
-## Identità e formatter per l'integrazione
+## Identity and formatter for integration
 
-Le stringhe versioni restano `M5.71 rel ble` e data originale, con prefisso
-`tankm_fw`. Il formato PONG rimane `PONG %s %s %s%s\n`. I due preimage
-versione sono a `0x0203678E` e `0x020370E8`. I brand ASCII sono a
-`0x0203614A` e `0x0203A123`; il descrittore USB UTF16 completo a
-`0x0203A264` cambia da `Tank-G UltraRig` a `Tank-M HyperRig`, sempre32byte.
-I nomi diagnostici interni `tankg_audio`/`tankg_core1` non sono marker MINI.
-Le fonti originali e i NOTICE di provenienza vengono conservati.
+The version strings retain `M5.71 rel ble` and the original date, with
+the `tankm_fw` prefix. The PONG format remains `PONG %s %s %s%s\n`. The two
+version preimages are at `0x0203678E` and `0x020370E8`. The ASCII brands
+are at `0x0203614A` and `0x0203A123`; the complete UTF16 USB descriptor at
+`0x0203A264` changes from `Tank-G UltraRig` to `Tank-M HyperRig`, still 32 bytes.
+The internal diagnostic names `tankg_audio`/`tankg_core1` are not MINI markers.
+Original sources and provenance NOTICE files are preserved.
 
-L'API importabile è:
+The importable API is:
 
 ```python
 from audit_mini_ultrarig_port import BinaryPatch, compose_candidate
 
 area, report = compose_candidate(g_original_bytes, mini_fwsc_bytes)
-# Per l'integrazione futura di codice board già verificato:
+# For future integration of already verified board code:
 area, report = compose_candidate(
     g_original_bytes, mini_fwsc_bytes,
-    additional_patches=tuple(patch_con_preimage_esatti),
+    additional_patches=tuple(patches_with_exact_preimages),
     append_code=blob_board,
 )
 ```
 
-Ogni patch aggiuntiva deve stare nella parte originale di `app.bin`, avere
-la stessa lunghezza e non sovrapporsi alle patch di base. Il blob aggiunto
-mantiene tutti gli indirizzi G, sposta cfg e aggiorna CRC/header. Il
-formatter non attribuisce validità semantica alle patch fornite; tutti i
-flag di utilizzabilità restano falsi.
+Each additional patch must lie within the original portion of `app.bin`,
+have the same length, and not overlap the base patches. The appended blob
+preserves all G addresses, moves cfg, and updates CRCs/headers. The formatter
+does not establish the semantic validity of supplied patches; all usability
+flags remain false.
 
-Le verifiche comprendono il roundtrip SFC/JLFS, il confronto inverso
-dell'intera applicazione, sei rifiuti per input/preimage/overlap/bounds/CRC,
-una prova di append con cfg spostato e il rifiuto di un record VM corrotto.
-Una sostituzione solo in memoria del backup dimostra inoltre che bootloader
-e ogni byte da `0x82000` in poi rimangono identici; quel dump candidato
-completo non viene scritto su file.
+Checks cover the SFC/JLFS roundtrip, inverse comparison of the entire
+application, six rejections for input/preimage/overlap/bounds/CRC, an append
+test with relocated cfg, and rejection of a corrupt VM record.
+An in-memory-only substitution in the backup also demonstrates that the
+bootloader and every byte from `0x82000` onward remain identical; that
+complete candidate dump is not written to a file.
 
-## Passi successivi al formatter di base
+## Steps beyond the base formatter
 
-Questi punti descrivono il lavoro richiesto oltre all'artefatto di base di
-questo documento. Lo stato aggiornato delle integrazioni e delle prove fisiche
-è riportato nel README e nei report specifici, senza promuovere retroattivamente
-la validità hardware di questo formatter.
+These items describe the work required beyond the base artifact in
+this document. Current integration and physical-trial status is reported
+in the README and specific reports, without retroactively promoting
+the hardware validity of this formatter.
 
-1. Integrare sequenza codec/pin/mute MINI nel firmware G completo, poi
-   mappare comandi fisici e LED; usare l'audit board separato come evidenza.
-2. Chiudere handover, clock/SFC, consumatori OTP e calibrazioni BTIF/VM.
-3. Dimostrare il recupero con applicazione corrotta: il ritorno dallo stato
-   ROM allo stock intatto già riuscito non costituisce questa prova.
-4. Verificare avvio dell'app completa, PONG USB/BLE, audio, caricamento e
-   salvataggio preset, riavvio stabile e funzionamento prolungato.
+1. Integrate the MINI codec/pin/mute sequence into the complete G firmware,
+   then map physical controls and LEDs; use the separate board audit as evidence.
+2. Resolve handover, clock/SFC, OTP consumers, and BTIF/VM calibration.
+3. Demonstrate recovery with a corrupt application: the already successful
+   return from ROM to intact stock does not constitute this proof.
+4. Verify complete application boot, USB/BLE PONG, audio, preset loading
+   and saving, stable reboot, and prolonged operation.
 
-Ricostruire tutto in C rimane un percorso più ampio: le fonti pubbliche
-UltraRig distribuiscono binari; il C decompilato locale è parziale e non è
-un sorgente completo ricompilabile. Il port binario conserva i componenti
-originali senza ricostruirli tutti in C; la loro presenza non equivale alla
-verifica delle funzioni sul MINI. Gli adattamenti hardware, i comandi fisici,
-l'audio e le operazioni dell'app richiedono prove proprie.
+Reconstructing everything in C remains a larger undertaking: the public
+UltraRig sources distribute binaries; local decompiled C is partial and is
+not a complete, rebuildable source tree. The binary port preserves the original
+components without reconstructing all of them in C; their presence does not
+equal verification of their functions on MINI. Hardware adaptations, physical
+controls, audio, and app operations require their own tests.

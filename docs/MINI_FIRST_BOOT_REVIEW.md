@@ -1,61 +1,61 @@
-# Review del primo flash e avvio MINI
+# Review of the first MINI flash and boot
 
-Review offline del 15 novembre 2026, senza comandi al dispositivo, cambi al
-piano, alla guardia o agli artefatti congelati. La candidata esaminata è
-`build/hyperrig-mini-audio-v2/hyperrig-mini.app-area.bin`, 516096 byte,
+Offline review dated November 15, 2026, with no device commands or changes to
+the plan, guard or frozen artifacts. The reviewed candidate is
+`build/hyperrig-mini-audio-v2/hyperrig-mini.app-area.bin`, 516096 bytes,
 SHA256 `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`.
-Il manifest `firmware-manifest.json` ha SHA256
+The `firmware-manifest.json` manifest has SHA256
 `f119ab571a6cb04c8ca72513b5d18d614e079e756d209ce5794fbaeb4fe77d12`.
-Questo documento non attesta un'installazione o un recupero dall'app già
-installata.
+This document does not attest to installation or recovery from an already
+installed app.
 
-Il rilievo principale riguarda un'interruzione durante la sostituzione.
-[plan_mini_install.py](../tools/plan_mini_install.py) ordina i settori
-modificati da `0x5000` in avanti e lascia `0x4000` per ultimo. Lo SPL verifica
-gli header, non il CRC dell'intero corpo applicativo: a `0x01C033E2` il CRC
-copre 30 byte, confrontati con i due byte iniziali dell'header. Prima della
-scrittura finale rimangono quindi header e entry MINI validi insieme a un
-corpo parzialmente G. Un'interruzione può far eseguire codice misto senza
-raggiungere la nuova guardia. La dicitura `power_loss_atomicity_proven=false`
-è corretta; header-sector-last da solo non elimina questa finestra.
+The main finding concerns interruption during replacement.
+[plan_mini_install.py](../tools/plan_mini_install.py) orders changed sectors
+from `0x5000` onward and leaves `0x4000` until last. SPL verifies headers,
+not the CRC of the entire application body: at `0x01C033E2`, the CRC covers
+30 bytes, compared with the header's first two bytes. Until the final write,
+valid MINI headers and entry therefore remain alongside a partially G body.
+An interruption may execute mixed code without reaching the new guard.
+The label `power_loss_atomicity_proven=false` is correct; writing the header
+sector last does not by itself eliminate this window.
 
-Nel settore finale, l'ordine crescente delle pagine pubblicherebbe inoltre
-l'header a `0x4000` prima dell'entry a `0x4120` e dell'hook a `0x418A`.
-La decisione per il nuovo installer operativo è programmare prima
-`0x4100..0x4F00` e **la pagina `0x4000` per ultima**, con verifica di ogni
-pagina e del settore. Lo staging/echo precedente all'erase può usare
-`0x4100`. Il core HYW corrente accetta pagine allineate non ancora presenti
-nella bitmap e quindi consente questo ordine. La modifica riduce la finestra
-finale, ma non risolve la precedente finestra con header vecchio. Alla data
-di questa review il nuovo installer deve ancora essere revisionato: non si
-attribuisce questa policy al piano congelato.
+Within the final sector, ascending page order would also publish the header
+at `0x4000` before the entry at `0x4120` and hook at `0x418A`.
+The decision for the new operational installer is to program
+`0x4100..0x4F00` first and **page `0x4000` last**, verifying every page
+and the sector. Pre-erase staging/echo can use `0x4100`. The current HYW core
+accepts aligned pages not yet present in the bitmap and therefore permits
+this order. The change narrows the final window but does not resolve the
+earlier window with the old header. As of this review, the new installer
+still needs review: this policy is not attributed to the frozen plan.
 
-Non viene aggiunta automaticamente l'invalidazione iniziale. L'installer
-UltraRig originale `_write_plan`, nel disassemblato recuperato da riga 29190,
-sposta l'header alla fine e scrive prima un settore FF; la chiamata è visibile
-ai bytecode offset434..460. È una policy reale dell'originale, ma il suo
-fallback sul TANK-G non dimostra il fallback fisico del MINI.
+Initial invalidation is not added automatically. The original UltraRig
+installer's `_write_plan`, in the recovered disassembly from line 29190,
+moves the header to the end and first writes an FF sector; the call appears
+at bytecode offsets 434..460. This is a real original policy, but its TANK-G
+fallback does not prove the MINI's physical fallback.
 
-Lo SPL MINI esaminato, SHA256
-`fcaf033c5e10526353ecb11279a7556ac8645026d370c0267912cb4bfa7c7e4d`, azzera
-`app_base` a `0x01C04D68` quando fallisce l'header. Il percorso di scansione
-a `0x01C04E26` può selezionare la richiesta OTA a `0xBCF00` del backup
-fisico e il suo `LOADER.BIN` a `0xB7000`. Dopo decompressione e CRC, la
-chiamata indiretta a `0x01C04F64` entra nel loader a `0x01C0A800`.
-Solo se il loader ritorna o fallisce, e `app_base` resta zero, il ramo
-`0x01C04F94..4F98` porta al marker/reset ROM a `0x01C0529A`.
-Non equivale a «header invalido implica immediatamente disco ROM».
+The reviewed MINI SPL, SHA256
+`fcaf033c5e10526353ecb11279a7556ac8645026d370c0267912cb4bfa7c7e4d`,
+clears `app_base` at `0x01C04D68` when the header fails.
+The scan path at `0x01C04E26` can select the physical backup's OTA request
+at `0xBCF00` and its `LOADER.BIN` at `0xB7000`.
+After decompression and CRC verification, the indirect call at `0x01C04F64`
+enters the loader at `0x01C0A800`. Only if the loader returns or fails,
+and `app_base` remains zero, does branch `0x01C04F94..4F98` lead to the
+ROM marker/reset at `0x01C0529A`. This does not mean “an invalid header
+immediately implies a ROM disk.”
 
-È stata decodificata esclusivamente in memoria la copia locale
-`analysis/tank-mini/ota.bin` (SHA256
-`9c62bbdfd55f6527a3cffe43abc16c621d0900a8ff47685240abb1ee596eb66e`).
-Il payload installato nel backup coincide già con quello del pacchetto, come
-verificato da [audit_mini_boot_contract.py](../tools/audit_mini_boot_contract.py).
-L'header interno identifica `usb_hid_ota.bin`. La decodifica segue i blocchi
-LZ4 con dizionario precedente, come
+The local copy `analysis/tank-mini/ota.bin` (SHA256
+`9c62bbdfd55f6527a3cffe43abc16c621d0900a8ff47685240abb1ee596eb66e`)
+was decoded exclusively in memory. The payload installed in the backup
+already matches the package payload, as verified by
+[audit_mini_boot_contract.py](../tools/audit_mini_boot_contract.py).
+The internal header identifies `usb_hid_ota.bin`. Decoding follows LZ4
+blocks with the preceding dictionary, as in
 [core_lz4_block/core_updater_decode](../upstream/m-bootloader/src/core.c):
 
-| Blocco | Byte compressi | Byte prodotti |
+| Block | Compressed bytes | Produced bytes |
 |---|---:|---:|
 | 1 | 3209 | 4096 |
 | 2 | 3550 | 4096 |
@@ -64,61 +64,62 @@ LZ4 con dizionario precedente, come
 | 5 | 3464 | 4096 |
 | 6 | 2442 | 2844 |
 
-Totale 23324 byte, CRC16 `0x6A00` uguale all'header, SHA256 decompresso
+Total: 23324 bytes, CRC16 `0x6A00` matching the header, decompressed SHA256
 `4758c7452f8527af9d479db9cc766a6c07d592e255633b593363f6ea1de73c97`.
-Questo verifica il contenuto e il ramo di caricamento, senza eseguire
-l'updater. Nessuna prova esistente mostra l'enumerazione OTA dopo un header
-MINI invalidato, un comando OTA→ROM o un ripristino automatico dello stock
-senza host. Nel loader sono presenti riferimenti a `flash.bin` e
-`uboot.boot`: non va trattato come un writer limitato alla sola app.
-Il protocollo di ripresa HYW/ROM non può essere dichiarato applicabile a
-quel dispositivo OTA. Perciò l'invalidazione iniziale rimane esclusa e
-l'interruzione della scrittura resta un limite dichiarato.
+This verifies content and the loading branch without running the updater.
+No existing trial shows OTA enumeration after invalidating a MINI header,
+an OTA→ROM command, or automatic stock restoration without a host.
+The loader contains references to `flash.bin` and `uboot.boot`:
+it must not be treated as an application-only writer.
+The HYW/ROM resume protocol cannot be claimed to apply to that OTA device.
+Initial invalidation therefore remains excluded, and write interruption
+remains a stated limitation.
 
-I controlli indipendenti sulla candidata hanno confrontato i byte decodificati
-con G e con il payload della guardia, senza richiamare il builder:
+Independent candidate checks compared decoded bytes with G and the guard
+payload without invoking the builder:
 
-| Regione | Risultato |
+| Region | Result |
 |---|---|
-| Entry G `0x02000120..124` | `14948000`, identica all'originale |
-| Hook `0x0200018A..196` | `c3ea1db90000000000000000`, salto alla guardia |
-| Guard v2 `0x020773C8..0x020774F2` | 298 byte esatti, SHA256 `fed49e2b7df48f652b791d3bf52c851fae9d02ce3b21363996cd28e75ac99291` |
-| Rilascio P33 G `0x02000EE0..0x02000FB6` | Identico all'originale |
-| Caller P33 `0x020011C2..0x020011D2` | Identico, include chiamata a `0x02000EE0` |
-| Writer P33 RAM, LMA `0x0205768C..0x020576CA` | Identico all'originale |
+| G entry `0x02000120..124` | `14948000`, identical to the original |
+| Hook `0x0200018A..196` | `c3ea1db90000000000000000`, jump to the guard |
+| Guard v2 `0x020773C8..0x020774F2` | Exactly 298 bytes, SHA256 `fed49e2b7df48f652b791d3bf52c851fae9d02ce3b21363996cd28e75ac99291` |
+| G P33 release `0x02000EE0..0x02000FB6` | Identical to the original |
+| P33 caller `0x020011C2..0x020011D2` | Identical, including call to `0x02000EE0` |
+| RAM P33 writer, LMA `0x0205768C..0x020576CA` | Identical to the original |
 
-Il manifest della guardia di questa candidata ha SHA256
+This candidate's guard manifest has SHA256
 `7477a0a10ae9ad7c5459432535873eb05105dc9b1065c76a1eb6f1c7cd4ca729`.
-Lo SPL conservato azzera i latch P33 D0..DF/AD..AF prima dell'handover.
-Il prefix v2 imposta DIR per PA10/PA0/PA3 prima del callable, conserva il
-contesto G sul ramo normale e non dipende da una direzione input ereditata.
-Non sono emersi nuovi difetti di bounds/ABI della guardia. La prova HYK1
-fisica già registrata copre released→held→released e marker/reset→nuova ROM;
-non prova il prefix XIP, il mux al cold boot o l'esecuzione G completa.
+The preserved SPL clears P33 latches D0..DF/AD..AF before handover.
+The v2 prefix sets DIR for PA10/PA0/PA3 before the callable, preserves the
+G context on the normal branch, and does not depend on an inherited input
+direction. No new guard bounds/ABI defects were found. The already recorded
+physical HYK1 trial covers released→held→released and marker/reset→new ROM;
+it does not prove the XIP prefix, cold-boot mux or complete G execution.
 
-La review del writer congelato non ha trovato un percorso NOR fuori
-`[0x4000,0x82000)`: `hyw_range` verifica prima gli estremi e poi
-`length <= end-address`; erase4K e program256 ricontrollano intervallo e
-allineamento nel driver PIO prima di emettere l'indirizzo a24bit. Il core
-limita ogni pagina al settore armato e alla bitmap. SPL/config, VM/OTA,
-BTIF, USR e key_mac restano esclusi. Il gate target è ancora zero;
-questa conclusione non qualifica una futura build abilitata o il suo client.
+Review of the frozen writer found no NOR path outside
+`[0x4000,0x82000)`: `hyw_range` checks endpoints first, then
+`length <= end-address`; erase4K and program256 recheck range and alignment
+in the PIO driver before emitting the 24-bit address. The core restricts
+each page to the armed sector and bitmap. SPL/config, VM/OTA, BTIF, USR and
+key_mac remain excluded. The target gate is still zero;
+this conclusion does not qualify a future enabled build or its client.
 
-Il rilievo iniziale sul rollback era che il piano corrente accetta come
-preimage il backup stock e come destinazione l'app `tankm`. Dopo una scrittura
-completa o parziale quei vincoli non descrivono il verso inverso. Serve un
-percorso di ripristino esplicito e separato che acquisisca la preimage corrente
-in ROM, la conservi e riscriva i byte stock entro la medesima allowlist.
-Non si richiede un rollback automatico su errore; occorre poter eseguire un
-ripristino deliberato dopo il ritorno in ROM. La guardia e il solo file di
-rollback non costituiscono già tale procedura. Il rilievo è ora coperto da
-[restore_mini_stock.py](../tools/restore_mini_stock.py) e da 16 test: la factory
-separata accetta anche un'app incompleta, fissa i byte della lettura corrente,
-verifica SPL/key_mac e prepara il verso stock senza scrivere le regioni
-esterne. API e limiti sono in
+The initial rollback finding was that the current plan accepts the stock
+backup as its preimage and the `tankm` app as its destination.
+After a complete or partial write, those constraints do not describe the
+reverse direction. An explicit, separate restoration path is needed to
+acquire and retain the current preimage in ROM and rewrite stock bytes within
+the same allowlist. Automatic rollback on error is not required;
+deliberate restoration after returning to ROM must be possible.
+The guard and rollback file alone do not already constitute that procedure.
+This finding is now addressed by
+[restore_mini_stock.py](../tools/restore_mini_stock.py) and 16 tests:
+the separate factory also accepts an incomplete app, pins the current read's
+bytes, verifies SPL/key_mac, and prepares the stock direction without writing
+external regions. The API and limits are in
 [MINI_STOCK_RESTORATION.md](MINI_STOCK_RESTORATION.md).
 
-Sorgenti letti in questa review:
+Sources read during this review:
 
 | File | SHA256 |
 |---|---|
@@ -127,40 +128,39 @@ Sorgenti letti in questa review:
 | `firmware/mini/app_writer/writer.c` | `f43e42b4d0aec8b354ac7f02a1067b22d3e978bd81d4412a9471f01e18086de2` |
 | `firmware/mini/app_writer/nor_pio.c` | `a31813c4e71d232b62f0c29f0bd40c4fc923c40f8c672faa7d205f0ee8ec4dab` |
 
-Le verifiche appartengono a fasi diverse:
+Checks belong to different phases:
 
-| Fase | Evidenza richiesta o ottenibile |
+| Phase | Required or obtainable evidence |
 |---|---|
-| Prima della scrittura | Candidata e sorgenti fissati; backup completo della stessa unità; lettura fresca/preimage; JEDEC/status; writer e host con limiti/rifiuto dei retry ambigui; staging/echo RAM e stack; slot di ritorno distinto e noto non live. HYK1 ha già qualificato tasti e marker/reset. |
-| Durante la scrittura | Esito di erase/program, attese WIP, readback esatto delle pagine/settori, area completa uguale alla candidata e regioni esterne preservate. Un errore non autorizza reset dell'app parziale o retry automatico. |
-| Dopo l'installazione verificata | Primo reset con i tre tasti tenuti prima del reset: osservare nuova enumerazione ROM e INQUIRY, quindi qualifica del prefix XIP. Solo dopo rilascio e nuovo avvio normale: PONG `tankm_fw`, stabilità, audio, app e preset. |
+| Before writing | Pinned candidate and sources; complete backup from the same unit; fresh read/preimage; JEDEC/status; bounded writer and host that reject ambiguous retries; RAM staging/echo and stack; distinct return slot known not to be live. HYK1 has already qualified buttons and marker/reset. |
+| During writing | Erase/program results, WIP waits, exact page/sector readback, complete area matching the candidate and preserved external regions. An error does not authorize resetting the partial app or automatic retries. |
+| After verified installation | First reset with all three buttons held before reset: observe new ROM enumeration and INQUIRY, then qualify the XIP prefix. Only after release and another normal boot: `tankm_fw` PONG, stability, audio, app and presets. |
 
-L'esecuzione della guardia XIP e il recupero da un hang dell'app installata
-sono verifiche successive all'installazione; richiederle come prova hardware
-già conclusa prima del primo flash sarebbe circolare. Il primo avvio con
-tutti i footswitch tenuti permette di provare il ramo di recupero prima di
-avviare RTOS, driver e DSP G. Non protegge header/entry/guard danneggiati né
-garantisce il successo di un'installazione interrotta. In caso di prova
-incompleta, i relativi flag hardware restano falsi.
+XIP-guard execution and recovery from a hang of the installed app are checks
+performed after installation; requiring them as completed hardware evidence
+before the first flash would be circular. A first boot with every footswitch
+held tests the recovery branch before starting the G RTOS, drivers and DSP.
+It does not protect against damaged header/entry/guard data or guarantee
+success after an interrupted installation. Incomplete trials leave the
+corresponding hardware flags false.
 
-La successiva review dell'installer operativo
-`tools/install_mini_app.py`, SHA256
-`4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f`,
-non ha individuato altri blocker in token/sequenze, staging/echo, limiti,
-preimage/readback o journal prima del comando. Il manifest operativo fissato
-è `214cbfc3c14d4bc2eff83a9e88ae8b9f9232c211c685e81af9059b182f05031c`.
-La derivazione target abilita il gate e aumenta solo il ritardo di polling
-WIP da 256 a 768 iterazioni; il writer gate0 rimane immutato. I limiti di polling
-sono finiti, ma non sono una qualifica temporale fisica: il timeout host resta
-terminale e ambiguo, senza retry o reset automatico.
+The subsequent review of operational installer `tools/install_mini_app.py`,
+SHA256 `4a85b608c052a870a322d1bd57653b167b33223f5a2a65338cbc9b5aa031f22f`,
+found no additional blockers in tokens/sequences, staging/echo, bounds,
+preimage/readback or journaling before commands. The pinned operational
+manifest is `214cbfc3c14d4bc2eff83a9e88ae8b9f9232c211c685e81af9059b182f05031c`.
+The target derivation enables the gate and increases only the WIP polling
+delay from 256 to 768 iterations; the gate0 writer remains unchanged.
+Polling bounds are finite but are not physical timing qualification:
+a host timeout remains terminal and ambiguous, without automatic retry or reset.
 
-Anche i runner root `analysis/hardware/run_mini_first_install.py` e
-`run_mini_first_boot.py` sono stati letti, senza eseguirli. La sequenza
-readerB→writerA→readerB conserva la distinzione fra slot attivo e salto
-ambiguo; confronta 1 MiB prima e dopo e lascia ROM attiva. I reset held/released
-sono separati, con nuova arrival e INQUIRY per held e osservazione CDC per
-released. Quest'ultima osservazione non è ancora un handshake: l'installer
-UltraRig originale invia PING appena compare CDC per confermare il boot.
-PING/INFO e successiva stabilità devono quindi seguire prontamente
-l'enumerazione. Reset software via SPL e vero power-cycle rimangono prove
-distinte.
+Root's runners `analysis/hardware/run_mini_first_install.py` and
+`run_mini_first_boot.py` were also read, without execution.
+The readerB→writerA→readerB sequence preserves the distinction between
+an active slot and an ambiguous jump; it compares 1 MiB before and after
+and leaves ROM active. Held/released resets are separate, with a new arrival
+and INQUIRY for held, and CDC observation for released.
+That last observation is not yet a handshake: the original UltraRig installer
+sends PING as soon as CDC appears to confirm boot. PING/INFO and subsequent
+stability checks must therefore promptly follow enumeration.
+Software reset through SPL and a real power cycle remain separate trials.

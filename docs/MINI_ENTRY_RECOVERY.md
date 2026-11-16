@@ -1,188 +1,183 @@
-# Recupero mediante footswitch all'ingresso dell'applicazione G
+# Footswitch recovery at G application entry
 
-È possibile inserire un guard piccolo prima della prima chiamata del
-firmware UltraRig G. Il componente in
-[`firmware/mini/entry_recovery`](../firmware/mini/entry_recovery) occupa
-**282 byte di codice**, senza BSS, dati da copiare, heap o dipendenze da
-RTOS, GPIO helper, clock G e DSP. È assemblato e verificato offline;
-**non è inserito nella candidata e non è stato eseguito sul MINI**.
+A small guard can be inserted before the first call in UltraRig G firmware.
+The component in
+[`firmware/mini/entry_recovery`](../firmware/mini/entry_recovery) occupies
+**282 bytes of code**, with no BSS, data to copy, heap, or dependencies on the
+RTOS, GPIO helpers, G clocks, or DSP. It is assembled and verified offline;
+**it is not included in the candidate and has not run on the MINI**.
 
-La combinazione scelta è **tutti e tre i footswitch premuti prima
-dell'accensione**. Non richiede di assegnare ai pin le etichette fisiche
-A/B/C, ancora da confermare, e distingue il recupero dalle combinazioni
-operative a due tasti. Se la combinazione viene rilevata, il guard scrive
-la mailbox ROM e richiede il reset documentato. Negli altri casi conserva
-il contesto e continua lo startup originale.
+The chosen combination is **all three footswitches held before power-on**.
+It requires no assignment of physical A/B/C labels to pins, which is still
+unconfirmed, and distinguishes recovery from two-button operating combinations.
+If the combination is detected, the guard writes the ROM mailbox and requests
+the documented reset. Otherwise, it preserves context and continues original
+startup.
 
-Questo può recuperare un'applicazione valida che si blocca **dopo** il
-guard: si spegne e riaccende il pedale tenendo la combinazione. Non richiede
-che il firmware bloccato elabori USB, né che un watchdog sia armato.
-Un semplice reset del bus USB non equivale a riavviare la CPU del pedale.
+This can recover a valid application that hangs **after** the guard: power the
+pedal off and on while holding the combination. It requires neither USB
+processing by the hung firmware nor an armed watchdog. A USB bus reset alone
+does not restart the pedal CPU.
 
-## Punto d'innesto e ABI
+## Insertion point and ABI
 
-| Punto G originale | Evidenza nei byte |
+| Original G point | Byte evidence |
 |---|---|
-| `0x02000120` | Salto corto a `0x0200018A` |
-| `0x0200018A` | `sp = 0x01C350B8`, sei byte |
-| `0x02000190` | `ssp = 0x01C360B8`, sei byte |
-| `0x02000196` | Prima chiamata, a `0x0200042E` |
+| `0x02000120` | Short jump to `0x0200018A` |
+| `0x0200018A` | `sp = 0x01C350B8`, six bytes |
+| `0x02000190` | `ssp = 0x01C360B8`, six bytes |
+| `0x02000196` | First call, to `0x0200042E` |
 
-Il preimage di dodici byte è:
+The twelve-byte preimage is:
 `eeffb850c301edffb860c301`.
-La proposta sostituisce soltanto questi dodici byte con un salto al
-prefix e quattro NOP. Conserva entry, vettori e istruzioni vicine a
-`0x02000120`, evitando di sovrascriverle per far spazio a un salto lungo.
-Il formatter esistente non è stato modificato.
+The proposal replaces only these twelve bytes with a jump to the prefix and
+four NOPs. It preserves the entry, vectors, and instructions near
+`0x02000120`, avoiding overwriting them to make room for a long jump.
+The existing formatter has not changed.
 
-Il prefix ripete esattamente i due setup stack originali, salva i sedici
-registri generali, PSR, RETS e RETI, chiama il controllo e, quando prosegue,
-li ripristina prima del salto a `0x02000196`. In particolare **r0 torna
-identico** e continua a indicare il contesto del bootloader. Le copie delle
-estensioni boot assenti restano gestite dalla patch separata già esistente.
+The prefix repeats the two original stack setups exactly, saves the sixteen
+general registers, PSR, RETS, and RETI, calls the check, and, when continuing,
+restores them before jumping to `0x02000196`. In particular, **r0 is restored
+unchanged** and continues to point to the bootloader context. Copies of absent
+boot extensions remain handled by the existing separate patch.
 
-Il massimo frame aggiunto è 100 byte: 76 del prefix e 24 del controllo.
-Sono considerate entrambe le interpretazioni di SP già discusse in
-[MINI_ROM_STACK.md](MINI_ROM_STACK.md): intervallo sotto `0x01C350B8`,
-oppure sotto `0x01C360B8` se SP è alias dello stack supervisor. Entrambi
-rimangono nella RAM dell'applicazione G e lontani dalla mailbox. Il modello
-non determina la modalità fisica attiva; riproduce i setup originali in
-entrambe le interpretazioni.
+The maximum added frame is 100 bytes: 76 for the prefix and 24 for the check.
+Both interpretations of SP already discussed in
+[MINI_ROM_STACK.md](MINI_ROM_STACK.md) are considered: a range below
+`0x01C350B8`, or below `0x01C360B8` if SP aliases the supervisor stack.
+Both remain in G application RAM, away from the mailbox. The model does not
+determine the active physical mode; it reproduces the original setups under
+both interpretations.
 
-Non vengono cambiate politica interrupt o modalità CPU. Lo SPL originale
-esegue `cli` a `0x01C051C2` prima dell'handover `call r1` a `0x01C0528C`.
-Il prefix assume questo ingresso SPL, senza supportare un salto arbitrario
-da un task o da un IRQ. I GPIO helper G non sono utilizzabili qui: i loro
-lock e dati di runtime non sono ancora inizializzati.
+Interrupt policy and CPU mode are unchanged. The original SPL executes `cli`
+at `0x01C051C2` before handover `call r1` at `0x01C0528C`. The prefix assumes
+this SPL entry; it does not support an arbitrary jump from a task or IRQ.
+G GPIO helpers cannot be used here: their locks and runtime data are not yet
+initialised.
 
-## GPIO e possibilità di falso riconoscimento
+## GPIO and possible false detection
 
-Il firmware MINI configura PA10, PA0 e PA3 a `0x02006096..60BA`; la
-lettura a `0x0200A060` usa PORTA IN (`0x50004`). L'interpretazione active-low
-è ricostruita nell'[audit pannello](MINI_PANEL_PORT.md). La disposizione
-dei registri è corroborata dall'[header SDK WL82 fissato](../upstream/ac79-sdk-reference/include_lib/driver/cpu/wl82/asm/WL82.h).
+MINI firmware configures PA10, PA0, and PA3 at `0x02006096..60BA`; the read at
+`0x0200A060` uses PORTA IN (`0x50004`). The active-low interpretation is
+reconstructed in the [panel audit](MINI_PANEL_PORT.md). The register layout is
+corroborated by the [pinned WL82 SDK header](../upstream/ac79-sdk-reference/include_lib/driver/cpu/wl82/asm/WL82.h).
 
-Il controllo possiede soltanto la maschera `0x409`:
+The check owns only mask `0x409`:
 
-| Registro | Indirizzo | Operazione temporanea |
+| Register | Address | Temporary operation |
 |---|---:|---|
-| DIR | `0x50008` | Ingresso |
-| DIE | `0x5000C` | Ingresso digitale abilitato |
-| PU | `0x50010` | Pull-up abilitato |
-| PD | `0x50014` | Pull-down disabilitato |
+| DIR | `0x50008` | Input |
+| DIE | `0x5000C` | Digital input enabled |
+| PU | `0x50010` | Pull-up enabled |
+| PD | `0x50014` | Pull-down disabled |
 
-Prima di scrivere verifica che i tre DIR siano già ingressi. Se non lo
-sono, ritorna errore senza scrivere GPIO. Questa scelta evita che un
-successivo ripristino trasformi un tasto premuto in un'uscita pilotata.
-OUT, DIEH, forza di pilotaggio e mux non vengono scritti. Le modifiche
-usano read-modify-write; al ritorno vengono ripristinati soltanto i tre
-bit posseduti, preservando i bit estranei correnti. Si richiede comunque
-che nessun altro esecutore cambi questi pin durante il controllo.
+Before writing, it verifies that all three DIR bits already specify inputs.
+Otherwise, it returns an error without writing GPIO. This avoids a later
+restoration turning a pressed button into a driven output. OUT, DIEH, drive
+strength, and mux are not written. Changes use read-modify-write; on return,
+only the three owned bits are restored, preserving the current unrelated bits.
+No other executor may change these pins during the check.
 
-Il codice controlla il readback della configurazione, attende 100000
-iterazioni e richiede 32 campioni in cui tutti e tre i bit siano bassi,
-separati da altre 100000 iterazioni. Il primo campione con un bit alto
-fa proseguire lo startup. Sono contatori software, **non millisecondi
-misurati**; non dimostrano un tempo di debounce fisico o continuità del
-livello tra campioni. Non vengono usati REP, timer o variazioni del PLL.
+The code checks configuration readback, waits 100000 iterations, and requires
+32 samples with all three bits low, separated by another 100000 iterations.
+The first sample with any bit high continues startup. These are software
+counters, **not measured milliseconds**; they establish neither a physical
+debounce time nor continuity of the level between samples. No REP, timer,
+or PLL changes are used.
 
-Gli esiti della funzione callable sono 0 (combinazione assente), 1
-(combinazione osservata), 2 (direzione iniziale o readback non valido).
-Il prefix richiede esattamente 1 per il reset. L'esito 2 continua G:
-evita una recovery accidentale dovuta a un errore di configurazione, ma
-significa che **non si può fare affidamento sul guard in quello stato**.
+The callable function returns 0 (combination absent), 1 (combination observed),
+or 2 (invalid initial direction or readback). The prefix requires exactly 1
+to reset. Result 2 continues G: this avoids accidental recovery due to a
+configuration error, but means **the guard cannot be relied on in that state**.
 
-Una lettura GPIO permanentemente zero può essere indistinguibile da tre
-tasti premuti e portare alla ROM. Un ingresso bloccato alto può impedire
-il recupero. Le prove dei pin devono quindi comprendere tasti rilasciati,
-singoli, coppie e combinazione completa, non soltanto un caso positivo.
+A permanently zero GPIO read may be indistinguishable from three pressed
+buttons and lead to ROM. An input stuck high may prevent recovery. Pin tests
+must therefore include released buttons, single buttons, pairs, and the full
+combination, not just a positive case.
 
-Il record HYC1 già persistito in
-[mini-codec-hardware.json](../research/mini-codec-hardware.json) riporta in
-ROM PORTA IN=`0x7FF`, DIR=DIE=`0xFFFF`, PU=PD=0. È un indizio utile per la
-prova RAM: **non misura lo stato dopo lo SPL durante un avvio a freddo**.
-Il vincolo sulla direzione e il tempo di assestamento in quel punto restano
-da qualificare.
+The HYC1 record already persisted in
+[mini-codec-hardware.json](../research/mini-codec-hardware.json) reports ROM
+PORTA IN=`0x7FF`, DIR=DIE=`0xFFFF`, PU=PD=0. This is useful evidence for the
+RAM test: **it does not measure the state after SPL during a cold boot**.
+The direction constraint and settling time at that point still need qualification.
 
-## Marker e reset
+## Marker and reset
 
-`reset.S` è separato dal controllo GPIO. Scrive esattamente i sedici byte
-`usb_update_mode\0` a `0x01C7FD80`, esegue `csync`, legge `RST_CON` a
-`0x10000`, conserva gli altri bit e imposta il bit 4. Esegue un secondo
-`csync` e attende il reset.
+`reset.S` is separate from the GPIO check. It writes exactly the sixteen bytes
+`usb_update_mode\0` to `0x01C7FD80`, executes `csync`, reads `RST_CON` at
+`0x10000`, preserves the other bits, and sets bit 4. It executes a second
+`csync` and waits for reset.
 
-La stringa è presente sia nell'app MINI a `0x0203FD2A` sia nello SPL a
-`0x01C05710`. Lo SPL la copia a `0x01C0529A`; il suo reset a
-`0x01C028F4..28FE` imposta proprio quel bit di RST_CON. Non viene usato un
-indirizzo di funzione ROM ipotizzato e non si arma un watchdog.
+The string exists both in the MINI application at `0x0203FD2A` and in SPL at
+`0x01C05710`. SPL copies it at `0x01C0529A`; its reset at
+`0x01C028F4..28FE` sets that exact RST_CON bit. No assumed ROM function address
+is used, and no watchdog is armed.
 
-Questa sequenza combina elementi documentati, ma il nuovo corpo marker +
-RST_CON non è ancora stato provato fisicamente. Il soft-key dell'app MINI
-utilizza una funzione P33 e i precedenti ritorni da ROM allo stock
-cancellavano il marker: sono prove correlate, non una sostituzione della
-nuova prova. Anche conservazione della mailbox e visibilità delle scritture
-attraverso il reset devono essere confermate sul percorso scelto.
+This sequence combines documented elements, but the new marker + RST_CON
+body has not yet been physically tested. The MINI application's soft-key uses
+a P33 function, and earlier returns from ROM to stock cleared the marker:
+these are related tests, not substitutes for the new one. Mailbox retention
+and write visibility across reset must also be confirmed on the chosen path.
 
-## Verifica e prova RAM proposta
+## Verification and proposed RAM test
 
 ```powershell
 python -X utf8 firmware/mini/entry_recovery/verify.py
 ```
 
-Il comando ricompila con l'assembler vendor e verifica i byte emessi:
-636 casi, scritture entro gli intervalli ammessi, GPIO ripristinati,
-contesto preservato, rami negativi e ordine marker/barriere/reset. I due
-loop di attesa privi di effetti esterni sono conteggiati algebricamente;
-non sono simulati clock, silicio, cache o rimbalzi. Il report completo è
+The command rebuilds with the vendor assembler and checks the emitted bytes:
+636 cases, writes within allowed ranges, restored GPIO, preserved context,
+negative branches, and marker/barrier/reset order. The two wait loops with
+no external effects are counted algebraically; clocks, silicon, caches, and
+switch bounce are not simulated. The full report is
 [mini-entry-recovery.json](../research/mini-entry-recovery.json).
 
-L'ELF `build/mini-entry-recovery/entry-recovery-audit.elf` è una fixture
-XIP a `0x02078000`, **non un'applicazione o un plugin da caricare**. Tale
-indirizzo è scelto per l'audit, non costituisce un'allocazione nel formatter.
-Il linker accetta `--defsym HYPERRIG_ENTRY_GUARD_ADDRESS=...` per una futura
-allocazione verificata dentro `app.bin`; vanno aggiornati CRC e cifratura.
+ELF `build/mini-entry-recovery/entry-recovery-audit.elf` is an XIP fixture at
+`0x02078000`, **not an application or plugin to upload**. That address is
+chosen for the audit, not allocated in the formatter. The linker accepts
+`--defsym HYPERRIG_ENTRY_GUARD_ADDRESS=...` for a future verified allocation
+inside `app.bin`; CRC and encryption must be updated.
 
-Una successiva prova RAM può incorporare **solo `check.S` e `reset.S`** in
-un nuovo plugin negli slot già consentiti, con stack privato e un protocollo
-esplicito. `prefix.S` seleziona gli stack G fuori dagli slot ROM e non va
-eseguito da un callback ROM.
+A later RAM test may include **only `check.S` and `reset.S`** in a new plugin
+within the already allowed slots, with a private stack and an explicit protocol.
+`prefix.S` selects G stacks outside the ROM slots and must not execute from
+a ROM callback.
 
-1. Ingresso plugin senza GPIO; handshake e hash/readback del payload.
-2. Comando di sola osservazione dei registri, poi comando separato per
-   `hyperrig_mini_entry_recovery_check()`: valori prima/dopo, risultato,
-   durata e stack devono essere registrati. La prova manuale dei tasti va
-   coordinata con l'utente. Il loop completo può essere lento ai clock ROM:
-   la durata va qualificata prima di usarlo in un comando con timeout breve.
-3. Solo tramite comando distinto, chiamata deliberata del nuovo corpo
-   marker/reset. Una risposta USB persa non prova il successo e non giustifica
-   un retry automatico. Serve una nuova enumerazione `4C4A:8057` e identità
-   SCSI `WL82` / `UBOOT1.00`.
-4. Ritorno allo stock con il percorso già verificato; doppia lettura dei
-   preset uguale al riferimento. Nessuna scrittura NVM è necessaria.
+1. Plugin entry without GPIO; handshake and payload hash/readback.
+2. A register-observation-only command, then a separate command for
+   `hyperrig_mini_entry_recovery_check()`: before/after values, result,
+   duration, and stack must be recorded. Manual button testing must be
+   coordinated with the user. The full loop may be slow at ROM clocks:
+   qualify its duration before using it in a command with a short timeout.
+3. Only through a distinct command, deliberately call the new marker/reset
+   body. A lost USB response neither proves success nor justifies automatic
+   retry. A new `4C4A:8057` enumeration and SCSI identity
+   `WL82` / `UBOOT1.00` are required.
+4. Return to stock through the already verified path; two preset reads must
+   match the reference. No NVM write is needed.
 
-La prova RAM qualifica i GPIO e il reset nel contesto ROM. La correttezza
-del prefix e del contesto resta coperta dall'audit statico; il cold handover
-SPL, compreso DIR=input, richiede evidenza distinta e non va dichiarato
-provato da un plugin USB.
+The RAM test qualifies GPIO and reset in the ROM context. Prefix and context
+correctness remain covered by static audit; cold SPL handover, including
+DIR=input, requires separate evidence and must not be claimed as proven by
+a USB plugin.
 
-## Effetto sul primo port completo
+## Effect on the first complete port
 
-Il guard affronta precisamente il rischio dell'app G valida che entra e
-poi si blocca in clock, driver, RTOS o DSP. Una volta qualificato può
-offrire un recupero utile senza dover realizzare subito USB_KEY, mantenendo
-la sostituzione integrale dell'applicazione MINI con quella G adattata.
-L'evidenza offline attuale, da sola, non rimuove quel gate.
+The guard specifically addresses a valid G application that enters and then
+hangs in clocks, drivers, RTOS, or DSP. Once qualified, it can provide useful
+recovery without immediately implementing USB_KEY, while retaining complete
+replacement of the MINI application by the adapted G application. Current
+offline evidence alone does not remove that gate.
 
-Non copre header invalido, entry o prefix corrotti, salto sbagliato,
-scrittura NOR interrotta, SPL danneggiato o guasto GPIO. Il backup integrale
-consente un ripristino soltanto se si riesce a raggiungere un trasporto
-adatto. SPL e OTA conservati aumentano le opzioni ma il loro recupero da
-un'app danneggiata non è ancora qualificato fisicamente. USB_KEY rimane
-la possibile via indipendente da quei byte.
+It does not cover an invalid header, corrupted entry or prefix, wrong jump,
+interrupted NOR write, damaged SPL, or GPIO fault. A full backup permits
+restoration only if a suitable transport remains reachable. Preserved SPL
+and OTA increase the options, but their recovery from a damaged application
+is not yet physically qualified. USB_KEY remains a possible path independent
+of those bytes.
 
-Prima di affidarsi al guard nel primo aggiornamento occorrono quindi le
-prove indicate, integrazione con preimage esatto e validazione/readback
-dell'intera area applicazione. La politica del writer, la conservazione
-di SPL/OTA/dati e la gestione di un'interruzione rimangono controlli
-separati. Questo lavoro non accede al dispositivo e non autorizza né
-esegue un flash.
+Before relying on the guard for the first update, the indicated tests, exact
+preimage integration, and validation/readback of the entire application area
+are therefore required. Writer policy, SPL/OTA/data preservation, and handling
+an interruption remain separate checks. This work does not access the device
+and neither authorises nor performs a flash.

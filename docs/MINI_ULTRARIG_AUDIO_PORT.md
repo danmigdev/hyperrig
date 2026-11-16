@@ -1,106 +1,103 @@
-# Hardware audio per il port integrale G → MINI
+# Audio hardware for the complete G → MINI port
 
-L'applicazione UltraRig G mantiene nel port il proprio DSP, scheduler, IRQ e
-protocollo. Il firmware MINI stock è usato come fonte per la scheda: non è
-il backend del firmware finale. L'audit offline identifica due punti per
-adattare l'avvio audio della versione G M5.71 v2 al codec del MINI.
-Non applica patch e non dichiara l'immagine pronta al flash.
+The port retains the UltraRig G application's DSP, scheduler, IRQs, and
+protocol. Stock MINI firmware is used as a board reference: it is not the final
+firmware's backend. The offline audit identifies two sites for adapting G
+M5.71 v2 audio startup to the MINI codec. It applies no patches and does not
+declare the image ready to flash.
 
 ```powershell
 python -B -X utf8 tools/audit_mini_audio_port.py
 ```
 
-[mini-audio-port.json](../research/mini-audio-port.json) conserva gli hash dei
-due contenitori originali, le istruzioni decodificate, i preimage e i requisiti
-di ogni punto d'intervento. I preimage appartengono all'app-area **decodificata**:
-offset app-area = indirizzo CPU − `0x02000000`; offset `app.bin` = CPU −
-`0x02000120`; offset flash logico = offset app-area + `0x4000`. Non sono byte
-da scrivere direttamente nella NOR cifrata.
+[mini-audio-port.json](../research/mini-audio-port.json) preserves hashes of
+both original containers, decoded instructions, preimages, and requirements
+for each intervention point. Preimages belong to the **decoded** app area:
+app-area offset = CPU address − `0x02000000`; `app.bin` offset = CPU −
+`0x02000120`; logical flash offset = app-area offset + `0x4000`. These are not
+bytes to write directly into encrypted NOR.
 
-## Percorso ALNK condiviso
+## Shared ALNK path
 
-| Campo | G e MINI |
+| Field | G and MINI |
 |---|---|
 | Controller / IRQ | ALNK0 `0x12E00`, IRQ 11 |
-| Clock / TX / RX | PA4–PA6 / PA7 canale 0 / PA8 canale 1 |
-| Formato controller | I²S, dati 24 bit in slot da 32 |
-| Buffer per canale / metà elaborata | 1024 byte / 64 frame |
-| LEN / CON0 prima dell'abilitazione / CON1 attivo / CON3 | 128 / `0x180` / `0xD5` / `0x83` |
+| Clock / TX / RX | PA4–PA6 / PA7 channel 0 / PA8 channel 1 |
+| Controller format | I²S, 24-bit data in 32-bit slots |
+| Buffer per channel / processed half | 1024 bytes / 64 frames |
+| LEN / CON0 before enable / active CON1 / CON3 | 128 / `0x180` / `0xD5` / `0x83` |
 
-G usa l'indice 0 della propria tabella a `0x02035360`, ordinata dati poi
-clock; MINI usa l'indice 1 della tabella a `0x02035E20`, ordinata clock poi
-dati. Le due righe selezionano gli stessi pin: non serve sostituire la tabella
-G con quella MINI o cambiare il suo indice. I valori G dei registri sono
-derivati dalla configurazione e dalle istruzioni, non letti sul dispositivo.
+G uses index 0 of its table at `0x02035360`, ordered data then clocks; MINI
+uses index 1 of the table at `0x02035E20`, ordered clocks then data. Both rows
+select the same pins: there is no need to replace the G table with the MINI
+table or change its index. G register values are derived from configuration
+and instructions, not read from the device.
 
-G seleziona nominalmente 48000 a `0x02005148..5194`. Abilita `PLL_CON1 bit25`
-e scrive `CLK_CON2 = (old | 0x100) & ~0x200`. Il ramo 48000 del MINI scrive
-`(old & ~0xF00) | 0x500`. **Entrambi impostano allo stesso modo i bit ALNK0
-8/9**. I bit 10/11 appartengono ad ALNK1, che il MINI aggiorna insieme ad ALNK0.
-Questa differenza non giustifica una patch del selettore G. I nomi dei campi
-sono nel [clock_hw.h del SDK fissato](https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/clock_hw.h),
-in dichiarazioni `#if 0`, corroborate dalle istruzioni di `iis_set_sample_rate`
-nel `cpu.a` fissato. L'esatta frequenza fisica resta da misurare;
-la famiglia nominale potrebbe essere circa 48076,923 Hz come spiegato in
+G selects nominal 48000 at `0x02005148..5194`. It enables `PLL_CON1 bit25`
+and writes `CLK_CON2 = (old | 0x100) & ~0x200`. MINI's 48000 branch writes
+`(old & ~0xF00) | 0x500`. **Both set ALNK0 bits 8/9 identically**. Bits 10/11
+belong to ALNK1, which MINI updates together with ALNK0. This difference does
+not justify patching the G selector. Field names are in the
+[pinned SDK clock_hw.h](https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/clock_hw.h),
+in `#if 0` declarations corroborated by `iis_set_sample_rate` instructions in
+the pinned `cpu.a`. The exact physical frequency still needs measurement;
+the nominal family may be approximately 48076.923 Hz, as explained in
 [MINI_CLOCK.md](MINI_CLOCK.md).
 
-## Sequenza di scheda da adattare
+## Board sequence to adapt
 
-Il preambolo G a `0x020053A4..53C6` porta PC0, PC1 e PC5 alti e PA9 basso.
-Sono quattro chiamate a `0x02004998`, con numeri GPIO 32, 33, 37 e 9.
-La tabella del resolver G a `0x0203A2A4` conferma PORTA=`0x50000` e
-PORTC=`0x50080`. I ruoli elettrici dei tre PC sul MINI non sono dimostrati:
-copiarne le scritture non è un adattamento verificato.
+The G preamble at `0x020053A4..53C6` drives PC0, PC1, and PC5 high and PA9 low.
+These are four calls to `0x02004998`, with GPIO numbers 32, 33, 37, and 9.
+The G resolver table at `0x0203A2A4` confirms PORTA=`0x50000` and
+PORTC=`0x50080`. The electrical roles of the three PC pins on MINI are unproven:
+copying their writes is not a verified adaptation.
 
-Il MINI porta PA9 basso, attende 100000 iterazioni di un loop con `nop`,
-inizializza il codec e ALNK, attende altre 100000 iterazioni e porta PA9 alto.
-La funzione elettrica di PA9 e la durata in microsecondi dei loop restano
-sconosciute; la transizione alta finale è comunque osservabile nel codice
-MINI `0x0200723A..7242` e non è presente nel tratto G analizzato.
+MINI drives PA9 low, waits 100000 iterations of a loop containing `nop`,
+initializes the codec and ALNK, waits another 100000 iterations, and drives
+PA9 high. PA9's electrical function and the loops' duration in microseconds
+remain unknown; the final high transition is nevertheless observable in MINI
+code `0x0200723A..7242` and is absent from the analyzed G section.
 
-Il codec MINI riceve 22 record da quattro byte dalla tabella `0x02035E35`,
-preceduti dal byte d'indirizzo `0x36`. Il bus usa PA1=SDA e PA2=SCL; lo stock
-pilota anche i livelli alti e rilascia SDA per gli ACK. I record completi e
-l'hash della tabella sono nel report. La tabella non compare nell'immagine G,
-neppure il prefisso di otto byte; nel percorso G di avvio audio decodificato
-non c'è questo replay. La ricerca di un pattern non dimostra l'assenza di
-ogni possibile altro percorso codec nel firmware G.
+The MINI codec receives 22 four-byte records from table `0x02035E35`, preceded
+by address byte `0x36`. The bus uses PA1=SDA and PA2=SCL; stock also drives high
+levels and releases SDA for ACKs. The complete records and table hash are in
+the report. The table does not appear in the G image, not even its eight-byte
+prefix; this replay is absent from the decoded G audio-startup path. A pattern
+search does not prove the absence of every possible other codec path in G firmware.
 
-La mappa dei registri è compatibile con NAU88L21/NAU88L21C; non identifica
-fisicamente il componente. Il replay stock imposta OSR256. Restano le
-incongruenze tra sezioni dei datasheet già documentate in MINI_CLOCK: non si
-introduce un cambio OSR silenzioso né si deduce la validità dei clock da un ACK.
+The register map is compatible with NAU88L21/NAU88L21C; it does not physically
+identify the component. Stock replay sets OSR256. The inconsistencies between
+datasheet sections already documented in MINI_CLOCK remain: no silent OSR
+change is introduced, and clock validity is not inferred from an ACK.
 
-| Punto G | Preimage nel report | Adattamento richiesto |
+| G site | Preimage in report | Required adaptation |
 |---|---:|---|
-| `0x020053A4` | 34 byte | Hook di inizializzazione scheda MINI: PA9 basso, bus e record codec. Conservare anche l'assegnazione originale `r6=1`. |
-| `0x0200541E` | 4 byte, chiamata a `0x02005194` | Conservare l'avvio canali G; aggiungere attesa e transizione PA9 finale soltanto dopo successo della configurazione. |
-| `0x02005148` | 76 byte | Punto di ispezione clock; nessuna patch automatica richiesta per il mux ALNK0. |
+| `0x020053A4` | 34 bytes | MINI board-initialization hook: PA9 low, bus, and codec records. Also preserve the original `r6=1` assignment. |
+| `0x0200541E` | 4 bytes, call to `0x02005194` | Preserve G channel startup; add the final delay and PA9 transition only after successful configuration. |
+| `0x02005148` | 76 bytes | Clock inspection site; no automatic patch required for the ALNK0 mux. |
 
-L'audit registra i punti e i preimage. Il successivo
-[modulo audio_port](../firmware/mini/audio_port/README.md) produce gli agganci
-linkati: 2068 byte XIP a `0x02076AAC`, senza nuova RAM statica, e due patch
-da 34 e quattro byte. Un piccolo stub nel preambolo conserva RETS/r4 per
-controllare anche l'esito del post-hook; gli errori saltano a `0x02005436`,
-prima dei flag di successo. Il bus usa il getter G `0x020057C6` in MHz con
-conversione controllata, non il vecchio globale MINI a `0x01C1E32C`.
+The audit records sites and preimages. The subsequent
+[audio_port module](../firmware/mini/audio_port/README.md) produces linked hooks:
+2068 XIP bytes at `0x02076AAC`, no new static RAM, and two patches of 34 and
+four bytes. A small preamble stub preserves RETS/r4 to also check the post-hook
+result; errors jump to `0x02005436` before success flags. The bus uses G getter
+`0x020057C6` in MHz with checked conversion, not the old MINI global at `0x01C1E32C`.
 
-Prima della candidata avviabile rimangono da ricostruire la proprietà di
-PA1/PA2 tra tutti i task G, i lock GPIO da conservare e il pannello fisico MINI.
-Gli ID logici di manopole e switch nell'app non identificano pin. Restano
-inoltre da qualificare clock effettivi, configurazione codec, mute analogico
-e livelli. Nessuna operazione su hardware, flash o configurazione del pedale
-è inclusa in questo audit.
+Before a bootable candidate is ready, PA1/PA2 ownership across all G tasks,
+the GPIO locks to preserve, and the physical MINI panel still need reconstruction.
+Logical knob and switch IDs in the app do not identify pins. Actual clocks,
+codec configuration, analog mute, and levels also remain to be qualified. This
+audit includes no operation on hardware, flash, or pedal configuration.
 
-Un conflitto è già dimostrato: `0x02015858..158C2` configura PA0..PA3 come
-uscite, serializza 29 bit con clock PA2 e dati invertiti PA3, quindi porta PA0
-alto e PA1 basso. Il caller `0x02017568` ha preimage `BF EA 76 F1`; il valore
-di ritorno non viene usato e il pattern viene confrontato con la cache
-`0x01C1F208`. Questo task G interferirebbe con PA1=SDA/PA2=SCL anche dopo
-l'inizializzazione codec. Va adattato nel [port pannello](MINI_PANEL_PORT.md);
-filtrare comandi nell'app non impedisce queste scritture firmware.
+One conflict is already proven: `0x02015858..158C2` configures PA0..PA3 as
+outputs, serializes 29 bits with PA2 clock and inverted PA3 data, then drives
+PA0 high and PA1 low. Caller `0x02017568` has preimage `BF EA 76 F1`; the return
+value is unused, and the pattern is compared with cache `0x01C1F208`. This G
+task would interfere with PA1=SDA/PA2=SCL even after codec initialization. It
+must be adapted in the [panel port](MINI_PANEL_PORT.md); filtering app commands
+does not prevent these firmware writes.
 
-La [lettura diagnostica codec](../firmware/mini/codec_probe/README.md) prepara
-il riscontro dei registri reali senza applicare record audio. I campi letti
-possono confermare configurazione e risposta sul bus, ma non misurano i clock
-né distinguono automaticamente NAU88L21 da NAU88L21C.
+The [codec diagnostic read](../firmware/mini/codec_probe/README.md) prepares
+verification of actual registers without applying audio records. Read fields
+can confirm configuration and bus responses, but do not measure clocks or
+automatically distinguish NAU88L21 from NAU88L21C.

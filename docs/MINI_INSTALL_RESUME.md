@@ -1,32 +1,31 @@
-# Nuovo piano dalla NOR parzialmente programmata
+# A new plan from partially programmed NOR
 
-[resume_mini_install.py](../tools/resume_mini_install.py) prepara un nuovo
-piano immutabile dalla lettura completa corrente e dalla stessa candidata
-HyperRig gia revisionata. Non accede al pedale, non ripete comandi della
-sessione precedente e non esegue installazioni dalla CLI.
+[resume_mini_install.py](../tools/resume_mini_install.py) prepares a new immutable
+plan from the current full read and the same already reviewed HyperRig candidate.
+It does not access the pedal, repeat commands from the preceding session, or
+perform installations from the CLI.
 
-Il primo tentativo ha confermato erase e dieci page-program nel settore
-`0x5000`. La successiva lettura host `FD7F` di 256 byte a `0x5900` ha
-restituito Windows 31 dopo circa 0,51 ms. Una nuova interrogazione esplicita
-ha trovato audit identico: sequenza 22, bitmap `0x3FF`, `read_bytes=544000`,
-errore target zero. La lettura fallita non aveva incrementato il contatore
-del core. Questo non autorizza a ripeterla automaticamente e non sostituisce
-una nuova acquisizione della NOR.
+The first attempt confirmed erase and ten page-program operations in sector
+`0x5000`. The subsequent host `FD7F` read of 256 bytes at `0x5900` returned
+Windows 31 after about 0.51 ms. A new explicit query found an identical audit:
+sequence 22, bitmap `0x3FF`, `read_bytes=544000`, target error zero. The failed
+read had not incremented the core's counter. This does not authorise automatic
+repetition and does not replace a new NOR acquisition.
 
-La lettura completa separata e stata conservata in
+The separate full read was preserved in
 `artifacts/my-mini-flash/first-install/full-partial.bin`:
 
-- 1.048.576 byte, SHA256
+- 1,048,576 bytes, SHA256
   `6072644bf91df5a5f310011835f20f534c9004399fa019ac0db2241ffeea8c87`;
-- `[0x5000,0x5A00)` coincide con le prime dieci pagine della candidata;
-- `[0x5A00,0x6000)` contiene soltanto `FF`;
-- ogni byte esterno al settore `0x5000` coincide con il backup stock fissato.
+- `[0x5000,0x5A00)` matches the candidate's first ten pages;
+- `[0x5A00,0x6000)` contains only `FF`;
+- every byte outside sector `0x5000` matches the pinned stock backup.
 
-Il confronto e stato ripetuto offline sui file effettivamente acquisiti.
-Il log fisico separato e
-`analysis/hardware/mini-partial-inspect-run.json`, terminato il
-2026-11-15 alle 20:54:31 UTC con reader B attivo e nessun reset.
-Il planner da solo non attesta origine hardware o recenza di un file.
+The comparison was repeated offline against the files actually acquired.
+The separate physical log is
+`analysis/hardware/mini-partial-inspect-run.json`, completed on
+2026-11-15 at 20:54:31 UTC with reader B active and no reset.
+The planner alone does not attest a file's hardware origin or freshness.
 
 ```python
 from tools.resume_mini_install import prepare_resume, validate_completed_full
@@ -42,46 +41,46 @@ prepared = prepare_resume(
 # No old token, sequence number or bitmap is passed to the new client.
 ```
 
-La factory rifiuta hash, dimensioni o insieme di settori diversi da quelli
-esplicitamente accettati. Rifiuta anche qualsiasi differenza esterna
-all'app rispetto al backup: SPL/configurazione, VM compresa OTA, BTIF, USR
-e key_mac. Accetta solo la candidata app SHA256
+The factory rejects any hash, size, or sector set other than those explicitly
+accepted. It also rejects any difference outside the application compared with
+the backup: SPL/configuration, VM including OTA, BTIF, USR, and key_mac.
+It accepts only application candidate SHA256
 `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`.
-La preimage incompleta non deve essere avviabile o superare il parser app.
+The incomplete preimage need not be bootable or pass the app parser.
 
-Il piano reale conservato in `build/mini-install-resume/resume-plan.json`
-ha SHA256
+The real plan retained in `build/mini-install-resume/resume-plan.json` has
+SHA256
 `06d52f30f00cdedd63f4f0e9356b2dd1d6e536841370d976dcf987775d4a3601`.
-Contiene 126 settori da portare alla candidata, `0x5000` per primo e
-`0x4000` per ultimo. Il CRC32 corrente del settore `0x5000` e `0x0A53DF86`.
-Il client verifica l'intera app corrente prima delle mutazioni; quindi
-verifica di nuovo ciascun settore, lo cancella e programma tutte le sue
-16 pagine. Non prosegue direttamente dalla vecchia pagina `0x5A00`.
-La pagina header `0x4000` resta ultima dopo `0x4100..0x4F00`.
+It contains 126 sectors to bring to the candidate state, `0x5000` first and
+`0x4000` last. The current CRC32 of sector `0x5000` is `0x0A53DF86`.
+The client checks the entire current app before mutations; it then checks each
+sector again, erases it, and programs all 16 pages. It does not continue
+directly from the old page `0x5A00`. Header page `0x4000` remains last,
+after `0x4100..0x4F00`.
 
-La NOR completa attesa dopo una conclusione verificata ha SHA256
+The expected full NOR after verified completion has SHA256
 `a35868ab3a4beb42454070ce46d67efaf695615a670de177343860e88d107c47`.
-`validate_completed_full()` richiede app esatta e regioni esterne identiche
-alla lettura precedente. Questa verifica non attesta avvio, audio o
-recupero a footswitch. Una perdita di alimentazione durante la scrittura
-puo ancora lasciare un'immagine mista; il processo non e atomico.
+`validate_completed_full()` requires the exact app and external regions
+identical to the previous read. This check does not establish boot, audio, or
+footswitch recovery. A power loss during writing can still leave a mixed image;
+the process is not atomic.
 
-Il runner separato `analysis/hardware/run_mini_first_resume.py` e stato
-revisionato senza eseguirlo: conferma reader B e contatore, carica il nuovo
-writer A, verifica la preimage, installa e acquisisce un readback completo
-con reader B. Applica una pausa di 20 ms tra comandi; la pausa e una scelta
-di prova, non una dimostrazione della causa dell'errore Windows precedente.
-Non effettua retry, reset o rollback automatici. Il primo avvio resta una
-fase separata, legata all'esito verificato di questo nuovo piano.
+The separate runner `analysis/hardware/run_mini_first_resume.py` was reviewed
+without execution: it confirms reader B and its counter, uploads the new
+writer A, verifies the preimage, installs, and acquires a full readback with
+reader B. It applies a 20 ms pause between commands; this pause is a test choice,
+not proof of the cause of the earlier Windows error. It performs no automatic
+retry, reset, or rollback. First boot remains a separate phase, tied to the
+verified outcome of this new plan.
 
-Dieci test locali sono passati: hash/settori espliciti, rifiuto di ogni
-regione esterna alterata, immutabilita, nuovo erase con CRC corrente,
-risposta persa senza retry, completamento simulato, verifica NOR finale e
-CLI senza accesso hardware. Le simulazioni non rappresentano esecuzione
-fisica. Sorgente congelato SHA256
+Ten local tests passed: explicit hashes/sectors, rejection of any changed
+external region, immutability, a new erase with the current CRC, a lost response
+without retry, simulated completion, final NOR verification, and CLI without
+hardware access. Simulations do not represent physical execution.
+Frozen source SHA256
 `4d8b1241440c031e2de35cde8378d9354931aae78406db3a11c4912a1a15cebe`;
 test SHA256
 `d89fde466816e8d7aea81c5f609dbf47524026bb2185f488b9e9a6a0a8b193c3`.
-Il [report locale](../research/mini-install-resume.json) registra la
-validazione iniziale; l'esito dell'esecuzione fisica appartiene ai log
-del runner e non e anticipato da questo documento.
+The [local report](../research/mini-install-resume.json) records initial
+validation; the physical execution outcome belongs to the runner logs and is
+not anticipated by this document.

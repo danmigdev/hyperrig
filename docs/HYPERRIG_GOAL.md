@@ -1,96 +1,97 @@
-# Obiettivo HyperRig
+# HyperRig goal
 
-Requisiti espliciti dell'utente, aggiornati il 15 novembre 2026.
+Explicit user requirements, updated on 15 November 2026.
 
-HyperRig è il port del firmware UltraRig per TANK MINI, insieme alle sue
-applicazioni adattate. Il firmware finale sostituisce il firmware stock MINI.
-L'applicazione stock MINI non è la base del prodotto, non ospita il motore
-HyperRig e non viene conservata come backend. Il campione stock e il dump
-dell'esemplare servono per ricostruire le caratteristiche della scheda e per
-il ripristino.
+HyperRig is the port of the UltraRig firmware to TANK MINI, together with its
+adapted applications. The final firmware replaces the stock MINI firmware.
+The stock MINI application is not the product's foundation, does not host the
+HyperRig engine, and is not retained as a backend. The stock sample and the
+dump from the user's unit serve to reconstruct the board's characteristics and
+provide a restoration source.
 
-## Copia locale e possibilità di modifica
+## Local copies and ability to modify the project
 
-- Conservare copie originali verificate del firmware UltraRig e delle sue app,
-  identificando versione, provenienza e SHA-256.
-- Conservare il materiale di reverse engineering: estrazioni, disassemblati,
-  decompilazione, formati, protocolli, mappe e prove delle ricostruzioni.
-- Rendere modificabili firmware e applicazioni attraverso sorgenti recuperati
-  o ricostruiti e strumenti riproducibili di compilazione, ricostruzione e patch.
-- Distinguere i sorgenti compilabili dal pseudocodice inferito e dai componenti
-  ancora binari. Una copia binaria o una decompilazione parziale non certifica
-  il recupero completo dei sorgenti originali.
-- Conservare gli originali separatamente dalle copie HyperRig e mantenere le
-  attribuzioni e licenze dei componenti derivati.
+- Keep verified original copies of the UltraRig firmware and its apps,
+  identifying their version, provenance, and SHA-256.
+- Keep the reverse-engineering material: extractions, disassemblies,
+  decompilation, formats, protocols, maps, and evidence supporting the reconstructions.
+- Make the firmware and applications editable through recovered or
+  reconstructed sources and reproducible compilation, reconstruction, and patch tools.
+- Distinguish compilable sources from inferred pseudocode and components that
+  remain binary. A binary copy or partial decompilation does not establish
+  complete recovery of the original sources.
+- Keep the originals separate from the HyperRig copies and preserve the
+  attribution and licenses of derived components.
 
-## Minimo funzionante da dimostrare
+## Minimum working result to demonstrate
 
-1. Il TANK MINI avvia stabilmente il port HyperRig dell'applicazione UltraRig.
-2. Il percorso audio reale del MINI elabora il segnale attraverso il firmware
-   adattato e i componenti DSP UltraRig.
-3. L'app HyperRig riconosce il target MINI, legge e modifica i preset del
-   firmware adattato, con verifica delle risposte e dello stato effettivo.
-4. Il repository locale conserva quanto necessario per ripetere la build e
-   apportare ulteriori modifiche, con una descrizione esatta delle parti
-   ricostruite e dei componenti ancora da analizzare.
+1. The TANK MINI reliably boots the HyperRig port of the UltraRig application.
+2. The MINI's physical audio path processes the signal through the adapted
+   firmware and UltraRig DSP components.
+3. The HyperRig app recognizes the MINI target and reads and edits the adapted
+   firmware's presets, with verification of responses and actual state.
+4. The local repository preserves everything needed to repeat the build and
+   make further changes, with an accurate description of the reconstructed
+   parts and the components that still need analysis.
 
-Probe RAM, test sintetici, simulazioni e demo dell'interfaccia sono verifiche
-intermedie. Non soddisfano da soli il minimo funzionante.
+RAM probes, synthetic tests, simulations, and interface demos are intermediate
+checks. They do not, by themselves, meet the minimum working result.
 
-## Minimo operativo raggiunto il 16 novembre 2026
+## Minimum operational result achieved on 16 November 2026
 
-Il port v3 dell'applicazione UltraRig G è installato sul MINI. Sono verificati
-avvio normale, elaborazione A2, conservazione del primo preset dopo il riavvio
-dell'utente e audio da lui descritto come regolare. L'editor HyperRig via USB
-ha eseguito realmente aggiunta di un effetto, modifica del parametro, bypass,
-riattivazione, salvataggio in 1B, rimozione e richiamo di 1B: il Noise Gate
-Post è tornato attivo con soglia −71 dB. Infine è stato richiamato il preset
-originale 1A, con gain 0/0 e catena FX vuota.
+The v3 port of the UltraRig G application is installed on the MINI. Normal
+boot, A2 processing, and retention of the first preset after the user's restart
+have been verified; the user reported normal audio (paraphrased). Through USB,
+the HyperRig editor actually added an effect, changed its parameter, bypassed
+and re-enabled it, saved it to 1B, removed it, and recalled 1B: the Post Noise
+Gate returned enabled with a −71 dB threshold. Finally, the original 1A preset
+was recalled, with gain 0/0 and an empty FX chain.
 
-Le prove sono in `build/mini-saved-reload-ui-v2-07/report.json`,
-`build/mini-fx-ui-smoke-01/report.json` e nelle verifiche di installazione
-collegate dal README. L'app utilizzabile è
-`tools/launch_mini_fx_editor.cmd`, con bundle `build/hyperrig-mini-fx-editor`.
-Una prova separata con nove effetti attivi ha misurato circa 2,395 ms medi
-di elaborazione interna e 2,526 ms di massimo osservato, senza fault segnalati;
-la latenza analogica completa non è stata misurata.
+The evidence is in `build/mini-saved-reload-ui-v2-07/report.json`,
+`build/mini-fx-ui-smoke-01/report.json`, and the installation checks linked from
+the README. The current app is `tools/launch_hyperrig_editor.cmd`, with bundle
+`build/hyperrig-mini-english-editor`, an English presentation derived from
+the preserved `build/hyperrig-mini-fx-editor` hardware-test baseline.
+A separate test with nine active effects
+measured approximately 2.395 ms mean internal processing time and a 2.526 ms
+observed maximum, with no reported faults; total analog latency was not measured.
 
-Questo completamento riguarda il minimo sopra definito. Il C originale
-completo non è recuperato: rimangono pseudocodice inferito e componenti binari,
-insieme alle ricostruzioni compilabili e agli strumenti di patch/build locali.
-Restano separati la prova del recupero integrato all'accensione, i controlli
-fisici completi, il routing e gli altri comandi editor non ancora abilitati,
-e l'adattamento completo delle scritture dell'app mobile/BLE.
+This completion covers the minimum defined above. The complete original C
+source has not been recovered: inferred pseudocode and binary components
+remain, alongside compilable reconstructions and local patch/build tools.
+Testing the integrated power-on recovery path, all physical controls, routing
+and other editor commands not yet enabled, and complete mobile/BLE write
+support remain separate work items.
 
-## Decisioni di implementazione
+## Implementation decisions
 
-La candidata integrale usa l'applicazione UltraRig G come base. Le modifiche
-al target MINI sono esplicite, controllate rispetto ai byte originali e
-documentate. Il ramo sperimentale che avrebbe innestato il DSP nel firmware
-stock MINI è stato abbandonato su indicazione dell'utente; non è un prodotto
-alternativo accettabile per questo obiettivo.
+The complete candidate uses the UltraRig G application as its base. Changes
+for the MINI target are explicit, checked against the original bytes, and
+documented. The experimental branch that would have inserted the DSP into the
+stock MINI firmware was abandoned at the user's direction; it is not an
+acceptable alternative product for this goal.
 
-Il protocollo dell'app finale resta quello UltraRig. Il target MINI viene
-identificato mediante `tankm_fw`; il protocollo MIDI del MINI stock resta
-uno strumento di diagnosi e accesso al firmware originale durante lo sviluppo.
+The final app retains the UltraRig protocol. The MINI target is identified by
+`tankm_fw`; the stock MINI MIDI protocol remains a diagnostic and access tool
+for the original firmware during development.
 
-Il lavoro procede con agenti in parallelo. Il risultato viene dichiarato
-completo soltanto dopo le verifiche sul pedale e sull'app, indicando anche
-le eventuali limitazioni residue del reverse engineering.
+Work proceeds with parallel agents. The result is declared complete only after
+checks on the pedal and the app, with any remaining reverse-engineering
+limitations stated explicitly.
 
-## Recupero scelto e Raspberry Pi dell'utente
+## Selected recovery method and the user's Raspberry Pi
 
-L'utente ha escluso la strada USB_KEY con cablaggio GPIO e scelto il
-recupero mediante i tre footswitch. Il lavoro prosegue su questa strada:
-verifica dei tasti in RAM, marker/reset verso ROM e guard all'ingresso
-dell'applicazione UltraRig adattata. USB_KEY e i suoi strumenti restano
-materiale sperimentale archiviato, non un prerequisito richiesto all'utente.
-Il guard non copre un header o il proprio codice danneggiati; questo limite
-resta distinto dal recupero dei blocchi successivi all'ingresso.
+The user ruled out USB_KEY with GPIO wiring and selected recovery using the
+three footswitches. Work continues along that path: RAM verification of the
+switches, marker/reset into ROM, and a guard at the entry point of the adapted
+UltraRig application. USB_KEY and its tools remain archived experimental
+material, not a prerequisite imposed on the user. The guard does not cover a
+damaged header or damage to its own code; this limitation is distinct from
+recovery when execution hangs after entry.
 
-Il Raspberry Pi 3 disponibile ha già un sistema installato e viene usato
-come MIDI hub. L'utente richiede di preservare questa installazione.
-Sono stati eseguiti controlli di compatibilità in sola lettura e una build
-con simulazione in una cartella dedicata. Nessuna reinstallazione,
-modifica dei servizi MIDI, configurazione di avvio o richiesta di linee
-GPIO è stata effettuata. Il Pi non serve al percorso footswitch scelto.
+The available Raspberry Pi 3 already has an operating system installed and is
+used as a MIDI hub. The user requires that installation to be preserved.
+Read-only compatibility checks and a build with simulation were performed in
+a dedicated directory. No reinstallation, changes to MIDI services or boot
+configuration, or requests for GPIO lines were made. The Pi is not needed for
+the selected footswitch recovery path.
