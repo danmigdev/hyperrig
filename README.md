@@ -79,8 +79,9 @@ event sequences. [Preset availability and record validation](docs/PRESET_STORAGE
 add seven functions and 2,312 comparisons covering address mapping, CRCs, cached
 failures and record reads. [Preset preflight and legacy conversion](docs/PRESET_PREFLIGHT_RECONSTRUCTION.md)
 add three functions and 1,754 comparisons covering old layouts and effect
-parameters. Physical storage I/O, the top-level loader and DSP application
-remain explicit boundaries.
+parameters. [Preset loading, bindings and reports](docs/PRESET_LOADER_RECONSTRUCTION.md)
+add eight functions and 4,635 comparisons, connecting controls through preflight
+and the loader. Physical storage I/O and DSP application remain explicit boundaries.
 These are development components alongside the DSP work; the installed firmware
 and qualification of physical controls are unchanged.
 

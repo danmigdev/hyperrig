@@ -213,8 +213,9 @@ Git. The completed local run is `build/reverse-preset-storage-01`.
 
 Preset preflight at `0x020079f6` is now covered by the
 [preflight extension](PRESET_PREFLIGHT_RECONSTRUCTION.md), including layout and
-legacy effect conversion. Next, reconstruct the loader at `0x0200ca7e`, keeping
-error returns, current-preset commit and DSP application distinct.
+legacy effect conversion. The [loader extension](PRESET_LOADER_RECONSTRUCTION.md)
+now covers `0x0200ca7e`, keeping error returns, current-preset commit and the
+remaining DSP application boundary distinct.
 Storage preparation/cache invalidation and the underlying read/priority/poll
 implementations also remain dependencies.
 The [roadmap](REVERSE_ROADMAP.md) retains three-switch bank integration and

@@ -89,14 +89,17 @@ and effect binding across both chains, with nine new functions and 14,631
 comparisons. The fourth adds preset availability/cache validation, address
 mapping, CRCs and the shared record reader: seven functions and 2,312 further
 comparisons. The fifth reconstructs preset preflight and legacy layout/effect
-conversion, with three functions and 1,754 comparisons. Physical storage I/O,
-the top-level loader and DSP application remain explicit boundaries.
+conversion, with three functions and 1,754 comparisons. The sixth adds loader
+orchestration, action snapshots/rebinding and report arithmetic, with eight
+functions and 4,635 comparisons integrated with controls and preflight.
+Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
 [CONTROL_ACTIONS.md](CONTROL_ACTIONS.md),
 [SELECTION_RECONSTRUCTION.md](SELECTION_RECONSTRUCTION.md),
-[PRESET_STORAGE_RECONSTRUCTION.md](PRESET_STORAGE_RECONSTRUCTION.md) and
-[PRESET_PREFLIGHT_RECONSTRUCTION.md](PRESET_PREFLIGHT_RECONSTRUCTION.md).
+[PRESET_STORAGE_RECONSTRUCTION.md](PRESET_STORAGE_RECONSTRUCTION.md),
+[PRESET_PREFLIGHT_RECONSTRUCTION.md](PRESET_PREFLIGHT_RECONSTRUCTION.md) and
+[PRESET_LOADER_RECONSTRUCTION.md](PRESET_LOADER_RECONSTRUCTION.md).
 
 ## Implementation decisions
 

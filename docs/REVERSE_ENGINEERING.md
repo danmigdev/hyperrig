@@ -9,8 +9,9 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [switch transition reconstruction](CONTROL_RECONSTRUCTION.md),
 [action dispatch and timers](CONTROL_ACTIONS.md),
 [selection reconstruction](SELECTION_RECONSTRUCTION.md),
-[preset storage validation](PRESET_STORAGE_RECONSTRUCTION.md) and
-[preset preflight and conversion](PRESET_PREFLIGHT_RECONSTRUCTION.md); the investigation
+[preset storage validation](PRESET_STORAGE_RECONSTRUCTION.md),
+[preset preflight and conversion](PRESET_PREFLIGHT_RECONSTRUCTION.md) and
+[preset loader/binding/report reconstruction](PRESET_LOADER_RECONSTRUCTION.md); the investigation
 notes below retain the context of the original analysis.
 
 ## Samples and sources found

@@ -206,6 +206,7 @@ artifacts remain outside Git. The completed run is `build/reverse-selection-01`.
 Availability/cache validation is now covered by the
 [preset storage extension](PRESET_STORAGE_RECONSTRUCTION.md), and preflight with
 legacy conversion by the [preflight extension](PRESET_PREFLIGHT_RECONSTRUCTION.md).
-Next, reconstruct the top-level loader and connect its results to scene/DSP
-application. The [roadmap](REVERSE_ROADMAP.md)
+The [loader extension](PRESET_LOADER_RECONSTRUCTION.md) now connects these checks
+to the top-level loader, binding rewrites and reports. Scene/DSP application
+remains external. The [roadmap](REVERSE_ROADMAP.md)
 also retains scheduler/LED tracing and the eventual three-switch bank integration.

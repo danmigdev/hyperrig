@@ -12,6 +12,10 @@ The original Required Notice and license are retained. All earlier reconstructed
 sources and verification reports remain unchanged. These are development
 components; no firmware image is produced or installed.
 
+The later [loader component](PRESET_LOADER_RECONSTRUCTION.md) integrates this
+unchanged preflight into control navigation and reconstructs its caller's commit,
+binding and report sequence. The results below remain the preflight baseline.
+
 ## Original functions and MINI binding
 
 The G v2 M5.71 reference application has SHA256
@@ -170,11 +174,11 @@ UBSan; all five components compile for pi32v2. The new relocatable object is
 None of these target objects has run on the pedal. There is no new hardware,
 audio, persistence-write or DSP application test.
 
-## Loader trace and next step
+## Original loader trace and later reconstruction
 
 Static inspection of the caller at `0x0200ca7e..0x0200cb3c`, SHA256
 `f396922c03e8dfd2024e76975bd5af03c91ebcb37969e32503579a66e92a87e2`, establishes
-the next reconstruction boundary:
+the boundary used for the subsequent loader reconstruction:
 
 - Any nonzero preflight result branches to return -1 before the caller's
   application call and current-preset write. Detailed preflight errors are lost.
@@ -184,12 +188,14 @@ the next reconstruction boundary:
   the application return value. It later passes that value to a notification
   when the notification path is enabled, and returns zero.
 - Snapshot/comparison and reporting services occur between application and
-  return. Their state effects and error meanings still need reconstruction.
+  return. Their state effects are now covered by the loader component.
 
-These are static observations of the pinned caller, not an executed loader or
-proof that a preset was applied or persisted. Next, reconstruct the loader's
-service sequence, working-state application and commit/report contract. Storage
-preparation/cache invalidation also remains on the [roadmap](REVERSE_ROADMAP.md).
+These were static observations in this milestone. The
+[loader extension](PRESET_LOADER_RECONSTRUCTION.md) now compares the caller and
+its binding/report helpers against the original instructions. Working-state/DSP
+application remains external, so those comparisons do not establish live state
+application or persistence. Storage preparation/cache invalidation also remains
+on the [roadmap](REVERSE_ROADMAP.md).
 
 ## Reproduce
 
