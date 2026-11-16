@@ -18,16 +18,18 @@ original firmware C sources have not been recovered.
 | MINI port | Working binary port with explicit board patches and v4 release input hashes | A reference that can be retained while modules are reconstructed. |
 | Switch transition core | Two functions recovered in C; 15,520 comparisons against original instructions | Raw transitions, immediate-action policy and emitted event boundaries, with all 119 decoded instructions visited. |
 | Action dispatch and timers | Dispatcher, timer worker and clock helper recovered; 10,101 further comparisons | Event generation through action selection, with all 312 combined decoded instructions visited; downstream services remain explicit boundaries. |
+| Preset/scene/effect selection | Nine more functions recovered; 14,631 further comparisons | Preset search and load-outcome handling, active-scene selection and effect binding across two chains; all 210 new instructions visited. Storage/loading and DSP application remain external. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md) and
-[action dispatch and timers](CONTROL_ACTIONS.md) for exact evidence and limits.
+[action dispatch and timers](CONTROL_ACTIONS.md) and
+[selection reconstruction](SELECTION_RECONSTRUCTION.md) for exact evidence and limits.
 
 ## Order of work
 
 | Stage | Scope | Completion criterion |
 | --- | --- | --- |
-| R1. Controls and action dispatch | Physical-to-logical mapping, press/release state, timers, action records, preset/scene selection and LED state inputs | Documented state/ABI contracts and C functions compared against original instructions. Transition, timer and action-selection baselines are complete within stated boundaries; preset/scene/effect leaf handlers are next. |
+| R1. Controls and action dispatch | Physical-to-logical mapping, press/release state, timers, action records, preset/scene selection and LED state inputs | Transition, timer, action selection and preset/scene/effect binding baselines are verified within stated boundaries. Scheduler/time units, remaining leaf services and physical LED behavior still need tracing/integration. |
 | R2. Protocol and persistence | Command parsing and dispatch, preset/scene serialization, versioning, CRCs and storage interfaces | Commands map to named handlers; synthetic round trips and failure cases preserve the original format and distinguish acknowledgments from durable state. |
 | R3. Audio integration and remaining DSP | Frontend scaling, effect/routing state, IR processing, memory ownership and audio scheduling | Each reconstructed component has explicit sample formats, numerical/behavioral comparisons and resource budgets. Existing A2 work is reused. |
 | R4. Integration and backports | Link reconstructed modules to the MINI adaptation layer; introduce requested feature changes | Build an isolated candidate, prove its intended change and preservation of unrelated behavior, then test on the pedal before release. |
@@ -56,15 +58,21 @@ claimed without a defensible function inventory.
 
 ## Next concrete milestone
 
-The executable C model now covers event generation through action selection.
-Continue into the external handlers:
+The executable C model now covers event generation through preset/scene selection
+and effect binding. The four requested selection/verification tasks are complete
+within the [documented offline boundary](SELECTION_RECONSTRUCTION.md).
 
-- `0x02014952`: relative preset selection and its availability/load dependencies.
-- `0x020148ba`: application of pending scene steps and scene availability.
-- `0x0201499c`: effect binding resolution and the underlying chain lookup.
+Continue into preset storage and application contracts:
 
-The next deliverable is a verified selection model with explicit preset/scene
-availability contracts and effect-index failure behavior. Trace the scheduler
-and counter source before assigning physical time units to the recovered timer
-thresholds. Enabling Footswitches or Stage and releasing a three-slot firmware
-bank change also require integration and physical validation.
+- `0x0200cf88`: availability cache and validation. Trace state words at offsets
+  708/732 and the underlying header, payload-read and checksum dependencies.
+- `0x0200ca7e`: loading, its preflight/error paths and when the current preset
+  and working state change. Keep a successful acknowledgment distinct from
+  verified durable state.
+- `0x0200a1d6`: bridge selected scenes into their DSP application dependencies.
+
+Start with availability/cache validation as a bounded R2 component. Scheduler
+and counter tracing remain prerequisites for physical time-unit claims; LED
+behavior remains unqualified. Enabling Footswitches or Stage and changing the
+four-slot bank grouping to three also require integration and physical validation.
+The Alpha 13 branch remains a placeholder pending an explicit implementation request.

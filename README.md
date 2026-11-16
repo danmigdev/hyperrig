@@ -72,10 +72,12 @@ records and protocol identifiers are preserved; see [AGENTS.md](AGENTS.md).
 Current priority: [reverse engineering for backports](docs/REVERSE_ROADMAP.md).
 The [switch transition core](docs/CONTROL_RECONSTRUCTION.md) has a portable C
 reconstruction with 15,520 comparisons against original instructions. The
-[action dispatcher and timers](docs/CONTROL_ACTIONS.md) add 10,101 comparisons,
-including integrated event sequences. Downstream preset/effect handlers remain
-explicit boundaries. These are development components alongside the DSP work;
-the installed firmware and qualification of physical controls are unchanged.
+[action dispatcher and timers](docs/CONTROL_ACTIONS.md) add 10,101 comparisons.
+[Preset/scene selection and effect binding](docs/SELECTION_RECONSTRUCTION.md)
+add nine reconstructed functions and 14,631 comparisons, including integrated
+event sequences. Storage/loading and DSP application remain explicit boundaries.
+These are development components alongside the DSP work; the installed firmware
+and qualification of physical controls are unchanged.
 
 The repository includes parsers for SFC/JLFS/FWSC and A2L1, extracted-protocol
 analysis, binary port builders, reconstructed C components, tests, board

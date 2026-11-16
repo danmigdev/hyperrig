@@ -5,6 +5,11 @@ and action selection in portable C. Downstream preset, scene, effect and mode
 handlers remain explicit external services. This is a development component,
 not a replacement firmware image or an implementation of the Alpha 13 backport.
 
+This document describes the action/timer component's original verification
+boundary. The separate [selection reconstruction](SELECTION_RECONSTRUCTION.md)
+now executes preset stepping, scene selection and effect binding internally;
+this component's source and reports remain unchanged.
+
 Sources: [`hyperrig_control_actions.c`](../firmware/src/hyperrig_control_actions.c)
 and [`hyperrig_control_actions.h`](../firmware/include/hyperrig/hyperrig_control_actions.h).
 The [previous transition component](CONTROL_RECONSTRUCTION.md) is reused unchanged.
@@ -173,6 +178,5 @@ objects, `verification.json` with source/decoder hashes and a build manifest.
 Existing output directories are refused. Generated evidence remains ignored by
 Git; the completed local run is `build/reverse-control-actions-01`.
 
-Next: reconstruct preset stepping, pending scene-step application and effect
-resolution, starting from `0x02014952`, `0x020148ba` and `0x0201499c`. Their
-availability/selection contracts precede a firmware change to three-switch banks.
+Continue with the completed [selection reconstruction](SELECTION_RECONSTRUCTION.md)
+and the [next roadmap milestone](REVERSE_ROADMAP.md#next-concrete-milestone).
