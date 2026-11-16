@@ -122,8 +122,13 @@ primitive checks. Capture preparation, size/probe, DSP-load wrappers, capability
 query and cleanup now add 1,847 comparisons, including integrated container/slot
 paths. Journal append/rewrite adds 655 synthetic-storage comparisons. The filter
 pipeline joins generation, staging and active numerical processing with 1,698
-comparisons. The whole capture parser/reset bodies, complete metadata command,
-broader divisor initializer and surrounding audio caller remain separate work.
+comparisons. The complete native capture parser adds 424 comparisons, including
+its original context/arena layout, partial failures and reset-copy configuration.
+Capture memory reset adds 253 comparisons through direct and container paths.
+The complete metadata command adds 1,114 comparisons through parsing, allocation,
+reload, retries and gain updates. DSP initialization and guarded startup add
+4,529 comparisons through the recovered coefficient producer. Joining the native
+parser/reset with the full capture path and surrounding audio callers remains work.
 Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
@@ -142,8 +147,12 @@ unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCT
 [CAPTURE_METADATA_RECONSTRUCTION.md](CAPTURE_METADATA_RECONSTRUCTION.md),
 [BIQUAD_GENERATOR_RECONSTRUCTION.md](BIQUAD_GENERATOR_RECONSTRUCTION.md),
 [CAPTURE_DISPATCH_RECONSTRUCTION.md](CAPTURE_DISPATCH_RECONSTRUCTION.md),
-[CAPTURE_JOURNAL_RECONSTRUCTION.md](CAPTURE_JOURNAL_RECONSTRUCTION.md) and
-[BIQUAD_PIPELINE_RECONSTRUCTION.md](BIQUAD_PIPELINE_RECONSTRUCTION.md).
+[CAPTURE_JOURNAL_RECONSTRUCTION.md](CAPTURE_JOURNAL_RECONSTRUCTION.md),
+[BIQUAD_PIPELINE_RECONSTRUCTION.md](BIQUAD_PIPELINE_RECONSTRUCTION.md),
+[CAPTURE_PARSER_RECONSTRUCTION.md](CAPTURE_PARSER_RECONSTRUCTION.md),
+[CAPTURE_RESET_RECONSTRUCTION.md](CAPTURE_RESET_RECONSTRUCTION.md),
+[CAPTURE_COMMAND_RECONSTRUCTION.md](CAPTURE_COMMAND_RECONSTRUCTION.md) and
+[DSP_INITIALIZATION_RECONSTRUCTION.md](DSP_INITIALIZATION_RECONSTRUCTION.md).
 
 The user also reserved separate branches for Tone3000 integration, a zoomable UI,
 and a complete UltraRig Alpha 11 versus HyperRig feature comparison after reverse

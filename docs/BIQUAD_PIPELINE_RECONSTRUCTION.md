@@ -201,3 +201,9 @@ The next configuration boundary is the broader initializer at `0x02029112` and
 its reset helpers; the surrounding block caller is a separate execution boundary.
 Recovering those bodies would connect the pinned startup evidence to a more
 complete runtime initialization and scheduling model.
+
+The later [DSP initialization reconstruction](DSP_INITIALIZATION_RECONSTRUCTION.md)
+now executes that initializer, reset helpers and guarded startup through the
+recovered coefficient producer. It preserves this pipeline's sources and reports.
+The platform-input and separate configuration services, audio caller and physical
+sample-rate evidence remain open.

@@ -24,16 +24,24 @@ instruction comparisons and 18,069 independent binary32 primitive checks.
 The [integrated filter pipeline](BIQUAD_PIPELINE_RECONSTRUCTION.md) now joins
 generation, staging and sample processing, with 1,698 comparisons and all 812
 combined instructions visited. Static evidence identifies a reset divisor of
-48000 and a guarded startup argument of 48077; complete initialization and
-physical rate measurements remain separate work. Separately,
+48000 and a guarded startup argument of 48077. The
+[initializer and guarded startup](DSP_INITIALIZATION_RECONSTRUCTION.md) now
+execute those paths through the recovered coefficient producer, adding 4,529
+comparisons; platform service bodies and physical rate measurements remain open.
+Separately,
 the [capture slot loader](CAPTURE_LOADER_RECONSTRUCTION.md) adds 6,091 comparisons
 for gain metadata, reuse and partial rollback. The [container installer/reader](CAPTURE_CONTAINER_RECONSTRUCTION.md)
 adds 262 comparisons and the [journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md)
 adds 9,764. The [capture dispatch wrappers](CAPTURE_DISPATCH_RECONSTRUCTION.md)
-add 1,847 comparisons through preparation, sizing, DSP setup and cleanup; the
-raw parser and memory reset bodies remain external. [Journal writes and readback](CAPTURE_JOURNAL_RECONSTRUCTION.md)
-add 655 synthetic-storage comparisons, with the full text command and physical
-drivers still external. These modules do not yet form a complete firmware
+add 1,847 comparisons through preparation, sizing, DSP setup and cleanup.
+The separate [whole native parser](CAPTURE_PARSER_RECONSTRUCTION.md) adds 424
+comparisons, and [memory reset](CAPTURE_RESET_RECONSTRUCTION.md) adds 253 through
+direct and container-loading paths. Their complete integration with native audio
+processing remains open. [Journal writes and readback](CAPTURE_JOURNAL_RECONSTRUCTION.md)
+add 655 synthetic-storage comparisons. The
+[complete metadata command](CAPTURE_COMMAND_RECONSTRUCTION.md) adds 1,114 through
+text parsing, reload, retries and active gain updates; physical storage drivers
+remain external. These modules do not yet form a complete firmware
 replacement. Coverage is tracked in the [inventory](REVERSE_INVENTORY.md).
 
 ## Reconstructed functions
@@ -75,6 +83,11 @@ wrapper accepts shifts `[-62, 62]` and nonnegative counts and strides; buffer
 ranges and non-overlap are the caller's responsibility.
 
 ## Capture loading and biases
+
+The later [native-layout parser](CAPTURE_PARSER_RECONSTRUCTION.md) reconstructs
+the complete original function and its read64 helper, including allocation order
+and partial error writes. The portable loader described in this section remains
+unchanged; its guarantees and deliberate format limits are specific to that API.
 
 `hyperrig_a2l_size` and `hyperrig_a2l_load` reconstruct the A2L1 format, weight
 reordering, and scaling identified in parser `0x02031C64..0x0203291C`. They use
@@ -259,16 +272,16 @@ It does not execute the newly compiled target object on a real processor,
 measure timing, or demonstrate whole-firmware equivalence. The versioned
 report is [native-verification.json](../research/native-verification.json).
 
-## Next identified functions
+## Native capture orchestration
 
 The following names are code interpretations, not original symbols:
 
 | Address | Reconstructed/inferred role |
 |---|---|
-| `0x02031C64` | A2L parser, format/CRC checks, and context construction |
-| `0x01C12850` | calculation of required model space |
-| `0x01C12878` | model-state reset |
-| `0x01C1296C` | initialization and dot-callback installation |
+| `0x02031C64` | Complete parser reconstructed in [native parser](CAPTURE_PARSER_RECONSTRUCTION.md); full-path integration remains open |
+| `0x01C12850` | Size wrapper reconstructed in [capture dispatch](CAPTURE_DISPATCH_RECONSTRUCTION.md) |
+| `0x01C12878` | Complete [memory reset](CAPTURE_RESET_RECONSTRUCTION.md), including container adapters |
+| `0x01C1296C` | Dot-callback installation reconstructed in [capture dispatch](CAPTURE_DISPATCH_RECONSTRUCTION.md) |
 | `0x01C129DC` | specialized three-channel rechannel setup |
 | `0x01C12A54` | layer-kernel setup/dispatch |
 | `0x01C12C32` | layer iteration in 64-frame blocks |

@@ -22,8 +22,12 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [capture journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md),
 [bounded coefficient generation](BIQUAD_GENERATOR_RECONSTRUCTION.md),
 [capture DSP dispatch](CAPTURE_DISPATCH_RECONSTRUCTION.md),
-[journal writes and verification](CAPTURE_JOURNAL_RECONSTRUCTION.md) and
-[the integrated filter pipeline](BIQUAD_PIPELINE_RECONSTRUCTION.md). The
+[journal writes and verification](CAPTURE_JOURNAL_RECONSTRUCTION.md),
+[the integrated filter pipeline](BIQUAD_PIPELINE_RECONSTRUCTION.md),
+[the whole native capture parser](CAPTURE_PARSER_RECONSTRUCTION.md),
+[capture memory reset](CAPTURE_RESET_RECONSTRUCTION.md),
+[the complete metadata command](CAPTURE_COMMAND_RECONSTRUCTION.md) and
+[DSP initialization and guarded startup](DSP_INITIALIZATION_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.

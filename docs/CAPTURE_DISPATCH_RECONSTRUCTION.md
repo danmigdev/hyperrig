@@ -171,3 +171,12 @@ Optionally pass `--mini-image` with the reviewed MINI v4 image inside the
 workspace. The builder requires a new ignored directory under `build/`.
 Libraries, objects and reports remain outside Git. No hardware/audio test was
 performed, and no firmware image was produced, changed or installed.
+
+## Subsequent parser and reset evidence
+
+The complete [native parser](CAPTURE_PARSER_RECONSTRUCTION.md) now has a separate
+comparison against its original context, allocation and error behavior. The
+[memory-reset module](CAPTURE_RESET_RECONSTRUCTION.md) executes the original
+clearing loops through new load, cleanup, container and slot adapters. These
+later modules preserve this milestone's sources and reports. Joining both bodies
+in one complete native capture-loading comparison remains the next integration.

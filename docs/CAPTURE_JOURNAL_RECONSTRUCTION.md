@@ -251,3 +251,9 @@ application occur after these paths. Those caller branches remain unexecuted in
 this milestone, as does the text parser and metadata packer before the append
 entry. Recovering them is separate from proving the physical flash driver or
 power-loss behavior, both of which remain outside these synthetic tests.
+
+The subsequent [complete command reconstruction](CAPTURE_COMMAND_RECONSTRUCTION.md)
+now covers those caller paths, text/slot/decimal parsing, packing, both rewrite
+attempts, cleanup and active gain handling. It preserves this milestone's
+sources and fragment reports. Physical storage and power-loss behavior remain
+outside both comparison domains.

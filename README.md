@@ -104,6 +104,13 @@ comparisons through preparation, size queries, DSP setup and recovery.
 [Journal writes and verification](docs/CAPTURE_JOURNAL_RECONSTRUCTION.md) add
 655 comparisons with synthetic storage. The [integrated filter pipeline](docs/BIQUAD_PIPELINE_RECONSTRUCTION.md)
 adds 1,698 comparisons from parameter requests through sample processing.
+The [whole native capture parser](docs/CAPTURE_PARSER_RECONSTRUCTION.md) adds
+424 comparisons, and [capture memory reset](docs/CAPTURE_RESET_RECONSTRUCTION.md)
+adds 253 through direct and container-loading paths. The
+[complete metadata command](docs/CAPTURE_COMMAND_RECONSTRUCTION.md) adds 1,114
+comparisons through parsing, reload, retries and gain updates. The
+[DSP initializer and guarded startup](docs/DSP_INITIALIZATION_RECONSTRUCTION.md)
+add 4,529 comparisons through the recovered coefficient producer.
 The [audited inventory](docs/REVERSE_INVENTORY.md) separates recovered functions,
 partial regions and candidate entries; a firmware-wide completion percentage
 is not yet established.
