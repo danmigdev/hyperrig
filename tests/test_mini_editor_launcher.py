@@ -166,7 +166,7 @@ console.log('pass');})().catch(e=>{console.error(e);process.exitCode=1;});"""
             value=[{'type':'page','webSocketDebuggerUrl':'ws://offline-test'}] if url.endswith('/json/list') else {'Browser':'offline fixture'}
             return io.BytesIO(json.dumps(value).encode())
         with (patch.object(launcher,'qualifier',return_value=self.fake),patch.object(launcher.subprocess,'Popen',side_effect=popen),
-              patch.object(launcher.browser,'browser_path',return_value=Path('OFFLINE-fake.exe')),
+              patch.object(launcher.browser_windows,'browser_path',return_value=Path('OFFLINE-fake.exe')),
               patch.object(launcher.browser,'CDP',CDP),patch.object(launcher.http.server,'ThreadingHTTPServer',Server),
               patch.object(launcher,'urlopen',side_effect=urlopen),patch.object(launcher.time,'sleep')):
             report=launcher.run(prepared,output)

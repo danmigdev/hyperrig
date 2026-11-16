@@ -29,7 +29,7 @@ from tools.mini_host_journal import atomic_write_json, read_shared_bytes
 
 require, sha, now = browser.require, browser.sha, window.now
 FAMILIES = ['GAIN','PLOAD','PSAVE','SNAPSAVE']
-QUALIFIER_SHA = '590a3eee4dffb0ba10d4155788ed6b924b24b3e6a4ed7d33b019d88f38de5781'
+QUALIFIER_SHA = 'a1def5b08c85efc83e55679d49bc9b55432d487be5dc7a4515da0449e8158287'
 OBSERVER = r"""(()=>{
  const state={opens:0,closes:0,activePorts:0,closeError:null,events:[],pongs:[],lastPort:null};
  const active=new WeakSet();

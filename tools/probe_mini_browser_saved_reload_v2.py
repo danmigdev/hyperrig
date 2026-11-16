@@ -37,6 +37,14 @@ V1=ROOT/'tools/probe_mini_browser_saved_reload.py'
 V1_SHA='8f044dcd2ab5cc98521a02b972a473cb5a686c3f7f88ef47c1e1c7fcec300db4'
 PONG='PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11'
 STATE=frozen.STATE.replace('__miniFirstPresetGuard','__miniSavedReloadGuard')
+UI_STATE="({gain:S.gain.slice(),capture:S.capSlot,scene:S.snap,preset:S.curPre??null,selected:curPreset})"
+UI_SYNC_QUERY="""(async()=>{
+  const command_id=__miniSavedReloadGuard.state.commands.length;
+  const response=await Pedal.cmd('LVL','LVL',800);
+  applyLvl(reply(response,'LVL'));
+  await Pedal.chain;
+  return {response,command_id};
+})()"""
 OUTPUT_KNOB=frozen.OUTPUT_KNOB
 FROZEN_SHA='87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b'
 ACTIVITY_SHA='c234aa9d36f9b0c95e71a692881f81342773d6e237766f1a2d1ed49df65ac2ab'
@@ -90,6 +98,32 @@ def snapshot(cdp):
     value['responses']['STAT']=lines;value['state']['a2_stat']=activity.parse_stat(lines)
     activity.checked_stat(value['state'])
     return value
+
+
+def verify_initial_ui_sync(value,plan):
+    require(value.get('request')=='LVL' and value.get('method')=='original applyLvl'
+            and type(value.get('command_id')) is int and value['command_id']>=0,
+            'original LVL UI synchronization metadata differs')
+    lines=value.get('response',[])
+    line=lines[0] if isinstance(lines,list) and len(lines)==1 and isinstance(lines[0],str) else ''
+    gain=re.search(r'\bg=(-?\d+)/(-?\d+)(?: |$)',line)
+    scene=re.search(r'\bs=(-?\d+)(?: |$)',line)
+    preset=re.search(r'\bc=\d+ p=(-?\d+)(?: |$)',line)
+    require(line.startswith('LVL ') and gain and scene and preset
+            and list(map(int,gain.groups()))==plan['gain']
+            and int(scene[1])==0 and int(preset[1])==plan['slot'],
+            'fresh LVL does not describe the actual already-saved state')
+    require(value.get('after')=={'gain':plan['gain'],'capture':plan['capture_slot'],
+            'scene':0,'preset':plan['slot'],'selected':plan['slot']},
+            'original applyLvl did not synchronize the actual editor state')
+
+
+def refresh_original_ui(cdp,report,plan):
+    value={'request':'LVL','method':'original applyLvl','before':cdp.evaluate(UI_STATE)}
+    report['original_UI_initial_sync']=value  # Retain the observation even if the query fails.
+    value.update(cdp.evaluate(UI_SYNC_QUERY))
+    value['after']=cdp.evaluate(UI_STATE)
+    verify_initial_ui_sync(value,plan)
 
 
 def processing_progress(first,second,saved,plan):
@@ -345,13 +379,17 @@ def run(prepared, output):
         serial_observation(report,state['guard'])
         plan=prepared['plan'];report['plan']=copy.deepcopy(plan)
         saved=prepared['saved_snapshot']['state']
+        # Connect applies only LVL gain; hidden-page polling need not initialize
+        # S.curPre. Apply one fresh response with the original UI function first.
+        refresh_original_ui(cdp,report,plan)
         report['before_activity']=snapshot(cdp)
         verify_saved(report['before_activity']['state'],saved,plan['gain'],plan)
         time.sleep(.2)
         report['before']=snapshot(cdp)
         report['processing']=processing_progress(report['before_activity']['state'],report['before']['state'],saved,plan)
-        require(cdp.evaluate('S.capSlot')==plan['capture_slot'] and cdp.evaluate('S.curPre')==plan['slot']
-                and cdp.evaluate('S.snap')==0 and cdp.evaluate('S.gain')==plan['gain'],
+        actual_ui=report['original_UI_before_plan']=cdp.evaluate(UI_STATE)
+        require(actual_ui['capture']==plan['capture_slot'] and actual_ui['preset']==plan['slot']
+                and actual_ui['scene']==0 and actual_ui['gain']==plan['gain'],
                 'original editor does not reflect the actual already-saved state')
         cdp.evaluate('__miniSavedReloadGuard.configureTrial('+json.dumps(plan)+','+json.dumps(report['before']['responses'])+')')
         # Presets closes the meters popup. Open it explicitly before the marker;

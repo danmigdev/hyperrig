@@ -215,6 +215,15 @@ def synthetic_continuation(*, v2=False, empty_timeouts=0):
     if v2:
         for _ in range(empty_timeouts): exchange('PING', [])
     exchange('PING', [partial['context']['pong']])
+    if v2:
+        sync_response = ['LVL in=-1440 out=-1440 ci=0 co=0 fx=0/20000 mem=0 sk=0 m=2 g=0/0 '
+                         'b=1200 s=0 a=1 e=130000/154950 am=118688 c=11 p=0']
+        command_id = len(guard['commands']); exchange('LVL', sync_response)
+        report['original_UI_initial_sync'] = {'request': 'LVL', 'response': sync_response,
+            'command_id': command_id, 'method': 'original applyLvl',
+            'before': {'gain': [0, 0], 'capture': 0, 'scene': 0, 'preset': None, 'selected': 0},
+            'after': {'gain': [0, 0], 'capture': 0, 'scene': 0, 'preset': 0, 'selected': 0}}
+        report['original_UI_before_plan'] = copy.deepcopy(report['original_UI_initial_sync']['after'])
     nproc = 1000
     def snapshot(name, gain):
         nonlocal nproc
@@ -438,6 +447,30 @@ class QualificationTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 q.validate_continuation_selection(report, partial, q.JOINT_MODEL_V2)
 
+    def test_initial_ui_sync_is_real_readonly_and_precedes_snapshot_not_a_state_assignment(self):
+        report, partial = synthetic_continuation(v2=True)
+        proof = q.inspect_continuation(report, partial)['continuation_initial_UI_sync']
+        self.assertIsNone(proof['before']['preset'])
+        self.assertEqual(proof['after']['preset'], 0)
+        self.assertEqual(proof['method'], 'original applyLvl')
+        for what in ('absent', 'after', 'request', 'method', 'response', 'id', 'snapshot_reuse', 'RX', 'before_plan'):
+            bad = copy.deepcopy(report); sync = bad['original_UI_initial_sync']
+            if what == 'absent': bad.pop('original_UI_initial_sync')
+            elif what == 'after': sync['after']['preset'] = 1
+            elif what == 'request': sync['request'] = 'PLOAD 0'
+            elif what == 'method': sync['method'] = 'S.curPre = 0'
+            elif what == 'response': sync['response'] = [sync['response'][0].replace('p=0', 'p=1')]
+            elif what == 'id': sync['command_id'] = -1
+            elif what == 'before_plan': bad['original_UI_before_plan']['preset'] = 1
+            elif what == 'snapshot_reuse':
+                sync['command_id'] = next(c['id'] for c in bad['guard']['commands']
+                    if c['line'] == 'LVL' and c['id'] > sync['command_id'])
+            else:
+                command = next(c for c in bad['guard']['commands'] if c['id'] == sync['command_id'])
+                wire = next(w for w in bad['guard']['wire'] if w['id'] == command['wire_id'])
+                bad['guard']['rx'] = [r for r in bad['guard']['rx'] if not wire['seq'] < r['seq'] < command['seq']]
+            with self.subTest(what=what), self.assertRaises(ValueError): q.inspect_continuation(bad, partial)
+
     def test_v2_synthetic_file_cannot_create_a_qualification_or_bundle(self):
         report, _ = synthetic_continuation(v2=True, empty_timeouts=1)
         with tempfile.TemporaryDirectory(dir=q.ROOT/'build') as tmp:
@@ -503,7 +536,7 @@ class QualificationTests(unittest.TestCase):
 
     def test_closed_failed_saved_reload_sessions_cannot_qualify(self):
         found = False
-        for attempt in ('05', '06'):
+        for attempt in ('05', '06', 'v2-01', 'v2-02', 'v2-03'):
             path = q.ROOT/f'build/mini-saved-reload-ui-{attempt}/report.json'
             if not path.is_file(): continue
             found = True

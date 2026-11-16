@@ -60,7 +60,7 @@ RESUME_PINS = {
     'tools/mini_browser_saved_reload_guard.js': 'e0de0abe48c29ec28ba7c7a02ecfe1ce79225db8079786e1e34fc31c8c9982f9',
 }
 RESUME_V2_PINS = {
-    'tools/probe_mini_browser_saved_reload_v2.py': '4a2bc7fe885442db181cf49cbcb8ea688f4844d41c25493adff011735ff9ff82',
+    'tools/probe_mini_browser_saved_reload_v2.py': '3c252d3f45d4dd7a839f9b9f6feb9102767d2db435fd7b6b7bf6afe3922c76bf',
     'tools/mini_browser_saved_reload_guard_v2.js': 'ed25540b9195b3a948c8cc076867ba8c7cb62c71a966b70604293dc29ed9849e',
     'tools/mini_browser_windows.py': '92b6e259da3ff7eb79d38d4b290a2ea5372310bc1a8993cdbfe2af9296467410',
 }
@@ -461,6 +461,49 @@ def continuation_backend(report):
     return resume, RESUME_V2_PINS, JOINT_MODEL_V2
 
 
+def verify_initial_ui_sync(report, partial, snapshot_matches):
+    """Bind original applyLvl's UI observation to a distinct real LVL exchange."""
+    item = report.get('original_UI_initial_sync')
+    require(isinstance(item, dict) and set(item) == {'request', 'response', 'command_id', 'before', 'after', 'method'}
+            and item['request'] == 'LVL' and item['method'] == 'original applyLvl'
+            and type(item['command_id']) is int, 'original initial UI synchronization proof required')
+    guard, plan = report['guard'], partial['plan']
+    commands = [c for c in guard['commands'] if c['id'] == item['command_id']]
+    require(len(commands) == 1 and commands[0]['line'] == 'LVL' and commands[0]['epoch'] == 0
+            and commands[0]['completed'] is True and commands[0]['lines'] == item['response']
+            and isinstance(item['response'], list) and len(item['response']) == 1,
+            'UI synchronization lacks its exact actual LVL completion')
+    command = commands[0]
+    wires = [w for w in guard['wire'] if w['id'] == command['wire_id'] and w['command_id'] == command['id']]
+    require(len(wires) == 1 and wires[0]['line'] == 'LVL' and wires[0]['origin'] == 'query',
+            'UI synchronization is not a single readonly native request')
+    first = next(c for c in guard['commands'] if c['id'] == snapshot_matches['before_activity'][0])
+    first_wire = next(w for w in guard['wire'] if w['id'] == first['wire_id'])
+    require(one_event(guard, 'serial_open_complete')['seq'] < wires[0]['seq'] < command['seq'] < first_wire['seq']
+            and command['id'] not in {i for ids in snapshot_matches.values() for i in ids},
+            'initial UI synchronization must precede both snapshots without response reuse')
+    line = item['response'][0]
+    require(isinstance(line, str) and line.startswith('LVL '), 'initial UI LVL framing differs')
+    gain = re.search(r' g=(-?\d+)/(-?\d+)(?: |$)', line)
+    scene = re.search(r' s=(-?\d+)(?: |$)', line)
+    preset = re.search(r' c=\d+ p=(-?\d+)(?: |$)', line)
+    require(gain and scene and preset and list(map(int, gain.groups())) == plan['gain']
+            and int(scene[1]) == 0 and int(preset[1]) == plan['slot'],
+            'initial UI sync response differs from the already-saved state')
+    fields = {'gain', 'capture', 'scene', 'preset', 'selected'}
+    require(isinstance(item['before'], dict) and set(item['before']) == fields,
+            'initial UI state before applyLvl was not observed')
+    require(item['after'] == {'gain': plan['gain'], 'capture': plan['capture_slot'], 'scene': 0,
+                              'preset': plan['slot'], 'selected': plan['slot']},
+            'original applyLvl did not produce the actual saved UI state')
+    require(report.get('original_UI_before_plan') == item['after'],
+            'actual editor state changed before the two-command UI trial')
+    raw = b''.join(bytes.fromhex(r['hex']) for r in guard['rx'] if wires[0]['seq'] < r['seq'] < command['seq'])
+    require(line in raw.decode('utf-8', errors='strict').replace('\r\n', '\n').splitlines(),
+            'initial UI synchronization reply is absent from native RX')
+    return {**copy.deepcopy(item), 'wire_id': wires[0]['id'], 'native_RX_sha256': sha(raw)}
+
+
 def inspect_continuation(report, partial):
     """Replay the separate two-command session, preserving the failed prefix."""
     resume, _, model = continuation_backend(report)
@@ -545,6 +588,7 @@ def inspect_continuation(report, partial):
     require(len(used) == len(set(used)), 'continuation response reused for multiple snapshots')
     pongs = [line for c in guard['commands'] if c['line'] == 'PING' for line in c['lines']]
     require(pongs and all(p == partial['context']['pong'] for p in pongs), 'continuation actual PONG differs')
+    ui_sync = verify_initial_ui_sync(report, partial, matches) if model == JOINT_MODEL_V2 else None
     exercised = copy.deepcopy(partial['summary']['physically_exercised_requests'])
     exercised['PLOAD'] = [plan['load_request']]
     require('GAIN '+' '.join(map(str, plan['down'])) in exercised['GAIN'], 'marker differs from prior gain range')
@@ -560,6 +604,7 @@ def inspect_continuation(report, partial):
             'audio_quality_verified': False, 'every_value_physically_tested': False}
     if connection is not None:
         summary['continuation_connection_proof'] = connection
+        summary['continuation_initial_UI_sync'] = ui_sync
     return summary
 
 

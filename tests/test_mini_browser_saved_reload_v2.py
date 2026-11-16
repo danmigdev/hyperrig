@@ -176,6 +176,55 @@ class SavedReloadTests(unittest.TestCase):
         with patch.object(probe.time,'monotonic',side_effect=[0,0,16]),patch.object(probe.time,'sleep'),self.assertRaises(ValueError):
             probe.wait_reloaded_ui(cdp,self.plan)
 
+    def test_original_applyLvl_initializes_missing_preset_when_hidden_polling_skips(self):
+        script=r"""
+const fs=require('fs'),vm=require('vm'),assert=require('assert').strict;
+const input=JSON.parse(fs.readFileSync(0,'utf8')),html=fs.readFileSync(input.html,'utf8');
+const extract=prefix=>{const start=html.indexOf(prefix);assert(start>=0);return html.slice(start,html.indexOf('\n}',start)+2);};
+const noop=()=>{},element={style:{},classList:{toggle:noop},textContent:''};let writes=0;
+const ctx={S:{connected:true,lvlSubOk:false,gain:[0,0],capSlot:0,snap:0,bpm:1200,amp:1,audio:2},
+  curPreset:0,DEMO:false,ED:{gainN:0},edSaving:false,tuOpen:false,clipEng:0,clipIn:0,clipOut:0,
+  Date,document:{querySelectorAll:()=>[]},pageHidden:()=>true,
+  $:()=>element,Log:{lvl:noop},parseLvlFm:()=>null,parseLvlBat:()=>null,parseLvlCin:()=>null,
+  showStuck:noop,battShow:noop,dbBar:()=>0,numL:x=>x,T:()=>'',noteUnder:noop,noteOvl:noop,
+  renderDrops:noop,renderRes:noop,buildGains:noop,refreshFromPedal:()=>{throw Error('unexpected refresh');},
+  pollLvl:()=>{throw Error('hidden polling should skip');},__miniSavedReloadGuard:{state:{commands:[]}}};
+ctx.Pedal={busy:0,chain:Promise.resolve(),cmd:async(line,until,timeout)=>{
+  assert.deepEqual([line,until,timeout],['LVL','LVL',800]);writes++;
+  ctx.__miniSavedReloadGuard.state.commands.push({line});return input.lines;}};
+vm.createContext(ctx);vm.runInContext('let lvlTicking=false;'+extract('async function lvlTick()')+
+  '\n'+extract('function reply(lines, prefix)')+'\n'+extract('function applyLvl(l)'),ctx);
+(async()=>{await vm.runInContext('lvlTick()',ctx);assert.equal(Object.hasOwn(ctx.S,'curPre'),false);
+  const before=vm.runInContext(input.state,ctx),result=await vm.runInContext(input.query,ctx);
+  const after=vm.runInContext(input.state,ctx);
+  assert.equal(writes,1);assert.equal(ctx.S.curPre,0);assert.equal(ctx.S.gen,11);
+  console.log(JSON.stringify({request:'LVL',method:'original applyLvl',before,...result,after}));
+})().catch(error=>{console.error(error);process.exitCode=1;});
+"""
+        actual=read_shared_json(probe.ROOT/'build/mini-saved-reload-ui-v2-03/report.json')
+        lines=actual['before']['responses']['LVL']
+        result=subprocess.run([shutil.which('node'),'-e',script],input=json.dumps({
+            'html':str(probe.APP/'tankmini.html'),'lines':lines,'state':probe.UI_STATE,'query':probe.UI_SYNC_QUERY}),
+            text=True,capture_output=True,check=True,cwd=probe.ROOT)
+        value=json.loads(result.stdout)
+        self.assertIsNone(value['before']['preset']);self.assertEqual(value['after']['preset'],0)
+        self.assertEqual(value['response'],lines);probe.verify_initial_ui_sync(value,self.plan)
+        for fault in ('missing','malformed','wrong_preset','unchanged_UI'):
+            bad=copy.deepcopy(value)
+            if fault=='missing':bad['response']=[]
+            elif fault=='malformed':bad['response']=['LVL malformed']
+            elif fault=='wrong_preset':bad['response']=[lines[0].replace(' p=0 ',' p=1 ')]
+            else:bad['after']['preset']=None
+            with self.subTest(fault=fault),self.assertRaises(ValueError):probe.verify_initial_ui_sync(bad,self.plan)
+
+    def test_initial_UI_observation_is_retained_if_fresh_query_fails(self):
+        observed={'gain':[0,0],'capture':0,'scene':0,'preset':None,'selected':0};report={}
+        cdp=SimpleNamespace(evaluate=lambda expression:observed if expression==probe.UI_STATE else
+            (_ for _ in ()).throw(ValueError('native query failed')))
+        with self.assertRaises(ValueError):probe.refresh_original_ui(cdp,report,self.plan)
+        self.assertEqual(report['original_UI_initial_sync']['before'],observed)
+        self.assertNotIn('after',report['original_UI_initial_sync'])
+
     def test_fake_lifecycle_opens_meters_then_presets_and_closes_native_port(self):
         prepared={'inputs':{'partial':PARTIAL},'context':self.prior['prepared']['context'],
             'profile':self.prior['prepared']['profile'],'plan':self.plan,'saved_snapshot':self.saved}
@@ -214,6 +263,8 @@ class SavedReloadTests(unittest.TestCase):
                     if source=='bank':return 0
                     if source in ('S.capSlot','S.curPre','S.snap'):return 0
                     if source=='S.gain':return prepared['plan']['gain']
+                    if source==probe.UI_STATE:return {'gain':[0,0],'capture':0,'scene':0,'preset':0,'selected':0}
+                    if source==probe.UI_SYNC_QUERY:return {'response':parent.saved['responses']['LVL'],'command_id':25}
                     if source.startswith('({gain:S.gain.slice()'):return {'gain':[0,0],'capture':0,'scene':0,'preset':0,'fatal':None}
                     if source=='HyperRigMini.profile':return prepared['profile']
                     if source=='__miniSavedReloadGuard.state':return copy.deepcopy(parent.guard)
@@ -237,7 +288,7 @@ class SavedReloadTests(unittest.TestCase):
             snapshots=[changed(self.saved,advance=1),changed(self.saved,advance=2),
                        changed(self.saved,output=-1,advance=3),changed(self.saved,advance=4)]
             with (patch.object(probe,'prepare',return_value=prepared),patch.object(probe.subprocess,'Popen',side_effect=popen),
-                  patch.object(probe.browser,'browser_path',return_value=Path('FAKE.exe')),patch.object(probe.browser,'CDP',CDP),
+                  patch.object(probe.browser_windows,'browser_path',return_value=Path('FAKE.exe')),patch.object(probe.browser,'CDP',CDP),
                   patch.object(probe.http.server,'ThreadingHTTPServer',Server),patch.object(probe,'urlopen',side_effect=get),
                   patch.object(probe.selection,'validate_selection') as choose,patch.object(probe.time,'sleep'),
                   patch.object(probe,'snapshot',side_effect=snapshots)):
@@ -252,6 +303,8 @@ class SavedReloadTests(unittest.TestCase):
             self.assertEqual(result['browser_arguments'],next(value for name,value in calls if name=='Popen'))
             self.assertEqual(result['browser_configuration'],probe.browser_windows.description(result['browser_arguments']))
             self.assertIn('tools/mini_browser_windows.py',result['source_sha256'])
+            self.assertEqual(result['original_UI_initial_sync']['method'],'original applyLvl')
+            self.assertEqual(result['original_UI_before_plan']['preset'],0)
             def index(kind,text):return next(n for n,(k,v) in enumerate(calls) if k==kind and v==text)
             self.assertLess(index('click','#meters'),index('evaluate','__miniSavedReloadGuard.arm("marker")'))
             self.assertLess(index('click','#presetBtn'),index('evaluate','__miniSavedReloadGuard.arm("reload")'))
