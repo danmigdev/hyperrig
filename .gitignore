@@ -10,3 +10,6 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 /tools/editor/node_modules/
+
+# Original local evidence contains personal workstation paths.
+/research/mini-receive-stress-hardware.json

@@ -1,0 +1,227 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "kind": "physical-RAM-receive-stress-observation",
+  "outcome": "incomplete_local_journal_error",
+  "trial_passed": false,
+  "started_utc": "2026-11-15T21:43:00.828125+00:00",
+  "finished_utc": "2026-11-15T21:43:37.978076+00:00",
+  "sealed_utc": "2026-11-15T21:46:51.119195+00:00",
+  "scope": "Baseline buffered transport, Windows polling unchanged, RAM receive only; the 256-observation trial did not complete.",
+  "source_sha256_at_execution": {
+    "tools/probe_mini_recovery.py": "401f501729e08ecb3efbd54e6d75157989deca5cd3c0c9629bcbf9b076042073",
+    "tools/mini_windows_spt.py": "604f55a337938ffaf7cd499e27fe39d1dcde17dbecdd16efe25be52a712acff0",
+    "tools/mini_windows_aligned.py": "7d7d9de2de67c08088a0e5e5de820603124582940c35a564918aef025af0d4d4",
+    "research/mini-rom-receive.json": "a2528e6019de515b9d06055127e93cfc01a3e6d6773fbbee4179e83290feed07",
+    "research/mini-flash-reader.json": "7c12ff389310557f1e4210e559ad60a467a7faa10eedf2332a24d0500ff64e19",
+    "artifacts/my-mini-flash/first-install/full-partial3.bin": "74095e9ae0f69878dd5d708150b419548e28db0cf1dabc0e3076c27cd8873406",
+    "firmware/mini/rom_receive/entry.c": "08b8a68c8f02031bc61ab03a6a1dbd4fe310d0296944e1129c9c4c1b8476ce69",
+    "firmware/mini/rom_receive/host_test.c": "30b2ea5d58ca3497070d2834930c5028dd1e9221705fbc5ac31a5b99bb3fed02",
+    "firmware/mini/rom_receive/README.md": "65353dc67eb16cd44fa0202c941195419f50492268a3559f9a1e0e0839c61d06",
+    "firmware/mini/rom_receive/receive.ld": "ef529d7a4f1da3b3d053782d9d795d2a9b49b72cead0769875446fa261603ce0",
+    "firmware/mini/rom_receive/rom_receive.c": "f22d6a789d7553ad5687d439f15957cfe0cc007f902a98fbf86ab9fe00fcd06e",
+    "firmware/mini/rom_receive/rom_receive.h": "b172bf8cef332b160e2492efcb86f00ae965e39276f9c5925d0735a820e83b69",
+    "tools/build_mini_rom_receive.py": "d5081295beb2785904088e2b08056c746321b1ff2c4fbff44ebac13389fec6c6",
+    "tools/probe_mini_receive.py": "fe67c62cece160abd4a1db84389ad348cfea05b839ea84722c640cea6586dec7",
+    "tests/test_mini_receive_protocol.py": "8a51980bfa24f6c898b95fd8d22f9dd60bcbb47db33747726fb96c21c60be62d",
+    "firmware/mini/recovery_reader/entry.c": "d3d48ce899ed29a18bb011255f9d491df9530f212302043d2531c9637a39efd4",
+    "firmware/mini/recovery_reader/memory.c": "2cc98ec4ef63d39ab2ff889ae9e44346f97c63f431934c6844f2d27dcff5800f",
+    "firmware/mini/recovery_reader/reader.c": "a67a471ec875118e83a2adb757c936449f6d009f6647ef4eec633c1720e5d881",
+    "firmware/mini/recovery_reader/reader.h": "3ca18d15d3743b89d64ac5cf89af0286d2419f5a768cbdf15ef67fdc824711c4",
+    "firmware/mini/recovery_reader/reader.ld": "99cf15c36ac7b99d846aaa852d6cedb3b32e4982cf73a0d6a746fe3830ba2005",
+    "firmware/mini/recovery_reader/test_reader.c": "979ae9d3b61aee8bc273b5c645e116c43c864424db7a4d12d0c1548e465ec4c8",
+    "analysis/hardware/run_mini_receive_stress.py": "65b4e2ab19ce4bef5acc0fa19492380d93b680a0a71c25e7f7d8cba0ec080ade",
+    "analysis/hardware/run_mini_receive_stress.ps1": "d8ed82533b50b84f0f3ccac6630c77c07fe2a522bbc92c97e3ec9935b259be34",
+    "tests/test_mini_receive_stress.py": "957b223385342c5fcb29e8bbab95f89732efa9499295bd014189a6d8be34d5a6",
+    "analysis/hardware/mini-partial-inspect3-run.json": "79601332d9ae183a75a4d132ee9ab55c464af98a3946106319769e17eccb7fef",
+    "analysis/hardware/mini-receive-run.json": "416f3068e9dfef939f7b7496eda9a836698eb8ce9478a3944eaed00b839ca1ab",
+    "analysis/hardware/mini-receive-record-1.bin": "ae29db1045ffcfd9693a495b0f983539438f76909662cf4dc0a8469e299127de",
+    "analysis/hardware/mini-receive-record-2.bin": "8a544e62f4862be688b2e8a5b8be49f6fc4b45727e278894a60f068d4e51e216",
+    "tools/build_mini_boot.py": "92e5dfb65c66aabb3d42dd7941ba517fc6f073358b06a19390499c9156de566c",
+    "tools/verify_mini_recovery_reader.py": "030f7b9b7fc62975a643cd27aa12479574869d34d47e332b9d1c55b0dc8578cd",
+    "build/mini-rom-receive/hyperrig-receive-01c20000.bin": "ae427be74db2b12e2170713e6600f19d3c8b8ab1f396040d48fadd687caff403",
+    "build/mini-rom-receive/hyperrig-receive-01c20000.elf": "339d715b6597402d165d3e2e5bf04ebe385e7dfff7fe12f80004ea75d5462cd7",
+    "build/mini-flash-reader/hyperrig-reader-01c28000.bin": "7a492bf17d98f0f5ca5d2fb0d0da7d369937169075507676bfb51b88c9bb2b83",
+    "build/mini-flash-reader/hyperrig-reader-01c28000.elf": "c59cff25df5c3e3bfe0d85392d9aa861e1fe287dc1f7d8afcf40e5f7575acf72"
+  },
+  "source_pins_match_current_files": true,
+  "sealed_artifacts": {
+    "analysis/hardware/mini-receive-stress-run.json": {
+      "sha256": "519e7eaf3b86fe3bd03aa0fd84dea8be4b6f380c6345a341876618ab265178a3",
+      "bytes": 8644
+    },
+    "analysis/hardware/mini-receive-stress-run.json.tmp": {
+      "sha256": "a2be5132609e3d3d4ce41412582d725fe1ed3e23b3518500c4fd61ab7d29f2aa",
+      "bytes": 9206
+    },
+    "analysis/hardware/mini-receive-stress-trace.jsonl": {
+      "sha256": "30590898b637536e6af34f32139c6da9313f65e8858fcebb1b6ca7b311beb677",
+      "bytes": 225965
+    },
+    "analysis/hardware/mini-receive-stress-records.bin": {
+      "sha256": "5c81d270f9af39b244ad28b97d84c0a78292b0e115c7733f6707d5e37100aa70",
+      "bytes": 31744
+    },
+    "analysis/hardware/mini-receive-stress-observations.jsonl": {
+      "sha256": "f31877c32096742cfcbc432b68ed4d2f0f8b5c1c90a3a1a24d7bfda84b05abb3",
+      "bytes": 39018
+    },
+    "analysis/hardware/mini-receive-stress-pins.json": {
+      "sha256": "8e8911b1150c7e11ab9e83c635eda764605cc1c0243d7e429d329a2850cf1158",
+      "bytes": 3825
+    },
+    "analysis/hardware/mini-receive-stress-process.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "research/mini-rom-receive.json": {
+      "sha256": "a2528e6019de515b9d06055127e93cfc01a3e6d6773fbbee4179e83290feed07",
+      "bytes": 11330
+    },
+    "build/mini-rom-receive/hyperrig-receive-01c20000.bin": {
+      "sha256": "ae427be74db2b12e2170713e6600f19d3c8b8ab1f396040d48fadd687caff403",
+      "bytes": 2160
+    },
+    "build/mini-rom-receive/hyperrig-receive-01c20000.elf": {
+      "sha256": "339d715b6597402d165d3e2e5bf04ebe385e7dfff7fe12f80004ea75d5462cd7",
+      "bytes": 3216
+    }
+  },
+  "observations": {
+    "successful_OUT260": 31,
+    "valid_raw_records": 62,
+    "independently_revalidated_record_pairs": 31,
+    "callback_return_each": 260,
+    "each_payload_exact_and_stable": true,
+    "each_guard_mask": 3,
+    "rom_pointer_observations": {
+      "send": 31459556,
+      "receive": 31459482,
+      "handler_slot": 29364836
+    },
+    "record_sha256": [
+      "220498f91f86446c9c4546e1f34cfca23d6e54e467fcd9e4615dfa8239f3af46",
+      "b84cf2cda1095aab6662730360d474a4bf9e2524f7151c350ec39192dacc8304",
+      "e9604a18df3f3c035839a1714b8dd9322ceb590c34abcf798a8864bf88ad4824",
+      "089d1bc7fd49710ea8ab8f96419e625fd0499775e4c91234e3a4ca9800dcc841",
+      "3a69b13a15005566e834121e973fec2d29d03ec0545d7b85eeff490a5b11f85c",
+      "0de32073506ea3f76a739e7d6f9b14d01bc44836ad8ec61aa04d81f1a086406e",
+      "026ef5dec373062f6a8b5af1e9cd8676f08c62f7ec1fcc17f2883f1e674819de",
+      "50bdd9fcfeb711fb2a57ec433c8e377e8481e2a08c20e15cf83dba0286ecf5fc",
+      "f0a1f5a464144798c59ef4c9cf5e3913edd9263d1fbd92013b02f5c340f80375",
+      "41e0c508f650341b78e5415da9441484426a0842cd70b8fc9ca4acd84ab8ae5d",
+      "c6accbd57bcde01e6797af8358d2d5bcb0697093d027e758874bfb827059b80b",
+      "3053ef56104baaca92ebc6a12d8d0276c4d8e7cdc2a487ef7ea7eb73b6dcb468",
+      "15d69c040812444f26b0a60a4b923dbe65dfff5d4f730275cbaf7907178c519a",
+      "3a32a262101a127a4b6d04cec28a742016ee631db1903c719782cb27de2f1716",
+      "60ce7675ab8d73018c72c9745336659ccb897c59197d4776f102e72cafca99a6",
+      "e666174de0c390daaa8a7cc3221b08afe86c195765b3c5354bd2cda5618a9d50",
+      "11e096c9aa25157b06377800d1f5200f8f88ccb31000952cecb28394c274aef9",
+      "1fe52b0dc22481d65085015fb8f9dec064096adf58700e79f3bd3168f1bbbb77",
+      "e022b2fba93b3e6e286c449363ee5d6ee6f108860e398813779172881f0bfd80",
+      "439b2bc4b270c895c3d777e65090f5f6f33f520403532c5a35665a53d4f9ae64",
+      "8cf93a7f59c307cf6348791b9d08d0d16fbf0106882dd7b1acec6b20b38ad56d",
+      "2d9aff0a92582156557ddd84f193fab14a4abc613c480599fc6a0a943b68a8e9",
+      "66a7a9397b46a0179c6a753c567079a99974e379b77eff837ae2e77b2df1cd23",
+      "c53d9520010ab49f41d6602993cf9c09370788c48817e15db5831b66ec48e4ba",
+      "e6ad37d227c91af95a88233f2101f8a1f1039f77e3ba56a7b8607c5edaf74fc3",
+      "97a782b52795f3a5c4af271408da54b8e308cf7fcb67056dc5191524c26bc98c",
+      "377f248eef139911c21849e6cd02f965d1e55ed5b6642c4ecb908f0687b99e4a",
+      "f474561769fdfe3f41ea2a0c44451cba000c450c423f4b3b0f94450bb0303d97",
+      "38e3ed298aba523644ae565db4e0b56ffd4aeb5ec52422f78445aeba9736d12b",
+      "3ca72b3a1927e339d3890651ccd0db885bed0266b229a8df6e8947d29b6fe9ed",
+      "f7f431b040624e70bbde85e18f4ca1f5df5521e43b5f2d614971f0eac1d105e5",
+      "679e767bc541ba777a1ad45e054ac132184b940563f21efdcdb766d59e7a84bc",
+      "7e3833a51c924b2b3c2241daf9f60d4afe13f41effceb8eade953dfd905e8dc7",
+      "f47cd4b7f4493e64197849e956d7cdef2c65049919174090b666815e912115bb",
+      "389b4aded2bc5c23656a109c520d9cfc426f54fac849539c4883464dcb4aba7d",
+      "8b69e8141f6619265ab72a6dc1e5fab5f79b3f07747a3b817248385b9296326c",
+      "6a4477a4c785c30134e3a24e9a56823d928e41d9751e18c8602eb8f176b6b67f",
+      "43740d0b2be2a77f9fa16efac02193ae984cef2014adff72434474d4e251ea14",
+      "66ae2eca3bfdecb885bf0b6e2bc42518da1becd3ef79077cd3ae81cef457525a",
+      "e2bf9684cf52f6bc8775478c45a0b2498cc7814881a8de6f6c8aed5fc6981397",
+      "0faadb0006473fde829082085db7f8560416aa3df99456693dded0c48cb2ae57",
+      "ea446cf5cdc4b265080edd1cf942f371d739ca016cf4a42a9b9f8c3ee092dee6",
+      "8a8e6594b516a4df3a2c3738f302d3f4f18546f6e4b396784d45ddc483559557",
+      "1b8f57476c9ae9c07c19cdff9abf11c68a70b1878117bf6af659399641d86c07",
+      "b085b3afbd926b449dde426b17b128ba2227aa65a2ed536e6bc3018b0ea696a1",
+      "5d80c095540022a206e4c12f62f56f7889a204e1b3312a0239e44162084d4600",
+      "1caa7c2e7ada6ab4f6518c41496c89331999936fd18746b100a6164e4ac79085",
+      "cfe7fa503fc58d516af3a281f1ed0ccf30a91246924512c54f0831e153af3219",
+      "a35357c45bbdad935f8d80b33a63f78778d5d0696f90b3ba7e65602d8fa5debc",
+      "753c284f35c6aaf599e1bd693f2f3592d730bf179de05060d1e752713d63d6e7",
+      "df6f8ebb0d41c6f20525dbec5c8162d091704260226b3c244524fdf2e6ebce6e",
+      "c92ed6b61d33d3a4a364ad7eca8fe0dee24b2011477ad8615895139ea166d85c",
+      "53fa990b3bf95ea63ca7187d4c1ffeced54df6b4eec8c6c27b25dc16440c38ca",
+      "9c421929eae0c446c50e286ebf9ffc8163807a226d49447d0ba6367e2056efbc",
+      "a5584616b851e8543973c78d77faf61500fedf9786998584dd7274e4ef51d6f3",
+      "a565831ffd7e3b6e3a083c1d7a340a23193156fbcede9112537b7e6a5faac03e",
+      "91e296a62f613764cd5152c8ce69ce8a6749db1c7dc3187c52735fa3cb78d104",
+      "becdb0aedb8188b9dfffc3f17cc8d5aa8d565c405faa1bdbf2338b39fdc63667",
+      "8dfe8d9611ed7c65263c6de6d64d3213303f83fb5496d2071e5f421a20886bc5",
+      "5d25ea9b1e7202d33c202dd8ced18995ac611194fd6ec98993546e2c1b87d4ac",
+      "2cff182367ab7ecc070c472037d323982b1a19e0d7fe4d2fa6e6727d949b74c1",
+      "2a548782c0ff1c6dfcd0e2c222aa23b9a230af1d4ba26c26e6b1457c5b1e2a9c"
+    ],
+    "target_build_tag": 3845736203,
+    "slot": 29491200
+  },
+  "trace": {
+    "rows": 278,
+    "completed_exchanges": 139,
+    "by_opcode": {
+      "fb06": 5,
+      "fb08": 1,
+      "fb84": 31,
+      "fc70": 1,
+      "fc73": 1,
+      "fc82": 1,
+      "fc83": 32,
+      "fd07": 5,
+      "fd85": 62
+    },
+    "USB_error_rows": 0,
+    "unpaired_command_intents": 0,
+    "last_completed_cdb": "fc83002001044859002035fb92d864ff",
+    "last_completed_response_hex": "fc834859525800200000000001040101",
+    "last_completed_action": "ARM sequence32; no sequence32 FB84 trace intent or exchange followed"
+  },
+  "terminal_local_error": {
+    "type": "PermissionError",
+    "message": "[WinError 5] Access is denied while publishing the local receive-stress report.",
+    "terminal_run_path": "analysis/hardware/mini-receive-stress-run.json.tmp",
+    "published_run_is_stale": true,
+    "published_completed_observations": 31,
+    "counter_out_commands_submitted": 32,
+    "counter_is_pre_save_intent_not_exchange_evidence": true,
+    "conservative_receive_outcome_unknown": true,
+    "interpretation": "os.replace failed while saving intent before trace append and transport exchange; the sequence32 OUT was not submitted by this runner. A fresh target identity/record is still required before any handoff.",
+    "cause_of_file_lock_proven": false
+  },
+  "safety": {
+    "NVM_mutation_commands": 0,
+    "SPI_init_commands": 0,
+    "NOR_read_commands": 0,
+    "reset_commands": 0,
+    "automatic_device_retry": false,
+    "post_error_fallback": false,
+    "polling_policy_changed": false
+  },
+  "limitations": {
+    "full_trial_completed": false,
+    "full_NOR_after_trial_acquired": false,
+    "general_receive_semantics_proven": false,
+    "synchronous_receive_semantics_proven": false,
+    "Win31_cause_resolved": false,
+    "application_runtime_qualified": false
+  },
+  "public_copy": {
+    "source_sha256": "8ffc4d304c99e24bc5edc8ba097ea17620c27830c2bf722a2f6186f64cb6437d",
+    "redacted_fields": [
+      "terminal_local_error.message"
+    ],
+    "raw_source_in_Git": false,
+    "reason": "Remove personal workstation paths while retaining the private source record."
+  }
+}
