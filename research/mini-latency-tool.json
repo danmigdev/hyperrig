@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "kind": "mini-bounded-internal-latency-tool-preparation",
+  "created_utc": "2026-11-16T06:59:34.899361+00:00",
+  "status": "offline_prepared",
+  "device_io_performed_by_agent": false,
+  "browser_started_or_accessed_by_agent": false,
+  "effect_stress_trial_physically_executed": false,
+  "analog_latency_measured": false,
+  "stimulus_controlled": false,
+  "worst_case_latency_proven": false,
+  "global_maximum_chain_proven": false,
+  "app_capability_grants": [],
+  "sources": [
+    {
+      "path": "tools/probe_mini_browser_latency.py",
+      "bytes": 27556,
+      "sha256": "275af577a1512082e2150450b9c90276056025edc6d2319a326d361b44b5c6d2"
+    },
+    {
+      "path": "tools/mini_browser_latency_guard.js",
+      "bytes": 13723,
+      "sha256": "7f56f7aafac859767fe246de7de73e6e542bbfe45e706476d6b05bf3d1b68a18"
+    },
+    {
+      "path": "tools/mini_latency_observation.py",
+      "bytes": 17039,
+      "sha256": "46794440387f472cd3e08fb1c430e9b8bd39bdc839ec636ebc50d8db8c168b7a"
+    },
+    {
+      "path": "tests/test_mini_browser_latency.py",
+      "bytes": 19656,
+      "sha256": "8726328acf8a63c99e12529b0e5a2349969ca8546aaf482c782564738f65080c"
+    },
+    {
+      "path": "tests/mini_browser_latency_guard_test.js",
+      "bytes": 9660,
+      "sha256": "476b471c76c9ece1344319c22641fa1bdaa3ed9e1e847593785707d6353a3608"
+    },
+    {
+      "path": "tests/test_mini_latency_observation.py",
+      "bytes": 9725,
+      "sha256": "4f71129800c9e25d453a3afd81759942c04d720c163ced6fa221147712e8f5f4"
+    },
+    {
+      "path": "docs/MINI_LATENCY.md",
+      "bytes": 11768,
+      "sha256": "ad085a18f92398ea0c9aaacbd71acedc833914759a7631fc24d14fe537786b46"
+    }
+  ],
+  "frozen_dependencies": [
+    {
+      "path": "tools/probe_mini_browser_first_preset.py",
+      "bytes": 32940,
+      "sha256": "87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b"
+    },
+    {
+      "path": "tools/probe_mini_app_mutation.py",
+      "bytes": 47380,
+      "sha256": "b8c4f7bba180c756e951a45a3be49b95f44e68553870cc47cf41538c40b18e20"
+    },
+    {
+      "path": "tools/run_mini_v3_first_preset_a2.py",
+      "bytes": 9887,
+      "sha256": "c234aa9d36f9b0c95e71a692881f81342773d6e237766f1a2d1ed49df65ac2ab"
+    },
+    {
+      "path": "tools/qualify_mini_browser_preset.py",
+      "bytes": 56915,
+      "sha256": "526052c070e05e7cdb31b0d44044abcbcd6e622b8e48437d49ecfc5063bead4a"
+    },
+    {
+      "path": "tools/verify_mini_browser.py",
+      "bytes": 17411,
+      "sha256": "2aea89bf6619cdc7bed44e5e2a34f236f8981188d2878ba69e19d600202fe19e"
+    },
+    {
+      "path": "tools/mini_host_journal.py",
+      "bytes": 3513,
+      "sha256": "1105371aeede4094739c5e8d34b441770ea700db861ed504fbc98167842b5f1f"
+    },
+    {
+      "path": "app/mini/mini-profile.js",
+      "bytes": 15333,
+      "sha256": "237d6db737a23a24b91417c47d08c40b69f30556197b6de5e3ffb08d3cd04e23"
+    }
+  ],
+  "actual_historical_inputs": [
+    {
+      "path": "research/mini-latency-audit.json",
+      "bytes": 87387,
+      "sha256": "53b624ca40302e858f83776c324dbc5a081bff8fed618d8af8c65b0bbf9a5a1d"
+    },
+    {
+      "path": "analysis/hardware/mini-v3-latency-baseline-01.json",
+      "bytes": 13071,
+      "sha256": "54eaec7f5d0c2b8d658180591eaebfc1f73e25e29ed93c549803449442fe065c"
+    },
+    {
+      "path": "build/mini-first-preset-ui-02/report.json",
+      "bytes": 517284,
+      "sha256": "a6f5c054aa3ff999756b18cc72858102f8bc502ff8e56c6ac0a11b56be1b2468"
+    },
+    {
+      "path": "build/mini-first-preset-ui-04/report.json",
+      "bytes": 664252,
+      "sha256": "0eb9836638dd2025d9e75f380db4cc9c765c53dcc7ff4e0316ab810c3d2479ff"
+    },
+    {
+      "path": "build/hyperrig-mini-audio-v3/app/web/tankmini.html",
+      "bytes": 1362515,
+      "sha256": "6aa1383c7d644f3dbb3c8b0ce5e2d287d7d24756b8b21b9c4352ed720cde1842"
+    }
+  ],
+  "checks": {
+    "command": "python -m unittest tests.test_mini_browser_latency tests.test_mini_latency_observation -q",
+    "python_tests_passed": 29,
+    "node_conditions_passed": 37,
+    "node_executes_original_readLoop_and_Pedal": true,
+    "compiler_check": "python -m py_compile tools/mini_latency_observation.py tools/probe_mini_browser_latency.py",
+    "compiler_check_passed": true,
+    "synthetic_results_written_as_physical_evidence": false
+  },
+  "runtime_contract": {
+    "only_existing_qualified_editor": true,
+    "new_native_serial_opens": 0,
+    "new_native_serial_closes": 0,
+    "real_saved_and_reloaded_preset0_proof_required": true,
+    "retained_first_preset_does_not_imply_global_restoration": true,
+    "fresh_identity_and_matching_sound_state_required": true,
+    "priming": "First pending native read is advanced with PING. All readonly commands queued before priming completion are named explicitly and excluded from raw-RX proof. A second exact PONG and later replies require native bytes.",
+    "native_TX_completed_even_if_ACK_arrives_early": true,
+    "exact_mutation_plan_only": [
+      "GAIN attenuation to at most -12dB",
+      "FXA chosen type",
+      "FXE newly returned ID off",
+      "FXP exact conservative values",
+      "FXE newly returned ID on",
+      "one final PLOAD0"
+    ],
+    "automatic_command_retry": false,
+    "save_delete_or_firmware_commands": false,
+    "measurement": "Three distinct STG windows at least two newer than the first; at most12STAT and20seconds per interval; fresh CLKSTATE/model/chain/gain and raw counter/clip observations.",
+    "restoration": "One PLOAD0 only while connection healthy; actual snapshot readback and original UI readonly refresh must match baseline before restoring wrapper references/UI.",
+    "uncertain_write": "Stop and leave UI blocked for diagnosis; no replay and no additional restoration request.",
+    "readback_provenance": "Every reported snapshot/STAT is matched to a completed native command in order, interval has one mutation epoch, calculations recomputed.",
+    "fresh_catalog_changes_admission": "Earlier21364tick budget chooses13instances/20095publishedticks; later17394observed budget changes the derived plan. Actual firmware ACK/readback governs admission, not these estimates."
+  },
+  "remaining_physical_prerequisites": [
+    "healthy already connected editor after real PLOAD0 qualification",
+    "root controller explicitly invokes execute on that exact session",
+    "no analog latency result without confirmed recording routing and stimulus"
+  ]
+}
