@@ -6,8 +6,49 @@ import json
 import os
 from pathlib import Path
 import threading
+import time
+import re
 
-from .core import plan_install, validate_completed
+from .core import plan_install, validate_completed, STOCK_IDENTITY, _sha, _require
+
+
+def interrupted_stock_entry(directory, *, timestamp=None):
+    """Accept only a recent stock entry that stopped before any ROM command."""
+    root = Path(directory).resolve(strict=True)
+    journal = (root / "journal.jsonl").read_bytes()
+    _require(len(journal) <= 128 * 1024, "Previous entry journal exceeds its bound")
+    events = [json.loads(line) for line in journal.splitlines()]
+    allowed = {"session_created", "phase", "stock_midi_input_closed_before_transition",
+               "stock_to_rom_intent", "session_failed"}
+    _require(events and all(isinstance(event, dict) and event.get("event") in allowed for event in events),
+             "Only a stopped entry with no ROM access can continue")
+    starts = [event for event in events if event["event"] == "session_created"]
+    intents = [event for event in events if event["event"] == "stock_to_rom_intent"]
+    failures = [event for event in events if event["event"] == "session_failed"]
+    phases = [event["phase"] for event in events if event["event"] == "phase"]
+    _require(len(starts) == len(intents) == len(failures) == 1 and phases == ["identifying"]
+             and events[0] == starts[0] and events[-1] == failures[0] and failures[0]["failed_phase"] == "identifying",
+             "Previous session did not stop during stock entry")
+    intent = intents[0]
+    _require(intent["identity"] == STOCK_IDENTITY and intent["stock_device"]["status"] == "OK",
+             "Previous stock identity is unsupported")
+    instance = intent["stock_device"]["instance_id"]
+    _require(isinstance(instance, str) and re.fullmatch(r"USB\\VID_4C4A&PID_C755\\[A-Za-z0-9&_.-]+", instance, re.I),
+             "Invalid previous stock USB identity")
+    submitted = intent["submitted_unix"]
+    _require(type(submitted) in (int, float) and 0 <= (time.time() if timestamp is None else timestamp) - submitted <= 1800,
+             "Previous USB entry is older than 30 minutes; a fresh stock entry is required")
+    presets = (root / "stock-presets" / "presets.bin").read_bytes()
+    info = json.loads((root / "stock-presets" / "presets.json").read_bytes())
+    _require(len(presets) == 1942 and info["identity"] == STOCK_IDENTITY and info["equal_reads"] == 2
+             and info["bytes"] == len(presets) and info["sha256"] == _sha(presets),
+             "Previous preset backup is incomplete or changed")
+    from hyperrig.mini import decode_table
+    decode_table(presets)
+    return {"source_directory": str(root), "source_journal_sha256": _sha(journal),
+            "source_release_sha256": starts[0]["release_sha256"], "identity": STOCK_IDENTITY,
+            "stock_instance_id": instance, "submitted_unix": submitted,
+            "preset_sha256": _sha(presets)}
 
 
 def now():
@@ -101,17 +142,43 @@ class InstallWorkflow:
         def run():
             self._phase("identifying", "Checking the selected stock MINI")
             identity = self.backend.enter_stock_rom(selection, self.release, self.store)
-            self._phase("backing_up", "Reading two complete copies of this pedal's flash")
-            first = self.backend.read_full(self.release, self.store, self.progress, "backup-a")
-            self.store.save_bytes("stock-flash-a.bin", first)
-            second = self.backend.read_full(self.release, self.store, self.progress, "backup-b")
-            self.store.save_bytes("stock-flash-b.bin", second)
-            self.prepared = plan_install(self.release, first, second, identity=identity,
-                                         jedec_hex=self.backend.jedec_hex)
-            self.store.save_json("installation-plan.json", self.prepared.record)
-            self._phase("backed_up", "Two matching backups verified. Review before installing.")
-            return self.prepared.record
+            return self._save_full_backups(identity)
         return self._action({"created"}, run)
+
+    def continue_backup(self, source):
+        def run():
+            entry = interrupted_stock_entry(source)
+            _require(Path(entry["source_directory"]) != self.store.root, "Use a new session for continuation")
+            self.store.save_json("continued-stock-entry.json", entry)
+            origin = Path(entry["source_directory"])
+            self.store.save_bytes("source-entry-journal.jsonl", (origin / "journal.jsonl").read_bytes())
+            destination = self.store.root / "stock-presets"
+            destination.mkdir()
+            for name in ("presets.bin", "presets.json"):
+                with (destination / name).open("xb") as stream:
+                    stream.write((origin / "stock-presets" / name).read_bytes())
+                    stream.flush()
+                    os.fsync(stream.fileno())
+            _require(interrupted_stock_entry(origin) == entry, "Previous entry changed during continuation")
+            _require(_sha((self.store.root / "source-entry-journal.jsonl").read_bytes()) == entry["source_journal_sha256"]
+                     and _sha((destination / "presets.bin").read_bytes()) == entry["preset_sha256"],
+                     "Retained entry evidence changed")
+            self._phase("identifying", "Checking the recovered USB connection")
+            identity = self.backend.continue_stock_rom(entry, self.release, self.store)
+            return self._save_full_backups(identity)
+        return self._action({"created"}, run)
+
+    def _save_full_backups(self, identity):
+        self._phase("backing_up", "Reading two complete copies of this pedal's flash")
+        first = self.backend.read_full(self.release, self.store, self.progress, "backup-a")
+        self.store.save_bytes("stock-flash-a.bin", first)
+        second = self.backend.read_full(self.release, self.store, self.progress, "backup-b")
+        self.store.save_bytes("stock-flash-b.bin", second)
+        self.prepared = plan_install(self.release, first, second, identity=identity,
+                                     jedec_hex=self.backend.jedec_hex)
+        self.store.save_json("installation-plan.json", self.prepared.record)
+        self._phase("backed_up", "Two matching backups verified. Review before installing.")
+        return self.prepared.record
 
     def install(self):
         def run():

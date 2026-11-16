@@ -50,8 +50,10 @@ class ReadOnlyMini:
             raise
 
     def __exit__(self, *args):
-        self.midi_in.close_port()
-        self.midi_out.close_port()
+        try:
+            self.midi_in.close_port()
+        finally:
+            self.midi_out.close_port()
 
     def exchange(self, frame: Frame, timeout: float = 2.0) -> Frame:
         validate_readonly(frame)

@@ -25,6 +25,13 @@ DEFAULT_OUTPUT = ROOT / "build/hyperrig-mini-installer-preview"
 DEFAULT_EDITOR = ROOT / "build/hyperrig-mini-english-editor"
 KIND = "hyperrig-mini-installer-preview"
 FAMILIES = ["GAIN", "PLOAD", "PSAVE", "SNAPSAVE", "FXA", "FXP", "FXE", "FXR"]
+V4_EDITOR_REVISION = "mini-v4-usb-01"
+V4_FAMILIES = FAMILIES + ["SNAP"]
+V4_EDITOR_PINS = {
+    "editor/qualification.json": "7f0f3419e42ebf4f0db3d5211d6ff36d6adaca51e965760a41af0a9320722b4b",
+    "editor/web/tankmini.html": "72c5af2bcb0ad3ec4407088a91978b5f6e5795a3cd283d939f0db1f3c106cca2",
+    "editor/web/mini-ui.js": "098dc4dc3453aa9d66c297f628ee765e8fd3b2dc5802f6537e31ee30012d8188",
+}
 IMAGE_SHA = "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c"
 # Reviewed static v4 derivation; this pin is not a hardware qualification.
 ONE_SWITCH_IMAGE_SHA = "d5d6109bc707a6402cbed7506fd53aced23baeb27f6ac7ca8703e3f11d2376a2"
@@ -336,7 +343,7 @@ def preview_readme(variant):
     return text
 
 
-def build(output=DEFAULT_OUTPUT, *, editor=DEFAULT_EDITOR, executable=False, variant="v3"):
+def build(output=DEFAULT_OUTPUT, *, editor=DEFAULT_EDITOR, executable=False, variant="v3", editor_revision=None):
     spec = release_variant(variant)
     output, editor = Path(output).resolve(), Path(editor).resolve()
     require(not output.exists(), "Use a new output directory; existing packages are preserved")
@@ -350,8 +357,28 @@ def build(output=DEFAULT_OUTPUT, *, editor=DEFAULT_EDITOR, executable=False, var
     for name in runtime_files(variant):
         files[name] = safe_file(ROOT, name).read_bytes()
     web, editor_info = editor_assets(editor, variant=variant)
+    if editor_revision is not None:
+        require(variant == "v4" and editor_revision == V4_EDITOR_REVISION, "Unknown editor revision")
+        from tools.derive_mini_v4_editor import derive
+        web, editor_info = derive(web, editor_info)
+        require(all(sha(web[name]) == digest for name, digest in V4_EDITOR_PINS.items()),
+                "Reviewed v4 editor derivation differs")
     files.update(web)
-    files.update({"README.txt": preview_readme(spec).encode("utf-8"), "start.cmd": launch_script(),
+    readme = preview_readme(spec)
+    if editor_revision == V4_EDITOR_REVISION:
+        readme = readme.replace(
+            "The v4 editor permits PING and read queries only. All mutation families\n"
+            "remain disabled until v4 has its own reviewed target evidence. Historical\n"
+            "v3 protocol observations are recorded as provenance, not as v4 results.",
+            "The v4 editor enables USB GAIN/PLOAD/PSAVE/SNAPSAVE/FXA/FXP/FXE/FXR/SNAP.\n"
+            "Representative operations were exercised on v4, save persistence was read\n"
+            "back, and the original observed state was restored. This is not an audio\n"
+            "test or a qualification of every effect and value. Routing, panel remapping,\n"
+            "bulk/delete and BLE writes remain outside this profile.\n"
+            "The editor displays HyperRig MINI v4 preview and A/B/C preset banks.\n"
+            "All 32 device slots remain available; the final bank has two slots.\n"
+            "Each preset still has four scenes. Physical switch dispatch is unchanged.")
+    files.update({"README.txt": readme.encode("utf-8"), "start.cmd": launch_script(),
                   "launch_editor.cmd": launch_script("--editor"), "check.cmd": launch_script("--check-only")})
     require(set(files) == expected_files(variant=variant), "Unexpected build inventory")
     output.mkdir()
@@ -423,9 +450,15 @@ def check_bundle(output, *, isolated=True):
     profile = json.loads(safe_file(output, "editor/profile.json").read_bytes())
     qualification_raw = safe_file(output, "editor/qualification.json").read_bytes()
     editor = manifest.get("editor", {})
+    revision = editor.get("revision")
+    require(revision in (None, V4_EDITOR_REVISION), "Unknown editor revision")
+    qualified_v4 = revision == V4_EDITOR_REVISION
+    require(not qualified_v4 or spec["name"] == "v4", "The USB controls revision requires v4 firmware")
+    read_only = spec["read_only_editor"] and not qualified_v4
+    families = V4_FAMILIES if qualified_v4 else [] if read_only else FAMILIES
     require(editor.get("image_sha256") == spec["image_sha256"]
-            and editor.get("families") == ([] if spec["read_only_editor"] else FAMILIES)
-            and (editor.get("read_only", False) is spec["read_only_editor"])
+            and editor.get("families") == families
+            and (editor.get("read_only", False) is read_only)
             and editor.get("entry") == "editor/web/tankmini.html"
             and editor.get("profile") == "editor/profile.json"
             and editor.get("qualification") == "editor/qualification.json",
@@ -434,7 +467,19 @@ def check_bundle(output, *, isolated=True):
             and profile["capabilities"] == {"identity": True, "read": True, "write": False, "panel": False}
             and profile["command_capabilities"] == {} and profile["command_validation"] is None
             and profile["write_validation"] is None, "Portable editor capability scope differs")
-    if spec["read_only_editor"]:
+    if qualified_v4:
+        require(all(manifest["files"][name] == digest for name, digest in V4_EDITOR_PINS.items()),
+                "Reviewed v4 controls evidence or presentation differs")
+        qualification = json.loads(qualification_raw)
+        require(profile["hardware_verified"] is True
+                and profile["family_capabilities"] == {"usb-cdc": V4_FAMILIES}
+                and profile["family_validation"] == {"usb-cdc": [{"path": "editor/qualification.json", "sha256": sha(qualification_raw)}]}
+                and profile["family_evidence_model"] == "v4-representative-USB-controls-v1"
+                and qualification["image_sha256"] == spec["image_sha256"]
+                and qualification["enabled_families"] == V4_FAMILIES
+                and qualification["baseline_restoration_verified"] is True,
+                "V4 USB controls capability scope differs")
+    elif spec["read_only_editor"]:
         qualification = json.loads(qualification_raw)
         require(profile["hardware_verified"] is False and profile["family_capabilities"] == {}
                 and profile["family_validation"] == {} and profile["family_qualification"] == {}
@@ -543,9 +588,12 @@ def main(argv=None):
     parser.add_argument("--editor", type=Path, default=DEFAULT_EDITOR)
     parser.add_argument("--executable", action="store_true")
     parser.add_argument("--variant", choices=("v3", "v4"), default="v3")
+    parser.add_argument("--editor-revision", choices=(V4_EDITOR_REVISION,))
     args = parser.parse_args(argv)
     require(not args.executable or args.build, "--executable is a build option")
-    result = build(args.build, editor=args.editor, executable=args.executable, variant=args.variant) if args.build else check_bundle(args.check_only)
+    require(not args.editor_revision or args.build, "--editor-revision is a build option")
+    result = build(args.build, editor=args.editor, executable=args.executable, variant=args.variant,
+                   editor_revision=args.editor_revision) if args.build else check_bundle(args.check_only)
     print(json.dumps(result, indent=2))
     return 0
 

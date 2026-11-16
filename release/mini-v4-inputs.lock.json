@@ -1,0 +1,159 @@
+{
+  "android": {
+    "apktool": {
+      "sha256": "dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423",
+      "url": "https://github.com/iBotPeaches/Apktool/releases/download/v3.0.3/apktool_3.0.3.jar",
+      "version": "3.0.3"
+    },
+    "build_tools": "36.0.0",
+    "certificate_sha256": "522da03967e456170850291fd9e29bf4a4e202a619aa17e4dd9efadef8958ee1",
+    "dex_sha256": {
+      "classes.dex": "d51a8954d564bd2192d12d36747e63f39d2d04ce8754030ced5cd9809b0ed1e4",
+      "classes2.dex": "f6a122b742fa3dccb0be2dd211905e41207fc597305dfdefecdf5e9720c3e580",
+      "classes3.dex": "42114318a577633b12aea7cc647ce6904fde411264a53d9d7931b0647574a53b",
+      "classes4.dex": "7644314291ac983ce305172a601f5a660edf8e64b0ada2072650c30e13eef2f8",
+      "classes5.dex": "64ce95ef11b1c631c7b64108aacca84376f4b3ddf01ea4f00c0968f655b9c408",
+      "classes6.dex": "eed4572b1934b85d0b1be140ba8697c49d40799498dac421c43d70768e710a67",
+      "classes7.dex": "84b9879a603e6ccf3f66ed95ecaedebca8bc501e0a9beb2e630115930733d757",
+      "classes8.dex": "37b48a72aced107c23e99940ac0526ddcb862d424cbb14b514c4392ee26a05f0"
+    },
+    "min_sdk": 24,
+    "package": "com.hyperrig.app",
+    "source_apk_sha256": "69273b95adeefe3c865d1e6da8e18fc2bf612fd995e19462a77c7dae6eb1c82b"
+  },
+  "asset": "HyperRig-MINI-v4-inputs-02.zip",
+  "files": {
+    "android/native-template.apk": {
+      "bytes": 3548294,
+      "sha256": "07ef7c7086fff5664dcb9397ec0df8d20b6963cdaee63c1139a685227f2510b7"
+    },
+    "assets/hyperrig-mini-v4.app.bin": {
+      "bytes": 516096,
+      "sha256": "d5d6109bc707a6402cbed7506fd53aced23baeb27f6ac7ca8703e3f11d2376a2"
+    },
+    "assets/reader-b.bin": {
+      "bytes": 2308,
+      "sha256": "7a492bf17d98f0f5ca5d2fb0d0da7d369937169075507676bfb51b88c9bb2b83"
+    },
+    "assets/reader-b.elf": {
+      "bytes": 3548,
+      "sha256": "c59cff25df5c3e3bfe0d85392d9aa861e1fe287dc1f7d8afcf40e5f7575acf72"
+    },
+    "assets/reset-a.bin": {
+      "bytes": 26,
+      "sha256": "cf3526d914eef007649f88f1f22e085a908359b9ad0e9f4743427b4757c0540f"
+    },
+    "assets/reset-a.elf": {
+      "bytes": 456,
+      "sha256": "3a9aa6ba1c5043b548df3e521ffc82b2c2b58a4378d51d6eb3807feb51f0a081"
+    },
+    "assets/writer-a.bin": {
+      "bytes": 6432,
+      "sha256": "09e0772b1c4f2087f6864fd16f09fa48ac5b0d2d46ab3e408e3d839447d51749"
+    },
+    "assets/writer-a.elf": {
+      "bytes": 8724,
+      "sha256": "39880f9272d2714d73bd165258288e5a63c9de305364cf8b723e59ee639835cd"
+    },
+    "editor/DERIVATION.txt": {
+      "bytes": 618,
+      "sha256": "8036ea7a310044331bf3c1d33792fd313f9e663490d73f71dbbce32a4451d695"
+    },
+    "editor/LICENSE.md": {
+      "bytes": 4749,
+      "sha256": "fbf763e6b656372647ea3950abc3d35feabe2148e697dc4215e1f92387e37a4c"
+    },
+    "editor/NOTICE.md": {
+      "bytes": 6905,
+      "sha256": "02849a92a5a2ee4ced154650b52fcf316954fad41311cf55e9402567159b6ed8"
+    },
+    "editor/THIRD_PARTY_LICENSES.md": {
+      "bytes": 70407,
+      "sha256": "50a9a2228e6225bc038b8d50f094be5698c4bbec563b4d2309c4fbec3447fcd8"
+    },
+    "editor/profile.json": {
+      "bytes": 3389,
+      "sha256": "fca16c4e06ae06afaf1ec61f85dc47f6f5a9bac2df433e7566ad83bbcacbac59"
+    },
+    "editor/qualification.json": {
+      "bytes": 1535,
+      "sha256": "7f0f3419e42ebf4f0db3d5211d6ff36d6adaca51e965760a41af0a9320722b4b"
+    },
+    "editor/web/index.html": {
+      "bytes": 191,
+      "sha256": "4090b0510aefb6a32faf548b37ea94f8092d7361860de6cc18ded567d1c978bc"
+    },
+    "editor/web/mini-fx-ui.js": {
+      "bytes": 1302,
+      "sha256": "e11c95735bb57ef6d694844dd1163574b86c21c58a9f1b1984a68ec02b2d0b20"
+    },
+    "editor/web/mini-profile.js": {
+      "bytes": 16186,
+      "sha256": "5a9de5e93ffbefda575864c996dab76955f783a81e5dbfec21feb9c1bfcd2a5c"
+    },
+    "editor/web/mini-ui.js": {
+      "bytes": 2818,
+      "sha256": "098dc4dc3453aa9d66c297f628ee765e8fd3b2dc5802f6537e31ee30012d8188"
+    },
+    "editor/web/nam2chip.js": {
+      "bytes": 28991,
+      "sha256": "af584a732fa8a0b03a388871947d490a383c5094d9391fed0f48b6336f255183"
+    },
+    "editor/web/portable-startup.js": {
+      "bytes": 176,
+      "sha256": "afb1cf343a267c0e7ecdd36e91195fffc8eb773ad2b90d4c6b5818998f48b9ec"
+    },
+    "editor/web/serial-open-timeout.js": {
+      "bytes": 2772,
+      "sha256": "fc21cdef1c767692fac77226a71e4e3e67d9cd63cab114cceb9e784ee7ce0faa"
+    },
+    "editor/web/tankmini.html": {
+      "bytes": 1206273,
+      "sha256": "72c5af2bcb0ad3ec4407088a91978b5f6e5795a3cd283d939f0db1f3c106cca2"
+    },
+    "reference-release.json": {
+      "bytes": 12198,
+      "sha256": "52554a680596dddc5aff0ad215cd8356f45c1e8be61055d08dcd36c7efddb9cb"
+    },
+    "upstream/pi32v2-isa/LICENSE": {
+      "bytes": 928,
+      "sha256": "0839c369e5d0c944704b9537a5fc5f0279f1ad417c47749331caded0b0d347a6"
+    },
+    "upstream/pi32v2-isa/LICENSES/MIT-0.txt": {
+      "bytes": 931,
+      "sha256": "330a34763f0cbc093f3fdfbd6fe5122af8cf41b4c965933c153d2786dd799cf1"
+    },
+    "upstream/pi32v2-isa/docs/SOURCES.md": {
+      "bytes": 3854,
+      "sha256": "4e646362e08197ab5cc266d90e006c8a067b720d0aa12d2c86351f9187739bbc"
+    },
+    "upstream/pi32v2-isa/isa/pi32v2.toml": {
+      "bytes": 1882633,
+      "sha256": "97583cca22561c51dc477277b8c031d3ab9abfd4df04f3744577fd9d8f275227"
+    },
+    "upstream/pi32v2-isa/pi32v2isa/__init__.py": {
+      "bytes": 283,
+      "sha256": "c28be8f1f70ad0042c755b4d66e25b571cf0dc2bf70c666d1ad41767dc4c0b43"
+    },
+    "upstream/pi32v2-isa/pi32v2isa/codec.py": {
+      "bytes": 5425,
+      "sha256": "53382e054687e7df30ab4629fc0a4a0f5b17182dcea2f62108b77411f3f63b7e"
+    },
+    "upstream/pi32v2-isa/pi32v2isa/table.py": {
+      "bytes": 17502,
+      "sha256": "151241fd56d7c5bad5b32aaf670cc728b18aa35d870d5711897b6a7794240591"
+    }
+  },
+  "firmware_sha256": "d5d6109bc707a6402cbed7506fd53aced23baeb27f6ac7ca8703e3f11d2376a2",
+  "reference_release_sha256": "52554a680596dddc5aff0ad215cd8356f45c1e8be61055d08dcd36c7efddb9cb",
+  "repository": "danmigdev/hyperrig",
+  "schema": 1,
+  "scope": {
+    "android_old_web_assets_included": false,
+    "firmware_rebuilt_from_C": false,
+    "private_device_data_included": false,
+    "signing_material_included": false
+  },
+  "sha256": "54a9de7a7288f054a32fc165f9511c4c9f0df54c328d8533f9389dff7af913b7",
+  "tag": "build-inputs-mini-v4-02"
+}

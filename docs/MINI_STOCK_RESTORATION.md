@@ -93,4 +93,8 @@ Frozen source SHA256
 test SHA256
 `93880e8fcc758f4d56cd6b27734c92e9741454a700f198c72a6908b2b45e46a6`.
 The [dedicated report](../research/mini-stock-restoration.json) distinguishes
-these checks from physical restoration, which has not been performed.
+these checks from physical restoration, which had not been performed when
+that report was captured. A later [development restoration from v4 to stock](MINI_STOCK_RESTORATION_LIVE.md)
+verified the stock application, preserved external data, normal USB boot, and
+a real `TANK MINI_009` MIDI identity on the development unit. The historical
+report and planner pins remain unchanged.

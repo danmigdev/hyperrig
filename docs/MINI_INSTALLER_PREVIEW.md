@@ -4,7 +4,8 @@ The Windows preview implements the stock-to-HyperRig workflow described in
 [INSTALLATION.md](../INSTALLATION.md). The standalone executable and editor are
 packaged without a historical unit dump, preset data, or hardware trace.
 The current candidate uses [one-switch recovery](MINI_ONE_SWITCH_RECOVERY.md).
-No fresh stock-to-v4 installation has been performed.
+An assisted GUI installation from restored stock 009 to v4 has completed on
+the development unit. An unassisted installation remains unqualified.
 
 ## Implementation
 
@@ -31,19 +32,24 @@ MINI tools and sealed bundles remain unchanged.
 
 ## Distribution and verification
 
+For the first GitHub release, use the [release workflow](RELEASE_BUILD.md). It
+rebuilds the Windows executable from the checkout and packages a hash-locked,
+sanitized input set from preview 05. The historical builders below remain useful
+for reproducing local evidence and require their original private inputs.
+
 `tools/build_mini_installer_one_switch_bundle.py` creates the v4 preview using
 an explicit file inventory, exact payload pins, a release seal, and isolated
 validation from the copied directory. It can package the already installed
 Python runtime with PyInstaller; it downloads no dependencies.
 
-The v4 editor preserves the protocol-policy JavaScript and binds the new image
-hash, but sets hardware verification to false and leaves mutation families
-empty. Tests of the actual policy allow identity and read commands and reject
-all eight mutation families. Historical v3 tests are identified as historical;
-they do not certify the new image on hardware.
+The original v4 preview preserved the protocol-policy JavaScript and disabled
+all mutations pending its own evidence. Preview 05 derives a separate profile
+from a completed [v4 USB controls trial](MINI_V4_EDITOR.md), enabling nine
+bounded families. It preserves that policy, displays A/B/C preset banks and
+identifies the MINI v4 build. Historical bundles remain unchanged.
 
-The current delivery is `build/HyperRig-MINI-one-switch-preview.zip`, derived
-from `build/hyperrig-mini-installer-one-switch-preview-02`. The ZIP contains the
+The current delivery is `build/HyperRig-MINI-one-switch-preview-05.zip`, derived
+from `build/hyperrig-mini-installer-one-switch-preview-05`. The ZIP contains the
 entire package; the executable needs its sibling assets and release manifest.
 The separate SHA-256 file checks the archive. These checks detect changed bytes;
 they are not a publisher signature or hardware compatibility guarantee.
@@ -53,7 +59,7 @@ Python environment. The packaged executable already contains the runtime.
 
 ```powershell
 python -m pip install -e ".[installer]"
-python -B -X utf8 tools/launch_mini_installer.py --bundle build/hyperrig-mini-installer-one-switch-preview-02 --check-only
+python -B -X utf8 tools/launch_mini_installer.py --bundle build/hyperrig-mini-installer-one-switch-preview-05 --check-only
 ```
 
 No flashing occurs in check-only mode. GUI smoke checks also disable device
@@ -74,7 +80,36 @@ reported a pending system reboot when another hub restart was requested.
 The MINI subsequently answered the normal HyperRig PONG and read-only MODEL,
 LVL, and PSTAT requests over Bluetooth. This confirms application communication,
 not the binary hash, audio quality, or USB recovery. No flash write was performed
-in these trials. The one-switch v4 image remains uninstalled.
+in those trials. The one-switch v4 image was still uninstalled at that point.
+
+After the PC restart, normal v3 USB communication returned. A separate
+[development upgrade](MINI_ONE_SWITCH_UPGRADE.md) installed v4 using two matching
+fresh backups, another pre-install read, two sector writes, and a full final
+readback. Every byte outside the application was preserved. Normal software
+boot and USB PONG/MODEL/LVL/PSTAT reads succeeded. A subsequent user-assisted
+cold start with the left footswitch alone produced fresh ROM enumeration and a
+valid INQUIRY. The other individual switches and v4 audio remain untested.
+
+The development MINI was then [restored to the original stock application](MINI_STOCK_RESTORATION_LIVE.md)
+at the user's request. Three matching pre-installation reads, 126 verified
+sector writes, and a complete final read established the stock application
+and preservation of all external bytes. Stock USB boot and a real
+`TANK MINI_009` MIDI identity succeeded. This prepares the user-operated
+portable installer trial; it does not itself qualify that installation path.
+
+Two subsequent GUI attempts stopped during stock-to-ROM USB entry, before any
+ROM command or flash write. Preview 03 corrected MIDI input cleanup; preview
+04 adds [backup continuation after USB recovery](MINI_INSTALLER_USB_CONTINUATION.md).
+The development PC needed a separately requested hub restart. The app can now
+continue from the recorded entry instead of requiring another mode change.
+
+The continued GUI session then completed two matching stock backups, another
+pre-installation read, 126 verified sector writes, and complete final readback.
+One read-only USB error was reconciled without retrying a flash mutation.
+The user booted HyperRig through the GUI and confirmed that its editor
+connected and displayed data. Independent PING/MODEL/LVL/PSTAT reads also
+passed. Evidence is retained in `build/mini-first-user-install-04`; audio
+and editor writes were not tested.
 
 `tools/mini_usb_port_cycle.py` is a separate development diagnostic for the
 recorded failed port on this PC. It checks the exact leaf, parent, problem code,
@@ -82,7 +117,7 @@ and port before one request, journals the intent, and records completion without
 claiming enumeration. It is not included in the portable installer. Its Windows
 API is documented by [Microsoft](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/usbioctl/ni-usbioctl-ioctl_usb_hub_cycle_port).
 
-Outstanding work is physical v4 installation/boot, the one-switch cold-start
-test, editor write qualification, a fresh stock-to-v4 trial, and portable
+Outstanding work includes the other individual footswitches, audio and editor
+write qualification on v4, an unassisted stock-to-v4 trial, and portable
 interrupted-installation recovery/restoration. The preview must not be described
 as a generally qualified release.

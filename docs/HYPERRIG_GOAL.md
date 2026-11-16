@@ -39,7 +39,7 @@ checks. They do not, by themselves, meet the minimum working result.
 
 ## Minimum operational result achieved on 16 November 2026
 
-The v3 port of the UltraRig G application is installed on the MINI. Normal
+The v3 port of the UltraRig G application was installed on the MINI. Normal
 boot, A2 processing, and retention of the first preset after the user's restart
 have been verified; the user reported normal audio (paraphrased). Through USB,
 the HyperRig editor actually added an effect, changed its parameter, bypassed
@@ -49,8 +49,8 @@ was recalled, with gain 0/0 and an empty FX chain.
 
 The evidence is in `build/mini-saved-reload-ui-v2-07/report.json`,
 `build/mini-fx-ui-smoke-01/report.json`, and the installation checks linked from
-the README. The current app is `tools/launch_hyperrig_editor.cmd`, with bundle
-`build/hyperrig-mini-english-editor`, an English presentation derived from
+the README. The v3 app bundle is `build/hyperrig-mini-english-editor`,
+an English presentation derived from
 the preserved `build/hyperrig-mini-fx-editor` hardware-test baseline.
 A separate test with nine active effects
 measured approximately 2.395 ms mean internal processing time and a 2.526 ms
@@ -59,9 +59,18 @@ observed maximum, with no reported faults; total analog latency was not measured
 This completion covers the minimum defined above. The complete original C
 source has not been recovered: inferred pseudocode and binary components
 remain, alongside compilable reconstructions and local patch/build tools.
-Testing the integrated power-on recovery path, all physical controls, routing
-and other editor commands not yet enabled, and complete mobile/BLE write
-support remain separate work items.
+Testing all physical controls, routing and other editor commands not yet
+enabled, and complete mobile/BLE write support remain separate work items.
+
+The later v3-to-v4 development upgrade has complete flash readback and normal
+USB boot/read evidence. A user-assisted cold start with the left footswitch
+alone reached ROM and answered INQUIRY. The other individual switches, audio
+listening remain untested. A later native trial verified nine USB mutation
+families and preset/scene persistence on v4, then restored the original state.
+The main launcher opens preview 05 with those bounded controls, A/B/C preset
+banks and the MINI v4 label. See [MINI_V4_EDITOR.md](MINI_V4_EDITOR.md).
+The qualified v3 bundle is preserved.
+See [MINI_ONE_SWITCH_UPGRADE.md](MINI_ONE_SWITCH_UPGRADE.md).
 
 ## Implementation decisions
 
@@ -81,10 +90,11 @@ limitations stated explicitly.
 
 ## Selected recovery method and the user's Raspberry Pi
 
-The user ruled out USB_KEY with GPIO wiring and selected recovery using the
-three footswitches. Work continues along that path: RAM verification of the
-switches, marker/reset into ROM, and a guard at the entry point of the adapted
-UltraRig application. USB_KEY and its tools remain archived experimental
+The user ruled out USB_KEY with GPIO wiring and selected footswitch recovery.
+The initial guard required all three switches; v4 accepts any single switch,
+with the left-switch cold-start sequence now observed on hardware. This path
+uses the verified RAM switch/reset work and a guard at the entry point of the
+adapted UltraRig application. USB_KEY and its tools remain archived experimental
 material, not a prerequisite imposed on the user. The guard does not cover a
 damaged header or damage to its own code; this limitation is distinct from
 recovery when execution hangs after entry.

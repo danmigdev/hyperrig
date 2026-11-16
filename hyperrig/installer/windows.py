@@ -5,6 +5,7 @@ import ctypes
 import hashlib
 import json
 import os
+import re
 import subprocess
 import time
 
@@ -56,6 +57,29 @@ def hyperrig_ports():
 
 def scan():
     return {**ports(), "stock_devices": stock_devices(), "hyperrig_ports": hyperrig_ports()}
+
+
+def usb_location_paths(instance_ids):
+    """Read exact USB connection paths, including the cached stock devnode."""
+    require(len(instance_ids) == 2 and all(isinstance(value, str) and len(value) < 200
+            and re.fullmatch(r"USB\\VID_4C4A&PID_(?:C755|8057)\\[A-Za-z0-9&_.-]+", value, re.I)
+            for value in instance_ids), "Invalid USB location lookup")
+    literal = ",".join("'" + value + "'" for value in instance_ids)
+    script = "$ErrorActionPreference='Stop'\n$ids=@(" + literal + ")\n" + r"""
+$result=@(foreach ($id in $ids) {
+    $paths=@((Get-PnpDeviceProperty -InstanceId $id -KeyName DEVPKEY_Device_LocationPaths).Data)
+    [pscustomobject]@{instance_id=$id;paths=$paths}
+})
+ConvertTo-Json -InputObject $result -Depth 4 -Compress
+"""
+    result = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
+        capture_output=True, text=True, check=True, timeout=30, creationflags=subprocess.CREATE_NO_WINDOW)
+    rows = json.loads(result.stdout)
+    require(len(rows) == 2 and [row["instance_id"] for row in rows] == list(instance_ids),
+            "USB location response changed")
+    paths = [tuple(sorted(path.casefold() for path in row["paths"] if isinstance(path, str) and path)) for row in rows]
+    require(paths[0] and paths[0] == paths[1], "Recovered ROM is on a different USB connection")
+    return rows
 
 
 class WindowsBackend:
@@ -149,6 +173,10 @@ class WindowsBackend:
             require(stock_devices() == devices and not discover_windows_rom_disks(),
                     "USB device selection changed during identification")
             identity = device.identity
+            # WinMM cannot reliably unprepare receive buffers after USB detaches.
+            # Keep the identified output open, but release input before the soft key.
+            device.midi_in.close_port()
+            store.event("stock_midi_input_closed_before_transition")
             submitted = time.time()
             store.event("stock_to_rom_intent", identity=identity, stock_device=devices[0],
                         submitted_unix=submitted, automatic_retry=False)
@@ -175,6 +203,27 @@ class WindowsBackend:
     def _reopen_reader(self):
         require(self.live_slot == B and not self.jump_unknown, "Reader lifecycle changed")
         return self._open(B, "nor-reader")
+
+    def continue_stock_rom(self, entry, release, store):
+        require(is_admin(), "Enable installation through Windows UAC first")
+        require(self.attestation is None, "Use a new workflow for USB continuation")
+        require(entry["identity"] == release.manifest["stock_identity"]
+                and 0 <= time.time() - entry["submitted_unix"] <= 1800, "Previous stock entry is not fresh")
+        self.store = store
+        self._claim_host_session()
+        require(not stock_devices() and not hyperrig_ports(), "Only the recovered ROM device may be connected")
+        candidates = discover_windows_rom_disks()
+        require(len(candidates) == 1, "Recover the USB connection before continuing the backup")
+        self.attestation = RomDiskAttestation.from_discovery(candidates[0])
+        locations = usb_location_paths((entry["stock_instance_id"], self.attestation.usb_ancestor))
+        with self._open(B, "nor-reader") as transport:
+            arrival = transport.attestation.last_arrival_filetime
+            require(arrival is not None and arrival / 10_000_000 - 11644473600 >= entry["submitted_unix"] - 1,
+                    "ROM arrival predates the previous stock entry")
+            self.mcn = MiniMediaChangePause(transport, log=self._event)
+        store.event("continued_stock_ROM_verified", attestation=self.attestation.summary(), locations=locations,
+                    source_journal_sha256=entry["source_journal_sha256"], repeated_soft_key=False)
+        return entry["identity"]
 
     def _close_reader(self):
         if self.reader_wrapper is not None:

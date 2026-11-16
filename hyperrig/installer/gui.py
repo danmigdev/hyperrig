@@ -16,7 +16,7 @@ import uuid
 import webbrowser
 
 from .core import load_release
-from .service import InstallWorkflow
+from .service import InstallWorkflow, interrupted_stock_entry
 
 
 class EditorServer:
@@ -92,8 +92,8 @@ class InstallerWindow:
         self.smoke = smoke
         self.root = tk.Tk()
         self.root.title("HyperRig MINI Installer")
-        self.root.geometry("820x660")
-        self.root.minsize(760, 610)
+        self.root.geometry("820x700")
+        self.root.minsize(760, 650)
         self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.events = queue.Queue()
         self.workflow = self.editor = None
@@ -134,6 +134,8 @@ class InstallerWindow:
         self.folder_button.grid(row=0, column=1, padx=(12, 0))
         self.backup_button = ttk.Button(backup, text="Create and verify backup", command=self.backup, state="disabled")
         self.backup_button.grid(row=1, column=0, sticky="w", pady=(10, 0))
+        self.continue_button = ttk.Button(backup, text="Continue backup after USB recovery", command=self.continue_backup)
+        self.continue_button.grid(row=2, column=0, columnspan=2, sticky="w", pady=(8, 0))
         actions = ttk.Frame(outer)
         actions.pack(fill="x", pady=(0, 10))
         self.install_button = ttk.Button(actions, text="3. Install HyperRig", command=self.install, state="disabled")
@@ -153,7 +155,7 @@ class InstallerWindow:
         ttk.Button(footer, text="Report an issue on GitHub", command=self.report).pack(side="right")
         self.root.after(100, self.poll)
         if smoke:
-            for button in (self.access, self.scan_button, self.backup_button, self.editor_button):
+            for button in (self.access, self.scan_button, self.backup_button, self.continue_button, self.editor_button):
                 button.configure(state="disabled")
 
     def error(self, message):
@@ -227,6 +229,41 @@ class InstallerWindow:
                                parent=self.root, default="no"):
             self.run("install", self.workflow.install)
 
+    def continue_backup(self):
+        if not self.windows.is_admin():
+            self.error("Enable installation through Windows UAC first.")
+            return
+        entries = []
+        if self.workflow is not None:
+            try:
+                entries.append(interrupted_stock_entry(self.workflow.store.root))
+            except (ValueError, OSError, KeyError, TypeError) as error:
+                self.error(str(error))
+                return
+        elif self.backup_directory.is_dir():
+            for folder in self.backup_directory.iterdir():
+                if not folder.is_dir():
+                    continue
+                try:
+                    entries.append(interrupted_stock_entry(folder))
+                except (ValueError, OSError, KeyError, TypeError):
+                    continue
+        if not entries:
+            self.error("No recent interrupted stock entry was found in this backup folder.")
+            return
+        source = max(entries, key=lambda entry: entry["submitted_unix"])["source_directory"]
+        if self.workflow is not None:
+            self.workflow.close()
+            self.workflow = None
+        destination = self.backup_directory / (datetime.now().strftime("%Y%m%d-%H%M%S-") + uuid.uuid4().hex[:8])
+
+        def begin():
+            self.workflow = InstallWorkflow(self.release, self.windows.WindowsBackend(), destination,
+                                            notify=self.events.put)
+            return self.workflow.continue_backup(source)
+        self.details.set("Continuing the previous backup in a new private session: " + source)
+        self.run("backup", begin)
+
     def boot(self):
         self.run("boot", self.workflow.boot)
 
@@ -251,9 +288,17 @@ class InstallerWindow:
     def refresh_buttons(self):
         phase = self.workflow.phase if self.workflow else "created"
         idle = not self.busy and not self.smoke
+        continuable = self.workflow is None
+        if idle and phase == "failed":
+            try:
+                interrupted_stock_entry(self.workflow.store.root)
+                continuable = True
+            except (ValueError, OSError, KeyError, TypeError):
+                pass
         for button, enabled in (
             (self.scan_button, phase == "created"), (self.folder_button, self.workflow is None),
             (self.backup_button, self.workflow is None and self.inventory is not None),
+            (self.continue_button, continuable),
             (self.install_button, phase == "backed_up"), (self.cancel_button, phase == "backed_up"),
             (self.boot_button, phase == "verified"), (self.editor_button, phase in ("created", "usb_detected", "stock_usb_detected")),
         ):

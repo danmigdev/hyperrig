@@ -11,9 +11,18 @@ The scanner reports file locations and finding types without printing matched
 values. It checks tracked files and new files that are not ignored by Git.
 It is a pattern check, not proof that every possible credential format is absent.
 
+The audit also checks signing-tool password arguments. A historical development
+keystore password was removed from reachable history and rotated while preserving
+the signing certificate. Signing material is not tracked. The release workflow
+uses encrypted GitHub Actions secrets and password environment variables; see
+[release signing](RELEASE_BUILD.md#signing-and-permissions).
+
 Use repository-relative paths or environment-based discovery for local files.
 Keep device dumps, presets, credentials, keys and generated artifacts outside Git.
 Public project URLs and required third-party attribution remain source metadata.
 
 After a history cleanup, start from the rewritten branch. Merging old history
 can restore removed objects. Private local recovery copies must never be pushed.
+Rewriting reachable history does not purge orphaned objects or cached views from
+GitHub's servers. The repository owner must request that separate removal through
+GitHub Support; do not describe a force-push as complete server-side erasure.

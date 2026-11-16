@@ -1,0 +1,12 @@
+{
+  "source_release_sha256": "52554a680596dddc5aff0ad215cd8356f45c1e8be61055d08dcd36c7efddb9cb",
+  "device_access": false,
+  "audio_test": false,
+  "browser_mode": "offline demo",
+  "installer_mode": "smoke mode; device actions disabled; backup path replaced with generic label before capture",
+  "images": {
+    "mini-editor-presets.png": "ad14aed9c47b97a0e88e319b6b34f5356fe2b7bf4dc10885f299812521bcfbf6",
+    "mini-editor.png": "c80c8c9fd80e3eaa845435b143c3254a574dbd68f49907a7c9f7775e6995b71e",
+    "mini-installer.png": "48d76f6d0ed8435588eacc9949d44b611f3a450efbdbe33fe9c028a5d7739458"
+  }
+}

@@ -72,6 +72,7 @@ class Midi:
 
     def __init__(self, incoming, outgoing):
         self.indices = incoming, outgoing
+        self.midi_in = SimpleNamespace(close_port=Mock())
         self.midi_out = SimpleNamespace(send_message=Mock())
         self.closed = False
         self.backups = []
@@ -185,7 +186,35 @@ class WindowsBackendTests(unittest.TestCase):
         self.assertIsNone(self.backend.live_slot)
         self.assertFalse(self.backend.jump_unknown)
         self.assertEqual([e["event"] for e in self.store.events],
-                         ["stock_to_rom_intent", "fresh_rom_verified"])
+                         ["stock_midi_input_closed_before_transition", "stock_to_rom_intent", "fresh_rom_verified"])
+
+    def test_input_closes_before_soft_key_on_the_same_identified_output(self):
+        selection = self.entry_setup()
+
+        def enter(device):
+            def send(_):
+                device.midi_in.close_port.assert_called_once_with()
+                self.assertFalse(device.closed)
+            device.midi_out.send_message.side_effect = send
+            return device
+
+        with patch.object(Midi, "__enter__", enter):
+            self.backend.enter_stock_rom(selection, self.release, self.store)
+        Midi.instances[-1].midi_out.send_message.assert_called_once_with(list(windows.SOFT_KEY_SYSEX))
+
+    def test_failed_input_close_stops_before_soft_key(self):
+        selection = self.entry_setup()
+
+        def enter(device):
+            device.midi_in.close_port.side_effect = SystemError("cannot release input")
+            return device
+
+        with patch.object(Midi, "__enter__", enter):
+            with self.assertRaisesRegex(SystemError, "cannot release input"):
+                self.backend.enter_stock_rom(selection, self.release, self.store)
+        Midi.instances[-1].midi_out.send_message.assert_not_called()
+        self.assertTrue(Midi.instances[-1].closed)
+        self.assertFalse(Transport.created)
 
     def test_existing_ROM_and_changed_MIDI_selection_stop_before_soft_key(self):
         selection = self.entry_setup()

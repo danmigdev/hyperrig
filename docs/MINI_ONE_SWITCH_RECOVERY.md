@@ -73,8 +73,18 @@ Frozen artifacts under `build/hyperrig-mini-audio-v4/`:
 
 ## Physical limits
 
-V4 has not been executed on the MINI. Cold-power recovery, USB enumeration after
-this guard, and interrupted-write recovery remain unqualified. The earlier
+V4 was installed on the development MINI on November 16, 2026. Two matching
+fresh backups, a third pre-install read, and complete final readback verified
+the exact v4 application and preservation of every external byte. Normal
+software boot and USB PONG, MODEL, LVL, and PSTAT replies were observed. See the
+[development upgrade](MINI_ONE_SWITCH_UPGRADE.md) for the separate workflow.
+
+A user-assisted cold start with the left footswitch alone subsequently reached
+ROM: fresh `4C4A:8057` enumeration and `WL82 UBOOT1.00` INQUIRY were verified,
+with no application CDC port present. No RAM program, reset, or flash write was
+sent during that ROM-access check. This qualifies that observed sequence on
+this unit; the other two individual switches and interrupted-write recovery
+remain untested. The earlier
 ROM key/reset test covered ROM-to-ROM execution, not cold SPL entry through
 this XIP guard. A damaged application header, entry or guard may prevent the
 check from running at all.
@@ -84,6 +94,6 @@ the positive branch under both policies. This condition-only change therefore
 does not claim to fix that failure. The reset sequence is deliberately unchanged.
 
 V3 physical editor/audio evidence remains evidence for v3. An unchanged PONG
-version cannot identify the new image; any future v4 qualification must bind to
-its actual installation/readback and boot observations. The v4 preview enables
-no write families by inheriting v3 evidence alone.
+version cannot identify the new image; the v4 observation is bound to the actual
+installation/readback and subsequent boot. The v4 preview enables no write
+families by inheriting v3 evidence alone.

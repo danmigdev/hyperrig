@@ -1,103 +1,71 @@
 # HyperRig
 
-Independently maintained UltraRig-derived firmware and editor for the
-M-VAVE TANK MINI.
+Firmware and editor for the **M-VAVE TANK MINI**, independently maintained and
+based on UltraRig.
 
-[Repository](https://github.com/danmigdev/hyperrig) ·
+[Installation guide](INSTALLATION.md) |
+[Downloads](https://github.com/danmigdev/hyperrig/releases) |
+[Build release artifacts](https://github.com/danmigdev/hyperrig/actions/workflows/release.yml) |
 [Report an issue](https://github.com/danmigdev/hyperrig/issues/new/choose)
 
-## Current status
+![HyperRig MINI editor in offline demo mode](docs/images/mini-editor.png)
 
-The minimum working system was verified on November 16, 2026:
+*Real editor screenshot using the offline demo and example data. Demo controls
+are broader than the currently qualified hardware feature set.*
 
-- The UltraRig-derived v3 application is installed on the MINI, replacing its
-  stock application. A complete NOR readback verified the installed bytes.
-- Normal boot, A2 capture retention, preset retention after restart, and
-  communication over USB and Bluetooth were observed.
-- The owner reported normal audio with the instrument and output connected.
-- The desktop editor was physically tested for volume, effect addition,
-  parameter changes, bypass, removal, preset saving, and preset loading.
-- With nine active effects, internal processing averaged about **2.40 ms per
-  block**, with **2.53 ms maximum observed**. Analog input-to-output latency
-  has not been measured.
+## Start here
 
-The original buildable UltraRig firmware C project has **not** been recovered.
-This working firmware is a port of the distributed binary, with reconstructed
-MINI-specific components. The separate C reconstruction remains incomplete.
-Full panel/LED mapping and the integrated held-switch cold-start recovery test
-remain outstanding.
+1. Download **`HyperRig-MINI-<version>-Windows-x64.zip`** from the selected preview
+   in Releases. If no preview is published yet, use the maintainer-supplied ZIP.
+2. Extract the whole ZIP and open **`HyperRig-MINI-Installer.exe`**.
+3. Follow the [illustrated installation guide](INSTALLATION.md): connect, back
+   up your pedal, install, boot, then open the editor.
 
-The [agreed objective](docs/HYPERRIG_GOAL.md) and
-[integrated port](docs/MINI_INTEGRATED_PORT.md) document the scope and evidence.
+The Windows package includes everything needed for installation and USB editing.
+No Python installation or Raspberry Pi is required. If HyperRig is already on
+your pedal, open **`launch_editor.cmd`** and connect; do not reinstall firmware.
 
-## Install from stock firmware
+| Platform | Available in this preview |
+| --- | --- |
+| Windows x64 | USB firmware installer, per-pedal verified backup and USB editor. |
+| Android 7+ | Signed editor APK; Bluetooth reads only. Does not install firmware. |
+| Edge / Chrome | Standalone web editor; localhost launcher included in its ZIP. |
 
-An English Windows installer preview now automates per-device backup,
-application replacement, full readback, and a separate boot step. The local
-package is `build/hyperrig-mini-installer-one-switch-preview-02`; open its
-`start.cmd` to view the interface without accessing a device.
+## What works, and what is still a preview
 
-It targets the new [one-switch recovery candidate](docs/MINI_ONE_SWITCH_RECOVERY.md).
-V4 has passed offline checks but has not been installed or physically qualified;
-its bundled editor currently permits reads only. The installed v3 firmware and
-qualified editor described below are separate. No GitHub release has been
-published. Read the [installation guide](INSTALLATION.md) for the actual preview
-controls, requirements, and remaining release work.
+The current target is **stock TANK MINI_009**. The editor shows **MINI v4 preview**,
+three preset slots per bank (**A/B/C**), 32 total preset IDs and four scenes per
+preset. USB gain, preset/scene operations and effect add/change/bypass/remove
+are enabled within the [reviewed v4 scope](docs/MINI_V4_EDITOR.md).
 
-## Launch the editor
+One development MINI completed a GUI installation from restored stock with
+verified full readback and working USB editor data. That trial required separate
+USB hub recovery and the backup continuation step. **Independent installation
+and interrupted-write recovery remain unqualified.** V4 audio listening, the
+complete physical switch/LED mapping, and this APK on a physical Android phone
+remain untested. Bluetooth mutations, routing and panel remapping are disabled;
+**Footswitches** and **Stage** are disabled on the connected MINI.
 
-With the MINI powered on and connected by a USB data cable, open
-[launch_hyperrig_editor.cmd](tools/launch_hyperrig_editor.cmd).
-No UAC prompt is needed.
+The complete original firmware C project has not been recovered. The release
+packages a pinned binary port, preserving its tested firmware bytes and command
+policy. The [GitHub workflow](docs/RELEASE_BUILD.md) builds the Windows executable,
+Android APK, web package, firmware package, source archive and checksums from one
+commit, then optionally prepares a **draft prerelease** for review.
 
-The launcher dismisses the first-use tour and opens the USB selector. Choose
-**Tank-M HyperRig (COM3)** on the development PC. Opening USB can take about
-15–21 seconds on this PC. Use one connected editor window at a time.
+[Installation trial](docs/MINI_INSTALLER_USB_CONTINUATION.md) |
+[V4 upgrade and recovery observations](docs/MINI_ONE_SWITCH_UPGRADE.md) |
+[Earlier v3 audio/editor evidence](docs/MINI_INTEGRATED_PORT.md) |
+[Goal and remaining work](docs/HYPERRIG_GOAL.md)
 
-The current product bundle is `build/hyperrig-mini-english-editor`.
-It has an English-only interface, HyperRig GitHub links, and a **Report an
-issue on GitHub** action. GitHub lets the user review and submit the issue.
-Donation controls and automatic online update checks have been removed.
+## Privacy and licenses
 
-The English presentation changes are checked offline, separately from the
-original hardware tests. They preserve the firmware binding, command policy,
-converter, and eight qualified USB command families:
+No telemetry, donations or automatic report uploads. Reporting opens GitHub so
+you can review and submit the issue yourself. Device backups, user presets,
+signing keys and generated build packages stay out of Git.
 
-`GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`, `FXA`, `FXP`, `FXE`, `FXR`.
-
-Use **+** at the end of Pre or Post to add an effect. Select a block for its
-parameters, Bypass, and Remove. Use Presets to save or load. The firmware
-enforces CPU and memory limits. Parallel routing, moving/replacing blocks,
-AMP controls, and Bluetooth writes are outside the qualified scope.
-
-The real UI test created **1B**, with the copied name **Preset 1A**, the A2
-capture, and an enabled Post Noise Gate at **−71 dB**. Loading 1B restored the
-effect after it had been removed in the editor. The pedal was left on the
-original **1A**, with gain 0/0 and an empty FX chain. A further physical restart
-of preset 1B was not part of that test.
-[UI evidence](docs/MINI_FX_UI.md) · [Timing measurements](docs/MINI_LATENCY.md)
-
-## Build the English editor
-
-Python 3.12 and Node.js are required. The local, sealed
-`build/hyperrig-mini-fx-editor` bundle is the input; it is not included in Git.
-
-```powershell
-npm.cmd ci --prefix tools/editor --ignore-scripts --no-audit --no-fund
-python tools/build_hyperrig_editor.py --build build/hyperrig-mini-english-editor-new
-python tools/verify_hyperrig_editor.py --bundle build/hyperrig-mini-english-editor-new --output build/hyperrig-english-check-new
-```
-
-Use new output directories. The builder preserves historical bundles and
-hardware reports. The offline browser check blocks device access, verifies
-English behavior with a non-English browser preference, checks GitHub issue
-navigation without sending a report, and exercises the demo controls.
-
-Project destinations are defined in [app/project.json](app/project.json).
-All maintained documentation, UI text, comments, and new contributions use
-English; see [AGENTS.md](AGENTS.md). Required third-party notices, protocol
-identifiers, original inputs, and immutable evidence retain their original
-wording and bytes.
+HyperRig preserves original authorship, component licenses and required notices.
+All maintained interface text and documentation is in English. Original source
+records and protocol identifiers are preserved; see [AGENTS.md](AGENTS.md).
 
 ## Development and reverse engineering
 
