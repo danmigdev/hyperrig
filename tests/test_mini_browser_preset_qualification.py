@@ -456,6 +456,10 @@ class QualificationTests(unittest.TestCase):
             args = config.browser_arguments(executable, folder/'isolated-profile')
             report = {'browser_arguments': args, 'browser_configuration': config.description(args)}
             q.validate_continuation_browser(report, ref)
+            edge_args = config.browser_arguments(Path('C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'),
+                                                 folder/'isolated-profile')
+            q.validate_continuation_browser({'browser_arguments': edge_args,
+                                            'browser_configuration': config.description(edge_args)}, ref)
             for what in ('missing', 'feature', 'profile', 'extra', 'description'):
                 bad = copy.deepcopy(report)
                 if what == 'missing': bad.pop('browser_arguments')

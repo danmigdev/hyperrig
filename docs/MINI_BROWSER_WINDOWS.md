@@ -21,3 +21,11 @@ dell'adattatore Bluetooth prima di completare l'elenco: il filtro USB non
 salta tale attesa ([gestore delle porte nella stessa revisione](https://raw.githubusercontent.com/chromium/chromium/0985600c06a688b9c669e74afde7dacd5aaed047/services/device/serial/serial_port_manager_impl.cc)).
 I test qui verificano solo la configurazione e i flussi
 simulati; l'esito del selettore e del PONG richiede una sessione reale separata.
+
+Il tentativo Chrome v2-02 ha registrato COM3 in `chrome://device-log` ma il
+selettore non ha completato l'elenco. La successiva prova reale di root con
+Edge installato ha mostrato COM3 e restituito il suo `getInfo`, senza aprire
+la seriale. Per questo l'helper ora sceglie Edge su Windows, con gli stessi
+argomenti e un profilo isolato. Registra l'eseguibile scelto; non sostituisce
+silenziosamente Edge con Chrome se manca. Altrove resta la selezione originale.
+Il risultato del chooser non è ancora una prova di apertura, PONG o preset.

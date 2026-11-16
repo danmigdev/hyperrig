@@ -7,6 +7,23 @@ from tools import mini_browser_windows as configuration
 
 
 class BrowserWindowsTests(unittest.TestCase):
+    def test_windows_chooses_installed_edge_without_chrome_fallback(self):
+        with (patch.object(configuration.sys, 'platform', 'win32'),
+              patch.dict(configuration.os.environ, {'PROGRAMFILES(X86)': 'C:/x86', 'PROGRAMFILES': 'C:/x64'}, clear=True),
+              patch.object(Path, 'is_file', autospec=True, side_effect=lambda p: str(p).startswith('C:') and 'x86' in str(p)),
+              patch.object(configuration, 'frozen_browser_path', side_effect=AssertionError('Chrome fallback'))):
+            self.assertEqual(configuration.browser_path(), Path('C:/x86/Microsoft/Edge/Application/msedge.exe'))
+        with (patch.object(configuration.sys, 'platform', 'win32'), patch.object(Path, 'is_file', return_value=False),
+              patch.object(configuration, 'frozen_browser_path', side_effect=AssertionError('Chrome fallback'))):
+            with self.assertRaises(FileNotFoundError):
+                configuration.browser_path()
+
+    def test_other_platform_keeps_original_browser_selection(self):
+        with (patch.object(configuration.sys, 'platform', 'linux'),
+              patch.object(configuration, 'frozen_browser_path', return_value=Path('/installed/chrome')) as original):
+            self.assertEqual(configuration.browser_path(), Path('/installed/chrome'))
+        original.assert_called_once_with()
+
     def test_windows_changes_only_existing_feature_switch(self):
         original = configuration.frozen_browser_arguments(Path('chrome.exe'), Path('isolated-profile'))
         expected = [value + ',SerialUsbDisplayNameWin' if value.startswith('--disable-features=') else value

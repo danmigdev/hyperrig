@@ -60,9 +60,9 @@ RESUME_PINS = {
     'tools/mini_browser_saved_reload_guard.js': 'e0de0abe48c29ec28ba7c7a02ecfe1ce79225db8079786e1e34fc31c8c9982f9',
 }
 RESUME_V2_PINS = {
-    'tools/probe_mini_browser_saved_reload_v2.py': '7427bc0f736b2ebd92de0b4e97efef7cf63df58ec06f7d6e836a3ecf55b09c5e',
+    'tools/probe_mini_browser_saved_reload_v2.py': '4a2bc7fe885442db181cf49cbcb8ea688f4844d41c25493adff011735ff9ff82',
     'tools/mini_browser_saved_reload_guard_v2.js': 'ed25540b9195b3a948c8cc076867ba8c7cb62c71a966b70604293dc29ed9849e',
-    'tools/mini_browser_windows.py': '75ee8d2330639b842ce5c36ba2c97256244675ca63a4b9264c1c7065b89d1081',
+    'tools/mini_browser_windows.py': '92b6e259da3ff7eb79d38d4b290a2ea5372310bc1a8993cdbfe2af9296467410',
 }
 SNAPSHOTS = ('initial_activity_before', 'initial', 'before_activity', 'before',
              'down1', 'up', 'saved', 'marker', 'reloaded')

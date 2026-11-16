@@ -299,7 +299,7 @@ def run(prepared, output):
     thread = threading.Thread(target=server.serve_forever,daemon=True); thread.start()
     process = cdp = None
     try:
-        arguments = browser_windows.browser_arguments(browser.browser_path(),profile_dir)
+        arguments = browser_windows.browser_arguments(browser_windows.browser_path(),profile_dir)
         report['browser_arguments'] = arguments
         report['browser_configuration'] = browser_windows.description(arguments)
         save()

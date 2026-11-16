@@ -15,7 +15,7 @@
     {
       "path": "tools/probe_mini_browser_latency.py",
       "bytes": 27556,
-      "sha256": "ad3e794255b3a6c16d4ec6b04f3c6f8dd48237281c8245baaacd15e6d57027ed"
+      "sha256": "a8377c68fb450fd069080802dc2659457f1e9295cf3cce07e3ccfb38ed27c0c9"
     },
     {
       "path": "tools/mini_browser_latency_guard.js",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/MINI_LATENCY.md",
-      "bytes": 12398,
-      "sha256": "201eb63cb675213e8e093b4ff66b0a94ef77d102a4136466c487ac5ddc11a95b"
+      "bytes": 12453,
+      "sha256": "0ab30582e4b2f5f6831b7240b774158e5dd0a367986358bab374274e2334ebe8"
     }
   ],
   "frozen_dependencies": [
@@ -67,7 +67,7 @@
     {
       "path": "tools/qualify_mini_browser_preset.py",
       "bytes": 62326,
-      "sha256": "af2b64e7148274fb22b6fa587a58ec6103435bce0a34c244a59564fb30e5b517"
+      "sha256": "590a3eee4dffb0ba10d4155788ed6b924b24b3e6a4ed7d33b019d88f38de5781"
     },
     {
       "path": "tools/verify_mini_browser.py",
@@ -131,6 +131,19 @@
       "python_tests_passed": 3,
       "full_unchanged_batteries_repeated": false,
       "qualifier_sha256": "af2b64e7148274fb22b6fa587a58ec6103435bce0a34c244a59564fb30e5b517"
+    },
+    "revision_4_targeted_tests": {
+      "command": "python -m unittest tests.test_mini_browser_preset_qualification.QualificationTests.test_recorded_browser_configuration_is_exact_and_does_not_launch tests.test_mini_browser_latency.BrowserLatencyTests.test_preflight_accepts_retained_preset_without_fabricated_global_restoration tests.test_mini_browser_latency.BrowserLatencyTests.test_preflight_refuses_partial_save_missing_reload_and_unowned_session -q",
+      "python_tests_passed": 3,
+      "full_unchanged_batteries_repeated": false,
+      "qualifier_sha256": "590a3eee4dffb0ba10d4155788ed6b924b24b3e6a4ed7d33b019d88f38de5781"
+    },
+    "edge_configuration_independent_review": {
+      "command": "python -m unittest tests.test_mini_browser_windows tests.test_mini_browser_saved_reload_v2.SavedReloadTests.test_fake_lifecycle_opens_meters_then_presets_and_closes_native_port tests.test_mini_editor_launcher.QualifiedEditorLauncherTests.test_fake_lifecycle_keeps_editor_until_close_and_does_not_reobserve_closed_CDP",
+      "python_tests_passed": 7,
+      "helper_sha256": "92b6e259da3ff7eb79d38d4b290a2ea5372310bc1a8993cdbfe2af9296467410",
+      "probe_sha256": "4a2bc7fe885442db181cf49cbcb8ea688f4844d41c25493adff011735ff9ff82",
+      "no_browser_or_device_access": true
     }
   },
   "runtime_contract": {
@@ -163,13 +176,12 @@
     "root controller explicitly invokes execute on that exact session",
     "no analog latency result without confirmed recording routing and stimulus"
   ],
-  "revision": 3,
-  "updated_utc": "2026-11-16T08:51:08.328736+00:00",
+  "revision": 4,
+  "updated_utc": "2026-11-16T09:03:31.876087+00:00",
   "revision_note": {
-    "scope": "Only the latency runner qualifier SHA binding changed; Windows chooser configuration remains in the launcher/continuation helper, not in this runner. Parser, guard, effect sequence and restoration are unchanged.",
-    "previous_runner_sha256": "66f95caecbb29434be19d7985e9c54951603302309145f963947a33a82211b6e",
-    "qualifier_sha256": "af2b64e7148274fb22b6fa587a58ec6103435bce0a34c244a59564fb30e5b517",
-    "additional_supported_evidence_model": "browser-retained-save-and-reload-two-sessions-v2",
+    "scope": "Only the latency runner qualifier SHA binding changed. The launcher now selects existing Edge on Windows; the latency runner does not select or launch a browser. Parser, guard, effect sequence and restoration are unchanged.",
+    "previous_runner_sha256": "ad3e794255b3a6c16d4ec6b04f3c6f8dd48237281c8245baaacd15e6d57027ed",
+    "qualifier_sha256": "590a3eee4dffb0ba10d4155788ed6b924b24b3e6a4ed7d33b019d88f38de5781",
     "requires_actual_successful_reload": true,
     "new_hardware_evidence_created": false
   }

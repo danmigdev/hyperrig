@@ -29,7 +29,7 @@ from tools.mini_host_journal import atomic_write_json, read_shared_bytes
 
 require, sha, now = browser.require, browser.sha, window.now
 FAMILIES = ['GAIN','PLOAD','PSAVE','SNAPSAVE']
-QUALIFIER_SHA = 'af2b64e7148274fb22b6fa587a58ec6103435bce0a34c244a59564fb30e5b517'
+QUALIFIER_SHA = '590a3eee4dffb0ba10d4155788ed6b924b24b3e6a4ed7d33b019d88f38de5781'
 OBSERVER = r"""(()=>{
  const state={opens:0,closes:0,activePorts:0,closeError:null,events:[],pongs:[],lastPort:null};
  const active=new WeakSet();
@@ -141,7 +141,7 @@ def run(prepared,output):
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
     process=cdp=None;native_closed=False;browser_close_sent=False
     try:
-        arguments=browser_windows.browser_arguments(browser.browser_path(),profile_dir)
+        arguments=browser_windows.browser_arguments(browser_windows.browser_path(),profile_dir)
         report['browser_arguments']=arguments
         report['browser_configuration']=browser_windows.description(arguments)
         save()
