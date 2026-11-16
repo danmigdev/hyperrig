@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "kind": "mini-pc-limit-upgrade-independent",
+  "verified": true,
+  "run": {
+    "path": "analysis/hardware/mini-pc-limit-install-run.json",
+    "sha256": "ea1567b156f4961637987f76d3b84301a9e678d9536fecf6a05c1a4eadf89660",
+    "bytes": 61245
+  },
+  "plan": {
+    "path": "build/mini-pc-limit-install/upgrade-plan.json",
+    "sha256": "6bfb7f0e4f5bcb915a80c934b5b835662019dc24a116c3af7e7c95009b2bacdd",
+    "bytes": 10815
+  },
+  "full_before": {
+    "path": "artifacts/my-mini-flash/pc-limit-v3/full-before.bin",
+    "sha256": "77aba4b40751ef77475c3fc94293d60e4b6697df824e286d936d488481d64693",
+    "bytes": 1048576
+  },
+  "full_after": {
+    "path": "artifacts/my-mini-flash/pc-limit-v3/full-after.bin",
+    "sha256": "759f7857f286cb8a514c6e32dbb0515a63f91b587f651b7095fb61457876328d",
+    "bytes": 1048576
+  },
+  "candidate": {
+    "path": "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin",
+    "sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+    "bytes": 516096
+  },
+  "application_exact": true,
+  "candidate_sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+  "full_NOR_sha256": "759f7857f286cb8a514c6e32dbb0515a63f91b587f651b7095fb61457876328d",
+  "changed_sectors": [
+    16384
+  ],
+  "external_regions_unchanged_from_fresh_read": true,
+  "preserved_regions": [
+    {
+      "name": "SPL and boot configuration",
+      "range": [
+        0,
+        16384
+      ],
+      "sha256": "d9f43191777656de01c7bed4f9e9ba2e34e94832c5d2ed02c3fc7ab7a6d9bd67",
+      "bytes": 16384,
+      "unchanged_from_fresh_read": true,
+      "differs_from_stock_backup": false
+    },
+    {
+      "name": "VM and staged updater",
+      "range": [
+        532480,
+        778240
+      ],
+      "sha256": "f5f6b1b2780b7535e764761f9b4451c0ac5e293bf95c6b23c45133e1078e8091",
+      "bytes": 245760,
+      "unchanged_from_fresh_read": true,
+      "differs_from_stock_backup": false
+    },
+    {
+      "name": "BTIF",
+      "range": [
+        778240,
+        782336
+      ],
+      "sha256": "b0e36a5aa635cec576c561d2d62378a53d0b7c30860299eada3292e3cf31bb09",
+      "bytes": 4096,
+      "unchanged_from_fresh_read": true,
+      "differs_from_stock_backup": false
+    },
+    {
+      "name": "USR",
+      "range": [
+        782336,
+        1044480
+      ],
+      "sha256": "2a247e353616e9ffe155105f32b59a6bce713b1b65258ccd851cf80923fc6700",
+      "bytes": 262144,
+      "unchanged_from_fresh_read": true,
+      "differs_from_stock_backup": true
+    },
+    {
+      "name": "key_mac",
+      "range": [
+        1044480,
+        1048576
+      ],
+      "sha256": "f47a8ec3e9aff2318d896942282ad4fe37d6391c82914f54a5da8a37de1300c6",
+      "bytes": 4096,
+      "unchanged_from_fresh_read": true,
+      "differs_from_stock_backup": false
+    }
+  ],
+  "writer_audit": {
+    "raw_records_checked": 2109,
+    "final_raw_audit": {
+      "version": 1,
+      "base": 29491200,
+      "build_tag": 3953063795,
+      "phase": 5,
+      "error": 0,
+      "token": 0,
+      "sequence": 35,
+      "sector": 16384,
+      "page": 16384,
+      "preimage_crc32": 2369494799,
+      "target_crc32": 1307633915,
+      "page_crc32": 105603800,
+      "last_crc32": 3179004831,
+      "jedec": 15425556,
+      "sr1": 0,
+      "sr2": 2,
+      "wren_attempts": 17,
+      "erase_attempts": 1,
+      "program_attempts": 16,
+      "read_bytes": 1073152,
+      "status_polls": 180,
+      "raw_receive_return": 260,
+      "rx_guards_ok": 1,
+      "page_bitmap": 65535,
+      "staged": 0,
+      "echoed": 0,
+      "stack_guards_ok": 1,
+      "stack_observed_bytes": 112,
+      "mutations_enabled": 1,
+      "record_sha256": "5b1738653491838d325dac1e8563b6514aba725a02e302205c976eba53ff96ce",
+      "hardware_readiness_asserted": false
+    },
+    "erase": 1,
+    "program": 16,
+    "wren": 17,
+    "program_order": [
+      16640,
+      16896,
+      17152,
+      17408,
+      17664,
+      17920,
+      18176,
+      18432,
+      18688,
+      18944,
+      19200,
+      19456,
+      19712,
+      19968,
+      20224,
+      16384
+    ],
+    "all_audits_match_wire_replay": true,
+    "virtual_NOR_matches_candidate": true
+  },
+  "history": {
+    "erase_commands": 1,
+    "program_commands": 16,
+    "expected_WREN_count": 17,
+    "program_order": [
+      16640,
+      16896,
+      17152,
+      17408,
+      17664,
+      17920,
+      18176,
+      18432,
+      18688,
+      18944,
+      19200,
+      19456,
+      19712,
+      19968,
+      20224,
+      16384
+    ],
+    "header_sector_last": true,
+    "header_page_last": true,
+    "read_query_errors": 1,
+    "finish_request_errors": 0,
+    "NOR_read_errors": 0,
+    "mutation_request_errors": 0,
+    "stateful_transport_commands": 51,
+    "verified_RAM_echo_recoveries": [],
+    "verified_unexecuted_mutation_recoveries": [],
+    "verified_unexecuted_finish_recoveries": [],
+    "final_NOR_read": {
+      "logical_bytes": 1048576,
+      "logical_chunks": 2048,
+      "full_NOR_sha256": "759f7857f286cb8a514c6e32dbb0515a63f91b587f651b7095fb61457876328d",
+      "physical_read_counter": 1048576,
+      "lost_read_bytes": 0,
+      "verified_read_recoveries": [],
+      "every_chunk_matches_final_dump": true,
+      "status_replies_synthesized": false,
+      "NOR_mutations_performed_by_reader": false
+    },
+    "automatic_mutation_retries_observed": false,
+    "mutation_reissue_scope": "byte-identical prior raw target audit; one real ACK and one core-validated mutation",
+    "completed_NOR_mutations_repeated": false,
+    "synthetic_mutation_ACK": false
+  },
+  "initial_full_NOR_read": {
+    "logical_bytes": 1048576,
+    "logical_chunks": 2048,
+    "full_NOR_sha256": "77aba4b40751ef77475c3fc94293d60e4b6697df824e286d936d488481d64693",
+    "physical_read_counter": 1048576,
+    "lost_read_bytes": 0,
+    "verified_read_recoveries": [
+      {
+        "opcode": "fc73",
+        "address": 114688,
+        "physical_counter": 115200,
+        "real_status_sha256": "9d790d51408c060840caac99ac3fdaf26f8d32187ae06a1015e961e68d0afdaf"
+      }
+    ],
+    "every_chunk_matches_final_dump": true,
+    "status_replies_synthesized": false,
+    "NOR_mutations_performed_by_reader": false
+  },
+  "final_reader_counter": 1048576,
+  "final_read_lost_bytes": 0,
+  "inputs": {
+    "analysis/hardware/mini-pc-limit-install-run.json": "ea1567b156f4961637987f76d3b84301a9e678d9536fecf6a05c1a4eadf89660",
+    "build/mini-pc-limit-install/upgrade-plan.json": "6bfb7f0e4f5bcb915a80c934b5b835662019dc24a116c3af7e7c95009b2bacdd",
+    "artifacts/my-mini-flash/pc-limit-v3/full-before.bin": "77aba4b40751ef77475c3fc94293d60e4b6697df824e286d936d488481d64693",
+    "artifacts/my-mini-flash/pc-limit-v3/full-after.bin": "759f7857f286cb8a514c6e32dbb0515a63f91b587f651b7095fb61457876328d",
+    "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+    "artifacts/my-mini-flash/20261115-paced-resume/flash-a.bin": "72db5e70b301e7b88ab5d22c2def1ec869fd5fd84b86c032abd01e38b5f8a180",
+    "analysis/hardware/mini-pc-limit-install-journal.jsonl": "40504060e31d1c14a26e4cf22ecdd9eb3f29d4d0d9c93849594e240c367d2ea1",
+    "analysis/hardware/mini-pc-limit-install-trace.jsonl": "2258850d612c9971e251fdcc581db0dc97b2e6cb3f355cd015e204624ea7bde4",
+    "analysis/hardware/mini-pc-limit-install-read-recovery.jsonl": "bbb26ffa04e2d24be8d554d286482013d01711b1a823ceb724e6ae2851b038ad",
+    "analysis/hardware/mini-pc-limit-install-nor-read-recovery.jsonl": "5eb33aca8649be3119b4ee70b3b00035e095a6091a275ccc95bb6be620e039ea",
+    "analysis/hardware/mini-pc-limit-install-mcn.jsonl": "ace8a40e5fe85ceca7ceec0579376b5a3ca23da813a8a6f1cd9da10f47865884"
+  },
+  "source_sha256": {
+    "tools/inspect_mini_pc_limit_upgrade.py": "999bb285740c34a954ece3e6a2baa41db7ff5cf3dbc9703c12aa3f2d0acc1345",
+    "tools/plan_mini_pc_limit_upgrade.py": "f271433dbe12a1cd93afc3314901afac112c4d8366d4b824f5f1328c979e7ea8",
+    "tools/inspect_mini_installed.py": "8cc89c335c33ecf5aacdbc6a56f1e7f16f26dfa8d49c004bb217aec3b57bdbe9"
+  },
+  "source_pins_match": true,
+  "finished_utc": "2026-11-16T05:00:39.397801+00:00",
+  "boot_attempted": false,
+  "audio_verified": false,
+  "application_execution_proven": false,
+  "power_loss_atomicity_proven": false,
+  "device_io_performed_by_verifier": false
+}

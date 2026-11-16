@@ -1,7 +1,7 @@
 # Aggiornamento MINI v2 → v3
 
 Il desktop ha comunicato realmente con il MINI su COM3: PONG HyperRig MINI,
-37 tipi di effetti, modello e diagnostica. La v2 installata è in modalità
+37 tipi di effetti, modello e diagnostica. La prima v2 installata era in modalità
 `safe`, con audio disattivato. La prova è in
 `research/mini-desktop-readonly-hardware.json`; non certifica modifiche o
 salvataggi dei preset.
@@ -15,8 +15,24 @@ all'ingresso del codice audio aggiunto. SHA256 dell'area applicazione:
 
 Rispetto alla v2 cambiano 11 byte nel settore fisico `0x4000`, inclusi i CRC
 del contenitore. Il codice audio, il recupero tramite footswitch e la copia
-RAM restano identici. L'immagine è ricostruita e verificata offline;
-l'installazione e l'avvio della v3 non sono ancora avvenuti.
+RAM restano identici. Il 16 novembre 2026 alle 05:00 UTC l'aggiornamento reale
+ha completato una cancellazione e 16 programmazioni, con la pagina `0x4000`
+per ultima. La verifica indipendente in
+[`mini-pc-limit-install-independent.json`](../research/mini-pc-limit-install-independent.json)
+conferma l'applicazione esatta e tutti i byte esterni preservati dal dump
+fresco; USR era già cambiata durante l'esecuzione della v2.
+
+Il boot v11 ha osservato COM3 alle 05:04 UTC. La successiva sessione
+`build/mini-desktop-v3-real-02/` ha ricevuto il PONG reale senza `safe`,
+`CLKSTATE safe=0` e `LVL m=2`. Due letture `STAT` hanno osservato
+`T.nproc=328986` e `329126`, oltre a input/output e blocchi audio crescenti.
+Ascolto analogico, modifica/salvataggio dei preset e recupero integrato con
+i footswitch restano prove distinte da completare.
+
+Il launcher congelato aveva un limite di 8 MiB per i file di prova, superato
+da due trace chiusi. Il [driver di compatibilità](MINI_V3_EDITOR_DRIVER.md)
+legge soltanto quei due file fino a 32 MiB e ne controlla dimensione e SHA256;
+registra questa estensione nelle nuove prove dell'editor.
 
 ## Sequenza predisposta
 
@@ -67,21 +83,22 @@ esatto del dispositivo. La pausa MCN temporanea viene chiusa su ogni uscita.
   e 11 regressioni della base desktop. Attende la selezione UIA della porta
   esatta per 120 secondi; non usa DeviceAccess per il selettore WebSerial.
 
-I pin del riavvio e il preflight dell'editor potranno essere completati solo
-dopo aver ottenuto i nuovi rapporti hardware. Non sono stati sostituiti con
-risultati simulati.
+I pin del riavvio sono stati completati usando i rapporti hardware conclusi,
+i dump e la verifica indipendente. Il preflight del nuovo driver dell'editor
+è passato sulle stesse prove reali prima del collegamento.
 
-Il preflight statico dell'installazione è passato con 251 input vincolati
-tramite SHA256. Prima dell'esecuzione, il manifesto deve includere anche
-il rapporto UBOOT reale completato. Il preflight non produce questa prova
-e non accede al dispositivo.
+Il preflight statico dell'installazione era passato con 251 input vincolati
+tramite SHA256. Prima dell'esecuzione il manifesto è arrivato a 254 input,
+includendo chiusura desktop, selezione UIA e rapporto UBOOT reali. Il preflight
+verifica questi file senza accedere al dispositivo.
 
-L'ultima sessione amministratore è terminata per scadenza il 16 novembre
-2026 alle 00:17:03 UTC. L'editor continua a funzionare senza amministratore;
-per aprire la ROM e scrivere la flash Windows richiede una nuova elevazione.
-La richiesta di disponibilità dell'utente riguarda quella conferma sul PC.
-Non sono state cambiate impostazioni UAC, servizi o attività pianificate.
+La precedente sessione amministratore era scaduta alle 00:17:03 UTC.
+Al ritorno dell'utente è stata avviata una nuova sessione temporanea alle
+04:54 UTC, con la conferma UAC di Windows. Ha eseguito aggiornamento e boot;
+l'editor WebSerial funziona senza elevazione. Le impostazioni UAC, i servizi
+e le attività pianificate non sono stati modificati.
 
-Avvio normale, audio reale, modifica/salvataggio dall'app e recupero
-integrato con i footswitch restano prove fisiche da completare. I test
-simulati non vengono registrati come risultati hardware.
+L'avvio normale e la comunicazione reale dell'editor sono verificati.
+Ascolto audio, modifica/salvataggio dall'app e recupero integrato con i
+footswitch restano da completare. I test simulati restano distinti dalle
+osservazioni hardware.

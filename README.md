@@ -3,11 +3,11 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato documentato al 16 novembre 2026, 00:08 UTC: applicazione UltraRig completa
-adattata al MINI, scritta e riletta integralmente. L'editor desktop comunica
-realmente via USB e legge 37 tipi di effetti e lo stato dei preset. Il firmware
-è in modalità `safe` dopo un'eccezione nel nuovo shim: audio e modifiche dei
-preset restano da verificare.** HyperRig
+**Stato documentato al 16 novembre 2026, 05:20 UTC: port UltraRig v3 installato
+e verificato sulla NOR completa. L'editor comunica realmente su COM3;
+avvio normale, `safe=0`, modalità audio 2 e contatore di elaborazione A2
+crescente osservati sul MINI. Ascolto dell'uscita e modifica/salvataggio
+dei preset restano da verificare.** HyperRig
 è il nome scelto per questo progetto indipendente.
 
 L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
@@ -63,7 +63,8 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   allo stock 009. L'installazione della candidata è completata: una nuova lettura
   indipendente di tutta la NOR conferma l'applicazione esatta e ogni byte esterno
   invariato prima del riavvio. Il pedale ha poi avviato HyperRig e risponde
-  all'editor via USB in modalità `safe`; la NOR non è stata riletta dopo l'avvio.
+  all'editor via USB; la prima v2 è entrata in modalità `safe`. La successiva
+  correzione v3 e il nuovo avvio normale sono descritti sotto.
   Stato e prove in
   [mini-installation-interruptions.json](research/mini-installation-interruptions.json).
 - Handover del bootloader, varianti applicative interamente in flash e selettore
@@ -71,22 +72,25 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
 - Copie HyperRig dei quattro firmware G/B, installer Windows, editor web e
   APK Android `com.hyperrig.app`, ricostruito e firmato localmente. Sono in
   `build/hyperrig/`: **queste copie G/B non sono il port MINI**.
-- Candidata integrale MINI da **516.096 byte**, con applicazione UltraRig G,
+- Prima candidata integrale MINI v2 da **516.096 byte**, con applicazione UltraRig G,
   20 patch, shim audio v2 da 2.332 byte e guardia footswitch da 298 byte. Struttura, CRC e confronto inverso
   con l'originale verificati. La base applicativa è UltraRig G; lo stock MINI
   fornisce il riferimento hardware e il backup di ripristino.
   L'editor MINI è associato all'hash dell'immagine. Il primo collegamento reale
   ha completato 25 query con 302 righe ricevute; il PONG identifica
-  `tankm_fw M5.71 rel ble` con suffisso `safe`. Avvio normale e audio restano
-  da completare. Prove e limiti in
+  `tankm_fw M5.71 rel ble` con suffisso `safe`. Prove di questa prima sessione in
   [MINI_DESKTOP_READONLY_HARDWARE.md](docs/MINI_DESKTOP_READONLY_HARDWARE.md).
-  L'immagine installata da `build/hyperrig-mini-audio-v2/` ha SHA-256
+  L'immagine v2, poi sostituita dalla v3, ha SHA-256
   `3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff`.
-- Correzione v3 del crash localizzata e ricostruita: il limite PC originale
+- Correzione v3 del crash installata e verificata: il limite PC originale
   escludeva il codice audio aggiunto. Cambiano 11 byte nel solo settore
-  `0x4000`, inclusi i CRC. Immagine, piano e procedura di aggiornamento
-  verificati offline; **v3 non ancora installata**. La nuova lettura completa
-  conserverà i dati attuali del pedale. Dettagli in
+  `0x4000`, inclusi i CRC. Una lettura completa prima e dopo l'aggiornamento,
+  insieme alla [verifica indipendente](research/mini-pc-limit-install-independent.json),
+  conferma app esatta e dati esterni conservati rispetto al dump fresco.
+  SHA-256 applicazione: `9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c`.
+  Il nuovo avvio ha prodotto un PONG normale; due `STAT` reali mostrano
+  `T.nproc` da 328986 a 329126, con `AUD mode=2` e nessun errore I/O segnalato.
+  Questa prova digitale non certifica ancora l'ascolto analogico. Dettagli in
   [MINI_PC_LIMIT_UPGRADE.md](docs/MINI_PC_LIMIT_UPGRADE.md).
 - Recupero tramite tre footswitch e reset verso ROM verificati in RAM; la guardia
   integrata deve ancora essere eseguita all'accensione. Ricezione, lettura NOR e
