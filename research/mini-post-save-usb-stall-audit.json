@@ -1,0 +1,432 @@
+{
+  "schema": 1,
+  "kind": "mini-post-save-usb-stall-offline-audit",
+  "created_utc": "2026-11-16T07:02:53.248028+00:00",
+  "device_io": false,
+  "source_modified": false,
+  "hardware_cause_proven": false,
+  "image_sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+  "references": [
+    {
+      "path": "analysis/firmware/m571_g_app/app.bin",
+      "sha256": "4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e",
+      "bytes": 485772
+    },
+    {
+      "path": "analysis/firmware/m571_g_app/flash.asm",
+      "sha256": "7f98d3d4ce393c04e2aeba571a3825a8021969efd54f9f2f1d6a1d879652cffb",
+      "bytes": 5896554
+    },
+    {
+      "path": "analysis/firmware/m571_g_app/ram.asm",
+      "sha256": "803e5a455c0c8dedd39285ba752893ffd0f7d399ee1566ccd64df22727b1fde9",
+      "bytes": 2013099
+    },
+    {
+      "path": "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin",
+      "sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+      "bytes": 516096
+    },
+    {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/docs/CHANGELOG.md",
+      "sha256": "ff50afd7c763f157e7ab267a16a8d0544f1b93d04e5c8c90af97138331ec124a",
+      "bytes": 95045
+    },
+    {
+      "path": "docs/MINI_PRESET_STORAGE_REVIEW.md",
+      "sha256": "98dd43028bb4b5a89467e808a54ba947dd082213572c72cb914a72b7ffb1d63f",
+      "bytes": 15071
+    },
+    {
+      "path": "research/mini-cdc-host-open.json",
+      "sha256": "aaf1f4d1b53efc80ea8fa0f592a59fb024a4e30dc2f2ee244b5d08790652f860",
+      "bytes": 24575
+    },
+    {
+      "path": "build/mini-first-preset-ui-04/report.json",
+      "sha256": "0eb9836638dd2025d9e75f380db4cc9c765c53dcc7ff4e0316ab810c3d2479ff",
+      "bytes": 664252
+    },
+    {
+      "path": "analysis/hardware/mini-v3-unresponsive-pnp-01.json",
+      "sha256": "501b37a222ae475877e64d381df2d4cc393f79a14328405db5e9ee37e179c3c5",
+      "bytes": 3543
+    },
+    {
+      "path": "build/mini-cdc-analysis/usb_config.c",
+      "sha256": "b3af1b1b564c302289116ff3eced4245b0f3579b295baa03f23b39a86a89bb87",
+      "bytes": 10329
+    }
+  ],
+  "unchanged_binary_spans": [
+    {
+      "name": "preset_append_writer",
+      "cpu_start": "0x02003040",
+      "cpu_end_exclusive": "0x020031be",
+      "bytes": 382,
+      "sha256": "f63950dd295fef7c241940f8152b92d93e47654dd7d294b7608f3828191866a2",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "preset_save_writer",
+      "cpu_start": "0x020077ec",
+      "cpu_end_exclusive": "0x02007966",
+      "bytes": 378,
+      "sha256": "4d3537a931ffdc1e15d4ccb81118f5fac1dfc365beb39522c594c3c78698b6be",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "scene_save",
+      "cpu_start": "0x0200a312",
+      "cpu_end_exclusive": "0x0200a37e",
+      "bytes": 108,
+      "sha256": "dd5505e721d2ee757a1dcb9a10ca2574c7a7744b58b962b63215260608c172dd",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "ctl_deferred_gc",
+      "cpu_start": "0x0201974c",
+      "cpu_end_exclusive": "0x020198f6",
+      "bytes": 426,
+      "sha256": "fde446cfcb136eb23fe71fa99cba558678f2a5ea1feb9d44f261ec25d3d83180",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "sector_erase_and_verify",
+      "cpu_start": "0x02002d9e",
+      "cpu_end_exclusive": "0x02002e6a",
+      "bytes": 204,
+      "sha256": "93f4d4d639154912c9c662acc22317d6da650a56a0eeb33d497249e7570bcece",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "flash_ioctl",
+      "cpu_start": "0x020029be",
+      "cpu_end_exclusive": "0x02002bcc",
+      "bytes": 526,
+      "sha256": "47fc4f30c118bbb9dc5fd842534980c34bc5e82713f82b8f8ac690042d6ad585",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "quiet_gate",
+      "cpu_start": "0x020028f2",
+      "cpu_end_exclusive": "0x02002920",
+      "bytes": 46,
+      "sha256": "42e136cac4ce29491d33f1f93353d09603d370875dbe4abec245f430d0d08df1",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "flash_pause_audio",
+      "cpu_start": "0x02002bf6",
+      "cpu_end_exclusive": "0x02002d10",
+      "bytes": 282,
+      "sha256": "4a1c90bc0fd8a21faf574a7afabe69d1e7d5f1b2b172e42e40ae042c76d4f1c7",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "ram_flash_acquire",
+      "cpu_start": "0x01c00000",
+      "cpu_end_exclusive": "0x01c00072",
+      "bytes": 114,
+      "sha256": "5ed4484beef6dd1a01cc4b34114427153dbaaacb2aff7f8215dc5d9876c3694f",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "ram_spi_wait",
+      "cpu_start": "0x01c000a8",
+      "cpu_end_exclusive": "0x01c000f0",
+      "bytes": 72,
+      "sha256": "299b0dbf4cb7802c43a5f649645b431949ad2cbaaf951e3000e78c7fd32b4baf",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "ram_erase",
+      "cpu_start": "0x01c00600",
+      "cpu_end_exclusive": "0x01c006d2",
+      "bytes": 210,
+      "sha256": "5c6986960708fa4462d57ab19629686efd4469181d2062a608ce8cc65ade3e91",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "ram_flash_restore",
+      "cpu_start": "0x01c003e8",
+      "cpu_end_exclusive": "0x01c0044c",
+      "bytes": 100,
+      "sha256": "17cb45619631ad48049552372525ffe6fc929cc91221381ebb5464e126708665",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "ram_irq_mask",
+      "cpu_start": "0x01c00e2e",
+      "cpu_end_exclusive": "0x01c00e60",
+      "bytes": 50,
+      "sha256": "c71d131a3d746f97f8491c244f3e3145077a5967a162c7a666c9f9fddf0f641a",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "ram_other_cpu_control",
+      "cpu_start": "0x01c010e4",
+      "cpu_end_exclusive": "0x01c01234",
+      "bytes": 336,
+      "sha256": "549d6f05c8c80fbd0fc16d1720090534a0dfd4fdc5e020e4603e3ee5bb93da36",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "cdc_control_line",
+      "cpu_start": "0x0201c4d2",
+      "cpu_end_exclusive": "0x0201c590",
+      "bytes": 190,
+      "sha256": "84e0bf6ff9d6b599331d2ec53de51d41467fe7d1c2288e05091b54213cb60f78",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "ctl_usb_connect_change",
+      "cpu_start": "0x0201a496",
+      "cpu_end_exclusive": "0x0201a678",
+      "bytes": 482,
+      "sha256": "fdb57baaf30a903c284248fad9111693ecd7c650b9df6ccf48d3fe1745c22a6e",
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "usb_upload_free",
+      "cpu_start": "0x02005c9e",
+      "cpu_end_exclusive": "0x02005cb8",
+      "bytes": 26,
+      "sha256": "fa3a8a77f1df182c352444ce401af9c41f3e14d0637b07da0fcb0de645678ff1",
+      "original_equals_installed_v3": true
+    }
+  ],
+  "observed_evidence": {
+    "trial04_result": "fail",
+    "trial04_finished_utc": "2026-11-16T06:11:25.666221+00:00",
+    "native_close": {
+      "open": false,
+      "closes": 1,
+      "closeError": null,
+      "native_close_verified": true
+    },
+    "actual_mutations": 4,
+    "saved_STAT": [
+      "AUD mode=2 in=2971896 out=2971896 blk=1485947 ovr=0 und=0 full=0 pk_in=2970 pk_out=19322 iis=0/0 err=0",
+      "DSP rc=0 L=23 C=3 rf=6347 fast=1 hw_ok=0 mism=0 hw_to=0 c1_ok=0 c1_to=0 jobs=2971894 split=0/0",
+      "T nproc=1485947 last=123888 max=132145 avg=122803 ticks; arena=118688 tick_ms=467553031/4016620",
+      "STG win=2902 in=2486/3705 pre=169/326 eng=124785/133937 post=534/1188 out=894/1532 blk=128992/138044 lat=4629/36294 isr=416/2121",
+      "W espera_c0=2606 max=17963 split=0",
+      "RS n=16 veces=1 lat/eng/blk us:",
+      " 20/2087/2180",
+      " 17/2068/2152",
+      " 17/2072/2155",
+      " 17/2072/2156",
+      " 17/2075/2159",
+      " 17/2070/2153",
+      " 17/2076/2159",
+      " 17/2075/2158",
+      " 17/2070/2153",
+      " 17/2093/2177",
+      " 17/2074/2158",
+      " 17/2071/2155",
+      " 17/2078/2161",
+      " 17/2113/2197",
+      " 17/2069/2152",
+      " 17/2075/2159",
+      "NIVEL pk_in=-69.6 pk_out=-53.1 dBFS clip_in=0 clip_out=0 gain=0/0 dB lim_n=0 clip_eng=0"
+    ],
+    "saved_CLKSTATE": [
+      "CLKSTATE mhz=360 state=untested why=none target=360 hi=396 safe=0 boot=0 prev=00000000 prev_ok=0 ck=c1c56000 cr=e7c02010 best=360 steps=360:ok,372:untested,384:untested,396:untested crash_step=0 bud=17394 lim=154950 base=137556 eng=1"
+    ],
+    "post_save_dispatcher_responsive": true,
+    "last_completed_STAT_utc": "2026-11-16T06:11:24.816Z",
+    "SNAPSAVE_ACK_utc": "2026-11-16T06:11:23.758Z",
+    "native_close_utc": "2026-11-16T06:11:25.202Z",
+    "pnp_observed_utc": "2026-11-16T06:54:49.4278575Z",
+    "pnp_properties": {
+      "DEVPKEY_Device_PowerData": [
+        56,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        93,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0,
+        0
+      ],
+      "DEVPKEY_Device_ProblemCode": 0,
+      "DEVPKEY_Device_HasProblem": false,
+      "DEVPKEY_Device_LastArrivalDate": "/Date(1794805469611)/"
+    },
+    "pnp_presence_is_not_application_liveness": true,
+    "later_failed_open_and_ping": "Parent observed resume03 chooser with zero serial opens and two closed pyserial attempts; these observations are not promoted to a target crash PC or proof of suspend."
+  },
+  "findings": [
+    {
+      "id": "synchronous_new_record",
+      "provenance": "original and installed-v3 identical bytes",
+      "addresses": [
+        "0x020077ec",
+        "0x02007936",
+        "0x02003040",
+        "0x02003108",
+        "0x0200311c",
+        "0x02003128",
+        "0x02003136",
+        "0x02003160",
+        "0x0200316c",
+        "0x02003178",
+        "0x02003184"
+      ],
+      "finding": "PSAVE and persisted SNAPSAVE share the 03040 append writer. New payloads and trailer are programmed and compared before success returns. This does not mean all subsequent garbage erases have finished."
+    },
+    {
+      "id": "deferred_gc",
+      "provenance": "binary call chain plus original M4.92 changelog",
+      "addresses": [
+        "0x0200318a",
+        "0x020031ac",
+        "0x0201974c",
+        "0x0201976e",
+        "0x020197b6",
+        "0x020197e6",
+        "0x02019816",
+        "0x02019822"
+      ],
+      "finding": "After committing the new sector, old sector state becomes2. The control task later scans18 sector states for2, increments its GC count and calls02E08 to erase and verify. Gates include a byte at global+716, count of state2 sectors, and quiet-duration checks using028F2 with150 and conditionally5000; these constants are not asserted as calibrated wall times. M4.92 explicitly describes background erasure of old preset data."
+    },
+    {
+      "id": "erase_region",
+      "addresses": [
+        "0x020026ba",
+        "0x02002d9e",
+        "0x02002e08",
+        "0x0200287a"
+      ],
+      "finding": "The same eighteen-slot mapper is used: BF000..CE000 and DD000/DE000. Erase checks BF000<=base, 4KiB alignment and end<=FF000, then02E08 verifies erased bytes. No app/OTA erase follows from this path."
+    },
+    {
+      "id": "gc_blocks_ctl_while_running",
+      "addresses": [
+        "0x02019822",
+        "0x020198f6",
+        "0x0201a496"
+      ],
+      "finding": "GC erase is a synchronous call within the same control-task body that later handles CDC receive. A stall here could prevent command dispatch. No retained PC or final GC event proves it happened in this session."
+    },
+    {
+      "id": "flash_execution_protection",
+      "addresses": [
+        "0x01c00000",
+        "0x01c0002a",
+        "0x01c01108",
+        "0x01c00e2e",
+        "0x01c00054",
+        "0x01c003e8",
+        "0x01c00430",
+        "0x01c011da",
+        "0x01c00e46"
+      ],
+      "finding": "When flash object byte+17 is zero, acquisition calls01108(0,0) before disabling SFC. Its branches execute local cli and lock/cross-core coordination with1C1FC40/44/48 and software interrupt register1EEF1A0; restore calls011DA and eventually decrements IRQ masking and sti. Some cache/core handshakes have no iteration budget. Their actual runtime branch/state was not captured."
+    },
+    {
+      "id": "bounded_poll_not_proven_duration",
+      "addresses": [
+        "0x01c000a8",
+        "0x01c00600",
+        "0x01c006b8"
+      ],
+      "finding": "SPI byte completion has a50,000,000 iteration limit and WIP polling has5,000,000 iterations. These nested limits are not a measured latency bound. The erase function does not propagate the00600 WIP return directly: it subsequently restores and returns its existing result; sector-level erased-byte verification is separate."
+    },
+    {
+      "id": "cdc_close_path",
+      "addresses": [
+        "0x0201c4d2",
+        "0x0201c510",
+        "0x0201c530",
+        "0x0201a4b8",
+        "0x0201a4c6",
+        "0x02005c9e",
+        "0x0201a4d0"
+      ],
+      "finding": "DTR changes CDC flags in the class-request handler. The control task notices connection changes later, clears line/upload state, frees pending upload buffers and logs event14. The inspected close span does not schedule a preset commit. Heap/free or endpoint/suspend faults remain possibilities, not established defects."
+    },
+    {
+      "id": "suspend_unresolved",
+      "provenance": "local pinned SDK usb_config.c is only a reference implementation",
+      "finding": "SDK includes usb_phy_suspend/resume and SOF inactivity checks, but this bounded review did not establish the exact custom-G active suspend call chain or a live suspend condition. PnP ProblemCode0 and power metadata cannot establish MCU/endpoint responsiveness."
+    }
+  ],
+  "hypotheses": [
+    {
+      "name": "deferred_usr_gc_or_flash_coordination_stall",
+      "supported_mechanism": true,
+      "observed_failure_site": false
+    },
+    {
+      "name": "USB_close_endpoint_or_suspend_resume_stall",
+      "supported_mechanism": "CDC close is mapped; custom suspend chain not proved",
+      "observed_failure_site": false
+    },
+    {
+      "name": "new_audio_shim_called_per_block_while_NOR_busy",
+      "supported_mechanism": false,
+      "note": "Peer mini_audio finds only audio-start pre/post hooks and unchanged IRQ11 target01C03278; no periodic shim callback established. NOR path also contains explicit IRQ/core protection."
+    }
+  ],
+  "next_evidence_if_connection_returns": [
+    "Read existing CRASH/TRAP/LIFE diagnostics and EVT/STAT/CLKSTATE without assuming a new crash occurred.",
+    "Compare last completed flash event, pending garbage count/operation state when exposed by existing diagnostics, and CDC connection-change event14.",
+    "Keep any power-cycle result separate from proof of preset retention or root cause; a successful reconnect alone distinguishes neither GC nor USB suspend."
+  ],
+  "limitations": [
+    "No USB/BLE/MMIO access or firmware edit performed.",
+    "No claim that a working preset reload or subsequent audio/USB session was completed.",
+    "No automatic recovery or new build recommended by this audit.",
+    "Exact cause remains unknown; diagnostic facts afterSNAPSAVE exclude only an immediate synchronous save deadlock."
+  ]
+}

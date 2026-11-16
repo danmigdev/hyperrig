@@ -24,3 +24,4 @@ research/mini-a2-activity-audit.json -text whitespace=blank-at-eol,blank-at-eof,
 research/mini-first-preset-bootstrap-v2.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 research/mini-latency-audit.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 research/mini-latency-tool.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+research/mini-post-save-usb-stall-audit.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
