@@ -19,11 +19,13 @@ original firmware C sources have not been recovered.
 | Switch transition core | Two functions recovered in C; 15,520 comparisons against original instructions | Raw transitions, immediate-action policy and emitted event boundaries, with all 119 decoded instructions visited. |
 | Action dispatch and timers | Dispatcher, timer worker and clock helper recovered; 10,101 further comparisons | Event generation through action selection, with all 312 combined decoded instructions visited; downstream services remain explicit boundaries. |
 | Preset/scene/effect selection | Nine more functions recovered; 14,631 further comparisons | Preset search and load-outcome handling, active-scene selection and effect binding across two chains; all 210 new instructions visited. Storage/loading and DSP application remain external. |
+| Preset availability and record validation | Seven more functions recovered; 2,312 further comparisons | Address mapping, header/CRC checks, cache behavior and shared record reading integrated with navigation; all 177 new instructions visited. Physical I/O, preparation and preset decoding/loading remain external. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
-[control reconstruction](CONTROL_RECONSTRUCTION.md) and
-[action dispatch and timers](CONTROL_ACTIONS.md) and
-[selection reconstruction](SELECTION_RECONSTRUCTION.md) for exact evidence and limits.
+[control reconstruction](CONTROL_RECONSTRUCTION.md),
+[action dispatch and timers](CONTROL_ACTIONS.md),
+[selection reconstruction](SELECTION_RECONSTRUCTION.md) and
+[preset storage validation](PRESET_STORAGE_RECONSTRUCTION.md) for exact evidence and limits.
 
 ## Order of work
 
@@ -58,21 +60,26 @@ claimed without a defensible function inventory.
 
 ## Next concrete milestone
 
-The executable C model now covers event generation through preset/scene selection
-and effect binding. The four requested selection/verification tasks are complete
-within the [documented offline boundary](SELECTION_RECONSTRUCTION.md).
+The executable C model now covers event generation through preset/scene selection,
+effect binding and preset availability checks against synthetic flash bytes.
+The first bounded R2 component is complete within the
+[documented offline boundary](PRESET_STORAGE_RECONSTRUCTION.md).
 
 Continue into preset storage and application contracts:
 
-- `0x0200cf88`: availability cache and validation. Trace state words at offsets
-  708/732 and the underlying header, payload-read and checksum dependencies.
+- `0x020079f6`: preset preflight, version-dependent payload conversion and
+  working-buffer ownership, using the reconstructed shared record reader.
+- `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
+  writers of state words 708/732 and the pair mapping at offset 3476.
 - `0x0200ca7e`: loading, its preflight/error paths and when the current preset
   and working state change. Keep a successful acknowledgment distinct from
   verified durable state.
 - `0x0200a1d6`: bridge selected scenes into their DSP application dependencies.
 
-Start with availability/cache validation as a bounded R2 component. Scheduler
-and counter tracing remain prerequisites for physical time-unit claims; LED
+Start with preflight and version conversion as the next bounded R2 component.
+The read wrapper at `0x02002810`, its physical I/O and the priority/poll helpers
+also remain external. Scheduler and counter tracing remain prerequisites for
+physical time-unit claims; LED
 behavior remains unqualified. Enabling Footswitches or Stage and changing the
 four-slot bank grouping to three also require integration and physical validation.
 The Alpha 13 branch remains a placeholder pending an explicit implementation request.

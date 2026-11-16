@@ -13,6 +13,11 @@ The previous [transition](CONTROL_RECONSTRUCTION.md) and
 unchanged. This is a hand reconstruction with the original Required Notice and
 license retained, not recovery of original source files or a bootable firmware.
 
+The later [preset storage component](PRESET_STORAGE_RECONSTRUCTION.md) replaces
+the availability boundary with address/header/CRC/cache logic and integrates it
+with this unchanged model. The results below remain the original selection-only
+baseline, with scripted availability and load outcomes.
+
 ## Original functions and MINI binding
 
 The reference G v2 M5.71 application has SHA256
@@ -198,6 +203,8 @@ host library, three target objects, `verification.json` with source hashes and
 `build-manifest.json`. Existing directories/reports are refused. Generated
 artifacts remain outside Git. The completed run is `build/reverse-selection-01`.
 
-Next, reconstruct preset availability/cache validation and loading contracts,
-then connect their results to scene/DSP application. The [roadmap](REVERSE_ROADMAP.md)
+Availability/cache validation is now covered by the
+[preset storage extension](PRESET_STORAGE_RECONSTRUCTION.md). Next, reconstruct
+preset preflight, version conversion and loading contracts, then connect their
+results to scene/DSP application. The [roadmap](REVERSE_ROADMAP.md)
 also retains scheduler/LED tracing and the eventual three-switch bank integration.

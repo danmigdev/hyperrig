@@ -86,11 +86,15 @@ binding to the published MINI v4. The next milestone adds the action dispatcher,
 timer worker and integrated event sequences, with 10,101 further comparisons.
 The third milestone reconstructs preset navigation, direct/pending scene selection
 and effect binding across both chains, with nine new functions and 14,631
-comparisons. Storage/loading and DSP application remain explicit boundaries.
+comparisons. The fourth adds preset availability/cache validation, address
+mapping, CRCs and the shared record reader: seven functions and 2,312 further
+comparisons. Physical storage I/O, preset decoding/loading and DSP application
+remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
-[CONTROL_ACTIONS.md](CONTROL_ACTIONS.md) and
-[SELECTION_RECONSTRUCTION.md](SELECTION_RECONSTRUCTION.md).
+[CONTROL_ACTIONS.md](CONTROL_ACTIONS.md),
+[SELECTION_RECONSTRUCTION.md](SELECTION_RECONSTRUCTION.md) and
+[PRESET_STORAGE_RECONSTRUCTION.md](PRESET_STORAGE_RECONSTRUCTION.md).
 
 ## Implementation decisions
 

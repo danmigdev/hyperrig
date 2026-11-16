@@ -75,7 +75,10 @@ reconstruction with 15,520 comparisons against original instructions. The
 [action dispatcher and timers](docs/CONTROL_ACTIONS.md) add 10,101 comparisons.
 [Preset/scene selection and effect binding](docs/SELECTION_RECONSTRUCTION.md)
 add nine reconstructed functions and 14,631 comparisons, including integrated
-event sequences. Storage/loading and DSP application remain explicit boundaries.
+event sequences. [Preset availability and record validation](docs/PRESET_STORAGE_RECONSTRUCTION.md)
+add seven functions and 2,312 comparisons covering address mapping, CRCs, cached
+failures and record reads. Physical storage I/O, preset decoding/loading and DSP
+application remain explicit boundaries.
 These are development components alongside the DSP work; the installed firmware
 and qualification of physical controls are unchanged.
 
