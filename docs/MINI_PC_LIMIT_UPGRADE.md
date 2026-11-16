@@ -51,11 +51,25 @@ esatto del dispositivo. La pausa MCN temporanea viene chiusa su ogni uscita.
   quattro test, più ricomposizione indipendente sulla candidata reale.
 - `analysis/hardware/run_mini_pc_limit_install.py`: sequenza controllata;
   otto test con lettore, writer e wrapper reali su protocolli simulati.
+- `tools/inspect_mini_pc_limit_upgrade.py`: verifica indipendente di dump,
+  CDB e audit grezzi; 13 test, incluso un bundle completo con lettura
+  ripetuta giustificata da un errore di trasporto e contatore reale maggiore
+  di 1 MiB. Nessun rapporto di successo hardware è stato emesso.
 - `tools/enter_mini_rom_webserial.py`: ingresso ROM dall'applicazione;
   nove test Python e 61 condizioni JavaScript, senza prova fisica UBOOT.
 - `tools/build_mini_ultrarig_v3.py` e
   `firmware/mini/pc_limit_port/patches.py`: sette test della derivazione e
   14 del limite PC.
+- `analysis/hardware/run_mini_first_boot_v11.py`: otto test del riavvio
+  separato. Il contatore del lettore deve coincidere con quello realmente
+  ricostruito dal verificatore, comprese eventuali letture perse e spiegate.
+- `tools/launch_mini_desktop_v3.py`: nove test dell'editor associato alla v3
+  e 11 regressioni della base desktop. Attende la selezione UIA della porta
+  esatta per 120 secondi; non usa DeviceAccess per il selettore WebSerial.
+
+I pin del riavvio e il preflight dell'editor potranno essere completati solo
+dopo aver ottenuto i nuovi rapporti hardware. Non sono stati sostituiti con
+risultati simulati.
 
 Il preflight statico dell'installazione è passato con 251 input vincolati
 tramite SHA256. Prima dell'esecuzione, il manifesto deve includere anche
