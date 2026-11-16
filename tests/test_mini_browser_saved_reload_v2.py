@@ -241,7 +241,7 @@ vm.createContext(ctx);vm.runInContext('let lvlTicking=false;'+extract('async fun
             class CDP:
                 def __init__(self,*args):
                     self.phase='initial';self.connected=False;self.meters=False;self.side=False
-                    self.ws=SimpleNamespace(close=lambda:None)
+                    self.ws=SimpleNamespace(close=lambda:None,settimeout=lambda seconds:calls.append(('socket_timeout',seconds)))
                 def call(self,name,args=None):
                     calls.append((name,args))
                     if name=='Input.dispatchKeyEvent' and args['type']=='keyDown':self.phase='reload_ack' if args['key']=='Enter' else 'marker_ack'
@@ -254,6 +254,7 @@ vm.createContext(ctx);vm.runInContext('let lvlTicking=false;'+extract('async fun
                 def screenshot(self,path):return str(path)
                 def evaluate(self,source):
                     calls.append(('evaluate',source))
+                    if source.endswith('installMiniSerialOpenTimeout(SerialTransport);'):return {'timeout_ms':30000}
                     if source==probe.STATE:
                         return {'ready':True,'profile':prepared['profile'],'demo':False,'connected':self.connected,
                             'initialReadsFinished':self.connected,'fw':prepared['context']['pong'],'gainPending':0,
@@ -303,6 +304,9 @@ vm.createContext(ctx);vm.runInContext('let lvlTicking=false;'+extract('async fun
             self.assertEqual(result['browser_arguments'],next(value for name,value in calls if name=='Popen'))
             self.assertEqual(result['browser_configuration'],probe.browser_windows.description(result['browser_arguments']))
             self.assertIn('tools/mini_browser_windows.py',result['source_sha256'])
+            self.assertIn('tools/mini_browser_serial_open.js',result['source_sha256'])
+            self.assertIn(('socket_timeout',45),calls)
+            self.assertEqual(result['serial_open_extension']['timeout_ms'],30000)
             self.assertEqual(result['original_UI_initial_sync']['method'],'original applyLvl')
             self.assertEqual(result['original_UI_before_plan']['preset'],0)
             def index(kind,text):return next(n for n,(k,v) in enumerate(calls) if k==kind and v==text)

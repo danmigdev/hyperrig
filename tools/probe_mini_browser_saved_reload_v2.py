@@ -33,6 +33,7 @@ browser,desktop,selection=frozen.browser,frozen.desktop,frozen.selection
 require,sha,now=frozen.require,frozen.sha,frozen.now
 APP=ui.NEW_APP
 GUARD=ROOT/'tools/mini_browser_saved_reload_guard_v2.js'
+SERIAL_OPEN_EXTENSION=ROOT/'tools/mini_browser_serial_open.js'
 V1=ROOT/'tools/probe_mini_browser_saved_reload.py'
 V1_SHA='8f044dcd2ab5cc98521a02b972a473cb5a686c3f7f88ef47c1e1c7fcec300db4'
 PONG='PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11'
@@ -323,7 +324,7 @@ def run(prepared, output):
         'mutation_retry_performed':False,'query_retry_performed':False,
         'profile_modified':False, 'general_capabilities_granted':{},
         'source_sha256':{p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in
-            [Path(__file__), V1, GUARD, Path(browser_windows.__file__), Path(partial_validator().__file__), Path(frozen.__file__), Path(activity.__file__),
+            [Path(__file__), V1, GUARD, SERIAL_OPEN_EXTENSION, Path(browser_windows.__file__), Path(partial_validator().__file__), Path(frozen.__file__), Path(activity.__file__),
              Path(ui.__file__), Path(selection.__file__), Path(frozen.readonly.__file__), Path(frozen.mutation.__file__),
              Path(browser.__file__), ROOT/'tools/verify_mini_browser.py', Path(desktop.__file__),
              ROOT/'tools/mini_host_journal.py', *(p for p in APP.iterdir() if p.is_file())]}}
@@ -349,6 +350,7 @@ def run(prepared, output):
         devtools = 'http://127.0.0.1:'+endpoint.read_text().splitlines()[0]
         get = lambda suffix:json.loads(urlopen(devtools+suffix,timeout=5).read())
         page = next(p for p in get('/json/list') if p['type']=='page'); cdp = browser.CDP(page['webSocketDebuggerUrl'])
+        cdp.ws.settimeout(45)
         report['browser'] = get('/json/version'); report['CDP_http'] = devtools
         for domain in ('Runtime','Page','Log'):cdp.call(domain+'.enable')
         config = {'live':True,'image_sha256':desktop.IMAGE_SHA,'pong':prepared['context']['pong'],'plan':prepared['plan']}
@@ -359,6 +361,10 @@ def run(prepared, output):
         cdp.call('Page.navigate',{'url':origin+'/tankmini.html?saved_reload_continuation=1'})
         initial = wait_state(cdp,lambda v:v['ready'],10,'original editor bootstrap failed')
         require(initial['profile'] == prepared['profile'] and not initial['demo'],'base profile or real-editor mode differs')
+        report['serial_open_extension']=cdp.evaluate(SERIAL_OPEN_EXTENSION.read_text('utf-8')+
+            '\ninstallMiniSerialOpenTimeout(SerialTransport);')
+        require(report['serial_open_extension'].get('timeout_ms')==30000,'serial open timeout extension failed')
+        save()
         cdp.evaluate('__miniSavedReloadGuard.installApp(SerialTransport,Pedal,HyperRigMini.profile)')
         cdp.evaluate("document.getElementById('miniPortStatus').textContent='Prova USB limitata: volume e ricaricamento del preset salvato.'")
         time.sleep(.55)

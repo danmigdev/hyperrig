@@ -206,7 +206,8 @@ def synthetic_continuation(*, v2=False, empty_timeouts=0):
     if v2:
         report.update(kind='mini-browser-saved-reload-continuation-v2', automatic_retry=True,
             automatic_retry_scope='bootstrap PING empty timeouts only',
-            mutation_retry_performed=False, query_retry_performed=False)
+            mutation_retry_performed=False, query_retry_performed=False,
+            serial_open_extension=copy.deepcopy(q.SERIAL_OPEN_EXTENSION))
     for kind in ('experimental_guard_installed', 'serial_request_intent', 'serial_open_intent', 'serial_open_complete'):
         if v2 and kind == 'serial_open_intent':
             event('native_port_info', info=guard['portInfo'].copy())
@@ -470,6 +471,29 @@ class QualificationTests(unittest.TestCase):
                 wire = next(w for w in bad['guard']['wire'] if w['id'] == command['wire_id'])
                 bad['guard']['rx'] = [r for r in bad['guard']['rx'] if not wire['seq'] < r['seq'] < command['seq']]
             with self.subTest(what=what), self.assertRaises(ValueError): q.inspect_continuation(bad, partial)
+
+    def test_open_extension_matches_actual_original_method_and_changes_only_one_timeout(self):
+        original = q.app.checked(q.app.SOURCE/'web/tankg.html', q.app.SOURCE_SHA).decode().replace('\r\n', '\n')
+        start = original.index('  async open(known) {') + 2
+        method = original[start:original.index('\n  },', start)+len('\n  }')]
+        anchor = ')), 5000); })]);'
+        self.assertEqual(method.count(anchor), 1)
+        extended = method.replace(anchor, ')), 30000); })]);')
+        self.assertEqual(q.sha(method.encode()), q.SERIAL_OPEN_EXTENSION['original_source_sha256'])
+        self.assertEqual(q.sha(extended.encode()), q.SERIAL_OPEN_EXTENSION['extended_source_sha256'])
+        helper = (q.ROOT/'tools/mini_browser_serial_open.js').read_text('utf-8')
+        expected = helper.split('  const expected = ', 1)[1].split(';\n', 1)[0]
+        self.assertEqual(json.loads(expected), method)
+        self.assertEqual(extended.replace(')), 30000); })]);', anchor), method)
+
+    def test_open_extension_metadata_cannot_expand_transport_or_change_identity_gate(self):
+        for key, changed in (('timeout_ms', 60000), ('original_timeout_ms', 1000),
+                ('CDP_socket_timeout_seconds', 5), ('native_open_unchanged', False),
+                ('reconnect_added', True), ('app_html_changed', True), ('original_source_sha256', '0'*64)):
+            report, partial = synthetic_continuation(v2=True)
+            report['serial_open_extension'][key] = changed
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, 'USB open timeout extension'):
+                q.inspect_continuation(report, partial)
 
     def test_v2_synthetic_file_cannot_create_a_qualification_or_bundle(self):
         report, _ = synthetic_continuation(v2=True, empty_timeouts=1)

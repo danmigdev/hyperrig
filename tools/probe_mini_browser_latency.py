@@ -26,7 +26,7 @@ from tools.verify_mini_browser import CDP
 from tools.mini_host_journal import atomic_write_json, read_shared_bytes
 
 GUARD = ROOT/'tools/mini_browser_latency_guard.js'
-QUALIFIER_SHA = 'a1def5b08c85efc83e55679d49bc9b55432d487be5dc7a4515da0449e8158287'
+QUALIFIER_SHA = '6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6'
 ORIGINAL_SHA = '87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b'
 IMAGE = '9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c'
 require = timing.require

@@ -15,7 +15,7 @@
     {
       "path": "tools/probe_mini_browser_latency.py",
       "bytes": 27556,
-      "sha256": "24a97e09c7eec19db2c32069bdeb219ac6cd3f333cef48a2683db9dfa3ec4936"
+      "sha256": "d55d85c06b8dd887b8ad082504f379e9afbb0bf1579dbccdf78f573157e4bc7f"
     },
     {
       "path": "tools/mini_browser_latency_guard.js",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/MINI_LATENCY.md",
-      "bytes": 12646,
-      "sha256": "5aac0785c9256509874c64dde105c86f3b2d8053e3abd829f38b8acd70bd9643"
+      "bytes": 12778,
+      "sha256": "936a57c789ce94ca4b747a8fbbfb2a1ef4aa382a317b520900fcd366f65386a9"
     }
   ],
   "frozen_dependencies": [
@@ -66,8 +66,8 @@
     },
     {
       "path": "tools/qualify_mini_browser_preset.py",
-      "bytes": 65744,
-      "sha256": "a1def5b08c85efc83e55679d49bc9b55432d487be5dc7a4515da0449e8158287"
+      "bytes": 66737,
+      "sha256": "6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6"
     },
     {
       "path": "tools/verify_mini_browser.py",
@@ -156,6 +156,19 @@
       "python_tests_passed": 3,
       "probe_sha256": "3c252d3f45d4dd7a839f9b9f6feb9102767d2db435fd7b6b7bf6afe3922c76bf",
       "no_browser_or_device_access": true
+    },
+    "revision_6_targeted_review": {
+      "command": "python -m unittest tests.test_mini_browser_serial_open -q",
+      "python_tests_passed": 2,
+      "full_unchanged_batteries_repeated": false,
+      "qualifier_sha256": "6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6",
+      "qualifier_source_and_runner_binding_checked": true,
+      "helper_sha256": "d04ba183de40513d9f490ae4107ea778fffa9fab631104d3f774fb0915439d9f",
+      "original_method_matches_frozen_HTML": true,
+      "only_method_change": "single timeout literal 5000 to 30000",
+      "original_source_sha256": "c42092eb3b3368bde0896b8ed57fc0d4c79a33e2c0ac494537f971ab4c1a6558",
+      "extended_source_sha256": "0f53053aa248dc33dd6394bc0ae29d9937acb30542a6ed21fce0944e0fb222c0",
+      "no_browser_or_device_access": true
     }
   },
   "runtime_contract": {
@@ -188,12 +201,12 @@
     "root controller explicitly invokes execute on that exact session",
     "no analog latency result without confirmed recording routing and stimulus"
   ],
-  "revision": 5,
-  "updated_utc": "2026-11-16T09:13:16.463694+00:00",
+  "revision": 6,
+  "updated_utc": "2026-11-16T09:23:58.280602+00:00",
   "revision_note": {
-    "scope": "Only the latency runner qualifier SHA binding changed. The continuation now synchronizes original UI state through one fresh LVL reply and original applyLvl; its qualifier binds that distinct exchange to native RX before the trial snapshots. Latency parser, guard, effect sequence and restoration are unchanged.",
-    "previous_runner_sha256": "a8377c68fb450fd069080802dc2659457f1e9295cf3cce07e3ccfb38ed27c0c9",
-    "qualifier_sha256": "a1def5b08c85efc83e55679d49bc9b55432d487be5dc7a4515da0449e8158287",
+    "scope": "Only the latency runner qualifier SHA binding changed. The continuation and normal launcher declare the exact runtime extension of the original single native-open timeout from 5s to 30s, with CDP45s and no reconnect. Latency parser, guard, effect sequence and restoration are unchanged.",
+    "previous_runner_sha256": "24a97e09c7eec19db2c32069bdeb219ac6cd3f333cef48a2683db9dfa3ec4936",
+    "qualifier_sha256": "6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6",
     "requires_actual_successful_reload": true,
     "new_hardware_evidence_created": false
   }

@@ -32,6 +32,13 @@ MODEL = 'browser-retained-one-reload-v1'
 JOINT_MODEL = 'browser-retained-save-and-reload-two-sessions-v1'
 JOINT_MODEL_V2 = 'browser-retained-save-and-reload-two-sessions-v2'
 MODELS = (MODEL, JOINT_MODEL, JOINT_MODEL_V2)
+SERIAL_OPEN_EXTENSION = {
+    'kind': 'original-serial-open-timeout-v1', 'original_timeout_ms': 5000, 'timeout_ms': 30000,
+    'original_source_sha256': 'c42092eb3b3368bde0896b8ed57fc0d4c79a33e2c0ac494537f971ab4c1a6558',
+    'extended_source_sha256': '0f53053aa248dc33dd6394bc0ae29d9937acb30542a6ed21fce0944e0fb222c0',
+    'CDP_socket_timeout_seconds': 45, 'native_open_unchanged': True, 'reconnect_added': False,
+    'runtime_only': True, 'app_html_changed': False,
+}
 PARTIAL_REF = {'path': 'build/mini-first-preset-ui-04/report.json',
                'sha256': '0eb9836638dd2025d9e75f380db4cc9c765c53dcc7ff4e0316ab810c3d2479ff'}
 FAMILIES = ['GAIN', 'PLOAD', 'PSAVE', 'SNAPSAVE']
@@ -60,9 +67,10 @@ RESUME_PINS = {
     'tools/mini_browser_saved_reload_guard.js': 'e0de0abe48c29ec28ba7c7a02ecfe1ce79225db8079786e1e34fc31c8c9982f9',
 }
 RESUME_V2_PINS = {
-    'tools/probe_mini_browser_saved_reload_v2.py': '3c252d3f45d4dd7a839f9b9f6feb9102767d2db435fd7b6b7bf6afe3922c76bf',
+    'tools/probe_mini_browser_saved_reload_v2.py': '3fb223f203d524c51c91d3cfc9302bcab1276c0221f3c4a58f30a285420cfc66',
     'tools/mini_browser_saved_reload_guard_v2.js': 'ed25540b9195b3a948c8cc076867ba8c7cb62c71a966b70604293dc29ed9849e',
     'tools/mini_browser_windows.py': '92b6e259da3ff7eb79d38d4b290a2ea5372310bc1a8993cdbfe2af9296467410',
+    'tools/mini_browser_serial_open.js': 'd04ba183de40513d9f490ae4107ea778fffa9fab631104d3f774fb0915439d9f',
 }
 SNAPSHOTS = ('initial_activity_before', 'initial', 'before_activity', 'before',
              'down1', 'up', 'saved', 'marker', 'reloaded')
@@ -522,6 +530,8 @@ def inspect_continuation(report, partial):
                 and report.get('mutation_retry_performed') is False
                 and report.get('query_retry_performed') is False,
                 'v2 permits only the original bounded bootstrap PING repetition')
+        require(report.get('serial_open_extension') == SERIAL_OPEN_EXTENSION,
+                'only the exact original USB open timeout extension is accepted')
     else:
         require(report.get('automatic_retry') is False, 'v1 continuation cannot claim retries')
     require(not any(report.get(k) for k in ('error', 'cleanup_error', 'publication_error'))
@@ -605,6 +615,7 @@ def inspect_continuation(report, partial):
     if connection is not None:
         summary['continuation_connection_proof'] = connection
         summary['continuation_initial_UI_sync'] = ui_sync
+        summary['continuation_serial_open_extension'] = copy.deepcopy(SERIAL_OPEN_EXTENSION)
     return summary
 
 
@@ -767,6 +778,8 @@ def validate_qualification(value):
         require(value.get('sessions') == [{'role': 'save-and-reload', 'report': value['trial'],
                                          'original_result': 'pass', 'verified_UI_writes': 6}], 'one-session qualification differs')
     if value['evidence_model'] == JOINT_MODEL_V2:
+        require(value['summary'].get('continuation_serial_open_extension') == SERIAL_OPEN_EXTENSION,
+                'sealed USB open timeout extension differs')
         proof = value.get('connection_proof')
         require(isinstance(proof, dict) and proof == value['summary'].get('continuation_connection_proof')
                 and proof.get('kind') == 'native-open-and-exact-pong'

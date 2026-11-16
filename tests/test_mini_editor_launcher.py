@@ -138,13 +138,17 @@ console.log('pass');})().catch(e=>{console.error(e);process.exitCode=1;});"""
         observer={'opens':1,'closes':0,'activePorts':1,'closeError':None,'lastPort':{'vid':0x3654,'pid':0x5155},
                   'pongs':[{'line':prepared['pong']}],'events':[{'kind':'serial_open_complete'}]}
         class CDP:
-            def __init__(self,*args):self.connected=False;self.closed=False;self.ws=SimpleNamespace(close=lambda:calls.append(('wsclose',None)))
+            def __init__(self,*args):
+                self.connected=False;self.closed=False
+                self.ws=SimpleNamespace(close=lambda:calls.append(('wsclose',None)),
+                    settimeout=lambda seconds:calls.append(('socket_timeout',seconds)))
             def call(self,name,args=None):
                 calls.append((name,args))
                 if name=='Browser.close':self.closed=True;process.code=0
             def click(self,selector):calls.append(('click',selector));self.connected=True
             def evaluate(self,source):
                 if self.closed:raise AssertionError('CDP queried after Browser.close')
+                if source.endswith('installMiniSerialOpenTimeout(SerialTransport);'):return {'timeout_ms':30000}
                 if source=='window.__urOk===true':return True
                 if source==launcher.STATE:
                     if self.connected:(output/'close.request').write_text('offline test close request')
@@ -179,6 +183,9 @@ console.log('pass');})().catch(e=>{console.error(e);process.exitCode=1;});"""
         self.assertNotIn('close_observation_error',report)
         self.assertEqual(report['browser_configuration'],launcher.browser_windows.description(report['browser_arguments']))
         self.assertIn('tools/mini_browser_windows.py',report['source_sha256'])
+        self.assertIn('tools/mini_browser_serial_open.js',report['source_sha256'])
+        self.assertIn(('socket_timeout',45),calls)
+        self.assertEqual(report['serial_open_extension']['timeout_ms'],30000)
 
 
 if __name__=='__main__':unittest.main()

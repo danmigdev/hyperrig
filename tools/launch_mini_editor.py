@@ -29,7 +29,8 @@ from tools.mini_host_journal import atomic_write_json, read_shared_bytes
 
 require, sha, now = browser.require, browser.sha, window.now
 FAMILIES = ['GAIN','PLOAD','PSAVE','SNAPSAVE']
-QUALIFIER_SHA = 'a1def5b08c85efc83e55679d49bc9b55432d487be5dc7a4515da0449e8158287'
+QUALIFIER_SHA = '6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6'
+SERIAL_OPEN_EXTENSION = ROOT/'tools/mini_browser_serial_open.js'
 OBSERVER = r"""(()=>{
  const state={opens:0,closes:0,activePorts:0,closeError:null,events:[],pongs:[],lastPort:null};
  const active=new WeakSet();
@@ -134,7 +135,7 @@ def run(prepared,output):
             'preset_mutations_enabled':True,'enabled_families':prepared['enabled_families'],
             'audio_quality_verified':False,'held_recovery_verified':False,
             'source_sha256':{p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in
-                (Path(__file__),Path(browser_windows.__file__),Path(qualifier().__file__),Path(window.__file__),Path(browser.__file__),
+                (Path(__file__),SERIAL_OPEN_EXTENSION,Path(browser_windows.__file__),Path(qualifier().__file__),Path(window.__file__),Path(browser.__file__),
                  ROOT/'tools/verify_mini_browser.py',ROOT/'tools/mini_host_journal.py')}}
     save=lambda:atomic_write_json(output/'session.json',report)
     server=http.server.ThreadingHTTPServer(('127.0.0.1',0),partial(browser.LocalHandler,directory=str(app_dir),live=True))
@@ -158,6 +159,7 @@ def run(prepared,output):
         get=lambda suffix:json.loads(urlopen(devtools+suffix,timeout=5).read())
         page=next(p for p in get('/json/list') if p['type']=='page')
         cdp=browser.CDP(page['webSocketDebuggerUrl']);report['CDP_http']=devtools
+        cdp.ws.settimeout(45)
         report['CDP_page_websocket']=page['webSocketDebuggerUrl'];report['browser']=get('/json/version')
         for domain in ('Runtime','Page','Log'):cdp.call(domain+'.enable')
         cdp.call('Page.addScriptToEvaluateOnNewDocument',{'source':OBSERVER})
@@ -168,6 +170,10 @@ def run(prepared,output):
             time.sleep(.05)
         value=cdp.evaluate(STATE)
         require(value['ready'] and value['profile']==prepared['profile'] and value['demo'] is False,'qualified editor bootstrap differs')
+        report['serial_open_extension']=cdp.evaluate(SERIAL_OPEN_EXTENSION.read_text('utf-8')+
+            '\ninstallMiniSerialOpenTimeout(SerialTransport);')
+        require(report['serial_open_extension'].get('timeout_ms')==30000,'serial open timeout extension failed')
+        save()
         cdp.evaluate('__miniEditorObservation.install(Pedal)')
         cdp.evaluate("(()=>{const n=document.getElementById('miniPortStatus');if(n)n.textContent='HyperRig MINI · USB: volume e preset';})()")
         time.sleep(.55)
