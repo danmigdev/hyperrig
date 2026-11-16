@@ -100,6 +100,12 @@ The eighth application milestone adds the IR loader and ownership helpers:
 five functions and 541 comparisons, including payload CRCs, reuse and cleanup.
 The parallel DSP chain adds two functions and 2,445 comparisons, applying staged
 updates and executing all five sections with the verified numerical kernels.
+The capture loader adds ten functions and 6,091 comparisons, covering packed
+metadata, gain scaling, signature rejection, reuse and partial rollback. Parallel
+coefficient work adds five executed regions and 11,071 comparisons for staging,
+normalization and float-to-Q28 conversion, plus 6,912 binary32 division checks.
+Capture container installation, metadata journal scanning and the mathematical
+coefficient producer remain explicit boundaries.
 Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
@@ -110,8 +116,15 @@ unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCT
 [PRESET_LOADER_RECONSTRUCTION.md](PRESET_LOADER_RECONSTRUCTION.md),
 [PRESET_ASSETS_RECONSTRUCTION.md](PRESET_ASSETS_RECONSTRUCTION.md),
 [BIQUAD_RECONSTRUCTION.md](BIQUAD_RECONSTRUCTION.md),
-[IR_LOADER_RECONSTRUCTION.md](IR_LOADER_RECONSTRUCTION.md) and
-[BIQUAD_CHAIN_RECONSTRUCTION.md](BIQUAD_CHAIN_RECONSTRUCTION.md).
+[IR_LOADER_RECONSTRUCTION.md](IR_LOADER_RECONSTRUCTION.md),
+[BIQUAD_CHAIN_RECONSTRUCTION.md](BIQUAD_CHAIN_RECONSTRUCTION.md),
+[CAPTURE_LOADER_RECONSTRUCTION.md](CAPTURE_LOADER_RECONSTRUCTION.md) and
+[BIQUAD_COEFFICIENT_RECONSTRUCTION.md](BIQUAD_COEFFICIENT_RECONSTRUCTION.md).
+
+The user also reserved separate branches for Tone3000 integration, a zoomable UI,
+and a complete UltraRig Alpha 11 versus HyperRig feature comparison after reverse
+engineering. These branches are placeholders; they do not implement those changes.
+Their names and scope are recorded in the [roadmap](REVERSE_ROADMAP.md#reserved-branches).
 
 ## Implementation decisions
 

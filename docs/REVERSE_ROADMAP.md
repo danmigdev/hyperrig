@@ -26,6 +26,8 @@ original firmware C sources have not been recovered.
 | Shared Q28 recursive filters | Two kernels recovered; 1,864 further comparisons | Fixed rounding and fractional residue variants, including clipping, wraparound and persistent history; all 346 instructions visited. Coefficient generation and complete effects remain external. |
 | IR loading and ownership | Five functions recovered; 541 further comparisons | Reuse, complete record/CRC checks up to 8152 bytes, buffer transfer and pending-slot refresh; all 229 new instructions visited. Allocator, locking and DSP service implementations remain external. |
 | Five-section DSP chain | Two functions recovered; 2,445 further comparisons | Staged coefficient/flag updates, history retention, both numerical kernels and timing accounting; all 172 new and 518 combined instructions visited. Coefficient generation remains external. |
+| Capture loading and gain metadata | Ten functions recovered; 6,091 further comparisons | Packed metadata, gain table/mixing, signature rejection, reuse and partial rollback; all 307 new instructions visited. Journal lookup and container/DSP installation remain external. |
+| Coefficient staging and conversion | Five executed regions; 11,071 further instruction comparisons and 6,912 binary32 division checks | Request clamping/publication, producer argument setup, normalization and Q28 conversion; all 97 scoped instructions visited. The mathematical producer remains external. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -36,8 +38,10 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [preset loader, bindings and reports](PRESET_LOADER_RECONSTRUCTION.md),
 [asset/application dependencies](PRESET_ASSETS_RECONSTRUCTION.md),
 [recursive DSP filters](BIQUAD_RECONSTRUCTION.md),
-[IR loading and ownership](IR_LOADER_RECONSTRUCTION.md) and
-[the five-section DSP chain](BIQUAD_CHAIN_RECONSTRUCTION.md) for exact evidence and limits.
+[IR loading and ownership](IR_LOADER_RECONSTRUCTION.md),
+[the five-section DSP chain](BIQUAD_CHAIN_RECONSTRUCTION.md),
+[capture loading and gain metadata](CAPTURE_LOADER_RECONSTRUCTION.md) and
+[coefficient staging/conversion](BIQUAD_COEFFICIENT_RECONSTRUCTION.md) for exact evidence and limits.
 
 ## Order of work
 
@@ -70,6 +74,18 @@ compilable reconstruction, host comparison, target execution and complete produc
 validation are separate statuses. No percentage of total source recovery is
 claimed without a defensible function inventory.
 
+## Reserved branches
+
+These branches reserve future work. Creation does not imply implementation or
+feature validation; the three newer branches start from `20fe29d`.
+
+| Branch | Intended scope |
+| --- | --- |
+| `backport/ultrarig-alpha13` | Placeholder for the announced Alpha 13 backport; implementation is deferred. |
+| `feature/tone3000-integration` | Future Tone3000 integration. |
+| `feature/zoomable-ui` | Future UI zoom support. |
+| `comparison/ultrarig-alpha11-parity` | Compare all UltraRig Alpha 11 features with HyperRig after complete reverse engineering. |
+
 ## Next concrete milestone
 
 The executable C model now connects controls/selection, preset availability,
@@ -82,13 +98,18 @@ have independent C/instruction comparisons. The IR loader now executes those
 metadata/record dependencies and the ownership sequence, with explicit allocator
 and DSP service boundaries. In parallel, the five-section DSP caller now executes
 both Q28 kernels and preserves their live history during staged updates.
+Capture loading now executes the identity/descriptor and gain helpers, including
+the original partial rollback after installation errors. Coefficient staging and
+normalization/conversion also have verified C; the mathematical producer remains
+an explicit boundary.
 
 Continue into preset storage and application contracts:
 
 - `0x020092fa`: application of the converted working buffer and the meanings
-  of its result and output pointers. Next, recover the capture loader at
-  `0x020087cc`, including preparation/fallback and `0x02008586` installation,
-  then connect both loaders to effect-state reuse/rebuilding and routing.
+  of its result and output pointers. The capture loader at `0x020087cc` is now
+  reconstructed. Recover `0x02008586` container installation, its `0x0201acd8`
+  reader callback and the `0x02007dbe` / `0x02007ce0` metadata journal path, then
+  connect both loaders to effect-state reuse/rebuilding and routing.
 - IR installation at `0x0202957e` / `0x020295d8`, callback `0x0201ad4c` and
   effect-refresh services: recover their payload ownership and numerical behavior.
 - `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
@@ -97,10 +118,11 @@ Continue into preset storage and application contracts:
 - State word 4092 and global calibration word 44: trace writers and clock
   configuration before assigning physical meanings to load-report arithmetic.
 
-Continue the application path with capture payload loading and ownership. On the
-DSP path, reconstruct coefficient production from `0x020288d6` through
-`0x02028892` / `0x02028734` and float-to-Q28 conversion, using the verified
-five-section chain and both numerical kernels as downstream dependencies.
+Continue the application path with capture container installation and ownership.
+On the DSP path, reconstruct the mathematical producer at `0x02028734` and its
+floating-point/transcendental dependencies. Staging at `0x020288d6`, setup at
+`0x02028892`, normalization and float-to-Q28 conversion now have verified
+reconstructions. Use those and the five-section chain as downstream dependencies.
 The read wrapper at `0x02002810`, its physical I/O and the priority/poll helpers
 also remain external. Scheduler and counter tracing remain prerequisites for
 physical time-unit claims; LED behavior remains unqualified. Enabling

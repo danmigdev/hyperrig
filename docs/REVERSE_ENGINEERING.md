@@ -14,8 +14,10 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [preset loader/binding/report reconstruction](PRESET_LOADER_RECONSTRUCTION.md),
 [asset/application dependencies](PRESET_ASSETS_RECONSTRUCTION.md),
 [recursive DSP filters](BIQUAD_RECONSTRUCTION.md),
-[IR loading and ownership](IR_LOADER_RECONSTRUCTION.md) and
-[the five-section DSP chain](BIQUAD_CHAIN_RECONSTRUCTION.md); the investigation
+[IR loading and ownership](IR_LOADER_RECONSTRUCTION.md),
+[the five-section DSP chain](BIQUAD_CHAIN_RECONSTRUCTION.md),
+[capture loading and gain metadata](CAPTURE_LOADER_RECONSTRUCTION.md) and
+[coefficient staging/conversion](BIQUAD_COEFFICIENT_RECONSTRUCTION.md); the investigation
 notes below retain the context of the original analysis.
 
 ## Samples and sources found

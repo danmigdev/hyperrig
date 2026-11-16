@@ -198,3 +198,8 @@ next, before connecting both loaders to complete preset application.
 The parallel [five-section DSP chain](BIQUAD_CHAIN_RECONSTRUCTION.md) now executes
 its two filter variants internally. Coefficient generation and IR convolution
 remain separate numerical components on the [roadmap](REVERSE_ROADMAP.md).
+
+The subsequent [capture loader milestone](CAPTURE_LOADER_RECONSTRUCTION.md) now
+executes the capture caller, gain metadata and signature helpers. Installation
+through `0x02008586` and the metadata journal remain external. The IR results
+above retain their original scope and evidence.

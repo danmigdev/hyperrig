@@ -16,6 +16,12 @@ generation, complete effect behavior and audio integration remain separate work.
 The [five-section chain](BIQUAD_CHAIN_RECONSTRUCTION.md) now connects those kernels
 through the reconstructed original caller, adding 2,445 comparisons for staged
 updates, history retention and timing-accounting behavior.
+The [coefficient staging/conversion path](BIQUAD_COEFFICIENT_RECONSTRUCTION.md)
+adds 11,071 comparisons for request ordering, normalization and binary32-to-Q28
+conversion. Its mathematical producer remains an explicit callback. Separately,
+the [capture slot loader](CAPTURE_LOADER_RECONSTRUCTION.md) adds 6,091 comparisons
+for gain metadata, reuse and partial rollback; container/DSP installation remains
+external. These modules do not yet form a complete firmware replacement.
 
 ## Reconstructed functions
 

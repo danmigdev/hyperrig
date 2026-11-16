@@ -173,3 +173,8 @@ inside the workspace. The builder refuses existing output directories and emits
 the host library, target objects, sanitizer executable/report, source-hashed
 verification report and artifact manifest. Generated files remain outside Git.
 The completed local run is `build/reverse-biquad-chain-01`.
+
+The subsequent [coefficient staging/conversion milestone](BIQUAD_COEFFICIENT_RECONSTRUCTION.md)
+recovers request ordering, producer argument setup, normalization and Q28 conversion.
+The mathematical producer remains external; the chain results above retain their
+original scope and evidence.

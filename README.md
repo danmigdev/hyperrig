@@ -89,6 +89,12 @@ The [IR loader and ownership helpers](docs/IR_LOADER_RECONSTRUCTION.md) add five
 functions and 541 comparisons, including reuse, full record checks and cleanup.
 The [five-section DSP chain](docs/BIQUAD_CHAIN_RECONSTRUCTION.md) adds two functions
 and 2,445 comparisons, executing both filters and preserving history during updates.
+The [capture loader and gain metadata](docs/CAPTURE_LOADER_RECONSTRUCTION.md)
+add ten functions and 6,091 comparisons for reuse, signature rejection and partial
+rollback. [Coefficient staging and conversion](docs/BIQUAD_COEFFICIENT_RECONSTRUCTION.md)
+add 11,071 instruction comparisons and 6,912 independent binary32 division checks.
+Capture container installation and the mathematical coefficient producer remain
+external to those components.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
 These are development components; the installed firmware and qualification of
 physical controls are unchanged.
