@@ -20,12 +20,14 @@ original firmware C sources have not been recovered.
 | Action dispatch and timers | Dispatcher, timer worker and clock helper recovered; 10,101 further comparisons | Event generation through action selection, with all 312 combined decoded instructions visited; downstream services remain explicit boundaries. |
 | Preset/scene/effect selection | Nine more functions recovered; 14,631 further comparisons | Preset search and load-outcome handling, active-scene selection and effect binding across two chains; all 210 new instructions visited. Storage/loading and DSP application remain external. |
 | Preset availability and record validation | Seven more functions recovered; 2,312 further comparisons | Address mapping, header/CRC checks, cache behavior and shared record reading integrated with navigation; all 177 new instructions visited. Physical I/O, preparation and preset decoding/loading remain external. |
+| Preset preflight and conversion | Three more functions recovered; 1,754 further comparisons | Two legacy layout migrations, effect IDs 6/24 and their parameter conversion, with all 204 new instructions visited. Loader orchestration and DSP application remain external. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
 [action dispatch and timers](CONTROL_ACTIONS.md),
-[selection reconstruction](SELECTION_RECONSTRUCTION.md) and
-[preset storage validation](PRESET_STORAGE_RECONSTRUCTION.md) for exact evidence and limits.
+[selection reconstruction](SELECTION_RECONSTRUCTION.md),
+[preset storage validation](PRESET_STORAGE_RECONSTRUCTION.md) and
+[preset preflight and conversion](PRESET_PREFLIGHT_RECONSTRUCTION.md) for exact evidence and limits.
 
 ## Order of work
 
@@ -60,26 +62,28 @@ claimed without a defensible function inventory.
 
 ## Next concrete milestone
 
-The executable C model now covers event generation through preset/scene selection,
-effect binding and preset availability checks against synthetic flash bytes.
-The first bounded R2 component is complete within the
-[documented offline boundary](PRESET_STORAGE_RECONSTRUCTION.md).
+The executable C components cover controls/selection, preset availability and
+record validation, and preflight with legacy layout/effect conversion. Preflight
+reuses the shared reader; it has not yet replaced the top-level load boundary
+in integrated control navigation. See the
+[documented offline boundary](PRESET_PREFLIGHT_RECONSTRUCTION.md).
 
 Continue into preset storage and application contracts:
 
-- `0x020079f6`: preset preflight, version-dependent payload conversion and
-  working-buffer ownership, using the reconstructed shared record reader.
+- `0x0200ca7e`: the top-level loader, including preflight-error collapse,
+  application, current-preset commit, snapshot/comparison and reporting order.
+- `0x020092fa`: application of the converted working buffer and the meanings
+  of its result and output pointers. Keep caller success distinct from proof
+  that the requested live state was applied or durably stored.
 - `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
   writers of state words 708/732 and the pair mapping at offset 3476.
-- `0x0200ca7e`: loading, its preflight/error paths and when the current preset
-  and working state change. Keep a successful acknowledgment distinct from
-  verified durable state.
 - `0x0200a1d6`: bridge selected scenes into their DSP application dependencies.
 
-Start with preflight and version conversion as the next bounded R2 component.
+Start with loader orchestration and its application contract as the next
+bounded component.
 The read wrapper at `0x02002810`, its physical I/O and the priority/poll helpers
 also remain external. Scheduler and counter tracing remain prerequisites for
-physical time-unit claims; LED
-behavior remains unqualified. Enabling Footswitches or Stage and changing the
-four-slot bank grouping to three also require integration and physical validation.
+physical time-unit claims; LED behavior remains unqualified. Enabling
+Footswitches or Stage and changing the four-slot bank grouping to three also
+require integration and physical validation.
 The Alpha 13 branch remains a placeholder pending an explicit implementation request.

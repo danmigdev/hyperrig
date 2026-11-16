@@ -77,8 +77,10 @@ reconstruction with 15,520 comparisons against original instructions. The
 add nine reconstructed functions and 14,631 comparisons, including integrated
 event sequences. [Preset availability and record validation](docs/PRESET_STORAGE_RECONSTRUCTION.md)
 add seven functions and 2,312 comparisons covering address mapping, CRCs, cached
-failures and record reads. Physical storage I/O, preset decoding/loading and DSP
-application remain explicit boundaries.
+failures and record reads. [Preset preflight and legacy conversion](docs/PRESET_PREFLIGHT_RECONSTRUCTION.md)
+add three functions and 1,754 comparisons covering old layouts and effect
+parameters. Physical storage I/O, the top-level loader and DSP application
+remain explicit boundaries.
 These are development components alongside the DSP work; the installed firmware
 and qualification of physical controls are unchanged.
 

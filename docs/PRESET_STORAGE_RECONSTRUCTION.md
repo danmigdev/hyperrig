@@ -12,6 +12,10 @@ This is a hand reconstruction with the original Required Notice and license
 retained. The earlier transition, action and selection sources and reports are
 unchanged. No firmware image is produced or installed by this component.
 
+The later [preflight component](PRESET_PREFLIGHT_RECONSTRUCTION.md) reuses this
+unchanged reader and adds legacy layout and effect-parameter conversion. The
+results below remain the original storage-validation baseline.
+
 ## Original functions and MINI binding
 
 The reference G v2 M5.71 application has SHA256
@@ -207,10 +211,11 @@ library, four target objects, `verification.json` and `build-manifest.json`.
 Existing output directories are refused and generated artifacts stay outside
 Git. The completed local run is `build/reverse-preset-storage-01`.
 
-The next bounded component is preset preflight at `0x020079f6`, which uses the
-shared reader before version-dependent conversion into the working buffer.
-Trace it through the loader at `0x0200ca7e`, keeping error returns, current-preset
-commit and DSP application distinct. Storage preparation/cache invalidation and
-the underlying read/priority/poll implementations also remain dependencies.
+Preset preflight at `0x020079f6` is now covered by the
+[preflight extension](PRESET_PREFLIGHT_RECONSTRUCTION.md), including layout and
+legacy effect conversion. Next, reconstruct the loader at `0x0200ca7e`, keeping
+error returns, current-preset commit and DSP application distinct.
+Storage preparation/cache invalidation and the underlying read/priority/poll
+implementations also remain dependencies.
 The [roadmap](REVERSE_ROADMAP.md) retains three-switch bank integration and
 physical validation; Alpha 13 remains a placeholder.
