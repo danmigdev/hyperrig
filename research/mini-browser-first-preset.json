@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "kind": "mini-browser-first-preset-offline-preparation",
+  "image_sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+  "hardware_executed": false,
+  "browser_executed": false,
+  "device_io": false,
+  "candidate_or_frozen_files_modified": false,
+  "source_sha256": {
+    "tools/probe_mini_browser_first_preset.py": "87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b",
+    "tools/mini_browser_first_preset_guard.js": "4157be429799c27b404f9d8762866515492af595cbbe432ba6e17d3298d394ce",
+    "tests/test_mini_browser_first_preset.py": "44cfcbfd0b5ef2bab35930d55ee0f0eb01eded2478ce43a98f3c94a5deae842d",
+    "tests/mini_browser_first_preset_guard_test.js": "f7f6ccf46185c700769c4ce863ddb1236cb31b39cfec951a1750e35d1543eb52",
+    "docs/MINI_BROWSER_FIRST_PRESET.md": "1f5240f445ecbf8e5b125a46f6d9d48e5cbfe9e1a69b0fd511d9dfa2ab923986"
+  },
+  "validation": {
+    "python_tests": 13,
+    "node_checks": 69,
+    "original_editor_functions_in_fake_tests": [
+      "buildGains",
+      "savePreset",
+      "sceneAOnSave",
+      "loadPreset"
+    ],
+    "result": "pass",
+    "fake_serial_only": true,
+    "lost_browser_open_status_is_unknown_until_observed": true
+  },
+  "prerequisites": [
+    "completed independently verified v3 installation",
+    "normal v11 boot",
+    "real exact non-safe PONG from closed v3 WebSerial session",
+    "fresh safe0/mode2 and actual enabled default A2",
+    "advancing audited core1 posts/takes",
+    "complete PLIST current=-1 and no initial scene",
+    "UIA exact COM selection with own browser PID/origin",
+    "complete A2 byte readback before original UI mutations"
+  ],
+  "bounded_diagnostic_requests": [
+    "optional one CSAVE first-free-slot A2",
+    "one CREAD header and51 ordered96byte chunks"
+  ],
+  "bounded_UI_sequence": [
+    "Output ArrowDown",
+    "Output ArrowUp restore",
+    "original empty-row Save PSAVE",
+    "original sceneAOnSave SNAPSAVE0",
+    "Output ArrowDown persistence marker",
+    "original new-row Enter PLOAD"
+  ],
+  "automatic_retry": false,
+  "general_write_capabilities_granted": {},
+  "limits": [
+    "not a hardware qualification",
+    "new evidence model; not legacy FirstPresetProbe",
+    "capture/preset intentionally retained after success",
+    "no cold reload or power-cycle retention proof",
+    "no acoustic audio quality proof",
+    "no BLE or held-button recovery qualification"
+  ],
+  "independent_review": "mini_audio: native RX/ACK shadowing and completion flags corrected, targeted regressions passed; preexisting PRE capture/IR columns now retained verbatim; parser dependency hashes included"
+}

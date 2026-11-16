@@ -1,0 +1,287 @@
+{
+  "schema": 1,
+  "kind": "mini-default-a2-csave-offline-audit",
+  "original_plain_sha256": "2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334",
+  "candidate_plain_sha256": "7a79a4e5a9df8053a9eb90cefbbef607006dfd59342c0b32a5d3a0b7a7cba64a",
+  "editor_text_sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+  "capture": {
+    "bytes": 4892,
+    "sha256": "86f5ea91f8069180e30612bcaad5820b14a94dd6c2552290ca09253082238c47",
+    "crc": 558161692,
+    "id": 2007781467,
+    "format": "A2L1",
+    "name": "A2",
+    "address": 33766540
+  },
+  "fragments": {
+    "csave_validate_copy": {
+      "start": 33604236,
+      "end_exclusive": 33604298,
+      "sha256": "3bbbb2e5c081016413f82c9309c3c87923441fc28105985b6c71a20d94dd9368",
+      "candidate_identical": true
+    },
+    "csave_header_and_store": {
+      "start": 33604298,
+      "end_exclusive": 33604462,
+      "sha256": "0aca6d5d52db0ae2ac2587a102dc7b92cab86d2fcab80d335fa267d576083501",
+      "candidate_identical": true
+    },
+    "csave_success": {
+      "start": 33604914,
+      "end_exclusive": 33604974,
+      "sha256": "7a31ffef1f7b567c8bc0413fc454904daa5aadcb4ccaa3ee39529cacdf6e2d27",
+      "candidate_identical": true
+    },
+    "capture_store_write_readback": {
+      "start": 33596962,
+      "end_exclusive": 33597232,
+      "sha256": "05091ee7c9e96730aa4090af7963eecbc73476703de47896ff1a6c2c1a0527ef",
+      "candidate_identical": true
+    },
+    "cread_handler": {
+      "start": 33583268,
+      "end_exclusive": 33583850,
+      "sha256": "5d2a0c93dfa4898093a9f2f735588c38edac12da6e65ca0b48f2e1a43c5a3ddd",
+      "candidate_identical": true
+    },
+    "capture_load": {
+      "start": 33589196,
+      "end_exclusive": 33589548,
+      "sha256": "285a6a4655792e8edfd4ab3ed42599e19fb5e74ad9627af536acce4e42627f3e",
+      "candidate_identical": true
+    },
+    "capture_aux_pack": {
+      "start": 33596898,
+      "end_exclusive": 33596962,
+      "sha256": "dba07c43c8f2f755c1e82f61389690e3e7cb856fb792bf1f6c1de8e68fbf4e89",
+      "candidate_identical": true
+    },
+    "model_trim_and_optional_input_level": {
+      "start": 33630132,
+      "end_exclusive": 33630256,
+      "sha256": "b45f31715a2f05a17bc4beb1b69fce8db426001af0d8b0566f4478c897b30286",
+      "candidate_identical": true
+    },
+    "initialized_current_slot": {
+      "start": 34035977,
+      "end_exclusive": 34035978,
+      "sha256": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+      "candidate_identical": true
+    },
+    "initialized_pointer_and_length": {
+      "start": 34036028,
+      "end_exclusive": 34036036,
+      "sha256": "b0b702af87afa288a9036b580d6f05b39837c692029ea831de5b2a76a828651d",
+      "candidate_identical": true
+    }
+  },
+  "csave_accepts_current_minus_one": true,
+  "csave_uses_active_pointer_and_length": true,
+  "csave_requires_upload": false,
+  "csave_success_assigns_current_slot": true,
+  "same_slot_cload_can_reuse_live_model": true,
+  "cread_header_request": "CREAD <slot>",
+  "cread_chunk_request": "CREAD <slot> <offset>",
+  "chunk_max_bytes": 96,
+  "metadata": {
+    "shared_live_metadata": 29518664,
+    "trim_half_db_offset": 0,
+    "input_decidbu_offset": 4,
+    "input_level_present_offset": 8,
+    "MODEL_uses_same_metadata_as_CSAVE": true,
+    "exact_MODEL_requires_trim_zero_and_no_optional_in_field": true,
+    "aux_zero": "A5F6 returns clamped trim lowbyte when input-level-present is zero.",
+    "capture_fs_zero": "CREAD capture-only branch sets r1=0 at020072CC; IR branch sets24/48.",
+    "fs_is_not_the_A2L_sample_rate": true,
+    "header_aux_and_CLIST_in_absence_must_still_match_after_save": true
+  },
+  "slot_zero_flash_range": [
+    913408,
+    921600
+  ],
+  "slot_header_bytes": 40,
+  "hardware_executed": false,
+  "power_cycle_retention_proven": false,
+  "limits": [
+    "MODEL/CLIST do not prove the live RAM capture contents before CSAVE.",
+    "Exact CREAD byte comparison is required after any CSAVE.",
+    "The observed library metadata, not every other capture payload, is compared.",
+    "This audit does not grant a UI write capability or prove audio quality."
+  ],
+  "inputs": {
+    "original_plain": {
+      "path": "analysis/firmware/m571_g_app/app_area.dec.bin",
+      "sha256": "2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334",
+      "bytes": 487424
+    },
+    "candidate_v2": {
+      "path": "build/hyperrig-mini-audio-v2/hyperrig-mini.app-area.bin",
+      "sha256": "3b0eac3bd14726ed77618d11a10eef2ef8da66563e02e87bf25f4377500a78ff",
+      "bytes": 516096
+    },
+    "candidate_v3": {
+      "path": "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin",
+      "sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+      "bytes": 516096
+    },
+    "embedded_A2": {
+      "path": "analysis/firmware/m571_g_app/embedded-0.a2l",
+      "sha256": "86f5ea91f8069180e30612bcaad5820b14a94dd6c2552290ca09253082238c47",
+      "bytes": 4892
+    },
+    "original_editor": {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/web/tankg.html",
+      "sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+      "bytes": 1358828
+    },
+    "physical_observation": {
+      "path": "build/mini-desktop-real-03/connected-proof.json",
+      "sha256": "96f5300a17b3d5cb18741c34857d7dda63a30edaf3a7222ee7ca615d8214ded2",
+      "bytes": 38051
+    },
+    "implementation": {
+      "path": "tools/mini_capture_persistence.py",
+      "sha256": "6c248c90dfcddda96dcdff6a531bd026168e468aa81372b5621b040e7980416a",
+      "bytes": 15802
+    },
+    "tests": {
+      "path": "tests/test_mini_capture_persistence.py",
+      "sha256": "0bb2f18202adb36ccb7dbeb071afffeef3fb6a84cc10d223e329c58f30c30ede",
+      "bytes": 11405
+    }
+  },
+  "prior_real_observation": {
+    "observed_utc": "2026-11-16T00:08:26.876654+00:00",
+    "PONG": [
+      "PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11 safe"
+    ],
+    "MODEL": [
+      "MODEL 'A2' layers=23 channels=3 fused=1 engine=A2L trim=0.0"
+    ],
+    "CLIST": [
+      "CLIST end current=-1 slots=15"
+    ],
+    "PLIST": [
+      "PLIST end current=-1"
+    ],
+    "audio_verified": false,
+    "mutations_enabled": false,
+    "saved_capture_current": -1
+  },
+  "installed_v2_fragments_also_identical": true,
+  "prepared_plan_from_prior_observation": {
+    "schema": 1,
+    "kind": "mini-default-a2-capture-persistence-plan",
+    "slot": 0,
+    "name": "A2",
+    "request": "CSAVE 0 A2",
+    "before": {
+      "current": -1,
+      "slots": 15,
+      "entries": [],
+      "raw": [
+        "CLIST end current=-1 slots=15"
+      ]
+    },
+    "model_before": "MODEL 'A2' layers=23 channels=3 fused=1 engine=A2L trim=0.0",
+    "header_request": "CREAD 0",
+    "chunk_requests": [
+      "CREAD 0 0",
+      "CREAD 0 96",
+      "CREAD 0 192",
+      "CREAD 0 288",
+      "CREAD 0 384",
+      "CREAD 0 480",
+      "CREAD 0 576",
+      "CREAD 0 672",
+      "CREAD 0 768",
+      "CREAD 0 864",
+      "CREAD 0 960",
+      "CREAD 0 1056",
+      "CREAD 0 1152",
+      "CREAD 0 1248",
+      "CREAD 0 1344",
+      "CREAD 0 1440",
+      "CREAD 0 1536",
+      "CREAD 0 1632",
+      "CREAD 0 1728",
+      "CREAD 0 1824",
+      "CREAD 0 1920",
+      "CREAD 0 2016",
+      "CREAD 0 2112",
+      "CREAD 0 2208",
+      "CREAD 0 2304",
+      "CREAD 0 2400",
+      "CREAD 0 2496",
+      "CREAD 0 2592",
+      "CREAD 0 2688",
+      "CREAD 0 2784",
+      "CREAD 0 2880",
+      "CREAD 0 2976",
+      "CREAD 0 3072",
+      "CREAD 0 3168",
+      "CREAD 0 3264",
+      "CREAD 0 3360",
+      "CREAD 0 3456",
+      "CREAD 0 3552",
+      "CREAD 0 3648",
+      "CREAD 0 3744",
+      "CREAD 0 3840",
+      "CREAD 0 3936",
+      "CREAD 0 4032",
+      "CREAD 0 4128",
+      "CREAD 0 4224",
+      "CREAD 0 4320",
+      "CREAD 0 4416",
+      "CREAD 0 4512",
+      "CREAD 0 4608",
+      "CREAD 0 4704",
+      "CREAD 0 4800"
+    ],
+    "expected": {
+      "bytes": 4892,
+      "sha256": "86f5ea91f8069180e30612bcaad5820b14a94dd6c2552290ca09253082238c47",
+      "crc": 558161692,
+      "id": 2007781467,
+      "format": "A2L1",
+      "name": "A2",
+      "aux": 0,
+      "fs": 0
+    },
+    "retries": 0,
+    "capture_intentionally_retained": true,
+    "cold_reload_proven": false,
+    "audio_quality_proven": false
+  },
+  "plan_requires_fresh_observations_in_the_future_session": true,
+  "physical_capture_save_executed": false,
+  "physical_CREAD_readback_executed": false,
+  "tests": {
+    "command": "C:\\Python312\\python.exe -B -X utf8 -m unittest tests.test_mini_capture_persistence -v",
+    "passed": 17,
+    "hardware_io": false
+  },
+  "original_editor_calls": {
+    "CSAVE": {
+      "line": 11769,
+      "request": "CSAVE <slot> <name23>",
+      "normal_UI_path": "captureToSlot upload path; direct active-capture save is not exposed as a native library button"
+    },
+    "CREAD_header": {
+      "line": 13343,
+      "request": "CREAD <slot>"
+    },
+    "CREAD_chunk": {
+      "line": 13362,
+      "request": "CREAD <slot> <offset>"
+    },
+    "current_minus_one": {
+      "line": 14092,
+      "meaning": "USB-uploaded or factory embedded capture; not necessarily absent engine"
+    }
+  },
+  "frozen_adapter_mismatch": {
+    "file": "app/mini/mini-profile.js",
+    "description": "The frozen isRead CREAD pattern accepts three numeric arguments. Original CREAD uses one for header or two for chunk; experimental wrapper must permit only exact planned reads. Frozen adapter remains unchanged."
+  }
+}
