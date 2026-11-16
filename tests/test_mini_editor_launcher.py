@@ -177,6 +177,8 @@ console.log('pass');})().catch(e=>{console.error(e);process.exitCode=1;});"""
         self.assertEqual(sum(name=='Browser.close' for name,_ in calls),1)
         self.assertFalse(any(name=='unexpected_terminate' for name,_ in calls))
         self.assertNotIn('close_observation_error',report)
+        self.assertEqual(report['browser_configuration'],launcher.browser_windows.description(report['browser_arguments']))
+        self.assertIn('tools/mini_browser_windows.py',report['source_sha256'])
 
 
 if __name__=='__main__':unittest.main()

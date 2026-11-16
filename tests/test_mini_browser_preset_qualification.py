@@ -128,7 +128,7 @@ def synthetic_trial(*, existing_capture=False):
     return report, blob
 
 
-def synthetic_continuation():
+def synthetic_continuation(*, v2=False, empty_timeouts=0):
     """Two distinct labelled sessions, never a repaired/padded hardware report."""
     first, blob = synthetic_trial(existing_capture=True)
     g = first['guard']; marker_ui = g['ui'][3]['seq']
@@ -146,10 +146,15 @@ def synthetic_continuation():
                 'capture_intentionally_retained', 'raw_trace_verification'): first.pop(key)
     partial = {'synthetic_fixture': True, 'context': first['prepared']['context'], 'plan': first['plan'],
                'saved_snapshot': first['saved'], 'summary': q.inspect_trial(first, blob, _partial=True)}
-    from tools import probe_mini_browser_saved_reload as resume
+    if v2:
+        from tools import probe_mini_browser_saved_reload_v2 as resume
+    else:
+        from tools import probe_mini_browser_saved_reload as resume
     guard = dict(live=True, appInstalled=True, pongMatched=True, portInfo={'vid': 0x3654, 'pid': 0x5155},
         fatal=None, phase='complete', mutations=2, requests=1, opens=1, closes=1, closeError=None,
         stopped=True, epoch=0, events=[], ui=[], wire=[], commands=[], rx=[])
+    if v2:
+        guard.update(nativeWrites=[], nativeErrors=[], replies=[], editorCompletions=[], bootstrap_attempts=[])
     seq = 0
     def tick():
         nonlocal seq
@@ -157,11 +162,36 @@ def synthetic_continuation():
     def event(kind, **fields): guard['events'].append(dict(seq=tick(), kind=kind, **fields))
     def exchange(line, lines, origin='query'):
         cid = len(guard['commands']); wid = len(guard['wire'])
-        guard['wire'].append(dict(id=wid, command_id=cid, line=line, origin=origin,
-            hex=(line+'\n').encode().hex(), seq=tick(), completed=True))
-        guard['rx'].append(dict(seq=tick(), hex=('\r\n'.join(lines)+'\r\n').encode().hex()))
-        guard['commands'].append(dict(id=cid, wire_id=wid, line=line, lines=lines,
-                                      seq=tick(), epoch=guard['epoch'], completed=True))
+        start_seq = seq
+        start_bytes = sum(len(bytes.fromhex(r['hex'])) for r in guard['rx'])
+        start_replies = len(guard.get('replies', []))
+        wire = dict(id=wid, command_id=cid, line=line, origin=origin,
+                    hex=(line+'\n').encode().hex(), seq=tick(), completed=True)
+        guard['wire'].append(wire)
+        if v2:
+            native = dict(id=len(guard['nativeWrites']), wire_id=wid, hex=wire['hex'],
+                          bytes=len(line)+1, seq=tick(), completed=True, completed_seq=tick())
+            wire['native_write_id'] = native['id']; guard['nativeWrites'].append(native)
+        if lines:
+            guard['rx'].append(dict(seq=tick(), hex=('\r\n'.join(lines)+'\r\n').encode().hex()))
+        if v2:
+            for value in lines: guard['replies'].append(dict(seq=tick(), line=value))
+            completion = dict(id=len(guard['editorCompletions']), command_id=cid, line=line,
+                              lines=lines, timed_out=not lines, seq=tick())
+            guard['editorCompletions'].append(completion)
+        command = dict(id=cid, wire_id=wid, line=line, lines=lines,
+                       seq=tick(), epoch=guard['epoch'], completed=True)
+        guard['commands'].append(command)
+        if v2 and line == 'PING':
+            index = len(guard['bootstrap_attempts']) + 1
+            attempt = dict(index=index, command_id=cid, wire_id=wid, native_write_id=native['id'],
+                editor_completion_id=completion['id'], start_seq=start_seq, start_rx_bytes=start_bytes,
+                start_reply_count=start_replies, timeout_ms=700, completion_seq=command['seq'],
+                end_rx_bytes=sum(len(bytes.fromhex(r['hex'])) for r in guard['rx']),
+                end_reply_count=len(guard['replies']), status='pong' if lines else 'empty_timeout',
+                repeat_permitted=not lines and index < 5)
+            guard['bootstrap_attempts'].append(attempt)
+            event('bootstrap_pong' if lines else 'bootstrap_empty_timeout', attempt=copy.deepcopy(attempt))
     report = dict(schema=1, kind='mini-browser-saved-reload-continuation', result='pass',
         phase='UI_saved_preset_reload_complete', image_sha256=q.IMAGE, transport='usb-cdc',
         synthetic_fixture=True, hardware_executed=False, execution_status_unknown=False,
@@ -173,7 +203,17 @@ def synthetic_continuation():
         profile_modified=False, general_capabilities_granted={}, plan=copy.deepcopy(partial['plan']),
         prepared={'prior_partial': partial},
         disconnect=dict(native_close_verified=True, open=False, closes=1, closeError=None))
-    for kind in ('experimental_guard_installed', 'serial_request_intent', 'serial_open_intent', 'serial_open_complete'): event(kind)
+    if v2:
+        report.update(kind='mini-browser-saved-reload-continuation-v2', automatic_retry=True,
+            automatic_retry_scope='bootstrap PING empty timeouts only',
+            mutation_retry_performed=False, query_retry_performed=False)
+    for kind in ('experimental_guard_installed', 'serial_request_intent', 'serial_open_intent', 'serial_open_complete'):
+        if v2 and kind == 'serial_open_intent':
+            event('native_port_info', info=guard['portInfo'].copy())
+            event('native_port_info', info=guard['portInfo'].copy())
+        event(kind)
+    if v2:
+        for _ in range(empty_timeouts): exchange('PING', [])
     exchange('PING', [partial['context']['pong']])
     nproc = 1000
     def snapshot(name, gain):
@@ -197,6 +237,8 @@ def synthetic_continuation():
     for kind in ('trial_complete', 'guard_stopped', 'serial_close_intent', 'serial_close_complete'): event(kind)
     guard['rxBytes'] = sum(len(bytes.fromhex(r['hex'])) for r in guard['rx'])
     report['guard'] = guard; report['raw_trace_verification'] = resume.verify_wire(guard, partial['plan'])
+    if v2:
+        report['selection_proof'] = resume.native_identity_proof(guard, partial['context']['pong'])
     report['original_UI_reload_observation'] = {'gain': [0, 0], 'capture': 0, 'scene': 0, 'preset': 0, 'fatal': None}
     return report, partial
 
@@ -318,7 +360,7 @@ class QualificationTests(unittest.TestCase):
         with self.assertRaises(ValueError): q.inspect_trial(bad, self.blob)
 
     def test_all_frozen_dependencies_remain_exact(self):
-        for name, digest in {**q.PINS, **q.BOOTSTRAP_PINS, **q.UI_PINS, **q.RESUME_PINS}.items():
+        for name, digest in {**q.PINS, **q.BOOTSTRAP_PINS, **q.UI_PINS, **q.RESUME_PINS, **q.RESUME_V2_PINS}.items():
             with self.subTest(name=name): self.assertEqual(q.sha((q.ROOT/name).read_bytes()), digest)
         from tools import run_mini_v3_first_preset_ui_v3 as ui
         self.assertEqual(q.canonical_sha(ui.description()), q.UI_EXTENSION_SHA)
@@ -335,6 +377,142 @@ class QualificationTests(unittest.TestCase):
         self.assertEqual(sorted(value['physically_exercised_requests']), q.FAMILIES)
         self.assertNotIn('PLOAD', partial['summary']['physically_exercised_requests'])
 
+    def test_unknown_continuation_version_is_not_reinterpreted(self):
+        report, partial = synthetic_continuation()
+        report['kind'] += '-unknown'
+        with self.assertRaisesRegex(ValueError, 'unknown continuation'):
+            q.inspect_continuation(report, partial)
+
+    def test_v2_native_identity_and_bounded_empty_bootstrap_do_not_invent_uia(self):
+        for empty in (0, 4):
+            report, partial = synthetic_continuation(v2=True, empty_timeouts=empty)
+            value = q.inspect_continuation(report, partial)
+            proof = value['continuation_connection_proof']
+            with self.subTest(empty=empty):
+                self.assertEqual(value['evidence_model'], q.JOINT_MODEL_V2)
+                self.assertEqual(proof['bootstrap']['attempt_count'], empty+1)
+                self.assertEqual(proof['bootstrap']['empty_timeout_count'], empty)
+                self.assertFalse(proof['UIA_selection_attested'] or proof['COM_name_attested'])
+                self.assertEqual(proof['selection_actor'], 'unattested')
+                self.assertEqual(value['continuation_raw_trace']['actual_UI_mutation_count'], 2)
+                self.assertFalse(value['hardware_execution_attested'])
+                self.assertIsNone(q.validate_continuation_selection(report, partial, q.JOINT_MODEL_V2))
+                with self.assertRaises(ValueError):
+                    q.validate_continuation_selection(report, partial, q.JOINT_MODEL)
+
+    def test_v2_rejects_timeout_bytes_partial_write_wrong_identity_and_extra_attempt(self):
+        for what in ('RX', 'write', 'native_error', 'native_id', 'pong', 'late_bytes', 'timeout', 'reopen',
+                     'proof_actor', 'mutation_retry', 'query_retry', 'read_empty', 'chronology'):
+            report, partial = synthetic_continuation(v2=True, empty_timeouts=1)
+            guard = report['guard']
+            if what == 'RX': guard['rx'].append({'seq': guard['commands'][0]['seq']-1, 'hex': '00'})
+            elif what == 'write': guard['nativeWrites'][0]['bytes'] = 4
+            elif what == 'native_error': guard['nativeErrors'] = [{'kind': 'native_read_error'}]
+            elif what == 'native_id': guard['events'][2]['info']['pid'] = 1
+            elif what == 'pong': guard['commands'][1]['lines'] = ['PONG tankg_fw M5.71 rel ble']
+            elif what == 'late_bytes': guard['bootstrap_attempts'][1]['start_rx_bytes'] += 1
+            elif what == 'timeout': guard['editorCompletions'][0]['timed_out'] = False
+            elif what == 'reopen': guard['opens'] = 2
+            elif what == 'proof_actor': report['selection_proof']['selection_actor'] = 'user'
+            elif what == 'mutation_retry': report['mutation_retry_performed'] = True
+            elif what == 'query_retry': report['query_retry_performed'] = True
+            elif what == 'read_empty': guard['commands'][2]['lines'] = []
+            else: guard['nativeWrites'][2]['seq'] = guard['wire'][2]['seq']
+            with self.subTest(what=what), self.assertRaises(ValueError):
+                q.inspect_continuation(report, partial)
+        with self.assertRaisesRegex(ValueError, 'bounded bootstrap'):
+            synthetic_continuation(v2=True, empty_timeouts=5)
+
+    def test_v2_optional_uia_file_cannot_be_omitted_or_fabricated(self):
+        report, partial = synthetic_continuation(v2=True)
+        partial['context']['com'] = 'COM3'
+        with tempfile.TemporaryDirectory(dir=q.ROOT/'build') as tmp:
+            path = Path(tmp)/'selection.json'
+            report['selection_path'] = path.relative_to(q.ROOT).as_posix()
+            self.assertIsNone(q.validate_continuation_selection(report, partial, q.JOINT_MODEL_V2))
+            path.write_text('{}', encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'omitted'):
+                q.validate_continuation_selection(report, partial, q.JOINT_MODEL_V2)
+            report.update(selection={}, browser_process_id=10, origin='http://127.0.0.1:1234',
+                          started_utc='2026-11-16T08:00:00Z', finished_utc='2026-11-16T08:01:00Z')
+            with self.assertRaises(ValueError):
+                q.validate_continuation_selection(report, partial, q.JOINT_MODEL_V2)
+
+    def test_v2_synthetic_file_cannot_create_a_qualification_or_bundle(self):
+        report, _ = synthetic_continuation(v2=True, empty_timeouts=1)
+        with tempfile.TemporaryDirectory(dir=q.ROOT/'build') as tmp:
+            path = Path(tmp)/'synthetic-v2.json'; path.write_bytes(q.encoded(report))
+            with self.assertRaisesRegex(ValueError, 'real successful continuation'):
+                q.build_qualified_bundle(path, q.sha(path.read_bytes()), Path(tmp)/'must-not-exist',
+                    partial_report_path=q.PARTIAL_REF['path'], partial_sha256=q.PARTIAL_REF['sha256'])
+            self.assertFalse((Path(tmp)/'must-not-exist').exists())
+
+    def test_recorded_browser_configuration_is_exact_and_does_not_launch(self):
+        from tools import mini_browser_windows as config
+        with tempfile.TemporaryDirectory(dir=q.ROOT/'build') as tmp:
+            folder = Path(tmp)
+            ref = {'path': (folder/'report.json').relative_to(q.ROOT).as_posix(), 'sha256': '0'*64}
+            executable = Path('C:/Program Files/Google/Chrome/Application/chrome.exe')
+            args = config.browser_arguments(executable, folder/'isolated-profile')
+            report = {'browser_arguments': args, 'browser_configuration': config.description(args)}
+            q.validate_continuation_browser(report, ref)
+            for what in ('missing', 'feature', 'profile', 'extra', 'description'):
+                bad = copy.deepcopy(report)
+                if what == 'missing': bad.pop('browser_arguments')
+                elif what == 'feature':
+                    index = next(i for i, value in enumerate(args) if value.startswith('--disable-features='))
+                    bad['browser_arguments'][index] = bad['browser_arguments'][index].replace(',SerialUsbDisplayNameWin', '')
+                elif what == 'profile': bad['browser_arguments'][-2] = '--user-data-dir=C:/unrelated'
+                elif what == 'extra': bad['browser_arguments'].append('--disable-web-security')
+                else: bad['browser_configuration']['causality_proven'] = True
+                with self.subTest(what=what), self.assertRaises(ValueError):
+                    q.validate_continuation_browser(bad, ref)
+
+    def test_v2_sealed_shape_preserves_native_proof_without_selection_file(self):
+        # Synthetic in-memory post-boundary shape only: no evidence file or
+        # bundle is emitted. The public evidence boundary rejects this fixture
+        # in test_v2_synthetic_file_cannot_create_a_qualification_or_bundle.
+        report, partial = synthetic_continuation(v2=True, empty_timeouts=1)
+        summary = q.inspect_continuation(report, partial)
+        from tools import run_mini_v3_first_preset_ui_v3 as ui
+        report.update(source_sha256={}, finished_utc='2026-11-16T08:01:00Z')
+        ref = {'path': 'synthetic-not-a-file', 'sha256': '0'*64}
+        prepared = {'context': {**partial['context'], 'com': 'COM3'}, 'inputs': {}, 'blob': ref}
+        with patch.object(q, 'reference', side_effect=AssertionError('no UIA file exists')):
+            value = q.qualification_record(ref, report, prepared, ui.description(), summary, q.JOINT_MODEL_V2)
+        value.update(saved_partial_report=q.PARTIAL_REF, reloaded_report=ref, reloaded_snapshot=report['reloaded'],
+            sessions=[{'role': 'save', 'report': q.PARTIAL_REF, 'original_result': 'fail', 'verified_UI_writes': 4},
+                      {'role': 'reload', 'report': ref, 'original_result': 'pass', 'verified_UI_writes': 2}])
+        self.assertNotIn('selection', value['refs'])
+        self.assertEqual(q.validate_qualification(value)['evidence_model'], q.JOINT_MODEL_V2)
+        for what in ('actor', 'COM', 'PONG', 'scope', 'bootstrap', 'model'):
+            bad = copy.deepcopy(value)
+            if what == 'actor': bad['connection_proof']['selection_actor'] = 'user'
+            elif what == 'COM': bad['connection_proof']['COM_name_attested'] = True
+            elif what == 'PONG': bad['connection_proof']['exact_pong'] = 'PONG tankg_fw'
+            elif what == 'scope': bad['enabled_families'] += ['FXE']
+            elif what == 'bootstrap': bad['connection_proof']['bootstrap']['attempt_count'] = 6
+            else: bad['evidence_model'] = q.JOINT_MODEL
+            with self.subTest(what=what), self.assertRaises(ValueError): q.validate_qualification(bad)
+        value['synthetic_fixture'] = True
+        with self.assertRaisesRegex(ValueError, 'synthetic'): q.validate_qualification(value)
+
+    def test_closed_failed_saved_reload_sessions_cannot_qualify(self):
+        found = False
+        for attempt in ('05', '06'):
+            path = q.ROOT/f'build/mini-saved-reload-ui-{attempt}/report.json'
+            if not path.is_file(): continue
+            found = True
+            raw = path.read_bytes()
+            report = json.loads(raw)
+            self.assertEqual(report['result'], 'fail')
+            with self.subTest(attempt=attempt), \
+                 patch.object(q, 'validate_partial_saved_report', side_effect=AssertionError('unnecessary replay')):
+                with self.assertRaisesRegex(ValueError, 'real successful continuation'):
+                    q.validate_joined_reports(q.PARTIAL_REF['path'], q.PARTIAL_REF['sha256'], path, q.sha(raw))
+            self.assertEqual(path.read_bytes(), raw)
+        if not found: self.skipTest('private closed hardware evidence is not distributed')
+
     def test_continuation_rejects_changed_saved_state_wrong_epoch_and_missing_rx(self):
         for what in ('before', 'plan', 'epoch', 'RX', 'close', 'extra_save'):
             report, partial = synthetic_continuation()
@@ -349,9 +527,9 @@ class QualificationTests(unittest.TestCase):
     def test_in_memory_adapter_denies_other_families_or_blanket_write(self):
         # Isolate the adapter after its qualification boundary. No proof file,
         # app artifact or grant is emitted by this fixture.
-        qualification = {'synthetic_fixture': True, 'physically_exercised_requests': {}, 'evidence_model': q.MODEL}
+        qualification = {'synthetic_fixture': True, 'physically_exercised_requests': {}, 'evidence_model': q.JOINT_MODEL_V2}
         proof = {'path': 'synthetic-not-a-file', 'sha256': '0'*64}
-        spec = {'family_evidence_model': q.MODEL, 'family_capabilities': {'usb-cdc': q.FAMILIES},
+        spec = {'family_evidence_model': q.JOINT_MODEL_V2, 'family_capabilities': {'usb-cdc': q.FAMILIES},
             'family_validation': {'usb-cdc': [proof]}, 'hardware_verified': True,
             'image_sha256': q.IMAGE, 'firmware_version': q.VERSION}
         caps = {'identity': True, 'read': True, 'write': False, 'panel': False}
@@ -375,21 +553,21 @@ class QualificationTests(unittest.TestCase):
         # public validate_trial_report rejects it. No real bundle is produced.
         with tempfile.TemporaryDirectory(dir=q.ROOT/'build') as tmp:
             folder = Path(tmp); web = folder/'app/web'; web.mkdir(parents=True)
-            qualified = {'synthetic_fixture': True, 'com': 'COM3', 'evidence_model': q.MODEL,
+            qualified = {'synthetic_fixture': True, 'com': 'COM3', 'evidence_model': q.JOINT_MODEL_V2,
                 'pong': self.report['prepared']['context']['pong'], 'physically_exercised_requests': {}}
             proof_path = folder/'qualification.json'; proof_path.write_bytes(q.encoded(qualified))
             proof = q.reference(proof_path)
             profile = q.app.load_profile(q.ROOT/q.BASE_MANIFEST)
             profile.update(hardware_verified=True, family_capabilities={'usb-cdc': q.FAMILIES},
                 family_validation={'usb-cdc': [proof]}, family_qualification={'usb-cdc': q.family_metadata(qualified)})
-            spec = {**profile, 'family_evidence_model': q.MODEL}
+            spec = {**profile, 'family_evidence_model': q.JOINT_MODEL_V2}
             manifest = folder/'firmware-manifest.json'; manifest.write_bytes(q.encoded(spec))
             (web/'mini-profile.js').write_bytes((q.ROOT/'app/mini/mini-profile.js').read_bytes())
             (web/'mini-ui.js').write_bytes((q.ROOT/'app/mini/mini-ui-v2.js').read_bytes())
             config = json.dumps(profile, separators=(',', ':'), ensure_ascii=True).replace('<', '\\u003c')
             (web/'tankmini.html').write_text('<script>globalThis.HYPERRIG_MINI_BUILD='+config+';</script>', encoding='utf-8')
             for name in ('index.html', 'nam2chip.js', 'fixture.txt'): (web/name).write_text('synthetic fixture', encoding='utf-8')
-            metadata = {'schema': 1, 'kind': 'mini-qualified-editor-bundle', 'evidence_model': q.MODEL,
+            metadata = {'schema': 1, 'kind': 'mini-qualified-editor-bundle', 'evidence_model': q.JOINT_MODEL_V2,
                 'image_sha256': q.IMAGE, 'com': qualified['com'], 'pong': qualified['pong'],
                 'app_directory': web.relative_to(q.ROOT).as_posix(), 'profile': profile,
                 'manifest': q.reference(manifest), 'qualification': proof,

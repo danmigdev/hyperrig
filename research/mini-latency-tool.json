@@ -15,7 +15,7 @@
     {
       "path": "tools/probe_mini_browser_latency.py",
       "bytes": 27556,
-      "sha256": "275af577a1512082e2150450b9c90276056025edc6d2319a326d361b44b5c6d2"
+      "sha256": "ad3e794255b3a6c16d4ec6b04f3c6f8dd48237281c8245baaacd15e6d57027ed"
     },
     {
       "path": "tools/mini_browser_latency_guard.js",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/MINI_LATENCY.md",
-      "bytes": 11768,
-      "sha256": "ad085a18f92398ea0c9aaacbd71acedc833914759a7631fc24d14fe537786b46"
+      "bytes": 12398,
+      "sha256": "201eb63cb675213e8e093b4ff66b0a94ef77d102a4136466c487ac5ddc11a95b"
     }
   ],
   "frozen_dependencies": [
@@ -66,8 +66,8 @@
     },
     {
       "path": "tools/qualify_mini_browser_preset.py",
-      "bytes": 56915,
-      "sha256": "526052c070e05e7cdb31b0d44044abcbcd6e622b8e48437d49ecfc5063bead4a"
+      "bytes": 62326,
+      "sha256": "af2b64e7148274fb22b6fa587a58ec6103435bce0a34c244a59564fb30e5b517"
     },
     {
       "path": "tools/verify_mini_browser.py",
@@ -119,7 +119,19 @@
     "node_executes_original_readLoop_and_Pedal": true,
     "compiler_check": "python -m py_compile tools/mini_latency_observation.py tools/probe_mini_browser_latency.py",
     "compiler_check_passed": true,
-    "synthetic_results_written_as_physical_evidence": false
+    "synthetic_results_written_as_physical_evidence": false,
+    "independent_qualifier_review": {
+      "command": "python -m unittest tests.test_mini_browser_preset_qualification -q",
+      "python_tests_passed": 26,
+      "qualifier_sha256": "5dd9e3f72af24b36e7b274d44050398ab4789ccc530e81d1ebf9bdfe1c200094"
+    },
+    "full_suite_last_run_runner_sha256": "66f95caecbb29434be19d7985e9c54951603302309145f963947a33a82211b6e",
+    "revision_3_targeted_tests": {
+      "command": "python -m unittest tests.test_mini_browser_preset_qualification.QualificationTests.test_recorded_browser_configuration_is_exact_and_does_not_launch tests.test_mini_browser_latency.BrowserLatencyTests.test_preflight_accepts_retained_preset_without_fabricated_global_restoration tests.test_mini_browser_latency.BrowserLatencyTests.test_preflight_refuses_partial_save_missing_reload_and_unowned_session -q",
+      "python_tests_passed": 3,
+      "full_unchanged_batteries_repeated": false,
+      "qualifier_sha256": "af2b64e7148274fb22b6fa587a58ec6103435bce0a34c244a59564fb30e5b517"
+    }
   },
   "runtime_contract": {
     "only_existing_qualified_editor": true,
@@ -150,5 +162,15 @@
     "healthy already connected editor after real PLOAD0 qualification",
     "root controller explicitly invokes execute on that exact session",
     "no analog latency result without confirmed recording routing and stimulus"
-  ]
+  ],
+  "revision": 3,
+  "updated_utc": "2026-11-16T08:51:08.328736+00:00",
+  "revision_note": {
+    "scope": "Only the latency runner qualifier SHA binding changed; Windows chooser configuration remains in the launcher/continuation helper, not in this runner. Parser, guard, effect sequence and restoration are unchanged.",
+    "previous_runner_sha256": "66f95caecbb29434be19d7985e9c54951603302309145f963947a33a82211b6e",
+    "qualifier_sha256": "af2b64e7148274fb22b6fa587a58ec6103435bce0a34c244a59564fb30e5b517",
+    "additional_supported_evidence_model": "browser-retained-save-and-reload-two-sessions-v2",
+    "requires_actual_successful_reload": true,
+    "new_hardware_evidence_created": false
+  }
 }

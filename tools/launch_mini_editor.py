@@ -24,11 +24,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tools import launch_mini_desktop_readonly as window
 from tools import probe_mini_browser_readonly as browser
+from tools import mini_browser_windows as browser_windows
 from tools.mini_host_journal import atomic_write_json, read_shared_bytes
 
 require, sha, now = browser.require, browser.sha, window.now
 FAMILIES = ['GAIN','PLOAD','PSAVE','SNAPSAVE']
-QUALIFIER_SHA = '526052c070e05e7cdb31b0d44044abcbcd6e622b8e48437d49ecfc5063bead4a'
+QUALIFIER_SHA = 'af2b64e7148274fb22b6fa587a58ec6103435bce0a34c244a59564fb30e5b517'
 OBSERVER = r"""(()=>{
  const state={opens:0,closes:0,activePorts:0,closeError:null,events:[],pongs:[],lastPort:null};
  const active=new WeakSet();
@@ -133,15 +134,19 @@ def run(prepared,output):
             'preset_mutations_enabled':True,'enabled_families':prepared['enabled_families'],
             'audio_quality_verified':False,'held_recovery_verified':False,
             'source_sha256':{p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in
-                (Path(__file__),Path(qualifier().__file__),Path(window.__file__),Path(browser.__file__),
+                (Path(__file__),Path(browser_windows.__file__),Path(qualifier().__file__),Path(window.__file__),Path(browser.__file__),
                  ROOT/'tools/verify_mini_browser.py',ROOT/'tools/mini_host_journal.py')}}
     save=lambda:atomic_write_json(output/'session.json',report)
     server=http.server.ThreadingHTTPServer(('127.0.0.1',0),partial(browser.LocalHandler,directory=str(app_dir),live=True))
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
     process=cdp=None;native_closed=False;browser_close_sent=False
     try:
+        arguments=browser_windows.browser_arguments(browser.browser_path(),profile_dir)
+        report['browser_arguments']=arguments
+        report['browser_configuration']=browser_windows.description(arguments)
+        save()
         with (output/'browser-stderr.txt').open('wb') as stream:
-            process=subprocess.Popen(window.browser_arguments(browser.browser_path(),profile_dir),stdout=subprocess.DEVNULL,
+            process=subprocess.Popen(arguments,stdout=subprocess.DEVNULL,
                 stderr=stream,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
         report['browser_process_id']=process.pid;save()
         endpoint=profile_dir/'DevToolsActivePort'

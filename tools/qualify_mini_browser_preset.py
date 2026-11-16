@@ -1,7 +1,8 @@
 """Offline qualification of one retained original-editor preset roundtrip.
 
-Both explicit models retain one preset: one reload, no delete or power cycle.
+All explicit models retain one preset: one reload, no delete or power cycle.
 A stopped four-write save plus a separate two-write reload remain two reports.
+Continuation v2 separately proves native USB identity and bounded PING bootstrap.
 Only a completed real browser report can create the four-family USB bundle.
 The expensive provenance replay runs at build time. Normal launch checks the
 sealed local bundle only; historical dumps are not runtime dependencies.
@@ -29,6 +30,8 @@ IMAGE = '9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c'
 VERSION = 'tankm_fw M5.71 rel ble'
 MODEL = 'browser-retained-one-reload-v1'
 JOINT_MODEL = 'browser-retained-save-and-reload-two-sessions-v1'
+JOINT_MODEL_V2 = 'browser-retained-save-and-reload-two-sessions-v2'
+MODELS = (MODEL, JOINT_MODEL, JOINT_MODEL_V2)
 PARTIAL_REF = {'path': 'build/mini-first-preset-ui-04/report.json',
                'sha256': '0eb9836638dd2025d9e75f380db4cc9c765c53dcc7ff4e0316ab810c3d2479ff'}
 FAMILIES = ['GAIN', 'PLOAD', 'PSAVE', 'SNAPSAVE']
@@ -55,6 +58,11 @@ UI_EXTENSION_SHA = 'eb9027fe0d2a45133682b949adf9b093f2636032aeade548561ac8c0575f
 RESUME_PINS = {
     'tools/probe_mini_browser_saved_reload.py': '8f044dcd2ab5cc98521a02b972a473cb5a686c3f7f88ef47c1e1c7fcec300db4',
     'tools/mini_browser_saved_reload_guard.js': 'e0de0abe48c29ec28ba7c7a02ecfe1ce79225db8079786e1e34fc31c8c9982f9',
+}
+RESUME_V2_PINS = {
+    'tools/probe_mini_browser_saved_reload_v2.py': '7427bc0f736b2ebd92de0b4e97efef7cf63df58ec06f7d6e836a3ecf55b09c5e',
+    'tools/mini_browser_saved_reload_guard_v2.js': 'ed25540b9195b3a948c8cc076867ba8c7cb62c71a966b70604293dc29ed9849e',
+    'tools/mini_browser_windows.py': '75ee8d2330639b842ce5c36ba2c97256244675ca63a4b9264c1c7065b89d1081',
 }
 SNAPSHOTS = ('initial_activity_before', 'initial', 'before_activity', 'before',
              'down1', 'up', 'saved', 'marker', 'reloaded')
@@ -442,18 +450,37 @@ def validate_partial_saved_report(path=None, expected_sha256=None):
             'validator_sha256': sha(Path(__file__).read_bytes())}
 
 
+def continuation_backend(report):
+    """Select an explicit transcript version; never reinterpret old evidence."""
+    kind = report.get('kind')
+    if kind == 'mini-browser-saved-reload-continuation':
+        from tools import probe_mini_browser_saved_reload as resume
+        return resume, RESUME_PINS, JOINT_MODEL
+    require(kind == 'mini-browser-saved-reload-continuation-v2', 'unknown continuation transcript version')
+    from tools import probe_mini_browser_saved_reload_v2 as resume
+    return resume, RESUME_V2_PINS, JOINT_MODEL_V2
+
+
 def inspect_continuation(report, partial):
     """Replay the separate two-command session, preserving the failed prefix."""
-    from tools import probe_mini_browser_saved_reload as resume
-    require(report.get('schema') == 1 and report.get('kind') == 'mini-browser-saved-reload-continuation'
+    resume, _, model = continuation_backend(report)
+    require(report.get('schema') == 1
             and report.get('result') == 'pass' and report.get('phase') == 'UI_saved_preset_reload_complete',
             'completed retained-preset continuation required')
     for key in ('UI_sequence_completed', 'retained_saved_reload_verified', 'serial_port_closed',
                 'preset_intentionally_retained', 'capture_intentionally_retained', 'browser_process_stopped', 'local_server_stopped'):
         require(report.get(key) is True, 'continuation missing completion: '+key)
     for key in ('prior_save_reperformed', 'capture_write_performed', 'audio_quality_verified', 'power_cycle_verified',
-                'held_recovery_verified', 'BLE_verified', 'firmware_write', 'automatic_retry', 'profile_modified'):
+                'held_recovery_verified', 'BLE_verified', 'firmware_write', 'profile_modified'):
         require(report.get(key) is False, 'unexpected continuation claim: '+key)
+    if model == JOINT_MODEL_V2:
+        require(report.get('automatic_retry') is True
+                and report.get('automatic_retry_scope') == 'bootstrap PING empty timeouts only'
+                and report.get('mutation_retry_performed') is False
+                and report.get('query_retry_performed') is False,
+                'v2 permits only the original bounded bootstrap PING repetition')
+    else:
+        require(report.get('automatic_retry') is False, 'v1 continuation cannot claim retries')
     require(not any(report.get(k) for k in ('error', 'cleanup_error', 'publication_error'))
             and report.get('general_capabilities_granted') == {}, 'failed or overbroad continuation')
     require(report.get('image_sha256') == IMAGE and report.get('transport') == 'usb-cdc'
@@ -463,7 +490,13 @@ def inspect_continuation(report, partial):
     require(report.get('original_UI_reload_observation') == {
         'gain': plan['gain'], 'capture': plan['capture_slot'], 'scene': 0, 'preset': plan['slot'], 'fatal': None},
         'original UI did not observe the actual reloaded gain/capture/scene/preset')
-    raw = resume.verify_wire(guard, plan)
+    if model == JOINT_MODEL_V2:
+        connection = resume.native_identity_proof(guard, partial['context']['pong'])
+        require(connection == report.get('selection_proof'), 'native identity proof differs from actual events/bytes')
+        raw = resume.verify_wire(guard, plan, expected_pong=partial['context']['pong'])
+    else:
+        connection = None
+        raw = resume.verify_wire(guard, plan)
     require(raw == report.get('raw_trace_verification') and guard.get('live') is True
             and guard.get('appInstalled') is True and guard.get('pongMatched') is True
             and guard.get('portInfo') == {'vid': 0x3654, 'pid': 0x5155}
@@ -474,6 +507,9 @@ def inspect_continuation(report, partial):
             and disconnect.get('closes') == 1 and not disconnect.get('closeError'), 'continuation port did not close')
     require([u.get('target') for u in guard['ui']] == ['Output', 'preset-row'], 'continuation UI targets differ')
     seqs = [r['seq'] for kind in ('events', 'ui', 'wire', 'rx', 'commands') for r in guard[kind]]
+    if model == JOINT_MODEL_V2:
+        seqs += [r[key] for r in guard['nativeWrites'] for key in ('seq', 'completed_seq')]
+        seqs += [r['seq'] for kind in ('editorCompletions', 'replies') for r in guard[kind]]
     require(len(seqs) == len(set(seqs)) and all(type(s) is int and s > 0 for s in seqs), 'continuation chronology reused')
     require(len(guard['commands']) == len(guard['wire'])
             and len({c['id'] for c in guard['commands']}) == len(guard['commands'])
@@ -512,7 +548,7 @@ def inspect_continuation(report, partial):
     exercised = copy.deepcopy(partial['summary']['physically_exercised_requests'])
     exercised['PLOAD'] = [plan['load_request']]
     require('GAIN '+' '.join(map(str, plan['down'])) in exercised['GAIN'], 'marker differs from prior gain range')
-    return {'evidence_model': JOINT_MODEL, 'transcript_consistent': True, 'hardware_execution_attested': False,
+    summary = {'evidence_model': model, 'transcript_consistent': True, 'hardware_execution_attested': False,
             'physically_exercised_requests': app.command_grants(exercised), 'session_count': 2,
             'partial_session': copy.deepcopy(partial['summary']), 'continuation_raw_trace': raw,
             'continuation_snapshot_command_ids': matches, 'continuation_processing': processing,
@@ -522,22 +558,58 @@ def inspect_continuation(report, partial):
             'preset_intentionally_retained': True, 'capture_intentionally_retained': True,
             'preexisting_state_preserved': True, 'cold_power_retention_verified': False,
             'audio_quality_verified': False, 'every_value_physically_tested': False}
+    if connection is not None:
+        summary['continuation_connection_proof'] = connection
+    return summary
+
+
+def validate_continuation_selection(report, partial, model):
+    """Keep actual UIA evidence separate from the v2 native identity proof."""
+    selected = report.get('selection')
+    path = local(report['selection_path']) if report.get('selection_path') else None
+    if selected is None:
+        require(model == JOINT_MODEL_V2 and (path is None or not path.exists()),
+                'UIA evidence is missing or omitted from the report')
+        return None
+    require(path is not None and json.loads(read_shared_bytes(path)) == selected,
+            'continuation chooser record differs')
+    trial.selection.validate_selection(selected, browser_pid=report['browser_process_id'], origin=report['origin'],
+        com=partial['context']['com'], start=report['started_utc'], validated_at=report['finished_utc'])
+    return reference(path)
+
+
+def validate_continuation_browser(report, report_ref):
+    """Check the recorded process-local configuration without launching it."""
+    from tools import mini_browser_windows as browser_windows
+    arguments = report.get('browser_arguments')
+    require(isinstance(arguments, list) and arguments and all(isinstance(x, str) for x in arguments),
+            'actual browser argument list required')
+    executable = Path(arguments[0])
+    require(executable.is_absolute() and executable.name.lower() in ('chrome.exe', 'msedge.exe'),
+            'recorded native browser executable differs')
+    profile = local(report_ref['path']).parent/'isolated-profile'
+    require(arguments == browser_windows.browser_arguments(executable, profile)
+            and report.get('browser_configuration') == browser_windows.description(arguments)
+            and report['browser_configuration']['platform'] == 'win32'
+            and report['browser_configuration']['disabled_for_this_process'] is True,
+            'recorded browser configuration differs from the process-local chooser adjustment')
 
 
 def validate_joined_reports(partial_path, partial_sha256, resume_path, resume_sha256):
     """Two actual sessions, one retained preset; never convert partial04 to pass."""
-    require(RESUME_PINS, 'continuation verifier/guard have not been frozen')
-    for name, digest in RESUME_PINS.items():
-        require(sha((ROOT/name).read_bytes()) == digest, 'continuation source differs: '+name)
-    partial = validate_partial_saved_report(partial_path, partial_sha256)
     ref = {'path': local(resume_path).relative_to(ROOT).as_posix(), 'sha256': resume_sha256}
     report = json.loads(read_ref(ref))
     require(report.get('result') == 'pass' and report.get('hardware_executed') is True
             and report.get('execution_status_unknown') is False
             and not any(report.get(k) for k in ('synthetic_fixture', 'mock', 'simulated', 'offline_schema_test')),
             'a real successful continuation is required')
+    resume, pins, model = continuation_backend(report)
+    require(pins, 'continuation verifier/guard have not been frozen')
+    for name, digest in pins.items():
+        require(sha((ROOT/name).read_bytes()) == digest, 'continuation source differs: '+name)
+    partial = validate_partial_saved_report(partial_path, partial_sha256)
     sources = report.get('source_sha256')
-    require(isinstance(sources, dict) and all(sources.get(n) == d for n, d in RESUME_PINS.items())
+    require(isinstance(sources, dict) and all(sources.get(n) == d for n, d in pins.items())
             and sources.get(Path(__file__).relative_to(ROOT).as_posix()) == sha(Path(__file__).read_bytes()),
             'continuation source pins differ from the reviewed validators')
     required_sources = {name: PINS[name] for name in
@@ -545,19 +617,17 @@ def validate_joined_reports(partial_path, partial_sha256, resume_path, resume_sh
     required_sources['tools/run_mini_v3_first_preset_ui_v3.py'] = UI_PINS['tools/run_mini_v3_first_preset_ui_v3.py']
     require(all(sources.get(name) == digest for name, digest in required_sources.items()), 'continuation parser/UI source pins missing')
     for name, digest in sources.items(): read_ref({'path': name, 'sha256': digest})
-    from tools import probe_mini_browser_saved_reload as resume
     prepared = json.loads(json.dumps(resume.prepare(partial=partial['report_ref'])))
     require(prepared == report['prepared'], 'continuation saved-state preparation differs')
-    selected = json.loads(read_shared_bytes(local(report['selection_path'])))
-    require(selected == report['selection'], 'continuation chooser record differs')
-    trial.selection.validate_selection(selected, browser_pid=report['browser_process_id'], origin=report['origin'],
-        com=partial['context']['com'], start=report['started_utc'], validated_at=report['finished_utc'])
+    if model == JOINT_MODEL_V2:
+        validate_continuation_browser(report, ref)
+    validate_continuation_selection(report, partial, model)
     require(stamp(partial['closed_utc']) < stamp(report['started_utc']) < stamp(report['finished_utc']),
             'continuation does not follow the native close of partial04')
     summary = inspect_continuation(report, partial)
     # Reuse the same narrow qualification shape, with a distinct model and two
     # immutable report references. No synthetic six-write trace is produced.
-    result = qualification_record(ref, report, partial['prepared'], partial['ui_compatibility_extension'], summary, JOINT_MODEL)
+    result = qualification_record(ref, report, partial['prepared'], partial['ui_compatibility_extension'], summary, model)
     result.update(saved_partial_report=partial['report_ref'], reloaded_report=ref,
                   reloaded_snapshot=copy.deepcopy(report['reloaded']),
                   sessions=[{'role': 'save', 'report': partial['report_ref'], 'original_result': 'fail', 'verified_UI_writes': 4},
@@ -582,7 +652,14 @@ def validate_trial_report(path, expected_sha256):
 
 
 def qualification_record(ref, report, prepared, ui_extension, summary, model):
-    return {'schema': 1, 'kind': 'mini-browser-retained-preset-qualification', 'evidence_model': model,
+    refs = {**prepared['inputs'], 'base_manifest': {'path': BASE_MANIFEST, 'sha256': PINS[BASE_MANIFEST]},
+            'blob': prepared['blob']}
+    if model == JOINT_MODEL_V2:
+        if report.get('selection') is not None:
+            refs['selection'] = reference(report['selection_path'])
+    else:
+        refs['selection'] = reference(report['selection_path'])
+    result = {'schema': 1, 'kind': 'mini-browser-retained-preset-qualification', 'evidence_model': model,
         'target': 'tank-mini', 'architecture': 'standalone-ultrarig-port', 'image_sha256': IMAGE,
         'firmware_version': VERSION, 'transport': 'usb-cdc', 'com': prepared['context']['com'],
         'pong': prepared['context']['pong'], 'hardware_executed': True, 'qualified': True,
@@ -595,10 +672,12 @@ def qualification_record(ref, report, prepared, ui_extension, summary, model):
         'serial_port_closed': True, 'image_hash_attested_by_PONG': False,
         'full_provenance_checked_at_build': True, 'trial': ref, 'summary': summary,
         'ui_compatibility_extension': copy.deepcopy(ui_extension),
-        'refs': {**prepared['inputs'], 'base_manifest': {'path': BASE_MANIFEST, 'sha256': PINS[BASE_MANIFEST]},
-                 'blob': prepared['blob'], 'selection': reference(report['selection_path'])},
+        'refs': refs,
         'trial_source_sha256': copy.deepcopy(report['source_sha256']), 'validator_sha256': sha(Path(__file__).read_bytes()),
         'observed_utc': report['finished_utc']}
+    if model == JOINT_MODEL_V2:
+        result['connection_proof'] = copy.deepcopy(summary['continuation_connection_proof'])
+    return result
 
 
 def validate_qualification(value):
@@ -606,7 +685,7 @@ def validate_qualification(value):
     require(not any(value.get(k) for k in ('synthetic_fixture', 'mock', 'simulated', 'offline_schema_test')),
             'synthetic qualification cannot grant capabilities')
     require(value.get('schema') == 1 and value.get('kind') == 'mini-browser-retained-preset-qualification'
-            and value.get('evidence_model') in (MODEL, JOINT_MODEL) and value.get('target') == 'tank-mini'
+            and value.get('evidence_model') in MODELS and value.get('target') == 'tank-mini'
             and value.get('image_sha256') == IMAGE and value.get('firmware_version') == VERSION
             and value.get('transport') == 'usb-cdc' and value.get('enabled_families') == FAMILIES,
             'qualification identity/model/subset differs')
@@ -633,7 +712,7 @@ def validate_qualification(value):
     snapshot = value.get('reloaded_snapshot')
     require(isinstance(snapshot, dict) and set(snapshot) == {'responses', 'state'}
             and sha(encoded(snapshot['state'])) == value['summary']['reloaded_state_sha256'], 'sealed reloaded snapshot differs')
-    if value['evidence_model'] == JOINT_MODEL:
+    if value['evidence_model'] in (JOINT_MODEL, JOINT_MODEL_V2):
         require(value.get('saved_partial_report') == PARTIAL_REF and value['summary'].get('session_count') == 2
                 and value.get('sessions') == [
                     {'role': 'save', 'report': PARTIAL_REF, 'original_result': 'fail', 'verified_UI_writes': 4},
@@ -642,6 +721,22 @@ def validate_qualification(value):
     else:
         require(value.get('sessions') == [{'role': 'save-and-reload', 'report': value['trial'],
                                          'original_result': 'pass', 'verified_UI_writes': 6}], 'one-session qualification differs')
+    if value['evidence_model'] == JOINT_MODEL_V2:
+        proof = value.get('connection_proof')
+        require(isinstance(proof, dict) and proof == value['summary'].get('continuation_connection_proof')
+                and proof.get('kind') == 'native-open-and-exact-pong'
+                and proof.get('port_info') == {'vid': 0x3654, 'pid': 0x5155}
+                and proof.get('port_info_source') == 'SerialPort.getInfo()'
+                and proof.get('exact_pong') == value['pong'] and proof.get('raw_RX_verified') is True
+                and proof.get('UIA_selection_attested') is False and proof.get('selection_actor') == 'unattested'
+                and proof.get('COM_name_attested') is False and proof.get('binary_hash_attested_by_device') is False,
+                'sealed v2 native identity claim differs')
+        bootstrap = proof.get('bootstrap', {})
+        require(bootstrap.get('maximum_attempts') == 5
+                and type(bootstrap.get('attempt_count')) is int and 1 <= bootstrap['attempt_count'] <= 5
+                and bootstrap.get('empty_timeout_count') == bootstrap['attempt_count'] - 1
+                and len(bootstrap.get('attempts', [])) == bootstrap['attempt_count'],
+                'sealed bootstrap extent differs')
     return value
 
 
@@ -660,7 +755,7 @@ def family_adapter(qualification, proof_ref):
     validate_qualification(qualification)
     original = app.load_family_validation
     def load(spec, caps):
-        if spec.get('family_evidence_model') not in (MODEL, JOINT_MODEL):
+        if spec.get('family_evidence_model') not in MODELS:
             return original(spec, caps)
         require(spec.get('family_capabilities') == {'usb-cdc': FAMILIES}
                 and spec.get('family_validation') == {'usb-cdc': [proof_ref]}
@@ -738,7 +833,7 @@ def validate_bundle(output_dir):
     require(len(raw) < 2*1024*1024 and (output/'bundle.sha256').read_text('ascii') == sha(raw)+'\n', 'bundle seal differs')
     metadata = json.loads(raw)
     require(metadata.get('schema') == 1 and metadata.get('kind') == 'mini-qualified-editor-bundle'
-            and metadata.get('evidence_model') in (MODEL, JOINT_MODEL) and metadata.get('image_sha256') == IMAGE
+            and metadata.get('evidence_model') in MODELS and metadata.get('image_sha256') == IMAGE
             and metadata.get('qualification_verifier_sha256') == sha(Path(__file__).read_bytes()), 'bundle identity/verifier differs')
     files = metadata.get('files')
     require(isinstance(files, dict) and 8 <= len(files) <= 32, 'bounded bundle file manifest required')
