@@ -9,6 +9,11 @@ and drivers remain separate components. Boot on the MINI has not been verified.
 The files retain the Required Notice and UltraRig license: see
 [PROVENANCE.md](PROVENANCE.md).
 
+Two additional [Q28 recursive filters](BIQUAD_RECONSTRUCTION.md) are reconstructed
+separately, with 1,864 comparisons against their original instructions. They
+provide shared numerical dependencies for effects beyond A2; coefficient
+generation, complete effect behavior and audio integration remain separate work.
+
 ## Reconstructed functions
 
 | Original CPU address | Exclusive endpoint | Implementation |

@@ -22,14 +22,18 @@ original firmware C sources have not been recovered.
 | Preset availability and record validation | Seven more functions recovered; 2,312 further comparisons | Address mapping, header/CRC checks, cache behavior and shared record reading integrated with navigation; all 177 new instructions visited. Physical I/O, preparation and preset decoding/loading remain external. |
 | Preset preflight and conversion | Three more functions recovered; 1,754 further comparisons | Two legacy layout migrations, effect IDs 6/24 and their parameter conversion, with all 204 new instructions visited. Loader orchestration and DSP application remain external. |
 | Preset loader, bindings and reports | Eight more functions recovered; 4,635 further comparisons | Controls now reach availability, preflight and loader commit/rebind/report sequencing; all 227 new instructions visited. The application handler remains a scripted boundary. |
+| Asset checks and application layout | Nine dependencies recovered; 3,938 further comparisons | Dual-format headers, extended identities/trailers, reuse descriptors and legacy/modern routing metadata; all 189 new instructions visited. Asset payload loading and the application caller remain external. |
+| Shared Q28 recursive filters | Two kernels recovered; 1,864 further comparisons | Fixed rounding and fractional residue variants, including clipping, wraparound and persistent history; all 346 instructions visited. Coefficient generation and complete effects remain external. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
 [action dispatch and timers](CONTROL_ACTIONS.md),
 [selection reconstruction](SELECTION_RECONSTRUCTION.md),
 [preset storage validation](PRESET_STORAGE_RECONSTRUCTION.md),
-[preset preflight and conversion](PRESET_PREFLIGHT_RECONSTRUCTION.md) and
-[preset loader, bindings and reports](PRESET_LOADER_RECONSTRUCTION.md) for exact evidence and limits.
+[preset preflight and conversion](PRESET_PREFLIGHT_RECONSTRUCTION.md),
+[preset loader, bindings and reports](PRESET_LOADER_RECONSTRUCTION.md),
+[asset/application dependencies](PRESET_ASSETS_RECONSTRUCTION.md) and
+[recursive DSP filters](BIQUAD_RECONSTRUCTION.md) for exact evidence and limits.
 
 ## Order of work
 
@@ -69,20 +73,26 @@ record validation, legacy conversion and loader commit/binding/report behavior.
 The application handler at `0x020092fa` remains external. A zero loader result
 does not establish successful DSP application or persistence. See the
 [documented offline boundary](PRESET_LOADER_RECONSTRUCTION.md).
+Its asset-header/identity, reuse-descriptor and routing-layout dependencies now
+have independent C/instruction comparisons. In parallel, the two Q28 recursive
+filters supply numerical building blocks for further effect reconstruction.
 
 Continue into preset storage and application contracts:
 
 - `0x020092fa`: application of the converted working buffer and the meanings
-  of its result and output pointers. Split asset loading, working-to-live state
-  conversion and effect/routing dependencies into bounded components.
+  of its result and output pointers. Next, recover the capture/IR payload
+  lifecycle at `0x020087cc` / `0x02008a62`, then connect the verified metadata
+  dependencies to effect-state reuse/rebuilding and routing application.
 - `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
   writers of state words 708/732 and the pair mapping at offset 3476.
 - `0x0200a1d6`: bridge selected scenes into their DSP application dependencies.
 - State word 4092 and global calibration word 44: trace writers and clock
   configuration before assigning physical meanings to load-report arithmetic.
 
-Start with the application handler's asset-loading and state-conversion
-dependencies as the next bounded component.
+Continue the application path with asset payload loading and ownership. On the
+DSP path, trace coefficient generation and the five-section caller at
+`0x01c05280` into a complete effect or equalization path, preserving the verified
+rounded and fractional-residue behaviors.
 The read wrapper at `0x02002810`, its physical I/O and the priority/poll helpers
 also remain external. Scheduler and counter tracing remain prerequisites for
 physical time-unit claims; LED behavior remains unqualified. Enabling

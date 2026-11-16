@@ -92,14 +92,20 @@ comparisons. The fifth reconstructs preset preflight and legacy layout/effect
 conversion, with three functions and 1,754 comparisons. The sixth adds loader
 orchestration, action snapshots/rebinding and report arithmetic, with eight
 functions and 4,635 comparisons integrated with controls and preflight.
+The seventh adds nine independently verified asset and routing-layout dependencies
+of application, with 3,938 comparisons. In parallel, two shared recursive DSP
+filters add 1,864 comparisons beyond the A2 engine, including rounding, clipping,
+fractional residue and persistent history.
 Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
 [CONTROL_ACTIONS.md](CONTROL_ACTIONS.md),
 [SELECTION_RECONSTRUCTION.md](SELECTION_RECONSTRUCTION.md),
 [PRESET_STORAGE_RECONSTRUCTION.md](PRESET_STORAGE_RECONSTRUCTION.md),
-[PRESET_PREFLIGHT_RECONSTRUCTION.md](PRESET_PREFLIGHT_RECONSTRUCTION.md) and
-[PRESET_LOADER_RECONSTRUCTION.md](PRESET_LOADER_RECONSTRUCTION.md).
+[PRESET_PREFLIGHT_RECONSTRUCTION.md](PRESET_PREFLIGHT_RECONSTRUCTION.md),
+[PRESET_LOADER_RECONSTRUCTION.md](PRESET_LOADER_RECONSTRUCTION.md),
+[PRESET_ASSETS_RECONSTRUCTION.md](PRESET_ASSETS_RECONSTRUCTION.md) and
+[BIQUAD_RECONSTRUCTION.md](BIQUAD_RECONSTRUCTION.md).
 
 ## Implementation decisions
 

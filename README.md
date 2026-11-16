@@ -81,9 +81,13 @@ failures and record reads. [Preset preflight and legacy conversion](docs/PRESET_
 add three functions and 1,754 comparisons covering old layouts and effect
 parameters. [Preset loading, bindings and reports](docs/PRESET_LOADER_RECONSTRUCTION.md)
 add eight functions and 4,635 comparisons, connecting controls through preflight
-and the loader. Physical storage I/O and DSP application remain explicit boundaries.
-These are development components alongside the DSP work; the installed firmware
-and qualification of physical controls are unchanged.
+and the loader. [Asset checks and application layouts](docs/PRESET_ASSETS_RECONSTRUCTION.md)
+add nine dependencies and 3,938 comparisons. Alongside the existing A2 engine,
+[two recursive DSP filters](docs/BIQUAD_RECONSTRUCTION.md) add 1,864 comparisons
+covering rounding, fractional carry, clipping and history across blocks.
+Physical storage I/O and live preset/DSP application remain explicit boundaries.
+These are development components; the installed firmware and qualification of
+physical controls are unchanged.
 
 The repository includes parsers for SFC/JLFS/FWSC and A2L1, extracted-protocol
 analysis, binary port builders, reconstructed C components, tests, board
