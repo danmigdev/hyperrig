@@ -264,3 +264,10 @@ workspace. The builder requires a new output directory under ignored `build/`
 and writes the host library, target objects, sanitizer executable/report,
 comparison report and artifact manifest there. Generated artifacts remain
 outside Git.
+
+The subsequent [filter pipeline milestone](BIQUAD_PIPELINE_RECONSTRUCTION.md)
+connects this unchanged generator through staging to active sample processing,
+including carried history and requests made inside clock callbacks. It also pins
+the reset divisor 48000 and guarded startup argument 48077 as static evidence.
+Complete initialization, physical rate and surrounding audio scheduling remain
+outside that integration.

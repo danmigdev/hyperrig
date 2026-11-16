@@ -21,12 +21,20 @@ adds 11,071 comparisons for request ordering, normalization and binary32-to-Q28
 conversion. The subsequent [bounded generator](BIQUAD_GENERATOR_RECONSTRUCTION.md)
 executes the producer and all five mathematical dependencies, adding 5,542
 instruction comparisons and 18,069 independent binary32 primitive checks.
-Divisor initialization and physical parameter meanings remain unassigned. Separately,
+The [integrated filter pipeline](BIQUAD_PIPELINE_RECONSTRUCTION.md) now joins
+generation, staging and sample processing, with 1,698 comparisons and all 812
+combined instructions visited. Static evidence identifies a reset divisor of
+48000 and a guarded startup argument of 48077; complete initialization and
+physical rate measurements remain separate work. Separately,
 the [capture slot loader](CAPTURE_LOADER_RECONSTRUCTION.md) adds 6,091 comparisons
 for gain metadata, reuse and partial rollback. The [container installer/reader](CAPTURE_CONTAINER_RECONSTRUCTION.md)
 adds 262 comparisons and the [journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md)
-adds 9,764. Parser/DSP-load services and journal writes remain external. These
-modules do not yet form a complete firmware replacement.
+adds 9,764. The [capture dispatch wrappers](CAPTURE_DISPATCH_RECONSTRUCTION.md)
+add 1,847 comparisons through preparation, sizing, DSP setup and cleanup; the
+raw parser and memory reset bodies remain external. [Journal writes and readback](CAPTURE_JOURNAL_RECONSTRUCTION.md)
+add 655 synthetic-storage comparisons, with the full text command and physical
+drivers still external. These modules do not yet form a complete firmware
+replacement. Coverage is tracked in the [inventory](REVERSE_INVENTORY.md).
 
 ## Reconstructed functions
 

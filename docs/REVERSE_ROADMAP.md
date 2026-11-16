@@ -29,8 +29,11 @@ original firmware C sources have not been recovered.
 | Capture loading and gain metadata | Ten functions recovered; 6,091 further comparisons | Packed metadata, gain table/mixing, signature rejection, reuse and partial rollback; all 307 new instructions visited. Journal and container orchestration are covered by later milestones below. |
 | Coefficient staging and conversion | Five executed regions; 11,071 further instruction comparisons and 6,912 binary32 division checks | Request clamping/publication, producer argument setup, normalization and Q28 conversion; all 97 scoped instructions visited. The bounded generator below supplies the mathematical producer. |
 | Capture container installation and reader | Two functions recovered; 262 further comparisons | Actual record/CRC/identity reader, allocation ownership, cleanup and mode/priority restoration, integrated with slot loading; all 229 new instructions visited. Parser/DSP/platform bodies remain external. |
-| Capture journal and cache | Six regions recovered; 9,764 further comparisons | Last-valid-record selection, read-error fallback, cache reuse and forced scans; all 180 new instructions visited. Physical reads and journal writes remain external. |
-| Bounded coefficient generator | Six regions recovered; 5,542 instruction comparisons and 18,069 binary32 arithmetic checks | All mathematical dependencies execute through staging, including 2,714 raw coefficient comparisons; all 190 new and 287 combined instructions visited. Divisor initialization and full audio integration remain external. |
+| Capture journal and cache | Six regions recovered; 9,764 further comparisons | Last-valid-record selection, read-error fallback, cache reuse and forced scans; all 180 new instructions visited. Journal writes are covered separately below; physical reads remain external. |
+| Bounded coefficient generator | Six regions recovered; 5,542 instruction comparisons and 18,069 binary32 arithmetic checks | All mathematical dependencies execute through staging, including 2,714 raw coefficient comparisons; all 190 new and 287 combined instructions visited. Pipeline integration is covered below. |
+| Capture DSP dispatch | Eight functions and four RTS-only helpers; 1,847 further comparisons | Preparation, size/probe, DSP-load wrappers, capability query and recovery execute through container/slot loading; all 254 new instructions visited. Raw parser, memory reset and platform bodies remain external. |
+| Journal append and rewrite | Six function regions and two command fragments; 655 further comparisons | Cache invalidation, page-write/erase wrappers, bounded append retries and complete rewrite/readback helper; all 302 new instructions visited. Complete command and physical storage remain external. |
+| Generated-coefficient filter pipeline | One new getter and integration of earlier DSP modules; 1,698 further comparisons | Real generation/staging through both sample kernels with carried state; all 812 combined instructions visited. Reset divisor 48000 and guarded startup argument 48077 are pinned static evidence, not measured physical rates. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -46,8 +49,14 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [capture loading and gain metadata](CAPTURE_LOADER_RECONSTRUCTION.md),
 [coefficient staging/conversion](BIQUAD_COEFFICIENT_RECONSTRUCTION.md),
 [capture container installation](CAPTURE_CONTAINER_RECONSTRUCTION.md),
-[capture journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md) and
-[bounded coefficient generation](BIQUAD_GENERATOR_RECONSTRUCTION.md) for exact evidence and limits.
+[capture journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md),
+[bounded coefficient generation](BIQUAD_GENERATOR_RECONSTRUCTION.md),
+[capture DSP dispatch](CAPTURE_DISPATCH_RECONSTRUCTION.md),
+[journal writes and verification](CAPTURE_JOURNAL_RECONSTRUCTION.md) and
+[the integrated filter pipeline](BIQUAD_PIPELINE_RECONSTRUCTION.md) for exact
+evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
+regions separately from unresolved candidates; it does not use candidate counts
+as a completion denominator.
 
 ## Order of work
 
@@ -106,21 +115,26 @@ and DSP service boundaries. In parallel, the five-section DSP caller now execute
 both Q28 kernels and preserves their live history during staged updates.
 Capture loading now executes the container installer and record reader, including
 ownership, mode restoration and the original partial rollback. Journal/cache
-reading has an independent verified component, ready to join that path. The
-bounded coefficient generator executes all local mathematical dependencies,
-normalization/conversion and staging without scripted mathematical calls.
+reading has an independent verified component, ready to join that path. Capture
+dispatch now executes preparation, sizing, DSP-load wrappers, capability queries
+and cleanup. The bounded coefficient generator executes through staging and the
+active five-section chain with carried sample/history state. Journal writes,
+erase orchestration, append retries and rewrite/readback now have a separate
+synthetic-storage comparison.
 
 Continue into preset storage and application contracts:
 
 - `0x020092fa`: application of the converted working buffer and the meanings
   of its result and output pointers. Slot loading, container orchestration and
-  its reader now execute together. Join the journal/cache component, recover
-  probe `0x01c04a7a`, preparation `0x020025ca`, parser/DSP load `0x01c04a8e`,
-  capability query `0x01c04bac` and cleanup `0x02002634`, then connect the capture
-  and IR loaders to effect-state reuse/rebuilding and routing.
-- Metadata persistence: follow the journal writer through `0x0200a868` and its
-  caller around `0x0200abee`, including reread/verification, retries, compaction
-  and cache updates. Current journal reconstruction only reads flash.
+  its reader and dispatch wrappers now execute together. Join the journal/cache
+  component, reconstruct raw parser `0x02031c64` and memory reset `0x01c12878`
+  against their original ABI, then connect capture/IR loaders to effect-state
+  reuse/rebuilding and routing. The portable A2 parser does not establish full
+  native parser equivalence.
+- Metadata persistence: recover allocation/reload/retry at `0x0200ac36` and the
+  complete text command at `0x0200a888`, connecting the verified append and rewrite
+  helpers to lookup and active gain handling. Physical write/read/erase drivers
+  and power-loss behavior remain separate boundaries.
 - IR installation at `0x0202957e` / `0x020295d8`, callback `0x0201ad4c` and
   effect-refresh services: recover their payload ownership and numerical behavior.
 - `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
@@ -129,11 +143,12 @@ Continue into preset storage and application contracts:
 - State word 4092 and global calibration word 44: trace writers and clock
   configuration before assigning physical meanings to load-report arithmetic.
 
-Continue the application path with capture parser dispatch, preparation and cleanup.
-On the DSP path, trace initialization and writers of divisor word `0x01c1f7f8`,
-then connect the verified parameter-to-staging producer with the active five-section
-sample processor in an integrated comparison. Establish physical units from
-configuration evidence before assigning sample-rate or frequency meanings.
+Continue the application path with native capture parser and memory reset.
+On the DSP path, reconstruct the broader initializer at `0x02029112`, its reset
+helpers and the audio caller around `0x01c026de`. The identified guarded startup
+call supplies 48077, while the reset-copy divisor is 48000; full execution and
+an exhaustive writer map remain open. Establish physical units from configuration
+and hardware evidence before assigning sample-rate or frequency meanings.
 IR convolution and complete effect/routing application remain separate components.
 The read wrapper at `0x02002810`, its physical I/O and the priority/poll helpers
 also remain external. Scheduler and counter tracing remain prerequisites for

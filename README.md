@@ -99,6 +99,14 @@ The [metadata journal/cache](docs/CAPTURE_METADATA_RECONSTRUCTION.md) add 9,764
 comparisons. The [bounded coefficient generator](docs/BIQUAD_GENERATOR_RECONSTRUCTION.md)
 adds 5,542 instruction comparisons, executing all mathematical dependencies through
 staging, with 18,069 independent binary32 arithmetic checks.
+The [capture DSP dispatch](docs/CAPTURE_DISPATCH_RECONSTRUCTION.md) adds 1,847
+comparisons through preparation, size queries, DSP setup and recovery.
+[Journal writes and verification](docs/CAPTURE_JOURNAL_RECONSTRUCTION.md) add
+655 comparisons with synthetic storage. The [integrated filter pipeline](docs/BIQUAD_PIPELINE_RECONSTRUCTION.md)
+adds 1,698 comparisons from parameter requests through sample processing.
+The [audited inventory](docs/REVERSE_INVENTORY.md) separates recovered functions,
+partial regions and candidate entries; a firmware-wide completion percentage
+is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
 These are development components; the installed firmware and qualification of
 physical controls are unchanged.

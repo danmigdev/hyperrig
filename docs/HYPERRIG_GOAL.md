@@ -80,6 +80,15 @@ The sequence is controls/action dispatch, protocol and persistence, remaining
 audio/DSP integration, and incremental source integration into the MINI port.
 See the [reverse engineering roadmap](REVERSE_ROADMAP.md).
 
+The user explicitly set completion of reverse engineering as the active goal.
+Completion requires an accounted function/dependency inventory and maintainable,
+compilable reconstructions of controls, protocol/persistence, capture/IR/effects,
+DSP and platform/audio integration, with reproducible builds and original-code
+comparisons. Individual milestones do not complete that goal. The
+[inventory](REVERSE_INVENTORY.md) records measured coverage and unresolved
+dependencies without inventing an overall percentage. Offline work preserves
+tested firmware and does not authorize implementation of the reserved features.
+
 The first new control milestone reconstructs the switch transition function and
 immediate-action policy in C, with instruction-level comparisons and a byte
 binding to the published MINI v4. The next milestone adds the action dispatcher,
@@ -109,8 +118,12 @@ record reader, with 262 comparisons including complete slot-loader sequences.
 Parallel journal/cache work adds six regions and 9,764 comparisons. The bounded
 coefficient generator adds six regions and 5,542 instruction comparisons, executing
 all local mathematical dependencies through staging, plus 18,069 binary32
-primitive checks. Capture parser/DSP-load services, journal writes and divisor
-initialization remain separate work.
+primitive checks. Capture preparation, size/probe, DSP-load wrappers, capability
+query and cleanup now add 1,847 comparisons, including integrated container/slot
+paths. Journal append/rewrite adds 655 synthetic-storage comparisons. The filter
+pipeline joins generation, staging and active numerical processing with 1,698
+comparisons. The whole capture parser/reset bodies, complete metadata command,
+broader divisor initializer and surrounding audio caller remain separate work.
 Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
@@ -126,8 +139,11 @@ unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCT
 [CAPTURE_LOADER_RECONSTRUCTION.md](CAPTURE_LOADER_RECONSTRUCTION.md),
 [BIQUAD_COEFFICIENT_RECONSTRUCTION.md](BIQUAD_COEFFICIENT_RECONSTRUCTION.md),
 [CAPTURE_CONTAINER_RECONSTRUCTION.md](CAPTURE_CONTAINER_RECONSTRUCTION.md),
-[CAPTURE_METADATA_RECONSTRUCTION.md](CAPTURE_METADATA_RECONSTRUCTION.md) and
-[BIQUAD_GENERATOR_RECONSTRUCTION.md](BIQUAD_GENERATOR_RECONSTRUCTION.md).
+[CAPTURE_METADATA_RECONSTRUCTION.md](CAPTURE_METADATA_RECONSTRUCTION.md),
+[BIQUAD_GENERATOR_RECONSTRUCTION.md](BIQUAD_GENERATOR_RECONSTRUCTION.md),
+[CAPTURE_DISPATCH_RECONSTRUCTION.md](CAPTURE_DISPATCH_RECONSTRUCTION.md),
+[CAPTURE_JOURNAL_RECONSTRUCTION.md](CAPTURE_JOURNAL_RECONSTRUCTION.md) and
+[BIQUAD_PIPELINE_RECONSTRUCTION.md](BIQUAD_PIPELINE_RECONSTRUCTION.md).
 
 The user also reserved separate branches for Tone3000 integration, a zoomable UI,
 and a complete UltraRig Alpha 11 versus HyperRig feature comparison after reverse

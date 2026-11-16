@@ -216,3 +216,9 @@ the write adapter at `0x0200abee`, and rereads and compares the record around
 `0x0200ac00..0x0200ac16`. Its retry, erase/compaction and cache-update behavior
 must be recovered separately before claiming durable writes. None of those
 write operations are called or emulated by this milestone.
+
+The later [journal write milestone](CAPTURE_JOURNAL_RECONSTRUCTION.md) executes
+the write adapter, page-write/erase wrappers, cache invalidation, append attempt
+and complete rewrite/readback helper using synthetic storage. The complete text
+command and physical durability remain separate work; the read-only evidence
+above remains unchanged.

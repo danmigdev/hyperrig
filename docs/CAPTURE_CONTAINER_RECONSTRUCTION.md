@@ -227,3 +227,9 @@ new ignored directory. Generated artifacts remain outside Git.
 Next, recover probe, preparation, parser dispatch and cleanup ownership, and join
 the metadata journal and container components into one comparison. Journal writes
 and the top-level preset application handler remain separate work.
+
+The subsequent [capture DSP dispatch milestone](CAPTURE_DISPATCH_RECONSTRUCTION.md)
+now executes probe, preparation, DSP-load wrappers, capability checks and cleanup
+through this unchanged container. Raw parser and memory reset remain external.
+[Journal writes and verification](CAPTURE_JOURNAL_RECONSTRUCTION.md) are a separate
+synthetic-storage reconstruction. The results above retain their original scope.

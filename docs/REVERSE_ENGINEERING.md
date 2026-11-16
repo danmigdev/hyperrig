@@ -19,8 +19,13 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [capture loading and gain metadata](CAPTURE_LOADER_RECONSTRUCTION.md),
 [coefficient staging/conversion](BIQUAD_COEFFICIENT_RECONSTRUCTION.md),
 [capture container installation](CAPTURE_CONTAINER_RECONSTRUCTION.md),
-[capture journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md) and
-[bounded coefficient generation](BIQUAD_GENERATOR_RECONSTRUCTION.md); the investigation
+[capture journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md),
+[bounded coefficient generation](BIQUAD_GENERATOR_RECONSTRUCTION.md),
+[capture DSP dispatch](CAPTURE_DISPATCH_RECONSTRUCTION.md),
+[journal writes and verification](CAPTURE_JOURNAL_RECONSTRUCTION.md) and
+[the integrated filter pipeline](BIQUAD_PIPELINE_RECONSTRUCTION.md). The
+[audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
+from unverified function candidates; the investigation
 notes below retain the context of the original analysis.
 
 ## Samples and sources found

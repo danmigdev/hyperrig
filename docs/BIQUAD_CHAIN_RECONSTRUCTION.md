@@ -178,3 +178,8 @@ The subsequent [coefficient staging/conversion milestone](BIQUAD_COEFFICIENT_REC
 recovers request ordering, producer argument setup, normalization and Q28 conversion.
 The mathematical producer remains external; the chain results above retain their
 original scope and evidence.
+
+The later [filter pipeline](BIQUAD_PIPELINE_RECONSTRUCTION.md) executes the
+reconstructed mathematical generator, staging and this unchanged chain together.
+It preserves the reports above and adds comparisons with real generated
+coefficients, carried state and deferred requests across blocks.
