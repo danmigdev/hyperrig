@@ -3,11 +3,12 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato documentato al 16 novembre 2026, 05:20 UTC: port UltraRig v3 installato
+**Stato documentato al 16 novembre 2026, 06:11 UTC: port UltraRig v3 installato
 e verificato sulla NOR completa. L'editor comunica realmente su COM3;
 avvio normale, `safe=0`, modalità audio 2 e contatore di elaborazione A2
-crescente osservati sul MINI. Ascolto dell'uscita e modifica/salvataggio
-dei preset restano da verificare.** HyperRig
+crescente osservati sul MINI. Volume modificato e ripristinato dall'editor;
+capture A2 e “Preset 1A” con scena A salvati e riletti. Richiamo del preset
+e ascolto dell'uscita restano da verificare.** HyperRig
 è il nome scelto per questo progetto indipendente.
 
 L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
@@ -92,6 +93,20 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   `T.nproc` da 328986 a 329126, con `AUD mode=2` e nessun errore I/O segnalato.
   Questa prova digitale non certifica ancora l'ascolto analogico. Dettagli in
   [MINI_PC_LIMIT_UPGRADE.md](docs/MINI_PC_LIMIT_UPGRADE.md).
+- La capture A2 è stata salvata nello slot 0 e riletta integralmente: tutti i
+  4.892 byte corrispondono all'originale. L'editor ha poi eseguito realmente
+  `GAIN 0 -1`, `GAIN 0 0`, `PSAVE 0 Preset 1A` e `SNAPSAVE 0`, con ACK e
+  riletture dello stato. La prova si è fermata prima del marker successivo:
+  il pannello preset aveva chiuso il popup del volume. Il preset viene
+  conservato; il richiamo sarà verificato separatamente, senza riscriverlo.
+  Report originale: `build/mini-first-preset-ui-04/report.json`.
+  La [correzione dei nodi dell'interfaccia](docs/MINI_UI_CONNECTION_FIX.md)
+  risolve il precedente blocco delle manopole mantenendo `setLock` originale.
+- [Misura preliminare dei tempi interni](docs/MINI_LATENCY.md): con A2 e
+  zero effetti aggiuntivi, tre finestre aggiornate riportano circa 2,15 ms
+  per blocco e 2,26 ms come massimo osservato, usando la scala nominale del
+  timer. Non è una misura della latenza analogica ingresso–uscita; la prova
+  sotto carico con gli effetti resta da eseguire.
 - Recupero tramite tre footswitch e reset verso ROM verificati in RAM; la guardia
   integrata deve ancora essere eseguita all'accensione. Ricezione, lettura NOR e
   restituzione della pagina dell'installatore verificate sul MINI con tutte le

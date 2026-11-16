@@ -1,0 +1,2133 @@
+{
+  "schema_version": 1,
+  "kind": "offline-original-firmware-latency-audit-and-readonly-baseline",
+  "created_utc": "2026-11-16T06:09:37.805713+00:00",
+  "hardware_io_performed_by_this_audit": false,
+  "firmware_modified": false,
+  "baseline_observed_by_root": true,
+  "all_effects_measurement_performed": false,
+  "physical_ADC_to_DAC_latency_measured": false,
+  "inputs": {
+    "baseline": {
+      "path": "analysis/hardware/mini-v3-latency-baseline-01.json",
+      "bytes": 13071,
+      "sha256": "54eaec7f5d0c2b8d658180591eaebfc1f73e25e29ed93c549803449442fe065c"
+    },
+    "actual_FXT_and_prior_clock": {
+      "path": "build/mini-first-preset-ui-02/report.json",
+      "bytes": 517284,
+      "sha256": "a6f5c054aa3ff999756b18cc72858102f8bc502ff8e56c6ac0a11b56be1b2468"
+    },
+    "original_decoded_area": {
+      "path": "analysis/firmware/m571_g_app/app_area.dec.bin",
+      "bytes": 487424,
+      "sha256": "2694429beca4065ce2eb66f052a9e3c1dd71a0ec8c89865783aa1a1ffcd2b334"
+    },
+    "candidate": {
+      "path": "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin",
+      "bytes": 516096,
+      "sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c"
+    },
+    "flash_disassembly": {
+      "path": "analysis/firmware/m571_g_app/flash.asm",
+      "bytes": 5896554,
+      "sha256": "7f98d3d4ce393c04e2aeba571a3825a8021969efd54f9f2f1d6a1d879652cffb"
+    },
+    "ram_disassembly": {
+      "path": "analysis/firmware/m571_g_app/ram.asm",
+      "bytes": 2013099,
+      "sha256": "803e5a455c0c8dedd39285ba752893ffd0f7d399ee1566ccd64df22727b1fde9"
+    },
+    "SDK_registers": {
+      "path": "upstream/ac79-sdk-reference/include_lib/driver/cpu/wl82/asm/WL82.h",
+      "bytes": 49930,
+      "sha256": "6f5a44f39282f66203d837a1c74c9d8197d2856547356fce8ed0d191318ff645"
+    },
+    "original_editor": {
+      "path": "build/hyperrig-mini-audio-v3/app/web/tankmini.html",
+      "bytes": 1362515,
+      "sha256": "6aa1383c7d644f3dbb3c8b0ce5e2d287d7d24756b8b21b9c4352ed720cde1842"
+    },
+    "previous_A2_audit": {
+      "path": "research/mini-a2-activity-audit.json",
+      "bytes": 83326,
+      "sha256": "05eeaf855772a68d6cc6f91eb2eabeeff8231cb7bc43dbfaee3bbf5d15e530ae"
+    }
+  },
+  "conversion": {
+    "timer": "TIMER3_CNT 0x00010704, SDK JL_TIMER3 base 0x00010700",
+    "source_formula": "0x02002BD8 returns nominal_MHz * 1000 / 6 ticks/ms; RS divides this by 1000 for ticks/us.",
+    "prior_CLKSTATE": {
+      "id": 139,
+      "line": "CLKSTATE",
+      "epoch": 1,
+      "wire_id": 139,
+      "completed": true,
+      "lines": [
+        "CLKSTATE mhz=360 state=untested why=none target=360 hi=396 safe=0 boot=0 prev=00000000 prev_ok=0 ck=c1c56000 cr=e7c02010 best=360 steps=360:ok,372:untested,384:untested,396:untested crash_step=0 bud=19443 lim=154950 base=135507 eng=1"
+      ],
+      "seq": 2334
+    },
+    "nominal_MHz_assumed_unchanged": 360,
+    "nominal_ticks_per_ms": 60000,
+    "nominal_ticks_per_us": 60,
+    "fresh_baseline_CLKSTATE_not_included": true,
+    "physical_timer_calibration_performed": false,
+    "crosscheck_intervals": [
+      {
+        "timer_delta": 96831418,
+        "coarse_ms_delta": 1620,
+        "observed_ticks_per_coarse_ms": 59772.48024691358
+      },
+      {
+        "timer_delta": 97097753,
+        "coarse_ms_delta": 1610,
+        "observed_ticks_per_coarse_ms": 60309.163354037264
+      }
+    ],
+    "crosscheck_whole_interval_ticks_per_coarse_ms": 60039.99102167183,
+    "crosscheck_limit": "TIMER3 and coarse OS milliseconds are read separately; coarse milliseconds advance in 10 ms units. This supports, but does not physically calibrate, nominal conversion."
+  },
+  "field_semantics": {
+    "STG": "Seven stage durations, avg/max ticks over each completed 512-block window. A block is 128 samples in this path. win increases on publication; stage maxima need not belong to the same block.",
+    "STG_lat": "Worker-start TIMER3 minus timestamp when the input callback completed a 128-sample input block; non-positive signed result is clamped to zero. Excludes collection of that block and codec conversion.",
+    "STG_blk": "Worker-start to end of processing/output-ring publication. Excludes output-ring waiting, DAC/filter delay and input-block acquisition.",
+    "STG_eng": "Original engine-stage interval including the dedicated A2 call. Not the complete chain or ADC-to-DAC latency.",
+    "STG_isr": "Separate average/max of the handler at 0x01C03278 over 1024 invocations; not the same 512-block window as the other fields.",
+    "T": "nproc increments after a completed A2 process call, which handles two 64-sample jobs. last/max/avg are TIMER3 durations of this call; avg is cumulative, max is cleared by STAT.",
+    "W": "Original espera_c0 diagnostic is retained as a wait observation, not reinterpreted as analog latency or complete block time.",
+    "RS": "First at most 16 lat/eng/blk triples after nonzero audio-mode start; integer microseconds using the nominal clock formula. Counter stops at16 and STAT does not rearm it. Not a rolling sample series.",
+    "NIVEL": "Peaks and clipping/limiter counters. LVL ci/co mean input/output clips, not sample counts; zeros are valid. STAT clears peak accumulators and T.max, not configuration or NOR."
+  },
+  "baseline": {
+    "active_model": "A2, 23 layers, 3 channels",
+    "active_FX_instances": 0,
+    "FXS": [
+      "FXS amp=1 on=1",
+      "FXS cpu=0/21364 ticks (0%) mem_fx=0 B",
+      "FXS c1=0 a=0 wait=0/0 jobs=0 to=0 seq=0 skip=0 laneB par=0",
+      "FXS eng=0 posts=0 takes=0 canc=0 lat=0/0 run=0",
+      "FXS lockq=0 locks=0 spinfull=0 spinmax_us=0 heavy=0 hspinfull=0 hspinmax_us=0 hsettle=0",
+      "FXS peak=0 ticks skipped=0"
+    ],
+    "MEM": [
+      "MEM heap=293696 largest=10466 free=129480 B in 1 chunks (10466 0 0) effects=0 B arena=118688 B ram0_code_data=131852 ram0_bss=97604 pool=102400 pool_used=0 pool_largest=102384 compactions=0 compact_us=0/0 compact_moved=0 compact_refused=0 pinned=0 pool_bad=0 heap_fx=0 fxcap=113096 lent=0 lent_used=0 lendable=0 lends=0 reclaims=0 reclaim_fail=0 fit=102384 fitsum=112850 fits=27:1,29:1,31:1,32:1,33:1,34:1,35:1"
+    ],
+    "observations": [
+      {
+        "observed_utc": "2026-11-16T05:59:57.680324+00:00",
+        "STG_window": 2398,
+        "stages": {
+          "in": {
+            "avg_ticks": 2413,
+            "max_ticks": 2701,
+            "avg_us_nominal": 40.21666666666667,
+            "max_us_nominal": 45.016666666666666
+          },
+          "pre": {
+            "avg_ticks": 168,
+            "max_ticks": 457,
+            "avg_us_nominal": 2.8,
+            "max_us_nominal": 7.616666666666666
+          },
+          "eng": {
+            "avg_ticks": 124591,
+            "max_ticks": 129329,
+            "avg_us_nominal": 2076.516666666667,
+            "max_us_nominal": 2155.483333333333
+          },
+          "post": {
+            "avg_ticks": 533,
+            "max_ticks": 692,
+            "avg_us_nominal": 8.883333333333333,
+            "max_us_nominal": 11.533333333333333
+          },
+          "out": {
+            "avg_ticks": 890,
+            "max_ticks": 1328,
+            "avg_us_nominal": 14.833333333333334,
+            "max_us_nominal": 22.133333333333333
+          },
+          "blk": {
+            "avg_ticks": 128708,
+            "max_ticks": 133440,
+            "avg_us_nominal": 2145.133333333333,
+            "max_us_nominal": 2224.0
+          },
+          "lat": {
+            "avg_ticks": 1052,
+            "max_ticks": 1879,
+            "avg_us_nominal": 17.533333333333335,
+            "max_us_nominal": 31.316666666666666
+          },
+          "isr": {
+            "avg_ticks": 404,
+            "max_ticks": 1197,
+            "avg_us_nominal": 6.733333333333333,
+            "max_us_nominal": 19.95
+          }
+        },
+        "AUD": {
+          "mode": 2,
+          "in": 2455686,
+          "out": 2455686,
+          "blk": 1227842,
+          "ovr": 0,
+          "und": 0,
+          "full": 0,
+          "err": 0
+        },
+        "T": {
+          "nproc": 1227844,
+          "last": 122594,
+          "max": 138297,
+          "avg": 122804,
+          "arena": 118688,
+          "tick_ms": 2183123055,
+          "tick_ms_aux": 3329350
+        },
+        "RS_samples_us_historical": [
+          [
+            20,
+            2087,
+            2180
+          ],
+          [
+            17,
+            2068,
+            2152
+          ],
+          [
+            17,
+            2072,
+            2155
+          ],
+          [
+            17,
+            2072,
+            2156
+          ],
+          [
+            17,
+            2075,
+            2159
+          ],
+          [
+            17,
+            2070,
+            2153
+          ],
+          [
+            17,
+            2076,
+            2159
+          ],
+          [
+            17,
+            2075,
+            2158
+          ],
+          [
+            17,
+            2070,
+            2153
+          ],
+          [
+            17,
+            2093,
+            2177
+          ],
+          [
+            17,
+            2074,
+            2158
+          ],
+          [
+            17,
+            2071,
+            2155
+          ],
+          [
+            17,
+            2078,
+            2161
+          ],
+          [
+            17,
+            2113,
+            2197
+          ],
+          [
+            17,
+            2069,
+            2152
+          ],
+          [
+            17,
+            2075,
+            2159
+          ]
+        ]
+      },
+      {
+        "observed_utc": "2026-11-16T05:59:59.293841+00:00",
+        "STG_window": 2399,
+        "stages": {
+          "in": {
+            "avg_ticks": 2419,
+            "max_ticks": 3843,
+            "avg_us_nominal": 40.31666666666667,
+            "max_us_nominal": 64.05
+          },
+          "pre": {
+            "avg_ticks": 169,
+            "max_ticks": 699,
+            "avg_us_nominal": 2.816666666666667,
+            "max_us_nominal": 11.65
+          },
+          "eng": {
+            "avg_ticks": 124606,
+            "max_ticks": 131383,
+            "avg_us_nominal": 2076.766666666667,
+            "max_us_nominal": 2189.7166666666667
+          },
+          "post": {
+            "avg_ticks": 533,
+            "max_ticks": 982,
+            "avg_us_nominal": 8.883333333333333,
+            "max_us_nominal": 16.366666666666667
+          },
+          "out": {
+            "avg_ticks": 890,
+            "max_ticks": 1162,
+            "avg_us_nominal": 14.833333333333334,
+            "max_us_nominal": 19.366666666666667
+          },
+          "blk": {
+            "avg_ticks": 128731,
+            "max_ticks": 135502,
+            "avg_us_nominal": 2145.516666666667,
+            "max_us_nominal": 2258.366666666667
+          },
+          "lat": {
+            "avg_ticks": 1054,
+            "max_ticks": 1896,
+            "avg_us_nominal": 17.566666666666666,
+            "max_us_nominal": 31.6
+          },
+          "isr": {
+            "avg_ticks": 403,
+            "max_ticks": 980,
+            "avg_us_nominal": 6.716666666666667,
+            "max_us_nominal": 16.333333333333332
+          }
+        },
+        "AUD": {
+          "mode": 2,
+          "in": 2456902,
+          "out": 2456902,
+          "blk": 1228450,
+          "ovr": 0,
+          "und": 0,
+          "full": 0,
+          "err": 0
+        },
+        "T": {
+          "nproc": 1228450,
+          "last": 122824,
+          "max": 129597,
+          "avg": 122804,
+          "arena": 118688,
+          "tick_ms": 2279954473,
+          "tick_ms_aux": 3330970
+        },
+        "RS_samples_us_historical": [
+          [
+            20,
+            2087,
+            2180
+          ],
+          [
+            17,
+            2068,
+            2152
+          ],
+          [
+            17,
+            2072,
+            2155
+          ],
+          [
+            17,
+            2072,
+            2156
+          ],
+          [
+            17,
+            2075,
+            2159
+          ],
+          [
+            17,
+            2070,
+            2153
+          ],
+          [
+            17,
+            2076,
+            2159
+          ],
+          [
+            17,
+            2075,
+            2158
+          ],
+          [
+            17,
+            2070,
+            2153
+          ],
+          [
+            17,
+            2093,
+            2177
+          ],
+          [
+            17,
+            2074,
+            2158
+          ],
+          [
+            17,
+            2071,
+            2155
+          ],
+          [
+            17,
+            2078,
+            2161
+          ],
+          [
+            17,
+            2113,
+            2197
+          ],
+          [
+            17,
+            2069,
+            2152
+          ],
+          [
+            17,
+            2075,
+            2159
+          ]
+        ]
+      },
+      {
+        "observed_utc": "2026-11-16T06:00:00.909006+00:00",
+        "STG_window": 2400,
+        "stages": {
+          "in": {
+            "avg_ticks": 2414,
+            "max_ticks": 2849,
+            "avg_us_nominal": 40.233333333333334,
+            "max_us_nominal": 47.483333333333334
+          },
+          "pre": {
+            "avg_ticks": 167,
+            "max_ticks": 170,
+            "avg_us_nominal": 2.783333333333333,
+            "max_us_nominal": 2.8333333333333335
+          },
+          "eng": {
+            "avg_ticks": 124585,
+            "max_ticks": 127804,
+            "avg_us_nominal": 2076.4166666666665,
+            "max_us_nominal": 2130.0666666666666
+          },
+          "post": {
+            "avg_ticks": 533,
+            "max_ticks": 824,
+            "avg_us_nominal": 8.883333333333333,
+            "max_us_nominal": 13.733333333333333
+          },
+          "out": {
+            "avg_ticks": 893,
+            "max_ticks": 2522,
+            "avg_us_nominal": 14.883333333333333,
+            "max_us_nominal": 42.03333333333333
+          },
+          "blk": {
+            "avg_ticks": 128706,
+            "max_ticks": 131917,
+            "avg_us_nominal": 2145.1,
+            "max_us_nominal": 2198.616666666667
+          },
+          "lat": {
+            "avg_ticks": 1055,
+            "max_ticks": 1887,
+            "avg_us_nominal": 17.583333333333332,
+            "max_us_nominal": 31.45
+          },
+          "isr": {
+            "avg_ticks": 402,
+            "max_ticks": 983,
+            "avg_us_nominal": 6.7,
+            "max_us_nominal": 16.383333333333333
+          }
+        },
+        "AUD": {
+          "mode": 2,
+          "in": 2458112,
+          "out": 2458112,
+          "blk": 1229055,
+          "ovr": 0,
+          "und": 0,
+          "full": 0,
+          "err": 0
+        },
+        "T": {
+          "nproc": 1229058,
+          "last": 122631,
+          "max": 127927,
+          "avg": 122804,
+          "arena": 118688,
+          "tick_ms": 2377052226,
+          "tick_ms_aux": 3332580
+        },
+        "RS_samples_us_historical": [
+          [
+            20,
+            2087,
+            2180
+          ],
+          [
+            17,
+            2068,
+            2152
+          ],
+          [
+            17,
+            2072,
+            2155
+          ],
+          [
+            17,
+            2072,
+            2156
+          ],
+          [
+            17,
+            2075,
+            2159
+          ],
+          [
+            17,
+            2070,
+            2153
+          ],
+          [
+            17,
+            2076,
+            2159
+          ],
+          [
+            17,
+            2075,
+            2158
+          ],
+          [
+            17,
+            2070,
+            2153
+          ],
+          [
+            17,
+            2093,
+            2177
+          ],
+          [
+            17,
+            2074,
+            2158
+          ],
+          [
+            17,
+            2071,
+            2155
+          ],
+          [
+            17,
+            2078,
+            2161
+          ],
+          [
+            17,
+            2113,
+            2197
+          ],
+          [
+            17,
+            2069,
+            2152
+          ],
+          [
+            17,
+            2075,
+            2159
+          ]
+        ]
+      }
+    ],
+    "RS_identical_across_all_three": true,
+    "internal_block_avg_ms_nominal_range": [
+      2.1451,
+      2.1455166666666665
+    ],
+    "internal_block_max_ms_nominal": 2.258366666666667,
+    "queue_avg_us_nominal_range": [
+      17.533333333333335,
+      17.583333333333332
+    ],
+    "queue_max_us_nominal": 31.6,
+    "no_AUD_overrun_underrun_full_error_in_observed_window": true,
+    "claim_limit": "No FX were enabled. Timing units are nominal and do not include analog conversion/ring delays. Peaks do not establish sound quality."
+  },
+  "FX_limits": {
+    "actual_catalog_types": 37,
+    "max_instances_total": 16,
+    "max_instances_per_bank": 10,
+    "parallel_groups_per_bank_editor": 3,
+    "catalog_default_cost_sum_ticks": 170822,
+    "catalog_default_memory_sum_bytes": 341328,
+    "current_A2_remaining_cost_ticks": 21364,
+    "current_fxcap_bytes": 113096,
+    "current_largest_pool_allocation_bytes": 102384,
+    "lowest_16_distinct_default_cost_ticks": 26365,
+    "lowest_16_distinct_type_ids": [
+      2,
+      14,
+      1,
+      8,
+      28,
+      26,
+      38,
+      25,
+      15,
+      4,
+      11,
+      5,
+      12,
+      13,
+      37,
+      3
+    ],
+    "admission_limit": "Costs are original estimates, not latency measurements. Runtime bank/instance, CPU, memory and algorithm-specific checks apply; parameters and oversampling may alter admission/cost. FXS readback is authoritative.",
+    "catalog": [
+      {
+        "id": 1,
+        "name": "gate",
+        "default_cost_ticks": 490,
+        "category": "dynamics",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 1 gate cost=490 cat=dynamics mem=0",
+        "detail_lines": [
+          "FXT  0 umbral_db -90..0 (-70)",
+          "FXT  1 release_ms 5..1000 (120)"
+        ]
+      },
+      {
+        "id": 2,
+        "name": "boost",
+        "default_cost_ticks": 340,
+        "category": "drive",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 2 boost cost=340 cat=drive mem=0",
+        "detail_lines": [
+          "FXT  0 ganancia_db -12..24 (6)"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "overdrive",
+        "default_cost_ticks": 3545,
+        "category": "drive",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 3 overdrive cost=3545 cat=drive mem=0",
+        "detail_lines": [
+          "FXT  0 drive_db 0..40 (18)",
+          "FXT  1 tono_hz 1000..9000 (4000)",
+          "FXT  2 nivel_db -30..0 (-8)",
+          "FXT  3 os_n 0..3 (1)",
+          "FXT  4 limpio_pct 0..100 (0)",
+          "FXT  os tiers=0,1,3 cost=965,3545,5675"
+        ]
+      },
+      {
+        "id": 4,
+        "name": "eq",
+        "default_cost_ticks": 1795,
+        "category": "eq",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 4 eq cost=1795 cat=eq mem=0",
+        "detail_lines": [
+          "FXT  0 graves_db -15..15 (0)",
+          "FXT  1 medios_db -15..15 (0)",
+          "FXT  2 medios_hz 200..5000 (800)",
+          "FXT  3 agudos_db -15..15 (0)"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "delay",
+        "default_cost_ticks": 1940,
+        "category": "delay",
+        "default_memory_bytes": 34864,
+        "extra": "memmax=198544",
+        "header": "FXT 5 delay cost=1940 cat=delay mem=34864 memmax=198544",
+        "detail_lines": [
+          "FXT  0 tiempo_ms 10..2000 (350)",
+          "FXT  1 realim_pct 0..95 (35)",
+          "FXT  2 mezcla_pct 0..100 (30)",
+          "FXT  3 amort_pct 0..90 (30)",
+          "FXT  4 sync 0..9 (0)",
+          "FXT  5 lowcut_hz 0..800 (0)",
+          "FXT  6 mono 0..1 (0)"
+        ]
+      },
+      {
+        "id": 7,
+        "name": "ir",
+        "default_cost_ticks": 3727,
+        "category": "cab",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 7 ir cost=3727 cat=cab mem=0",
+        "detail_lines": [
+          "FXT  0 mezcla_pct 0..100 (100)",
+          "FXT  1 nivel_db -30..12 (0)",
+          "FXT  2 ir_slot 0..8 (0)",
+          "FXT  3 largo_ms 0..85 (21)"
+        ]
+      },
+      {
+        "id": 8,
+        "name": "comp",
+        "default_cost_ticks": 825,
+        "category": "dynamics",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 8 comp cost=825 cat=dynamics mem=0",
+        "detail_lines": [
+          "FXT  0 umbral_db -50..0 (-24)",
+          "FXT  1 ratio_x10 10..200 (40)",
+          "FXT  2 ataque_ms 1..100 (8)",
+          "FXT  3 release_ms 20..1000 (150)",
+          "FXT  4 nivel_db -12..24 (6)",
+          "FXT  5 mezcla_pct 0..100 (100)"
+        ]
+      },
+      {
+        "id": 9,
+        "name": "ts9",
+        "default_cost_ticks": 4715,
+        "category": "drive",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 9 ts9 cost=4715 cat=drive mem=0",
+        "detail_lines": [
+          "FXT  0 drive_pct 0..100 (50)",
+          "FXT  1 tono_pct 0..100 (50)",
+          "FXT  2 nivel_db -30..6 (-6)",
+          "FXT  3 os_n 0..3 (1)",
+          "FXT  4 limpio_pct 0..100 (0)",
+          "FXT  os tiers=0,1,3 cost=1550,4715,7475"
+        ]
+      },
+      {
+        "id": 10,
+        "name": "ds1",
+        "default_cost_ticks": 4755,
+        "category": "dist",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 10 ds1 cost=4755 cat=dist mem=0",
+        "detail_lines": [
+          "FXT  0 dist_pct 0..100 (50)",
+          "FXT  1 tono_pct 0..100 (50)",
+          "FXT  2 nivel_db -30..6 (-10)",
+          "FXT  3 os_n 0..3 (1)",
+          "FXT  4 limpio_pct 0..100 (0)",
+          "FXT  os tiers=0,1,3 cost=1570,4755,6925"
+        ]
+      },
+      {
+        "id": 11,
+        "name": "chorus",
+        "default_cost_ticks": 1795,
+        "category": "mod",
+        "default_memory_bytes": 2080,
+        "extra": "",
+        "header": "FXT 11 chorus cost=1795 cat=mod mem=2080",
+        "detail_lines": [
+          "FXT  0 vel_chz 5..500 (80)",
+          "FXT  1 prof_pct 0..100 (50)",
+          "FXT  2 mezcla_pct 0..100 (50)",
+          "FXT  3 sync 0..12 (0)",
+          "FXT  4 lowcut_hz 0..800 (0)",
+          "FXT  5 mono 0..1 (0)"
+        ]
+      },
+      {
+        "id": 12,
+        "name": "flanger",
+        "default_cost_ticks": 2050,
+        "category": "mod",
+        "default_memory_bytes": 1056,
+        "extra": "",
+        "header": "FXT 12 flanger cost=2050 cat=mod mem=1056",
+        "detail_lines": [
+          "FXT  0 vel_chz 5..300 (25)",
+          "FXT  1 prof_pct 0..100 (70)",
+          "FXT  2 realim_pct -90..90 (50)",
+          "FXT  3 mezcla_pct 0..100 (50)",
+          "FXT  4 sync 0..12 (0)",
+          "FXT  5 lowcut_hz 0..800 (0)"
+        ]
+      },
+      {
+        "id": 13,
+        "name": "phaser",
+        "default_cost_ticks": 2225,
+        "category": "mod",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 13 phaser cost=2225 cat=mod mem=0",
+        "detail_lines": [
+          "FXT  0 vel_chz 5..500 (50)",
+          "FXT  1 prof_pct 0..100 (80)",
+          "FXT  2 realim_pct 0..90 (40)",
+          "FXT  3 sync 0..12 (0)",
+          "FXT  4 lowcut_hz 0..800 (0)"
+        ]
+      },
+      {
+        "id": 14,
+        "name": "tremolo",
+        "default_cost_ticks": 445,
+        "category": "mod",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 14 tremolo cost=445 cat=mod mem=0",
+        "detail_lines": [
+          "FXT  0 vel_chz 50..1500 (500)",
+          "FXT  1 prof_pct 0..100 (60)",
+          "FXT  2 forma_pct 0..100 (0)",
+          "FXT  3 sync 0..12 (0)",
+          "FXT  4 estereo 0..1 (0)"
+        ]
+      },
+      {
+        "id": 15,
+        "name": "vibrato",
+        "default_cost_ticks": 1785,
+        "category": "mod",
+        "default_memory_bytes": 2080,
+        "extra": "",
+        "header": "FXT 15 vibrato cost=1785 cat=mod mem=2080",
+        "detail_lines": [
+          "FXT  0 vel_chz 50..1000 (500)",
+          "FXT  1 prof_pct 0..100 (40)",
+          "FXT  2 sync 0..12 (0)",
+          "FXT  3 mono 0..1 (0)"
+        ]
+      },
+      {
+        "id": 16,
+        "name": "klon",
+        "default_cost_ticks": 4175,
+        "category": "drive",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 16 klon cost=4175 cat=drive mem=0",
+        "detail_lines": [
+          "FXT  0 ganancia_pct 0..100 (40)",
+          "FXT  1 agudos_pct 0..100 (50)",
+          "FXT  2 nivel_db -30..6 (-6)",
+          "FXT  3 mezcla_pct 0..100 (50)",
+          "FXT  4 os_n 0..3 (1)",
+          "FXT  os tiers=0,1,3 cost=1280,4175,7820"
+        ]
+      },
+      {
+        "id": 17,
+        "name": "rat",
+        "default_cost_ticks": 3875,
+        "category": "dist",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 17 rat cost=3875 cat=dist mem=0",
+        "detail_lines": [
+          "FXT  0 dist_pct 0..100 (50)",
+          "FXT  1 filtro_pct 0..100 (40)",
+          "FXT  2 nivel_db -30..6 (-10)",
+          "FXT  3 os_n 0..3 (1)",
+          "FXT  4 limpio_pct 0..100 (0)",
+          "FXT  os tiers=0,1,3 cost=1130,3875,7910"
+        ]
+      },
+      {
+        "id": 18,
+        "name": "muff",
+        "default_cost_ticks": 9415,
+        "category": "dist",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 18 muff cost=9415 cat=dist mem=0",
+        "detail_lines": [
+          "FXT  0 sustain_pct 0..100 (50)",
+          "FXT  1 tono_pct 0..100 (50)",
+          "FXT  2 nivel_db -30..6 (-10)",
+          "FXT  3 os_n 0..3 (3)",
+          "FXT  4 limpio_pct 0..100 (0)",
+          "FXT  os tiers=0,1,3 cost=1640,4895,9415"
+        ]
+      },
+      {
+        "id": 19,
+        "name": "fuzzface",
+        "default_cost_ticks": 7630,
+        "category": "dist",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 19 fuzzface cost=7630 cat=dist mem=0",
+        "detail_lines": [
+          "FXT  0 fuzz_pct 0..100 (70)",
+          "FXT  1 bias_pct 0..100 (50)",
+          "FXT  2 tono_pct 0..100 (60)",
+          "FXT  3 nivel_db -30..6 (-10)",
+          "FXT  4 os_n 0..3 (3)",
+          "FXT  5 limpio_pct 0..100 (0)",
+          "FXT  6 modelo 0..1 (0)",
+          "FXT  os tiers=0,1,3 cost=1760,5135,7630"
+        ]
+      },
+      {
+        "id": 20,
+        "name": "bd2",
+        "default_cost_ticks": 4145,
+        "category": "drive",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 20 bd2 cost=4145 cat=drive mem=0",
+        "detail_lines": [
+          "FXT  0 drive_pct 0..100 (50)",
+          "FXT  1 tono_pct 0..100 (50)",
+          "FXT  2 nivel_db -30..6 (-8)",
+          "FXT  3 os_n 0..3 (1)",
+          "FXT  4 limpio_pct 0..100 (0)",
+          "FXT  os tiers=0,1,3 cost=1265,4145,7980"
+        ]
+      },
+      {
+        "id": 21,
+        "name": "amp_clean",
+        "default_cost_ticks": 6685,
+        "category": "amp",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 21 amp_clean cost=6685 cat=amp mem=0",
+        "detail_lines": [
+          "FXT  0 ganancia_pct 0..100 (40)",
+          "FXT  1 graves_pct 0..100 (50)",
+          "FXT  2 medios_pct 0..100 (50)",
+          "FXT  3 agudos_pct 0..100 (50)",
+          "FXT  4 presencia_pct 0..100 (40)",
+          "FXT  5 nivel_db -30..6 (-6)",
+          "FXT  6 os_n 0..3 (1)",
+          "FXT  os tiers=0,1,3 cost=2535,6685,11505"
+        ]
+      },
+      {
+        "id": 22,
+        "name": "amp_brit",
+        "default_cost_ticks": 7265,
+        "category": "amp",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 22 amp_brit cost=7265 cat=amp mem=0",
+        "detail_lines": [
+          "FXT  0 ganancia_pct 0..100 (50)",
+          "FXT  1 graves_pct 0..100 (50)",
+          "FXT  2 medios_pct 0..100 (60)",
+          "FXT  3 agudos_pct 0..100 (55)",
+          "FXT  4 presencia_pct 0..100 (50)",
+          "FXT  5 nivel_db -30..6 (-6)",
+          "FXT  6 os_n 0..3 (1)",
+          "FXT  os tiers=0,1,3 cost=2825,7265,14795"
+        ]
+      },
+      {
+        "id": 23,
+        "name": "amp_hi",
+        "default_cost_ticks": 16785,
+        "category": "amp",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 23 amp_hi cost=16785 cat=amp mem=0",
+        "detail_lines": [
+          "FXT  0 ganancia_pct 0..100 (60)",
+          "FXT  1 graves_pct 0..100 (55)",
+          "FXT  2 medios_pct 0..100 (30)",
+          "FXT  3 agudos_pct 0..100 (60)",
+          "FXT  4 presencia_pct 0..100 (50)",
+          "FXT  5 nivel_db -30..6 (-8)",
+          "FXT  6 os_n 0..3 (3)",
+          "FXT  os tiers=0,1,3 cost=3285,8185,16785"
+        ]
+      },
+      {
+        "id": 25,
+        "name": "doubler",
+        "default_cost_ticks": 1750,
+        "category": "mod",
+        "default_memory_bytes": 8208,
+        "extra": "",
+        "header": "FXT 25 doubler cost=1750 cat=mod mem=8208",
+        "detail_lines": [
+          "FXT  0 retardo_ms 5..40 (20)",
+          "FXT  1 detune_ct -20..20 (7)",
+          "FXT  2 mezcla_pct 0..100 (50)",
+          "FXT  3 nivel_db -30..12 (0)",
+          "FXT  4 estereo 0..2 (0)",
+          "FXT  5 ancho_pct 0..100 (100)",
+          "FXT  6 modo_st 0..2 (1)"
+        ]
+      },
+      {
+        "id": 26,
+        "name": "hum",
+        "default_cost_ticks": 1370,
+        "category": "eq",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 26 hum cost=1370 cat=eq mem=0",
+        "detail_lines": [
+          "FXT  0 mains_hz 50..60 (50)",
+          "FXT  1 depth_att 3..40 (24)",
+          "FXT  2 ancho_hz 1..20 (4)",
+          "FXT  3 armonicos_n 1..4 (2)"
+        ]
+      },
+      {
+        "id": 27,
+        "name": "reverb2",
+        "default_cost_ticks": 8200,
+        "category": "reverb",
+        "default_memory_bytes": 54448,
+        "extra": "pcmax=9980",
+        "header": "FXT 27 reverb2 cost=8200 cat=reverb mem=54448 pcmax=9980",
+        "detail_lines": [
+          "FXT  0 tamano_pct 0..100 (60)",
+          "FXT  1 decay_pct 0..100 (50)",
+          "FXT  2 amort_pct 0..100 (40)",
+          "FXT  3 predelay_ms 0..100 (15)",
+          "FXT  4 mezcla_pct 0..100 (30)",
+          "FXT  5 nivel_db -24..12 (0)",
+          "FXT  6 mod_pct 0..100 (40)"
+        ]
+      },
+      {
+        "id": 28,
+        "name": "sgate",
+        "default_cost_ticks": 1065,
+        "category": "dynamics",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 28 sgate cost=1065 cat=dynamics mem=0",
+        "detail_lines": [
+          "FXT  0 umbral_db -90..-20 (-52)",
+          "FXT  1 rango_att 6..90 (60)",
+          "FXT  2 release_ms 20..1000 (200)",
+          "FXT  3 hush_pct 0..100 (40)"
+        ]
+      },
+      {
+        "id": 29,
+        "name": "pitchpro",
+        "default_cost_ticks": 4450,
+        "category": "mod",
+        "default_memory_bytes": 8208,
+        "extra": "memmax=64688 pcmax=56496",
+        "header": "FXT 29 pitchpro cost=4450 cat=mod mem=8208 memmax=64688 pcmax=56496",
+        "detail_lines": [
+          "FXT  0 semitonos_st -12..12 (12)",
+          "FXT  1 cents_ct -50..50 (0)",
+          "FXT  2 mezcla_pct 0..100 (50)",
+          "FXT  3 nivel_db -30..12 (0)",
+          "FXT  4 ventana_ms 10..27 (25)",
+          "FXT  5 ataque_pct 0..100 (50)",
+          "FXT  6 modo 0..2 (0)",
+          "FXT  pp modes=0,2"
+        ]
+      },
+      {
+        "id": 30,
+        "name": "spectral",
+        "default_cost_ticks": 5400,
+        "category": "reverb",
+        "default_memory_bytes": 20424,
+        "extra": "",
+        "header": "FXT 30 spectral cost=5400 cat=reverb mem=20424",
+        "detail_lines": [
+          "FXT  0 decay_pct 0..100 (55)",
+          "FXT  1 amort_pct 0..100 (40)",
+          "FXT  2 difus_pct 0..100 (70)",
+          "FXT  3 mezcla_pct 0..100 (35)",
+          "FXT  4 nivel_db -24..12 (0)"
+        ]
+      },
+      {
+        "id": 31,
+        "name": "shimmer",
+        "default_cost_ticks": 9900,
+        "category": "reverb",
+        "default_memory_bytes": 54244,
+        "extra": "pcmax=8472",
+        "header": "FXT 31 shimmer cost=9900 cat=reverb mem=54244 pcmax=8472",
+        "detail_lines": [
+          "FXT  0 tamano_pct 0..100 (55)",
+          "FXT  1 decay_pct 0..100 (70)",
+          "FXT  2 amort_pct 0..100 (45)",
+          "FXT  3 intervalo 0..3 (0)",
+          "FXT  4 mezcla_pct 0..100 (34)",
+          "FXT  5 nivel_db -24..12 (0)",
+          "FXT  6 shimmer_pct 0..100 (22)"
+        ]
+      },
+      {
+        "id": 32,
+        "name": "hybrid",
+        "default_cost_ticks": 9700,
+        "category": "reverb",
+        "default_memory_bytes": 41000,
+        "extra": "pcmax=9980",
+        "header": "FXT 32 hybrid cost=9700 cat=reverb mem=41000 pcmax=9980",
+        "detail_lines": [
+          "FXT  0 tamano_pct 0..100 (50)",
+          "FXT  1 decay_pct 0..100 (45)",
+          "FXT  2 amort_pct 0..100 (40)",
+          "FXT  3 predelay_ms 0..100 (12)",
+          "FXT  4 mezcla_pct 0..100 (30)",
+          "FXT  5 nivel_db -24..12 (0)",
+          "FXT  6 er_pct 0..100 (55)"
+        ]
+      },
+      {
+        "id": 33,
+        "name": "plate",
+        "default_cost_ticks": 7100,
+        "category": "reverb",
+        "default_memory_bytes": 54944,
+        "extra": "pcmax=9980",
+        "header": "FXT 33 plate cost=7100 cat=reverb mem=54944 pcmax=9980",
+        "detail_lines": [
+          "FXT  0 tamano_pct 0..100 (60)",
+          "FXT  1 decay_pct 0..100 (55)",
+          "FXT  2 amort_pct 0..100 (25)",
+          "FXT  3 predelay_ms 0..100 (10)",
+          "FXT  4 mezcla_pct 0..100 (30)",
+          "FXT  5 nivel_db -24..12 (0)",
+          "FXT  6 mod_pct 0..100 (40)"
+        ]
+      },
+      {
+        "id": 34,
+        "name": "spring",
+        "default_cost_ticks": 7700,
+        "category": "reverb",
+        "default_memory_bytes": 6056,
+        "extra": "pcmax=1956",
+        "header": "FXT 34 spring cost=7700 cat=reverb mem=6056 pcmax=1956",
+        "detail_lines": [
+          "FXT  0 dwell_pct 0..100 (40)",
+          "FXT  1 decay_pct 0..100 (45)",
+          "FXT  2 tono_pct 0..100 (50)",
+          "FXT  3 resortes_n 1..3 (2)",
+          "FXT  4 mezcla_pct 0..100 (30)",
+          "FXT  5 nivel_db -24..12 (0)",
+          "FXT  6 drip_pct 0..100 (60)"
+        ]
+      },
+      {
+        "id": 35,
+        "name": "cloud",
+        "default_cost_ticks": 8200,
+        "category": "reverb",
+        "default_memory_bytes": 51636,
+        "extra": "pcmax=6448",
+        "header": "FXT 35 cloud cost=8200 cat=reverb mem=51636 pcmax=6448",
+        "detail_lines": [
+          "FXT  0 tamano_pct 0..100 (70)",
+          "FXT  1 decay_pct 0..100 (65)",
+          "FXT  2 amort_pct 0..100 (35)",
+          "FXT  3 mod_pct 0..100 (50)",
+          "FXT  4 mezcla_pct 0..100 (40)",
+          "FXT  5 nivel_db -24..12 (0)",
+          "FXT  6 freeze 0..1 (0)"
+        ]
+      },
+      {
+        "id": 36,
+        "name": "geq",
+        "default_cost_ticks": 4105,
+        "category": "eq",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 36 geq cost=4105 cat=eq mem=0",
+        "detail_lines": [
+          "FXT  0 g50_db -12..12 (0)",
+          "FXT  1 g125_db -12..12 (0)",
+          "FXT  2 g315_db -12..12 (0)",
+          "FXT  3 g800_db -12..12 (0)",
+          "FXT  4 g2k_db -12..12 (0)",
+          "FXT  5 g5k_db -12..12 (0)",
+          "FXT  6 nivel_db -12..12 (0)"
+        ]
+      },
+      {
+        "id": 37,
+        "name": "basseq",
+        "default_cost_ticks": 3455,
+        "category": "eq",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 37 basseq cost=3455 cat=eq mem=0",
+        "detail_lines": [
+          "FXT  0 graves_db -15..15 (0)",
+          "FXT  1 bajos_db -15..15 (0)",
+          "FXT  2 medios_db -15..15 (0)",
+          "FXT  3 altos_db -15..15 (0)",
+          "FXT  4 agudos_db -15..15 (0)",
+          "FXT  5 nivel_db -15..15 (0)",
+          "FXT  6 geb7 0..1023 (0)"
+        ]
+      },
+      {
+        "id": 38,
+        "name": "envfilter",
+        "default_cost_ticks": 1490,
+        "category": "mod",
+        "default_memory_bytes": 0,
+        "extra": "",
+        "header": "FXT 38 envfilter cost=1490 cat=mod mem=0",
+        "detail_lines": [
+          "FXT  0 sens_pct 0..100 (50)",
+          "FXT  1 frec_lo_hz 40..1000 (300)",
+          "FXT  2 frec_hi_hz 200..8000 (2400)",
+          "FXT  3 reso_pct 0..100 (50)",
+          "FXT  4 decay_pct 0..100 (40)",
+          "FXT  5 filtro_modo 0..7 (1)",
+          "FXT  6 mezcla_pct 0..100 (100)"
+        ]
+      },
+      {
+        "id": 39,
+        "name": "rotary",
+        "default_cost_ticks": 6530,
+        "category": "mod",
+        "default_memory_bytes": 2080,
+        "extra": "",
+        "header": "FXT 39 rotary cost=6530 cat=mod mem=2080",
+        "detail_lines": [
+          "FXT  0 velocidad 0..2 (0)",
+          "FXT  1 drive_pct 0..100 (20)",
+          "FXT  2 rapido_chz 300..1000 (667)",
+          "FXT  3 inercia_pct 0..2660 (50)",
+          "FXT  4 bocina_pct 0..100 (50)",
+          "FXT  5 distancia_pct 0..100 (40)",
+          "FXT  6 mezcla_pct 0..100 (100)"
+        ]
+      }
+    ]
+  },
+  "measurement_plan": {
+    "status": "planned only; no FX mutation performed by this audit",
+    "scope": "Use the chosen preset with every present effect enabled, or a gradually admitted stress chain when no preset is specified. Do not label either as all 37 types simultaneously.",
+    "prerequisite": "Root verifies actual first-preset PSAVE/SNAPSAVE/PLOAD roundtrip before stress; preserve the saved baseline and use PLOAD 0 to restore when that slot has been physically established.",
+    "preserve": [
+      "FXS blocks, bank/order, enabled flags, parameters, mix/routing and actual oversampling",
+      "GAIN and MODEL/capture/IR references",
+      "PLIST current and SNAPS state",
+      "FXT ranges and MEM resource state"
+    ],
+    "read_queries": [
+      "PING",
+      "CLKSTATE",
+      "MODEL",
+      "FXS",
+      "GAIN",
+      "MEM",
+      "STAT"
+    ],
+    "freshness": "Read STAT immediately after a settled state; require at least two later STG window increments before accepting a measurement, then collect 3-5 distinct complete STG windows while FXS/model/gain/clock remain unchanged.",
+    "bounds": {
+      "STAT_samples_max": 12,
+      "measurement_seconds_max": 20,
+      "target_distinct_fresh_windows": 3,
+      "FX_instance_limit": 16,
+      "per_bank_limit": 10
+    },
+    "report": [
+      "Raw ticks and nominal time conversion",
+      "Exact chain and actual parameters/oversampling",
+      "STG avg/max and window numbers; no percentile from averages",
+      "T.nproc and AUD/DSP/FX counter differences",
+      "Overrun, underrun, full, error, timeout, skipped/cancelled deltas",
+      "State after PLOAD baseline restoration"
+    ],
+    "mutations": "Separate exact experimental FXA/FXP/FXE trial only; no general app family grant from this plan. No PSAVE/GSAVE or deletion of existing slots during latency stress.",
+    "avoid": [
+      "Do not use stale RS as new latency data",
+      "Do not sum stage maxima as one observed block",
+      "Do not subtract unrelated maxima to infer effect cost",
+      "Do not force rejected CPU/memory allocations",
+      "Do not reset audio solely to rearm RS"
+    ]
+  },
+  "physical_measurement": {
+    "status": "not performed; no confirmed physical routing or measurement interface",
+    "method": "With routing confirmed, record a reference signal and the processed analog output simultaneously, and compare their time positions; account for reference-path skew and the acquisition interface. USB command-response time is not audio latency.",
+    "effect_limit": "Delay/reverb predelay, pitch windows and modulation intentionally shift/spread signal energy; report earliest/dry-path transport and effect delay separately. A strongest correlation peak alone may select an intended echo.",
+    "inventory_limit": "Generic Windows USB Audio names do not identify MINI or a usable measurement interface; do not infer physical routing from them."
+  },
+  "RAM_copy_mapping": {
+    "RAM_base": "0x01C00000",
+    "decoded_area_source_offset": "0x00056780",
+    "source": "Unchanged G app RAM copy; independently established in previous_A2_audit."
+  },
+  "fragments": [
+    {
+      "name": "timer3_read",
+      "cpu_start": "0x01c04862",
+      "cpu_end_exclusive": "0x01c0486c",
+      "decoded_area_offset": 372706,
+      "flash_copy_address": "0x0205afe2",
+      "bytes": 10,
+      "original_sha256": "ad3f7fb44493817e416381ba343bd67813eeebe77464bc67dbf3e3fbab60fff1",
+      "candidate_sha256": "ad3f7fb44493817e416381ba343bd67813eeebe77464bc67dbf3e3fbab60fff1",
+      "byte_identical": true,
+      "bytes_hex": "c0ff0407010000608000",
+      "disassembly": [
+        "01c04862  c0 ff 04 07 01 00  r0 = 67332 ; 0x00010704",
+        "01c04868  00 60              r0 = [r0+0]",
+        "01c0486a  80 00              rts"
+      ]
+    },
+    {
+      "name": "timer3_init",
+      "cpu_start": "0x01c04a5c",
+      "cpu_end_exclusive": "0x01c04a7a",
+      "decoded_area_offset": 373212,
+      "flash_copy_address": "0x0205b1dc",
+      "bytes": 30,
+      "original_sha256": "a37c4eea07d40ce5f0752bb00b352da5dd5ebfb37fc5a52b75a1e6764eee9e9a",
+      "candidate_sha256": "a37c4eea07d40ce5f0752bb00b352da5dd5ebfb37fc5a52b75a1e6764eee9e9a",
+      "byte_identical": true,
+      "bytes_hex": "c1ff00070100106020ea01c040ea801c42eaff1341ea001040ea01108000",
+      "disassembly": [
+        "01c04a5c  c1 ff 00 07 01 00  r1 = 67328 ; 0x00010700",
+        "01c04a62  10 60              r0 = [r1+0]",
+        "01c04a64  20 ea 01 c0        if ((r0 & 0x1) == 0) {",
+        "01c04a68  40 ea 80 1c        [r1+0] = 0x4000",
+        "01c04a6c  42 ea ff 13        [r1+8] = 0xFFFFFFFF",
+        "01c04a70  41 ea 00 10        [r1+4] = 0x0",
+        "01c04a74  40 ea 01 10        [r1+0] = 0x1",
+        "01c04a78  80 00              rts"
+      ]
+    },
+    {
+      "name": "nominal_ticks_per_ms",
+      "cpu_start": "0x02002bd8",
+      "cpu_end_exclusive": "0x02002bec",
+      "decoded_area_offset": 11224,
+      "flash_copy_address": "0x02002bd8",
+      "bytes": 20,
+      "original_sha256": "30c0c12cfb3add81653bb701a656a0321550a10607d56f7731eb96a41971ea7f",
+      "candidate_sha256": "30c0c12cfb3add81653bb701a656a0321550a10607d56f7731eb96a41971ea7f",
+      "byte_identical": true,
+      "bytes_hex": "c0ff80f1c101006be0e17a0f4126f4e100018000",
+      "disassembly": [
+        "02002bd8  c0 ff 80 f1 c1 01  r0 = 29487488 ; 0x01c1f180",
+        "02002bde  00 6b              r0 = [r0+44]",
+        "02002be0  e0 e1 7a 0f        r0 = r0 * 0x3E8",
+        "02002be4  41 26              r1 = 6",
+        "02002be6  f4 e1 00 01        r0 = r0 / r1 (u)",
+        "02002bea  80 00              rts"
+      ]
+    },
+    {
+      "name": "coarse_milliseconds",
+      "cpu_start": "0x020059ee",
+      "cpu_end_exclusive": "0x020059fc",
+      "decoded_area_offset": 23022,
+      "flash_copy_address": "0x020059ee",
+      "bytes": 14,
+      "original_sha256": "ad5a35d347d3b3b95d20f41fbe2671599ce8656b009699b392c0a6f49686937d",
+      "candidate_sha256": "ad5a35d347d3b3b95d20f41fbe2671599ce8656b009699b392c0a6f49686937d",
+      "byte_identical": true,
+      "bytes_hex": "c0ff80f1c1010066e0e10a008000",
+      "disassembly": [
+        "020059ee  c0 ff 80 f1 c1 01  r0 = 29487488 ; 0x01c1f180",
+        "020059f4  00 66              r0 = [r0+24]",
+        "020059f6  e0 e1 0a 00        r0 = r0 * 0xA",
+        "020059fa  80 00              rts"
+      ]
+    },
+    {
+      "name": "STAT_whole_function",
+      "cpu_start": "0x0200ffea",
+      "cpu_end_exclusive": "0x020103f8",
+      "decoded_area_offset": 65514,
+      "flash_copy_address": "0x0200ffea",
+      "bytes": 1038,
+      "original_sha256": "fcc61dfce47a53bc7cd71b0d90f3ae2ae34f72d232367aa48b5859a90cdf1fe0",
+      "candidate_sha256": "fcc61dfce47a53bc7cd71b0d90f3ae2ae34f72d232367aa48b5859a90cdf1fe0",
+      "byte_identical": true,
+      "bytes_hex": "7f04a28fceff9068c201d1ece83100e1ecefd0ec0080d0ec0490d0ec08a0d0ec0cb00664076504660167026e45f00b04006fd8ecea55852a40f018228029822881278426d0e91160d0e909a0d0e90180b4e0e09040e03e25c1ff10580302121c41e000029016bfea65b4bfea6db401169016bfeae2b6cdffcc40c301d0ecd0008031d0ecd430d0ecd8a0d0ecdcb0d0ecd0f1d0ecdc61d0ecd072d0ecd402d0ecd413d0ecd823d0ecdc53d416d0ec4284d0ec44c0d4e92dc0d4e9298085298228d0e91900d0e91160d4e90df0c8ff10580302d0e905a040f010278320b4f08020033141e000029016bfea24b4bfea2cb401169016bfeaa1b64762d0ec4ca0d0ec40b184d44062005dd0ecd02ad0ecd405d0ecd814f4e12031131bae1e423f048fc8e1023263e10130a3e1fc6044a186fd020081e902303b1e3420fa3f361602fdef0140e00604d8ecea6080ff2847bfff0116bfea57ac12f1108f802541f00002812490d6862373d68422d0e901a0bfeae1b3bfeae9b301169016bfea5eb6049100e148e8d8ec0a05f8e82811d8ec1b0500e164e8d8ec0a05f8e80c11d8ec1b05c52185f8ed0f00e124e1d0ec0080036100628031d4e928018030d4e90c91d4e92ca1d4e910b1d4e930c1d4e914f1d4e93441d4e91851d4e93861d4e91c71d4e93c21d4e920d1d4e94011d4e92401832fd4e9398040f01822802d41f00002812cd4e92dd0cdffcc40c301822ad0e92160d0e91940d4e915f0cfff10580302d4e911c0d0e909a0d4e90590b4e0e04040e0f425b4f0f020003040d680200331bfea79b3bfea81b301164016bfeaf6b5d0ecd838d0ecdc0841e00404d8ecea11d0e9010012e13af441e000024016bfea62b3bfea6ab301164016bfeadfb5c0ff80f1c101016c4330b1ec0f00036c4020049801e1f0ebd8ec1a20f8e8cc40d8ec4b2002e14010d8ec2a20f8e88c40d8ec4b2001e18010d8ec1a10ca8cd8ec2b10c02180e8e631d1ecec0900a8301984a8bfea8e9409d6842040e01822b4e0e0a012e1bcf4351741e00002a0165316bfea22b3bfea2ab30116a016bfea9fb540e0e803f4e19060f8e84c90f8e88c40f8e8cc70049ad8ec9400f4f1000671054205f4f120068021f4f11036802002e171f541e00002a016bfeafeb2bfea06b30116a016bfea7bb5fd3ff54540e01822b4e0e0c002e103f041e00002c016bfeaebb2bfeaf3b20116c016bfea68b5c8884120c21480ff0c0d020015e104e05060bfeab4f509d651601016bfeaaff50bd651611016bfeaaaf508d651611016bfeaa5f5516b526c536d566e0732a0f00000546f8428d0e91960d0e911208123412af4e10121e2e10a20801ef4f181018022a0f000b08021f4e10121e2e10a20801e42f073278020f218f4e1913141e00002c016bfeaa1b2bfeaa9b20116c016bfea1eb5d0ec55a0d0ec51a0d0ecd1a542915f04",
+      "disassembly": [
+        "0200ffea  7f 04              [--sp] = {rets, r15-r4}",
+        "0200ffec  a2 8f              sp += -324",
+        "0200ffee  ce ff 90 68 c2 01  r14 = 29517968 ; 0x01c26890",
+        "0200fff4  d1 ec e8 31        r3 = [r14+280]",
+        "0200fff8  00 e1 ec ef        r0 = r14 + 4076",
+        "0200fffc  d0 ec 00 80        r8 = [r0+0]",
+        "02010000  d0 ec 04 90        r9 = [r0+4]",
+        "02010004  d0 ec 08 a0        r10 = [r0+8]",
+        "02010008  d0 ec 0c b0        r11 = [r0+12]",
+        "0201000c  06 64              r6 = [r0+16]",
+        "0201000e  07 65              r7 = [r0+20]",
+        "02010010  04 66              r4 = [r0+24]",
+        "02010012  01 67              r1 = [r0+28]",
+        "02010014  02 6e              r2 = [r0+56]",
+        "02010016  45 f0 0b 04        r5 = 1035  #",
+        "0201001a  00 6f              r0 = [r0+60]",
+        "0201001c  d8 ec ea 55        r5 = [r14+r5<<2]",
+        "02010020  85 2a              [sp+40] = r5",
+        "02010022  40 f0 18 22        r0 = 8728  #",
+        "02010026  80 29              [sp+36] = r0",
+        "02010028  82 28              [sp+32] = r2",
+        "0201002a  81 27              [sp+28] = r1",
+        "0201002c  84 26              [sp+24] = r4",
+        "0201002e  d0 e9 11 60        d[sp+16] = r7_r6",
+        "02010032  d0 e9 09 a0        d[sp+8] = r11_r10",
+        "02010036  d0 e9 01 80        d[sp] = r9_r8",
+        "0201003a  b4 e0 e0 90        r9 = r14 + r0",
+        "0201003e  40 e0 3e 25        r0 = 9534",
+        "02010042  c1 ff 10 58 03 02  r1 = 33773584 ; 0x02035810",
+        "02010048  12 1c              r2 = r1 + r0",
+        "0201004a  41 e0 00 02        r1 = 512",
+        "0201004e  90 16              r0 = r9",
+        "02010050  bf ea 65 b4        call -38710 ; target 0x0200691e",
+        "02010054  bf ea 6d b4        call -38694 ; target 0x02006932",
+        "02010058  01 16              r1 = r0",
+        "0201005a  90 16              r0 = r9",
+        "0201005c  bf ea e2 b6        call -37436 ; target 0x02006e24",
+        "02010060  cd ff cc 40 c3 01  r13 = 29573324 ; 0x01c340cc",
+        "02010066  d0 ec d0 00        r0 = [r13+0]",
+        "0201006a  80 31              [sp+68] = r0",
+        "0201006c  d0 ec d4 30        r3 = [r13+4]",
+        "02010070  d0 ec d8 a0        r10 = [r13+8]",
+        "02010074  d0 ec dc b0        r11 = [r13+12]",
+        "02010078  d0 ec d0 f1        r15 = [r13+16]",
+        "0201007c  d0 ec dc 61        r6 = [r13+28]",
+        "02010080  d0 ec d0 72        r7 = [r13+32]",
+        "02010084  d0 ec d4 02        r0 = [r13+36]",
+        "02010088  d0 ec d4 13        r1 = [r13+52]",
+        "0201008c  d0 ec d8 23        r2 = [r13+56]",
+        "02010090  d0 ec dc 53        r5 = [r13+60]",
+        "02010094  d4 16              r4 = r13",
+        "02010096  d0 ec 42 84        r8 = [++r4=64]",
+        "0201009a  d0 ec 44 c0        r12 = [r4+4]",
+        "0201009e  d4 e9 2d c0        [sp+44] = r12",
+        "020100a2  d4 e9 29 80        [sp+40] = r8",
+        "020100a6  85 29              [sp+36] = r5",
+        "020100a8  82 28              [sp+32] = r2",
+        "020100aa  d0 e9 19 00        d[sp+24] = r1_r0",
+        "020100ae  d0 e9 11 60        d[sp+16] = r7_r6",
+        "020100b2  d4 e9 0d f0        [sp+12] = r15",
+        "020100b6  c8 ff 10 58 03 02  r8 = 33773584 ; 0x02035810",
+        "020100bc  d0 e9 05 a0        d[sp+4] = r11_r10",
+        "020100c0  40 f0 10 27        r0 = 10000  #",
+        "020100c4  83 20              [sp] = r3",
+        "020100c6  b4 f0 80 20        r2 = r8 + r0  #",
+        "020100ca  03 31              r3 = [sp+68]",
+        "020100cc  41 e0 00 02        r1 = 512",
+        "020100d0  90 16              r0 = r9",
+        "020100d2  bf ea 24 b4        call -38840 ; target 0x0200691e",
+        "020100d6  bf ea 2c b4        call -38824 ; target 0x02006932",
+        "020100da  01 16              r1 = r0",
+        "020100dc  90 16              r0 = r9",
+        "020100de  bf ea a1 b6        call -37566 ; target 0x02006e24",
+        "020100e2  47 62              r7 = [r4+8]",
+        "020100e4  d0 ec 4c a0        r10 = [r4+12]",
+        "020100e8  d0 ec 40 b1        r11 = [r4+16]",
+        "020100ec  84 d4              r5_r4 = 0  #",
+        "020100ee  40 62              r0 = [r4+8]",
+        "020100f0  00 5d              if (r0 == 0) goto 58 ; target 0x0201012c",
+        "020100f2  d0 ec d0 2a        r2 = [r13+160]",
+        "020100f6  d0 ec d4 05        r0 = [r13+84]",
+        "020100fa  d0 ec d8 14        r1 = [r13+72]",
+        "020100fe  f4 e1 20 31        r3 = r2 / r1 (u)",
+        "02010102  13 1b              r3 *= r1",
+        "02010104  ae 1e              r6 = r2 - r3",
+        "02010106  42 3f              r2 = 31",
+        "02010108  04 8f              goto 30 ; target 0x02010128",
+        "0201010a  c8 e1 02 32        r3 = r0 >> r2",
+        "0201010e  63 e1 01 30        r3 = r3 & 0x1",
+        "02010112  a3 e1 fc 60        r3 <= insert(r6, p:1, l:31)",
+        "02010116  44 a1              r4 = r4 << 1",
+        "02010118  86 fd 02 00        ifs (r6 < 0) goto 4 ; target 0x02010120",
+        "0201011c  81 e9 02 30        if (r3 < r1) goto 4 ; target 0x02010124",
+        "02010120  3b 1e              r3 = r3 - r1",
+        "02010122  34 20              r4 |= 1",
+        "02010124  fa 3f              r2 += -1",
+        "02010126  36 16              r6 = r3",
+        "02010128  02 fd ef 01        ifs (r2 >= 0) goto -34 ; target 0x0201010a",
+        "0201012c  40 e0 06 04        r0 = 1030",
+        "02010130  d8 ec ea 60        r6 = [r14+r0<<2]",
+        "02010134  80 ff 28 47 bf ff  call -4241624 ; target 0x01c04862",
+        "0201013a  01 16              r1 = r0",
+        "0201013c  bf ea 57 ac        call -42834 ; target 0x020059ee",
+        "02010140  12 f1 10 8f        r2 = r8 + 7952  #",
+        "02010144  80 25              [sp+20] = r0",
+        "02010146  41 f0 00 02        r1 = 512  #",
+        "0201014a  81 24              [sp+16] = r1",
+        "0201014c  90 d6              r0 = r9  #",
+        "0201014e  86 23              [sp+12] = r6",
+        "02010150  73 d6              r3 = r7  #",
+        "02010152  84 22              [sp+8] = r4",
+        "02010154  d0 e9 01 a0        d[sp] = r11_r10",
+        "02010158  bf ea e1 b3        call -38974 ; target 0x0200691e",
+        "0201015c  bf ea e9 b3        call -38958 ; target 0x02006932",
+        "02010160  01 16              r1 = r0",
+        "02010162  90 16              r0 = r9",
+        "02010164  bf ea 5e b6        call -37700 ; target 0x02006e24",
+        "02010168  04 91              goto 34 ; target 0x0201018c",
+        "0201016a  00 e1 48 e8        r0 = r14 + 2120",
+        "0201016e  d8 ec 0a 05        r0 = [r0+r5<<2]",
+        "02010172  f8 e8 28 11        r1 = sp + 296",
+        "02010176  d8 ec 1b 05        [r1+r5<<2] = r0",
+        "0201017a  00 e1 64 e8        r0 = r14 + 2148",
+        "0201017e  d8 ec 0a 05        r0 = [r0+r5<<2]",
+        "02010182  f8 e8 0c 11        r1 = sp + 268",
+        "02010186  d8 ec 1b 05        [r1+r5<<2] = r0",
+        "0201018a  c5 21              r5 += 1",
+        "0201018c  85 f8 ed 0f        if (r5 != 7) goto -38 ; target 0x0201016a",
+        "02010190  00 e1 24 e1        r0 = r14 + 292",
+        "02010194  d0 ec 00 80        r8 = [r0+0]",
+        "02010198  03 61              r3 = [r0+4]",
+        "0201019a  00 62              r0 = [r0+8]",
+        "0201019c  80 31              [sp+68] = r0",
+        "0201019e  d4 e9 28 01        r0 = [sp+296]",
+        "020101a2  80 30              [sp+64] = r0",
+        "020101a4  d4 e9 0c 91        r9 = [sp+268]",
+        "020101a8  d4 e9 2c a1        r10 = [sp+300]",
+        "020101ac  d4 e9 10 b1        r11 = [sp+272]",
+        "020101b0  d4 e9 30 c1        r12 = [sp+304]",
+        "020101b4  d4 e9 14 f1        r15 = [sp+276]",
+        "020101b8  d4 e9 34 41        r4 = [sp+308]",
+        "020101bc  d4 e9 18 51        r5 = [sp+280]",
+        "020101c0  d4 e9 38 61        r6 = [sp+312]",
+        "020101c4  d4 e9 1c 71        r7 = [sp+284]",
+        "020101c8  d4 e9 3c 21        r2 = [sp+316]",
+        "020101cc  d4 e9 20 d1        r13 = [sp+288]",
+        "020101d0  d4 e9 40 11        r1 = [sp+320]",
+        "020101d4  d4 e9 24 01        r0 = [sp+292]",
+        "020101d8  83 2f              [sp+60] = r3",
+        "020101da  d4 e9 39 80        [sp+56] = r8",
+        "020101de  40 f0 18 22        r0 = 8728  #",
+        "020101e2  80 2d              [sp+52] = r0",
+        "020101e4  41 f0 00 02        r1 = 512  #",
+        "020101e8  81 2c              [sp+48] = r1",
+        "020101ea  d4 e9 2d d0        [sp+44] = r13",
+        "020101ee  cd ff cc 40 c3 01  r13 = 29573324 ; 0x01c340cc",
+        "020101f4  82 2a              [sp+40] = r2",
+        "020101f6  d0 e9 21 60        d[sp+32] = r7_r6",
+        "020101fa  d0 e9 19 40        d[sp+24] = r5_r4",
+        "020101fe  d4 e9 15 f0        [sp+20] = r15",
+        "02010202  cf ff 10 58 03 02  r15 = 33773584 ; 0x02035810",
+        "02010208  d4 e9 11 c0        [sp+16] = r12",
+        "0201020c  d0 e9 09 a0        d[sp+8] = r11_r10",
+        "02010210  d4 e9 05 90        [sp+4] = r9",
+        "02010214  b4 e0 e0 40        r4 = r14 + r0",
+        "02010218  40 e0 f4 25        r0 = 9716",
+        "0201021c  b4 f0 f0 20        r2 = r15 + r0  #",
+        "02010220  00 30              r0 = [sp+64]",
+        "02010222  40 d6              r0 = r4  #",
+        "02010224  80 20              [sp] = r0",
+        "02010226  03 31              r3 = [sp+68]",
+        "02010228  bf ea 79 b3        call -39182 ; target 0x0200691e",
+        "0201022c  bf ea 81 b3        call -39166 ; target 0x02006932",
+        "02010230  01 16              r1 = r0",
+        "02010232  40 16              r0 = r4",
+        "02010234  bf ea f6 b5        call -37908 ; target 0x02006e24",
+        "02010238  d0 ec d8 38        r3 = [r13+136]",
+        "0201023c  d0 ec dc 08        r0 = [r13+140]",
+        "02010240  41 e0 04 04        r1 = 1028",
+        "02010244  d8 ec ea 11        r1 = [r14+r1<<2]",
+        "02010248  d0 e9 01 00        d[sp] = r1_r0",
+        "0201024c  12 e1 3a f4        r2 = r15 + 5178",
+        "02010250  41 e0 00 02        r1 = 512",
+        "02010254  40 16              r0 = r4",
+        "02010256  bf ea 62 b3        call -39228 ; target 0x0200691e",
+        "0201025a  bf ea 6a b3        call -39212 ; target 0x02006932",
+        "0201025e  01 16              r1 = r0",
+        "02010260  40 16              r0 = r4",
+        "02010262  bf ea df b5        call -37954 ; target 0x02006e24",
+        "02010266  c0 ff 80 f1 c1 01  r0 = 29487488 ; 0x01c1f180",
+        "0201026c  01 6c              r1 = [r0+48]",
+        "0201026e  43 30              r3 = 16",
+        "02010270  b1 ec 0f 00        if (r1 <= 15) {",
+        "02010274  03 6c              r3 = [r0+48]",
+        "02010276  40 20              r0 = 0",
+        "02010278  04 98              goto 48 ; target 0x020102aa",
+        "0201027a  01 e1 f0 eb        r1 = r14 + 3056",
+        "0201027e  d8 ec 1a 20        r2 = [r1+r0<<2]",
+        "02010282  f8 e8 cc 40        r4 = sp + 204",
+        "02010286  d8 ec 4b 20        [r4+r0<<2] = r2",
+        "0201028a  02 e1 40 10        r2 = r1 + 64",
+        "0201028e  d8 ec 2a 20        r2 = [r2+r0<<2]",
+        "02010292  f8 e8 8c 40        r4 = sp + 140",
+        "02010296  d8 ec 4b 20        [r4+r0<<2] = r2",
+        "0201029a  01 e1 80 10        r1 = r1 + 128",
+        "0201029e  d8 ec 1a 10        r1 = [r1+r0<<2]",
+        "020102a2  ca 8c              r2 = sp + 76",
+        "020102a4  d8 ec 2b 10        [r2+r0<<2] = r1",
+        "020102a8  c0 21              r0 += 1",
+        "020102aa  80 e8 e6 31        if (r3 != r0) goto -52 ; target 0x0201027a",
+        "020102ae  d1 ec ec 09        r0 = [r14+412]",
+        "020102b2  00 a8              r0 = r0 << 8",
+        "020102b4  30 19              r0 |= r3",
+        "020102b6  84 a8              r4 = r0 >> 8",
+        "020102b8  bf ea 8e 94        call -55012 ; target 0x02002bd8",
+        "020102bc  09 d6              r9 = r0  #",
+        "020102be  84 20              [sp] = r4",
+        "020102c0  40 e0 18 22        r0 = 8728",
+        "020102c4  b4 e0 e0 a0        r10 = r14 + r0",
+        "020102c8  12 e1 bc f4        r2 = r15 + 5308",
+        "020102cc  35 17              r5 = r3.b0 (u)",
+        "020102ce  41 e0 00 02        r1 = 512",
+        "020102d2  a0 16              r0 = r10",
+        "020102d4  53 16              r3 = r5",
+        "020102d6  bf ea 22 b3        call -39356 ; target 0x0200691e",
+        "020102da  bf ea 2a b3        call -39340 ; target 0x02006932",
+        "020102de  01 16              r1 = r0",
+        "020102e0  a0 16              r0 = r10",
+        "020102e2  bf ea 9f b5        call -38082 ; target 0x02006e24",
+        "020102e6  40 e0 e8 03        r0 = 1000",
+        "020102ea  f4 e1 90 60        r6 = r9 / r0 (u)",
+        "020102ee  f8 e8 4c 90        r9 = sp + 76",
+        "020102f2  f8 e8 8c 40        r4 = sp + 140",
+        "020102f6  f8 e8 cc 70        r7 = sp + 204",
+        "020102fa  04 9a              goto 52 ; target 0x02010330",
+        "020102fc  d8 ec 94 00        r0 = [r9++=4]",
+        "02010300  f4 f1 00 06        r0 = r0 / r6 (u)  #",
+        "02010304  71 05              r1 = [r7++=4]",
+        "02010306  42 05              r2 = [r4++=4]",
+        "02010308  f4 f1 20 06        r0 = r2 / r6 (u)  #",
+        "0201030c  80 21              [sp+4] = r0",
+        "0201030e  f4 f1 10 36        r3 = r1 / r6 (u)  #",
+        "02010312  80 20              [sp] = r0",
+        "02010314  02 e1 71 f5        r2 = r15 + 1393",
+        "02010318  41 e0 00 02        r1 = 512",
+        "0201031c  a0 16              r0 = r10",
+        "0201031e  bf ea fe b2        call -39428 ; target 0x0200691e",
+        "02010322  bf ea 06 b3        call -39412 ; target 0x02006932",
+        "02010326  01 16              r1 = r0",
+        "02010328  a0 16              r0 = r10",
+        "0201032a  bf ea 7b b5        call -38154 ; target 0x02006e24",
+        "0201032e  fd 3f              r5 += -1",
+        "02010330  f5 45              if (r5 != 0) goto -54 ; target 0x020102fc",
+        "02010332  40 e0 18 22        r0 = 8728",
+        "02010336  b4 e0 e0 c0        r12 = r14 + r0",
+        "0201033a  02 e1 03 f0        r2 = r15 + 3",
+        "0201033e  41 e0 00 02        r1 = 512",
+        "02010342  c0 16              r0 = r12",
+        "02010344  bf ea eb b2        call -39466 ; target 0x0200691e",
+        "02010348  bf ea f3 b2        call -39450 ; target 0x02006932",
+        "0201034c  01 16              r1 = r0",
+        "0201034e  c0 16              r0 = r12",
+        "02010350  bf ea 68 b5        call -38192 ; target 0x02006e24",
+        "02010354  c8 88              r0 = sp + 72",
+        "02010356  41 20              r1 = 0",
+        "02010358  c2 14              r10 = 0",
+        "0201035a  80 ff 0c 0d 02 00  call 134412 ; target 0x0203106c",
+        "02010360  15 e1 04 e0        r5 = r14 + 4100",
+        "02010364  50 60              r0 = [r5+0]",
+        "02010366  bf ea b4 f5        call -5272 ; target 0x0200eed2",
+        "0201036a  09 d6              r9 = r0  #",
+        "0201036c  51 60              r1 = [r5+0]",
+        "0201036e  10 16              r0 = r1",
+        "02010370  bf ea af f5        call -5282 ; target 0x0200eed2",
+        "02010374  0b d6              r11 = r0  #",
+        "02010376  51 61              r1 = [r5+4]",
+        "02010378  10 16              r0 = r1",
+        "0201037a  bf ea aa f5        call -5292 ; target 0x0200eed2",
+        "0201037e  08 d6              r8 = r0  #",
+        "02010380  51 61              r1 = [r5+4]",
+        "02010382  10 16              r0 = r1",
+        "02010384  bf ea a5 f5        call -5302 ; target 0x0200eed2",
+        "02010388  51 6b              r1 = [r5+44]",
+        "0201038a  52 6c              r2 = [r5+48]",
+        "0201038c  53 6d              r3 = [r5+52]",
+        "0201038e  56 6e              r6 = [r5+56]",
+        "02010390  07 32              r7 = [sp+72]",
+        "02010392  a0 f0 00 00        r0 = 0x0 - r0  #",
+        "02010396  54 6f              r4 = [r5+60]",
+        "02010398  84 28              [sp+32] = r4",
+        "0201039a  d0 e9 19 60        d[sp+24] = r7_r6",
+        "0201039e  d0 e9 11 20        d[sp+16] = r3_r2",
+        "020103a2  81 23              [sp+12] = r1",
+        "020103a4  41 2a              r1 = 10",
+        "020103a6  f4 e1 01 21        r2 = r0 / r1 (s)",
+        "020103aa  e2 e1 0a 20        r2 = r2 * 0xA",
+        "020103ae  80 1e              r0 = r0 - r2",
+        "020103b0  f4 f1 81 01        r0 = r8 / r1 (s)  #",
+        "020103b4  80 22              [sp+8] = r0",
+        "020103b6  a0 f0 00 b0        r0 = 0x0 - r11  #",
+        "020103ba  80 21              [sp+4] = r0",
+        "020103bc  f4 e1 01 21        r2 = r0 / r1 (s)",
+        "020103c0  e2 e1 0a 20        r2 = r2 * 0xA",
+        "020103c4  80 1e              r0 = r0 - r2",
+        "020103c6  42 f0 73 27        r2 = 10099  #",
+        "020103ca  80 20              [sp] = r0",
+        "020103cc  f2 18              r2 += r15",
+        "020103ce  f4 e1 91 31        r3 = r9 / r1 (s)",
+        "020103d2  41 e0 00 02        r1 = 512",
+        "020103d6  c0 16              r0 = r12",
+        "020103d8  bf ea a1 b2        call -39614 ; target 0x0200691e",
+        "020103dc  bf ea a9 b2        call -39598 ; target 0x02006932",
+        "020103e0  01 16              r1 = r0",
+        "020103e2  c0 16              r0 = r12",
+        "020103e4  bf ea 1e b5        call -38340 ; target 0x02006e24",
+        "020103e8  d0 ec 55 a0        [r5+4] = r10",
+        "020103ec  d0 ec 51 a0        [r5+0] = r10",
+        "020103f0  d0 ec d1 a5        [r13+80] = r10",
+        "020103f4  42 91              sp += 324",
+        "020103f6  5f 04              {pc, r15-r4} = [sp++]"
+      ]
+    },
+    {
+      "name": "input_ready_timestamp",
+      "cpu_start": "0x01c02ff0",
+      "cpu_end_exclusive": "0x01c0301e",
+      "decoded_area_offset": 366448,
+      "flash_copy_address": "0x02059770",
+      "bytes": 46,
+      "original_sha256": "69cdd5b665f967a261b1928916c380ad66712a321b88056eff9da3d99ba2b432",
+      "candidate_sha256": "69cdd5b665f967a261b1928916c380ad66712a321b88056eff9da3d99ba2b432",
+      "byte_identical": true,
+      "bytes_hex": "94f8dd0104e1e48680ff64180000d8ec4b0fd1ec8008b4e0c200b0e904600ce101c0d1ec8dc700e1f88fc0eb0100",
+      "disassembly": [
+        "01c02ff0  94 f8 dd 01        if (r4 != 128) goto -70 ; target 0x01c02fae",
+        "01c02ff4  04 e1 e4 86        r4 = r8 + 1764",
+        "01c02ff8  80 ff 64 18 00 00  call 6244 ; target 0x01c04862",
+        "01c02ffe  d8 ec 4b 0f        [r4+r15<<2] = r0",
+        "01c03002  d1 ec 80 08        r0 = [r8+384]",
+        "01c03006  b4 e0 c2 00        r0 = r12 - r0",
+        "01c0300a  b0 e9 04 60        if (r0 < 4) {",
+        "01c0300e  0c e1 01 c0        r12 = r12 + 1",
+        "01c03012  d1 ec 8d c7        [r8+380] = r12",
+        "01c03016  00 e1 f8 8f        r0 = r8 + 4088",
+        "01c0301a  c0 eb 01 00        [r0+0] += 1"
+      ]
+    },
+    {
+      "name": "worker_start_and_queue_latency",
+      "cpu_start": "0x01c01ec2",
+      "cpu_end_exclusive": "0x01c01eee",
+      "decoded_area_offset": 362050,
+      "flash_copy_address": "0x02058642",
+      "bytes": 44,
+      "original_sha256": "33ced9c514f25b69086f0e0485fd79c5e152906ca2f3c7a3b9db8137b0064a83",
+      "candidate_sha256": "33ced9c514f25b69086f0e0485fd79c5e152906ca2f3c7a3b9db8137b0064a83",
+      "byte_identical": true,
+      "bytes_hex": "80ff9a290000c98c422000859205d1ec801802e1e48661e10310d8ec2a1106166d1eb5ee0000452000318566",
+      "disassembly": [
+        "01c01ec2  80 ff 9a 29 00 00  call 10650 ; target 0x01c04862",
+        "01c01ec8  c9 8c              r1 = sp + 76",
+        "01c01eca  42 20              r2 = 0",
+        "01c01ecc  00 85              rep 2 6 {",
+        "01c01ece  92 05              [r1++=4] = r2",
+        "01c01ed0  d1 ec 80 18        r1 = [r8+384]",
+        "01c01ed4  02 e1 e4 86        r2 = r8 + 1764",
+        "01c01ed8  61 e1 03 10        r1 = r1 & 0x3",
+        "01c01edc  d8 ec 2a 11        r1 = [r2+r1<<2]",
+        "01c01ee0  06 16              r6 = r0",
+        "01c01ee2  6d 1e              r5 = r6 - r1",
+        "01c01ee4  b5 ee 00 00        ifs (r5 <= 0) {",
+        "01c01ee8  45 20              r5 = 0",
+        "01c01eea  00 31              r0 = [sp+68]",
+        "01c01eec  85 66              [r0+24] = r5"
+      ]
+    },
+    {
+      "name": "output_publication_and_block_duration",
+      "cpu_start": "0x01c02b5a",
+      "cpu_end_exclusive": "0x01c02b92",
+      "decoded_area_offset": 365274,
+      "flash_copy_address": "0x020592da",
+      "bytes": 56,
+      "original_sha256": "8ee981e232304a3a38c8f84ce210ffdb2bc2f064a2c0e3e099cc99997b593b34",
+      "candidate_sha256": "8ee981e232304a3a38c8f84ce210ffdb2bc2f064a2c0e3e099cc99997b593b34",
+      "byte_identical": true,
+      "bytes_hex": "00e18081c0eb0100d2ec8c11d2ec8821931e02e19c0000e1f48f098cb3ec03002116c0eb0110c0eb010080ffd81c0000b4f0020d01319065",
+      "disassembly": [
+        "01c02b5a  00 e1 80 81        r0 = r8 + 384",
+        "01c02b5e  c0 eb 01 00        [r0+0] += 1",
+        "01c02b62  d2 ec 8c 11        r1 = [r8+540]",
+        "01c02b66  d2 ec 88 21        r2 = [r8+536]",
+        "01c02b6a  93 1e              r3 = r1 - r2",
+        "01c02b6c  02 e1 9c 00        r2 = r0 + 156",
+        "01c02b70  00 e1 f4 8f        r0 = r8 + 4084",
+        "01c02b74  09 8c              r1 = r0 + 12",
+        "01c02b76  b3 ec 03 00        if (r3 <= 3) {",
+        "01c02b7a  21 16              r1 = r2",
+        "01c02b7c  c0 eb 01 10        [r1+0] += 1",
+        "01c02b80  c0 eb 01 00        [r0+0] += 1",
+        "01c02b84  80 ff d8 1c 00 00  call 7384 ; target 0x01c04862",
+        "01c02b8a  b4 f0 02 0d        r0 = r0 - r13  #",
+        "01c02b8e  01 31              r1 = [sp+68]",
+        "01c02b90  90 65              [r1+20] = r0"
+      ]
+    },
+    {
+      "name": "STG_512_block_windows",
+      "cpu_start": "0x01c02b92",
+      "cpu_end_exclusive": "0x01c02bf8",
+      "decoded_area_offset": 365330,
+      "flash_copy_address": "0x02059312",
+      "bytes": 102,
+      "original_sha256": "42170b7e5557034593ef6ab2547a9366c7534b652d56634773f691b54f6f2928",
+      "candidate_sha256": "42170b7e5557034593ef6ab2547a9366c7534b652d56634773f691b54f6f2928",
+      "byte_identical": true,
+      "bytes_hex": "4120048eca8cd8ec2a2113a2831803e1803868e80032346712ec0004b267c12181f8f00fd2ec8c16c121d2ec8d1601ff001219004120048fb4e0102803e14828346ec4a9b460d8ec2a47b467d0ec39a3d8ec2ba7c12481f8ef39d2ec8da601e12c81c0eb0110",
+      "disassembly": [
+        "01c02b92  41 20              r1 = 0",
+        "01c02b94  04 8e              goto 28 ; target 0x01c02bb2",
+        "01c02b96  ca 8c              r2 = sp + 76",
+        "01c02b98  d8 ec 2a 21        r2 = [r2+r1<<2]",
+        "01c02b9c  13 a2              r3 = r1 << 2",
+        "01c02b9e  83 18              r3 += r8",
+        "01c02ba0  03 e1 80 38        r3 = r3 + 2176",
+        "01c02ba4  68 e8 00 32        [r3+0] += r2",
+        "01c02ba8  34 67              r4 = [r3+28]",
+        "01c02baa  12 ec 00 04        if (r2 > r4) {",
+        "01c02bae  b2 67              [r3+28] = r2",
+        "01c02bb0  c1 21              r1 += 1",
+        "01c02bb2  81 f8 f0 0f        if (r1 != 7) goto -32 ; target 0x01c02b96",
+        "01c02bb6  d2 ec 8c 16        r1 = [r8+620]",
+        "01c02bba  c1 21              r1 += 1",
+        "01c02bbc  d2 ec 8d 16        [r8+620] = r1",
+        "01c02bc0  01 ff 00 12 19 00  if (r1 != 512) goto 50 ; target 0x01c02bf8",
+        "01c02bc6  41 20              r1 = 0",
+        "01c02bc8  04 8f              goto 30 ; target 0x01c02be8",
+        "01c02bca  b4 e0 10 28        r2 = r1 + r8",
+        "01c02bce  03 e1 48 28        r3 = r2 + 2120",
+        "01c02bd2  34 6e              r4 = [r3+56]",
+        "01c02bd4  c4 a9              r4 = r4 >> 9",
+        "01c02bd6  b4 60              [r3+0] = r4",
+        "01c02bd8  d8 ec 2a 47        r4 = [r2+r7<<2]",
+        "01c02bdc  b4 67              [r3+28] = r4",
+        "01c02bde  d0 ec 39 a3        [r3+56] = r10",
+        "01c02be2  d8 ec 2b a7        [r2+r7<<2] = r10",
+        "01c02be6  c1 24              r1 += 4",
+        "01c02be8  81 f8 ef 39        if (r1 != 28) goto -34 ; target 0x01c02bca",
+        "01c02bec  d2 ec 8d a6        [r8+620] = r10",
+        "01c02bf0  01 e1 2c 81        r1 = r8 + 300",
+        "01c02bf4  c0 eb 01 10        [r1+0] += 1"
+      ]
+    },
+    {
+      "name": "RS_first_16_only",
+      "cpu_start": "0x01c02c52",
+      "cpu_end_exclusive": "0x01c02c7e",
+      "decoded_area_offset": 365522,
+      "flash_copy_address": "0x020593d2",
+      "bytes": 44,
+      "original_sha256": "0759110cdc157328085741e6b5d28b4d0117f95801f70988d884eed2ab595669",
+      "candidate_sha256": "0759110cdc157328085741e6b5d28b4d0117f95801f70988d884eed2ab595669",
+      "byte_identical": true,
+      "bytes_hex": "d0ecf01301fc741ed0ecf01302e1f08bd8ec2bb103f140200428d8ec3b4102e18020d8ec2b011881d0ecf103",
+      "disassembly": [
+        "01c02c52  d0 ec f0 13        r1 = [r15+48]",
+        "01c02c56  01 fc 74 1e        if (r1 > 15) goto 232 ; target 0x01c02d42",
+        "01c02c5a  d0 ec f0 13        r1 = [r15+48]",
+        "01c02c5e  02 e1 f0 8b        r2 = r8 + 3056",
+        "01c02c62  d8 ec 2b b1        [r2+r1<<2] = r11",
+        "01c02c66  03 f1 40 20        r3 = r2 + 64  #",
+        "01c02c6a  04 28              r4 = [sp+32]",
+        "01c02c6c  d8 ec 3b 41        [r3+r1<<2] = r4",
+        "01c02c70  02 e1 80 20        r2 = r2 + 128",
+        "01c02c74  d8 ec 2b 01        [r2+r1<<2] = r0",
+        "01c02c78  18 81              r0 = r1 + 1",
+        "01c02c7a  d0 ec f1 03        [r15+48] = r0"
+      ]
+    },
+    {
+      "name": "RS_reset_on_audio_mode_start",
+      "cpu_start": "0x0200544e",
+      "cpu_end_exclusive": "0x02005462",
+      "decoded_area_offset": 21582,
+      "flash_copy_address": "0x0200544e",
+      "bytes": 20,
+      "original_sha256": "d6b18a83d8daa8f842ceba4c4accfda5d073b8bf61ec82dadc26c19dbb213ce5",
+      "candidate_sha256": "d6b18a83d8daa8f842ceba4c4accfda5d073b8bf61ec82dadc26c19dbb213ce5",
+      "byte_identical": true,
+      "bytes_hex": "bbe80080d0ec810300e19c71c0eb0100d1ec79b1",
+      "disassembly": [
+        "0200544e  bb e8 00 80        if (r11 != 0) {",
+        "02005452  d0 ec 81 03        [r8+48] = r0",
+        "02005456  00 e1 9c 71        r0 = r7 + 412",
+        "0200545a  c0 eb 01 00        [r0+0] += 1",
+        "0200545e  d1 ec 79 b1        [r7+280] = r11"
+      ]
+    },
+    {
+      "name": "separate_ISR_1024_window",
+      "cpu_start": "0x01c0333c",
+      "cpu_end_exclusive": "0x01c03382",
+      "decoded_area_offset": 367292,
+      "flash_copy_address": "0x02059abc",
+      "bytes": 70,
+      "original_sha256": "c752881190211b2fef8061f5ff87b290f4c9684134db1a1943d2dccee2d8b3d4",
+      "candidate_sha256": "c752881190211b2fef8061f5ff87b290f4c9684134db1a1943d2dccee2d8b3d4",
+      "byte_identical": true,
+      "bytes_hex": "80ff20150000a116d2ec1a33b4e00228b01c9060116112ec0041d2ecad232116d2eca024c221d2eca12401ff00240b0080aa02e124a1a060a1614020412051ec2501d2eca104",
+      "disassembly": [
+        "01c0333c  80 ff 20 15 00 00  call 5408 ; target 0x01c04862",
+        "01c03342  a1 16              r1 = r10",
+        "01c03344  d2 ec 1a 33        r3 = [++r1=568]",
+        "01c03348  b4 e0 02 28        r2 = r0 - r8",
+        "01c0334c  b0 1c              r0 = r3 + r2",
+        "01c0334e  90 60              [r1+0] = r0",
+        "01c03350  11 61              r1 = [r1+4]",
+        "01c03352  12 ec 00 41        if (r2 > r1) {",
+        "01c03356  d2 ec ad 23        [r10+572] = r2",
+        "01c0335a  21 16              r1 = r2",
+        "01c0335c  d2 ec a0 24        r2 = [r10+576]",
+        "01c03360  c2 21              r2 += 1",
+        "01c03362  d2 ec a1 24        [r10+576] = r2",
+        "01c03366  01 ff 00 24 0b 00  if (r2 != 1024) goto 22 ; target 0x01c03382",
+        "01c0336c  80 aa              r0 = r0 >> 10",
+        "01c0336e  02 e1 24 a1        r2 = r10 + 292",
+        "01c03372  a0 60              [r2+0] = r0",
+        "01c03374  a1 61              [r2+4] = r1",
+        "01c03376  40 20              r0 = 0",
+        "01c03378  41 20              r1 = 0",
+        "01c0337a  51 ec 25 01        d[r2+276] = r1_r0",
+        "01c0337e  d2 ec a1 04        [r10+576] = r0"
+      ]
+    },
+    {
+      "name": "A2_nproc_and_duration",
+      "cpu_start": "0x01c05074",
+      "cpu_end_exclusive": "0x01c050c6",
+      "decoded_area_offset": 374772,
+      "flash_copy_address": "0x0205b7f4",
+      "bytes": 82,
+      "original_sha256": "6e26abf1787bf5569ec214fc1e4561706adaecd2b035310bb7a692ed165ceebe",
+      "candidate_sha256": "6e26abf1787bf5569ec214fc1e4561706adaecd2b035310bb7a692ed165ceebe",
+      "byte_identical": true,
+      "bytes_hex": "c0ff040701000160c0ffcc40c301d02880eb01000223931e83610263a91c8163402111e90002402020e80180c0ffcc40c30100e1a00080eb0100c0ffcc40c301d0ec000513ec0040c0ffcc40c301d0ec0135",
+      "disassembly": [
+        "01c05074  c0 ff 04 07 01 00  r0 = 67332 ; 0x00010704",
+        "01c0507a  01 60              r1 = [r0+0]",
+        "01c0507c  c0 ff cc 40 c3 01  r0 = 29573324 ; 0x01c340cc",
+        "01c05082  d0 28              r0 += 72",
+        "01c05084  80 eb 01 00        [r0+0] += 0x1",
+        "01c05088  02 23              r2 = [sp+12]",
+        "01c0508a  93 1e              r3 = r1 - r2",
+        "01c0508c  83 61              [r0+4] = r3",
+        "01c0508e  02 63              r2 = [r0+12]",
+        "01c05090  a9 1c              r1 = r2 + r3",
+        "01c05092  81 63              [r0+12] = r1",
+        "01c05094  40 21              r0 = 1",
+        "01c05096  11 e9 00 02        if (r1 >= r2) {",
+        "01c0509a  40 20              r0 = 0",
+        "01c0509c  20 e8 01 80        if (r0 == 1) {",
+        "01c050a0  c0 ff cc 40 c3 01  r0 = 29573324 ; 0x01c340cc",
+        "01c050a6  00 e1 a0 00        r0 = r0 + 160",
+        "01c050aa  80 eb 01 00        [r0+0] += 0x1",
+        "01c050ae  c0 ff cc 40 c3 01  r0 = 29573324 ; 0x01c340cc",
+        "01c050b4  d0 ec 00 05        r0 = [r0+80]",
+        "01c050b8  13 ec 00 40        if (r3 > r0) {",
+        "01c050bc  c0 ff cc 40 c3 01  r0 = 29573324 ; 0x01c340cc",
+        "01c050c2  d0 ec 01 35        [r0+80] = r3"
+      ]
+    },
+    {
+      "name": "output_ring_consumption",
+      "cpu_start": "0x01c03100",
+      "cpu_end_exclusive": "0x01c0319a",
+      "decoded_area_offset": 366720,
+      "flash_copy_address": "0x02059880",
+      "bytes": 154,
+      "original_sha256": "cdd0951acadd61bbbb64526be7c7c5f1ec19d38a773d534694c1029a728452c6",
+      "candidate_sha256": "cdd0951acadd61bbbb64526be7c7c5f1ec19d38a773d534694c1029a728452c6",
+      "byte_identical": true,
+      "bytes_hex": "7d04c8ff9068c20100e1f08fc0eb0100d2ec8c301a1640282340d2ec8c10f4e12150215600e11482d0ec089004614cf044020760cbffa824c201cdffa82cc201148804e84a90a0e0807035e4016560e10340b4e00018d8ee102c71a200a91018b4e0001b0246b4e0002da0166316418c0483a0166216419ad51fe81d4720b0e88000071661a31a184121b0e880004120141805fdd60349161488",
+      "disassembly": [
+        "01c03100  7d 04              [--sp] = {rets, r13-r4}",
+        "01c03102  c8 ff 90 68 c2 01  r8 = 29517968 ; 0x01c26890",
+        "01c03108  00 e1 f0 8f        r0 = r8 + 4080",
+        "01c0310c  c0 eb 01 00        [r0+0] += 1",
+        "01c03110  d2 ec 8c 30        r3 = [r8+524]",
+        "01c03114  1a 16              r10 = r1",
+        "01c03116  40 28              r0 = 8",
+        "01c03118  23 40              if (r3 == 0) goto 128 ; target 0x01c0319a",
+        "01c0311a  d2 ec 8c 10        r1 = [r8+524]",
+        "01c0311e  f4 e1 21 50        r5 = r2 / r0 (s)",
+        "01c03122  21 56              if (r1 == 0) goto 172 ; target 0x01c031d0",
+        "01c03124  00 e1 14 82        r0 = r8 + 532",
+        "01c03128  d0 ec 08 90        r9 = [r0+8]",
+        "01c0312c  04 61              r4 = [r0+4]",
+        "01c0312e  4c f0 44 02        r12 = 580  #",
+        "01c03132  07 60              r7 = [r0+0]",
+        "01c03134  cb ff a8 24 c2 01  r11 = 29500584 ; 0x01c224a8",
+        "01c0313a  cd ff a8 2c c2 01  r13 = 29502632 ; 0x01c22ca8",
+        "01c03140  14 88              goto 80 ; target 0x01c03192",
+        "01c03142  04 e8 4a 90        if (r9 == r4) goto 148 ; target 0x01c031da",
+        "01c03146  a0 e0 80 70        r0 = 0x80 - r7",
+        "01c0314a  35 e4 01 65        r6 = smin(r0, r5)",
+        "01c0314e  60 e1 03 40        r0 = r4 & 0x3",
+        "01c03152  b4 e0 00 18        r1 = r0 + r8",
+        "01c03156  d8 ee 10 2c        r2 = b[r1+r12] (u)",
+        "01c0315a  71 a2              r1 = r7 << 2",
+        "01c0315c  00 a9              r0 = r0 << 9",
+        "01c0315e  10 18              r0 += r1",
+        "01c03160  b4 e0 00 1b        r1 = r0 + r11",
+        "01c03164  02 46              if (r2 == 0) goto 12 ; target 0x01c03172",
+        "01c03166  b4 e0 00 2d        r2 = r0 + r13",
+        "01c0316a  a0 16              r0 = r10",
+        "01c0316c  63 16              r3 = r6",
+        "01c0316e  41 8c              call -232 ; target 0x01c03088",
+        "01c03170  04 83              goto 6 ; target 0x01c03178",
+        "01c03172  a0 16              r0 = r10",
+        "01c03174  62 16              r2 = r6",
+        "01c03176  41 9a              call -204 ; target 0x01c030ac",
+        "01c03178  d5 1f              r5 = r5 - r6",
+        "01c0317a  e8 1d              r0 = r6 + r7",
+        "01c0317c  47 20              r7 = 0",
+        "01c0317e  b0 e8 80 00        if (r0 != 128) {",
+        "01c03182  07 16              r7 = r0",
+        "01c03184  61 a3              r1 = r6 << 3",
+        "01c03186  1a 18              r10 += r1",
+        "01c03188  41 21              r1 = 1",
+        "01c0318a  b0 e8 80 00        if (r0 != 128) {",
+        "01c0318e  41 20              r1 = 0",
+        "01c03190  14 18              r4 += r1",
+        "01c03192  05 fd d6 03        ifs (r5 >= 1) goto -84 ; target 0x01c03142",
+        "01c03196  49 16              r9 = r4",
+        "01c03198  14 88              goto 80 ; target 0x01c031ea"
+      ]
+    },
+    {
+      "name": "FXA_bank_and_instance_limits",
+      "cpu_start": "0x0202e710",
+      "cpu_end_exclusive": "0x0202e77a",
+      "decoded_area_offset": 190224,
+      "flash_copy_address": "0x0202e710",
+      "bytes": 106,
+      "original_sha256": "6214bc3bc84dc192a00813d81877e3fd6108a5b85bf0e9c9054e63b0fd685f1f",
+      "candidate_sha256": "6214bc3bc84dc192a00813d81877e3fd6108a5b85bf0e9c9054e63b0fd685f1f",
+      "byte_identical": true,
+      "bytes_hex": "7f04e29f18160b1680ff426abdffceff8b44c301402052eee00041202016bfea90de0c16103f0bfc230231e1ffcf01fc1f4ccfffb02dc301b4e0b00f0a4e103e02fc1612cdff74e0c201c7ff20c2c201452046207942014a0de158d005e100516e8107e1e07186fdf521",
+      "disassembly": [
+        "0202e710  7f 04              [--sp] = {rets, r15-r4}",
+        "0202e712  e2 9f              sp += -4",
+        "0202e714  18 16              r8 = r1",
+        "0202e716  0b 16              r11 = r0",
+        "0202e718  80 ff 42 6a bd ff  call -4363710 ; target 0x01c05160",
+        "0202e71e  ce ff 8b 44 c3 01  r14 = 29574283 ; 0x01c3448b",
+        "0202e724  40 20              r0 = 0",
+        "0202e726  52 ee e0 00        b[r14+0] = r0",
+        "0202e72a  41 20              r1 = 0",
+        "0202e72c  20 16              r0 = r2",
+        "0202e72e  bf ea 90 de        call -17120 ; target 0x0202a452",
+        "0202e732  0c 16              r12 = r0",
+        "0202e734  10 3f              r0 = -1",
+        "0202e736  0b fc 23 02        if (r11 > 1) goto 70 ; target 0x0202e780",
+        "0202e73a  31 e1 ff cf        r1 = r12 + -1",
+        "0202e73e  01 fc 1f 4c        if (r1 > 38) goto 62 ; target 0x0202e780",
+        "0202e742  cf ff b0 2d c3 01  r15 = 29568432 ; 0x01c32db0",
+        "0202e748  b4 e0 b0 0f        r0 = r11 + r15",
+        "0202e74c  0a 4e              r2 = b[r0+14] (u)",
+        "0202e74e  10 3e              r0 = -2",
+        "0202e750  02 fc 16 12        if (r2 > 9) goto 44 ; target 0x0202e780",
+        "0202e754  cd ff 74 e0 c2 01  r13 = 29548660 ; 0x01c2e074",
+        "0202e75a  c7 ff 20 c2 c2 01  r7 = 29540896 ; 0x01c2c220",
+        "0202e760  45 20              r5 = 0",
+        "0202e762  46 20              r6 = 0",
+        "0202e764  79 42              r1 = b[r7+2] (u)",
+        "0202e766  01 4a              if (r1 == 0) goto 20 ; target 0x0202e77c",
+        "0202e768  0d e1 58 d0        r13 = r13 + 88",
+        "0202e76c  05 e1 00 51        r5 = r5 + 256",
+        "0202e770  6e 81              r6 = r6 + 1",
+        "0202e772  07 e1 e0 71        r7 = r7 + 480",
+        "0202e776  86 fd f5 21        ifs (r6 < 16) goto -22 ; target 0x0202e764"
+      ]
+    },
+    {
+      "name": "FXA_cost_admission",
+      "cpu_start": "0x0202e8ee",
+      "cpu_end_exclusive": "0x0202e928",
+      "decoded_area_offset": 190702,
+      "flash_copy_address": "0x0202e8ee",
+      "bytes": 58,
+      "original_sha256": "53ca1fd1f53ac918bc07b34c58b3b8cfca1f0b2ffd3beb8dad1db136e2201030",
+      "candidate_sha256": "53ca1fd1f53ac918bc07b34c58b3b8cfca1f0b2ffd3beb8dad1db136e2201030",
+      "byte_identical": true,
+      "bytes_hex": "bfea7bd20416c01680ff7c74bdff8045c016bfeab0dea0180486b0168116c2169316bfea65ded0ecf013021d103cc4ffc443c30101ec2d21b788",
+      "disassembly": [
+        "0202e8ee  bf ea 7b d2        call -23306 ; target 0x02028de8",
+        "0202e8f2  04 16              r4 = r0",
+        "0202e8f4  c0 16              r0 = r12",
+        "0202e8f6  80 ff 7c 74 bd ff  call -4361092 ; target 0x01c05d78",
+        "0202e8fc  80 45              if (r0 != 0) goto 10 ; target 0x0202e908",
+        "0202e8fe  c0 16              r0 = r12",
+        "0202e900  bf ea b0 de        call -17056 ; target 0x0202a664",
+        "0202e904  a0 18              r0 += r10",
+        "0202e906  04 86              goto 12 ; target 0x0202e914",
+        "0202e908  b0 16              r0 = r11",
+        "0202e90a  81 16              r1 = r8",
+        "0202e90c  c2 16              r2 = r12",
+        "0202e90e  93 16              r3 = r9",
+        "0202e910  bf ea 65 de        call -17206 ; target 0x0202a5de",
+        "0202e914  d0 ec f0 13        r1 = [r15+48]",
+        "0202e918  02 1d              r2 = r0 + r4",
+        "0202e91a  10 3c              r0 = -4",
+        "0202e91c  c4 ff c4 43 c3 01  r4 = 29574084 ; 0x01c343c4",
+        "0202e922  01 ec 2d 21        if (r2 > r1) goto -422 ; target 0x0202e780",
+        "0202e926  b7 88              goto -304 ; target 0x0202e7f8"
+      ]
+    }
+  ],
+  "checks": {
+    "all_selected_instruction_bytes_match_original_and_v3": true,
+    "fragment_count": 16,
+    "actual_FXT_header_count": 37,
+    "fresh_STG_windows": [
+      2398,
+      2399,
+      2400
+    ],
+    "no_device_or_browser_access": true
+  }
+}

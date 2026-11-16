@@ -22,3 +22,4 @@ analysis/hardware/*.py -text whitespace=blank-at-eol,blank-at-eof,space-before-t
 analysis/hardware/*.ps1 -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 research/mini-a2-activity-audit.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 research/mini-first-preset-bootstrap-v2.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+research/mini-latency-audit.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
