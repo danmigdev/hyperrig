@@ -1,5 +1,10 @@
 # Reconstructed DSP initialization and guarded startup
 
+The subsequent [dynamics reconstruction](DSP_DYNAMICS_RECONSTRUCTION.md) replaces
+the configuration-service boundary with its original numerical body. That newer
+startup adapter retains only the platform input service as external. The evidence
+below remains the independent initializer milestone.
+
 The complete initializer, its slot and four-filter reset helpers, and the guarded
 startup caller now have compilable C and comparisons against decoded original
 instructions. The previously static **48000 to 48077 divisor path** executes in

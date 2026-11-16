@@ -1,5 +1,10 @@
 # Reconstructed IR loading and ownership
 
+The subsequent [IR installation reconstruction](IR_INSTALLATION_RECONSTRUCTION.md)
+executes direct/deferred installation, gain/trimming, length selection and the
+stored-read callback through these ownership paths. The evidence below remains
+the earlier loader milestone; full convolution construction is still separate.
+
 Five original functions now have portable C reconstructions covering IR reuse,
 record reading/CRC checks, buffer attachment, pending-slot refresh and ownership
 queries. They execute the previous [asset-header and descriptor helpers](PRESET_ASSETS_RECONSTRUCTION.md)

@@ -5,7 +5,8 @@ with a loader, input stage, dilated layers, activations, residuals, and final
 head. It reconstructs the optimized path observed in UltraRig alpha11/M5.71
 TANK-G v2, within the shift domain described below. These are not the original
 sources and do not constitute the complete firmware: effects/IR, audio frontend,
-and drivers remain separate components. Boot on the MINI has not been verified.
+and drivers remain separate components. Boot of reconstructed source on the MINI
+has not been verified.
 The files retain the Required Notice and UltraRig license: see
 [PROVENANCE.md](PROVENANCE.md).
 
@@ -27,7 +28,9 @@ combined instructions visited. Static evidence identifies a reset divisor of
 48000 and a guarded startup argument of 48077. The
 [initializer and guarded startup](DSP_INITIALIZATION_RECONSTRUCTION.md) now
 execute those paths through the recovered coefficient producer, adding 4,529
-comparisons; platform service bodies and physical rate measurements remain open.
+comparisons. [Dynamics configuration](DSP_DYNAMICS_RECONSTRUCTION.md) now executes
+its actual numerical body through that startup, adding 2,930 comparisons. The
+platform input service and physical rate measurements remain open.
 Separately,
 the [capture slot loader](CAPTURE_LOADER_RECONSTRUCTION.md) adds 6,091 comparisons
 for gain metadata, reuse and partial rollback. The [container installer/reader](CAPTURE_CONTAINER_RECONSTRUCTION.md)
@@ -36,8 +39,14 @@ adds 9,764. The [capture dispatch wrappers](CAPTURE_DISPATCH_RECONSTRUCTION.md)
 add 1,847 comparisons through preparation, sizing, DSP setup and cleanup.
 The separate [whole native parser](CAPTURE_PARSER_RECONSTRUCTION.md) adds 424
 comparisons, and [memory reset](CAPTURE_RESET_RECONSTRUCTION.md) adds 253 through
-direct and container-loading paths. Their complete integration with native audio
-processing remains open. [Journal writes and readback](CAPTURE_JOURNAL_RECONSTRUCTION.md)
+direct and container-loading paths. The [integrated native loader](CAPTURE_NATIVE_RECONSTRUCTION.md)
+now executes both real bodies through installation and recovery, adding 273
+comparisons. The [native processing caller](CAPTURE_PROCESSING_RECONSTRUCTION.md)
+adds 230 comparisons with actual numerical kernels and the final one-frame output
+ring. Joining loaded state, warm-up and surrounding audio scheduling remains open.
+[IR installation](IR_INSTALLATION_RECONSTRUCTION.md) adds 1,143 comparisons for
+gain/trimming, stored reads and ownership; convolution construction remains open.
+[Journal writes and readback](CAPTURE_JOURNAL_RECONSTRUCTION.md)
 add 655 synthetic-storage comparisons. The
 [complete metadata command](CAPTURE_COMMAND_RECONSTRUCTION.md) adds 1,114 through
 text parsing, reload, retries and active gain updates; physical storage drivers
@@ -278,15 +287,16 @@ The following names are code interpretations, not original symbols:
 
 | Address | Reconstructed/inferred role |
 |---|---|
-| `0x02031C64` | Complete parser reconstructed in [native parser](CAPTURE_PARSER_RECONSTRUCTION.md); full-path integration remains open |
+| `0x02031C64` | Complete parser now executes in the [integrated native loader](CAPTURE_NATIVE_RECONSTRUCTION.md) |
 | `0x01C12850` | Size wrapper reconstructed in [capture dispatch](CAPTURE_DISPATCH_RECONSTRUCTION.md) |
 | `0x01C12878` | Complete [memory reset](CAPTURE_RESET_RECONSTRUCTION.md), including container adapters |
 | `0x01C1296C` | Dot-callback installation reconstructed in [capture dispatch](CAPTURE_DISPATCH_RECONSTRUCTION.md) |
-| `0x01C129DC` | specialized three-channel rechannel setup |
-| `0x01C12A54` | layer-kernel setup/dispatch |
-| `0x01C12C32` | layer iteration in 64-frame blocks |
-| `0x01C12CC2` | head-context setup |
-| `0x01C12D34` | probable processing-path wrapper |
+| `0x01C129DC` | Rechannel setup recovered in [native processing](CAPTURE_PROCESSING_RECONSTRUCTION.md) |
+| `0x01C12A54` | Layer setup/dispatch recovered with its exact embedded jump table |
+| `0x01C12C32` | Layer iteration recovered, including the final one-frame output ring |
+| `0x01C12CC2` | Head setup recovered with the actual numerical helper |
+| `0x01C12D34` | Complete 64-frame processing wrapper recovered within its stated numerical domain |
+| `0x01C12F20` | Warm-up/initialization body remains to be reconstructed |
 
 Paths outside the verified domain, the audio frontend, IR and effects, and
 scheduler integration with the MINI board remain to be reconstructed. The

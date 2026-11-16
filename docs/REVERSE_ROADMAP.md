@@ -38,6 +38,10 @@ original firmware C sources have not been recovered.
 | Capture memory reset | Complete reset function and new load/container adapters; 253 further comparisons | All 84 new instructions visited, with 62,562 ordered zero-word writes compared. Parser remains external in this adapter's corpus. |
 | Complete capture metadata command | Nine new function regions; 1,114 further comparisons | Parsing, packing, allocation/reload, append/rewrite retries, cleanup and current-slot gain. All 399 command instructions visited; 14 helper instructions outside the stated domain remain unvisited. Physical storage and output services are boundaries. |
 | DSP initialization and guarded startup | Eight new function regions; 4,529 further comparisons | All 220 new instructions visited, including resets, second coefficient table, initializer and guarded startup through the real mathematical producer. Two service bodies and surrounding audio scheduling remain external. |
+| Integrated native capture loading | Existing bodies joined; 273 further comparisons | Actual parser/reset through size, load, recovery, container and stored-slot paths; 460 parser entries and 354 resets. Integration coverage is 1,410/1,551 joined instructions and adds no function entries. |
+| Native capture processing | Six new function regions; 230 further comparisons | Rechannel, layer dispatch, iteration, head setup, block processing and zero helper; 323 actual numerical calls, with seven scripted dispatch cases reported separately. Coverage is 464/465 new instructions; warm-up remains open. |
+| Dynamics configuration and startup | Three new function regions; 2,930 further comparisons | Real dynamics math/getters through guarded startup; 72/73 new instructions, with the remaining threshold branch excluded by all 201 clamped values. Platform input and sample processing remain open. |
+| IR installation and stored reads | Ten new function regions; 1,143 further comparisons | Gain, tail trimming, length selection, direct/deferred installation and real read/CRC callback through ownership paths; all 267 new instructions visited. Convolution construction and processing remain open. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -61,7 +65,11 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [the whole native capture parser](CAPTURE_PARSER_RECONSTRUCTION.md),
 [capture memory reset](CAPTURE_RESET_RECONSTRUCTION.md),
 [the complete metadata command](CAPTURE_COMMAND_RECONSTRUCTION.md) and
-[DSP initialization](DSP_INITIALIZATION_RECONSTRUCTION.md) for exact
+[DSP initialization](DSP_INITIALIZATION_RECONSTRUCTION.md),
+[integrated native loading](CAPTURE_NATIVE_RECONSTRUCTION.md),
+[native capture processing](CAPTURE_PROCESSING_RECONSTRUCTION.md),
+[dynamics configuration](DSP_DYNAMICS_RECONSTRUCTION.md) and
+[IR installation](IR_INSTALLATION_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -134,32 +142,39 @@ comparisons, including the native allocation layout and partial failures. Reset
 executes through new container/slot adapters. The complete metadata command now
 connects parsing and packing through reload/retries to active gain changes. DSP
 initialization and guarded startup execute the recovered coefficient producer.
+Native loading now executes the complete parser/reset in that caller chain.
+Separately, native block processing executes its actual numerical kernels,
+including the final one-frame output ring. Dynamics configuration now executes
+inside startup, and IR load/attach/refresh now execute the recovered installation,
+gain/trimming and read/CRC bodies.
 
 Continue into preset storage and application contracts:
 
 - `0x020092fa`: application of the converted working buffer and the meanings
   of its result and output pointers. Slot loading, container orchestration and
-  its reader and dispatch wrappers now execute together. Join the journal/cache
-  component and the now reconstructed raw parser `0x02031c64` and memory reset
-  `0x01c12878` in one original-ABI comparison. Then connect capture/IR loaders to
-  effect-state reuse/rebuilding and routing. The portable engine remains separate
-  from complete native runtime orchestration.
+  its reader, dispatch, raw parser and memory reset now execute together. Carry
+  that native context and history into the recovered block processor, add warm-up
+  `0x01c12f20..0x01c13072`, then join journal/cache and effect-state reuse/routing.
+  The portable engine remains separate evidence.
 - Metadata persistence: connect the complete `0x0200a888` command to its protocol
   dispatcher and reporting bodies. Allocation/reload/retry, lookup and active
   gain handling are now reconstructed within the command's bounded service domain.
   Physical write/read/erase drivers and power-loss behavior remain open.
-- IR installation at `0x0202957e` / `0x020295d8`, callback `0x0201ad4c` and
-  effect-refresh services: recover their payload ownership and numerical behavior.
+- IR convolution construction at `0x0202962a`, size helper `0x01c123fa`,
+  constructor `0x020318a8` and coefficient producer `0x02031542`: recover kernel
+  objects, allocation layout and processing. Direct/deferred installation and
+  the stored-read callback at `0x0201ad4c` are now reconstructed. Mode selection,
+  temporary-state paths and effect refresh remain open.
 - `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
   writers of state words 708/732 and the pair mapping at offset 3476.
 - `0x0200a1d6`: bridge selected scenes into their DSP application dependencies.
 - State word 4092 and global calibration word 44: trace writers and clock
   configuration before assigning physical meanings to load-report arithmetic.
 
-Continue the application path by integrating native capture parser and memory
-reset with container loading and processing orchestration. On the DSP path,
-recover the startup services at `0x01c010a6` / `0x02030f8e`, the separate
-four-section processing path and the audio caller around `0x01c026de`.
+Continue the application path by connecting native capture loading, warm-up and
+block processing with carried contexts, scratch and histories. On the DSP path,
+recover the remaining startup service at `0x01c010a6`, dynamics sample processing,
+the separate four-section processing path and the audio caller around `0x01c026de`.
 The broader initializer, its reset helpers and guarded startup now execute in
 their comparison model. The normal modeled startup supplies 48077 after the
 reset-copy divisor 48000; an exhaustive writer map and physical units remain open.
@@ -171,4 +186,9 @@ also remain external. Scheduler and counter tracing remain prerequisites for
 physical time-unit claims; LED behavior remains unqualified. Enabling
 Footswitches or Stage and changing the four-slot bank grouping to three also
 require integration and physical validation.
+Some composed verifiers still obtain transitive source-name lists from earlier
+ignored build reports, including native capture loading and IR installation.
+Their required inputs are documented in those milestones. A complete clean-build
+workflow must remove that dependency or explicitly regenerate and verify every
+prerequisite; the current reports do not establish a fresh-checkout build by themselves.
 The Alpha 13 branch remains a placeholder pending an explicit implementation request.

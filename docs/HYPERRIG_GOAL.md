@@ -127,8 +127,14 @@ its original context/arena layout, partial failures and reset-copy configuration
 Capture memory reset adds 253 comparisons through direct and container paths.
 The complete metadata command adds 1,114 comparisons through parsing, allocation,
 reload, retries and gain updates. DSP initialization and guarded startup add
-4,529 comparisons through the recovered coefficient producer. Joining the native
-parser/reset with the full capture path and surrounding audio callers remains work.
+4,529 comparisons through the recovered coefficient producer. Native capture
+loading now joins the real parser/reset through installation and recovery with
+273 comparisons. The native processing caller adds 230 comparisons with actual
+numerical kernels, including its final one-frame output ring. DSP dynamics adds
+2,930 comparisons and removes that startup service boundary. IR installation adds
+1,143 comparisons through gain/trimming, storage reads and ownership transitions.
+Joining loaded capture state to processing, warm-up, the remaining IR convolution
+and surrounding audio callers remains work.
 Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
@@ -151,8 +157,12 @@ unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCT
 [BIQUAD_PIPELINE_RECONSTRUCTION.md](BIQUAD_PIPELINE_RECONSTRUCTION.md),
 [CAPTURE_PARSER_RECONSTRUCTION.md](CAPTURE_PARSER_RECONSTRUCTION.md),
 [CAPTURE_RESET_RECONSTRUCTION.md](CAPTURE_RESET_RECONSTRUCTION.md),
-[CAPTURE_COMMAND_RECONSTRUCTION.md](CAPTURE_COMMAND_RECONSTRUCTION.md) and
-[DSP_INITIALIZATION_RECONSTRUCTION.md](DSP_INITIALIZATION_RECONSTRUCTION.md).
+[CAPTURE_COMMAND_RECONSTRUCTION.md](CAPTURE_COMMAND_RECONSTRUCTION.md),
+[DSP_INITIALIZATION_RECONSTRUCTION.md](DSP_INITIALIZATION_RECONSTRUCTION.md),
+[CAPTURE_NATIVE_RECONSTRUCTION.md](CAPTURE_NATIVE_RECONSTRUCTION.md),
+[CAPTURE_PROCESSING_RECONSTRUCTION.md](CAPTURE_PROCESSING_RECONSTRUCTION.md),
+[DSP_DYNAMICS_RECONSTRUCTION.md](DSP_DYNAMICS_RECONSTRUCTION.md) and
+[IR_INSTALLATION_RECONSTRUCTION.md](IR_INSTALLATION_RECONSTRUCTION.md).
 
 The user also reserved separate branches for Tone3000 integration, a zoomable UI,
 and a complete UltraRig Alpha 11 versus HyperRig feature comparison after reverse

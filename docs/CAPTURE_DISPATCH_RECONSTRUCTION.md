@@ -178,5 +178,6 @@ The complete [native parser](CAPTURE_PARSER_RECONSTRUCTION.md) now has a separat
 comparison against its original context, allocation and error behavior. The
 [memory-reset module](CAPTURE_RESET_RECONSTRUCTION.md) executes the original
 clearing loops through new load, cleanup, container and slot adapters. These
-later modules preserve this milestone's sources and reports. Joining both bodies
-in one complete native capture-loading comparison remains the next integration.
+later modules preserve this milestone's sources and reports. The subsequent
+[native loading integration](CAPTURE_NATIVE_RECONSTRUCTION.md) now joins both
+bodies through size, load, recovery, container installation and stored-slot paths.

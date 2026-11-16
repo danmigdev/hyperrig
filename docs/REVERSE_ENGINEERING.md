@@ -27,7 +27,11 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [the whole native capture parser](CAPTURE_PARSER_RECONSTRUCTION.md),
 [capture memory reset](CAPTURE_RESET_RECONSTRUCTION.md),
 [the complete metadata command](CAPTURE_COMMAND_RECONSTRUCTION.md) and
-[DSP initialization and guarded startup](DSP_INITIALIZATION_RECONSTRUCTION.md). The
+[DSP initialization and guarded startup](DSP_INITIALIZATION_RECONSTRUCTION.md),
+[integrated native capture loading](CAPTURE_NATIVE_RECONSTRUCTION.md),
+[native capture processing](CAPTURE_PROCESSING_RECONSTRUCTION.md),
+[dynamics setup](DSP_DYNAMICS_RECONSTRUCTION.md) and
+[IR installation](IR_INSTALLATION_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.

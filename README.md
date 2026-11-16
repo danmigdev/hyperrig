@@ -111,6 +111,12 @@ adds 253 through direct and container-loading paths. The
 comparisons through parsing, reload, retries and gain updates. The
 [DSP initializer and guarded startup](docs/DSP_INITIALIZATION_RECONSTRUCTION.md)
 add 4,529 comparisons through the recovered coefficient producer.
+The [integrated native capture loader](docs/CAPTURE_NATIVE_RECONSTRUCTION.md)
+now executes the real parser and reset through installation and recovery, adding
+273 comparisons. The [native capture processing caller](docs/CAPTURE_PROCESSING_RECONSTRUCTION.md)
+adds 230 comparisons with actual numerical kernels. [DSP dynamics setup](docs/DSP_DYNAMICS_RECONSTRUCTION.md)
+adds 2,930 comparisons through startup, and [IR installation](docs/IR_INSTALLATION_RECONSTRUCTION.md)
+adds 1,143 through gain, trimming, storage reads and ownership transitions.
 The [audited inventory](docs/REVERSE_INVENTORY.md) separates recovered functions,
 partial regions and candidate entries; a firmware-wide completion percentage
 is not yet established.

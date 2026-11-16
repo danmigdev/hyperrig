@@ -185,7 +185,9 @@ Optionally pass `--mini-image` with the reviewed v4 application inside the
 workspace. Output must be a new directory under ignored `build/`; previous
 results are preserved. The builder creates no flashable image and opens no device.
 
-Next, connect this native-layout parser and the memory reset to the
-[capture dispatch/container path](CAPTURE_DISPATCH_RECONSTRUCTION.md), then recover
-the surrounding native processing orchestration. The earlier portable
-[three-channel engine](NATIVE_RECONSTRUCTION.md) remains separate evidence.
+The subsequent [native loading integration](CAPTURE_NATIVE_RECONSTRUCTION.md)
+now connects this parser and memory reset to the dispatch/container path.
+[Native processing orchestration](CAPTURE_PROCESSING_RECONSTRUCTION.md) has a
+separate instruction comparison with actual numerical kernels. Joining its
+processing state to loading and recovering warm-up remains work. The earlier
+portable [three-channel engine](NATIVE_RECONSTRUCTION.md) remains separate evidence.

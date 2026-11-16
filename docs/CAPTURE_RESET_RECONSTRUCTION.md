@@ -1,5 +1,9 @@
 # Reconstructed capture memory reset
 
+The later [native loading integration](CAPTURE_NATIVE_RECONSTRUCTION.md) joins
+this reset with the complete parser through installation and recovery. This page
+retains the earlier reset milestone's independent scope and evidence.
+
 The complete memory-reset routine now has compilable C and original-instruction
 comparisons. Context loading, the outer load wrapper, recovery, installation and
 slot loading can execute these reset loops through a new adapter. The earlier
