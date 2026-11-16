@@ -257,7 +257,9 @@ workspace. The builder requires a fresh directory under ignored `build/` and
 preserves existing outputs. It records sanitizer results, comparison evidence
 and artifact hashes. It creates no flashable firmware and accesses no device.
 
-The next boundaries are the two startup service bodies, the callers that decide
-when this guarded helper runs, and the separate four-section processing path.
-Physical rate, surrounding audio routing/scheduling, final linkage and hardware
-or audio behavior remain unvalidated.
+Later [dynamics](DSP_DYNAMICS_RECONSTRUCTION.md) and
+[startup input/four-section processing](DSP_AUDIO_PATH_RECONSTRUCTION.md)
+reconstructions close both service bodies in this startup path. The latter
+executes startup and subsequent sample processing on carried state without
+scripted services. The callers that schedule startup, physical units, surrounding
+audio routing, final linkage and hardware/audio behavior remain unvalidated.

@@ -212,3 +212,8 @@ checked byte-for-byte, including RAM-copy mapping.
 
 This is offline reconstruction and numerical verification. It is not a hardware
 test, audio test, device-flashing result or proof of complete IR convolution.
+
+The later [convolution construction](IR_CONVOLUTION_RECONSTRUCTION.md) executes
+effect allocation, both coefficient producers, resampling, FFT, fixed-point
+packing, reset and object publication with 479 further comparisons. The
+runtime consumer, accelerator access and enclosing audio task remain open.

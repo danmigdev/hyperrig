@@ -173,8 +173,8 @@ Optionally pass `--mini-image` with the reviewed v4 application inside the
 workspace. Output must be new and under ignored `build/`; originals and earlier
 results are preserved. The builder creates no flashable image and opens no device.
 
-The next integration is to carry the context and histories produced here through
-the [native processing caller](CAPTURE_PROCESSING_RECONSTRUCTION.md), including
-its fixed scratch buffers, warm-up and surrounding audio scheduling. The
-remaining application/routing and physical services stay on the full
-[reverse-engineering roadmap](REVERSE_ROADMAP.md).
+The later [live capture integration](CAPTURE_LIVE_RECONSTRUCTION.md) carries
+these exact contexts and histories through actual warm-up and numerical block
+processing, with 695 further comparisons. It also supplies the small head rings
+allocated by the parser. Surrounding audio scheduling, application/routing and
+physical services remain on the full [reverse-engineering roadmap](REVERSE_ROADMAP.md).

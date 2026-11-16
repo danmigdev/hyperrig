@@ -117,6 +117,18 @@ now executes the real parser and reset through installation and recovery, adding
 adds 230 comparisons with actual numerical kernels. [DSP dynamics setup](docs/DSP_DYNAMICS_RECONSTRUCTION.md)
 adds 2,930 comparisons through startup, and [IR installation](docs/IR_INSTALLATION_RECONSTRUCTION.md)
 adds 1,143 through gain, trimming, storage reads and ownership transitions.
+[Native warm-up](docs/CAPTURE_WARMUP_RECONSTRUCTION.md) adds 216 comparisons.
+[Live capture integration](docs/CAPTURE_LIVE_RECONSTRUCTION.md) now carries the
+actual loaded context through warm-up and processing, adding 695 comparisons
+and support for the parser's small head rings. [Startup input and the four-section
+sample path](docs/DSP_AUDIO_PATH_RECONSTRUCTION.md) add 1,914 comparisons with
+actual filter and gain-ramp execution.
+[Four-section parameter transitions](docs/DSP_TRANSITION_RECONSTRUCTION.md)
+add 1,812 comparisons from real requests and coefficient generation through
+sample processing, including complete 1,020-step transitions.
+[IR convolution construction](docs/IR_CONVOLUTION_RECONSTRUCTION.md) adds 14
+function regions and 479 comparisons through resampling, FFT, fixed-point packing
+and object publication. Runtime convolution remains a separate next step.
 The [audited inventory](docs/REVERSE_INVENTORY.md) separates recovered functions,
 partial regions and candidate entries; a firmware-wide completion percentage
 is not yet established.

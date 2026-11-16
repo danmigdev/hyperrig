@@ -144,8 +144,10 @@ The original wrappers return void. The C APIs add status 0 for completion,
 unsupported numerical domain. These guards are new behavior. Writes made
 before a later failure may remain; the APIs do not promise rollback.
 
-The separate warm-up body at `0x01c12f20..0x01c13072`, platform scheduling,
-audio-device integration and real-time behavior remain outside this milestone.
+The separate [warm-up body](CAPTURE_WARMUP_RECONSTRUCTION.md) at
+`0x01c12f20..0x01c13072` now has its own reconstruction and comparison report.
+Platform scheduling, audio-device integration and real-time behavior remain
+outside this milestone.
 This evidence does not turn the previously portable engine orchestration into
 an assertion that the whole original engine has executed.
 
@@ -178,3 +180,9 @@ On Windows this uses the configured Ubuntu WSL distribution. The original
 decoded application and reviewed MINI image are local ignored inputs. The
 builder produces host and target objects, comparison evidence and sanitizer
 results; it does not access a device or produce a flashable release.
+
+The later [live capture integration](CAPTURE_LIVE_RECONSTRUCTION.md) carries
+actual parser/loader output through warm-up and this processor. Its separate
+numerical adapter handles the parser's head rings below 64 frames, preserving
+the smaller native mirror allocation. This module's earlier source, numerical
+domain and report remain unchanged.

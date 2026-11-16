@@ -31,7 +31,12 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [integrated native capture loading](CAPTURE_NATIVE_RECONSTRUCTION.md),
 [native capture processing](CAPTURE_PROCESSING_RECONSTRUCTION.md),
 [dynamics setup](DSP_DYNAMICS_RECONSTRUCTION.md) and
-[IR installation](IR_INSTALLATION_RECONSTRUCTION.md). The
+[IR installation](IR_INSTALLATION_RECONSTRUCTION.md),
+[native warm-up](CAPTURE_WARMUP_RECONSTRUCTION.md),
+[live capture loading and processing](CAPTURE_LIVE_RECONSTRUCTION.md) and
+[startup input/four-section processing](DSP_AUDIO_PATH_RECONSTRUCTION.md) and
+[four-section parameter transitions](DSP_TRANSITION_RECONSTRUCTION.md) and
+[IR convolution construction](IR_CONVOLUTION_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.

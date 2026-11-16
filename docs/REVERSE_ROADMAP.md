@@ -42,6 +42,11 @@ original firmware C sources have not been recovered.
 | Native capture processing | Six new function regions; 230 further comparisons | Rechannel, layer dispatch, iteration, head setup, block processing and zero helper; 323 actual numerical calls, with seven scripted dispatch cases reported separately. Coverage is 464/465 new instructions; warm-up remains open. |
 | Dynamics configuration and startup | Three new function regions; 2,930 further comparisons | Real dynamics math/getters through guarded startup; 72/73 new instructions, with the remaining threshold branch excluded by all 201 clamped values. Platform input and sample processing remain open. |
 | IR installation and stored reads | Ten new function regions; 1,143 further comparisons | Gain, tail trimming, length selection, direct/deferred installation and real read/CRC callback through ownership paths; all 267 new instructions visited. Convolution construction and processing remain open. |
+| Native capture warm-up | One new function region; 216 further comparisons | Real four-frame numerical layer calls, history replication, optional pre-head output and reset fallback; 117/118 new instructions visited. One synthetic dispatch-only case is identified separately. |
+| Startup input and four-section sample path | Six new function regions; 1,914 further comparisons | Both cached/input bodies, real startup without scripted services, transition copies, Q28 processing and signed gain ramp; all 335 new instructions visited. Transition-request producer and enclosing audio task remain open. |
+| Loaded capture through warm-up and processing | Existing bodies joined; 695 further comparisons | Exact native context and history carried through numerical execution, including parser-sized small head rings, stored-slot reuse and real recovery. Coverage is 3,300/3,670 joined instructions; no new function entries or audio-task claim. |
+| Four-section parameter transitions | Two new function regions; 1,812 further comparisons | Real clamping and requests generate staged coefficients/gain, then execute update and sample processing. All 122 new instructions visited, including one-step zero deltas and full 1,020-step convergence; the optional notification callback remains external. |
+| IR convolution construction | Fourteen new function regions; 479 further comparisons | Actual resampling, windowing, complex FFT, real-spectrum conversion, quantization and object publication through 32 partitions. Coverage is 799/800 new instructions; runtime convolution and accelerator paths remain open. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -69,7 +74,12 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [integrated native loading](CAPTURE_NATIVE_RECONSTRUCTION.md),
 [native capture processing](CAPTURE_PROCESSING_RECONSTRUCTION.md),
 [dynamics configuration](DSP_DYNAMICS_RECONSTRUCTION.md) and
-[IR installation](IR_INSTALLATION_RECONSTRUCTION.md) for exact
+[IR installation](IR_INSTALLATION_RECONSTRUCTION.md),
+[capture warm-up](CAPTURE_WARMUP_RECONSTRUCTION.md) and
+[startup input/four-section processing](DSP_AUDIO_PATH_RECONSTRUCTION.md) and
+[live capture processing](CAPTURE_LIVE_RECONSTRUCTION.md) and
+[parameter transitions](DSP_TRANSITION_RECONSTRUCTION.md) and
+[IR convolution construction](IR_CONVOLUTION_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -147,40 +157,53 @@ Separately, native block processing executes its actual numerical kernels,
 including the final one-frame output ring. Dynamics configuration now executes
 inside startup, and IR load/attach/refresh now execute the recovered installation,
 gain/trimming and read/CRC bodies.
+Native warm-up and live processing now execute on the actual parser-produced
+context and histories, including small head rings and real recovery. Startup
+input now executes internally, followed by actual four-section filtering and
+gain ramps. Real parameter requests now generate and apply staged filter records,
+including interrupted and fully converged transitions. The enclosing audio task
+has not been joined to these entries.
+IR construction now produces the original partitioned kernel objects through
+both real coefficient producers, software FFT and quantization. Its runtime
+consumer has been traced but has not yet executed in the reconstructed source.
 
 Continue into preset storage and application contracts:
 
 - `0x020092fa`: application of the converted working buffer and the meanings
   of its result and output pointers. Slot loading, container orchestration and
-  its reader, dispatch, raw parser and memory reset now execute together. Carry
-  that native context and history into the recovered block processor, add warm-up
-  `0x01c12f20..0x01c13072`, then join journal/cache and effect-state reuse/routing.
-  The portable engine remains separate evidence.
+  its reader, dispatch, raw parser and memory reset now execute together; the
+  resulting native context also executes warm-up and block processing. Join
+  journal/cache and effect-state reuse/routing to the actual application caller.
+  The earlier portable engine remains separate evidence.
 - Metadata persistence: connect the complete `0x0200a888` command to its protocol
   dispatcher and reporting bodies. Allocation/reload/retry, lookup and active
   gain handling are now reconstructed within the command's bounded service domain.
   Physical write/read/erase drivers and power-loss behavior remain open.
-- IR convolution construction at `0x0202962a`, size helper `0x01c123fa`,
-  constructor `0x020318a8` and coefficient producer `0x02031542`: recover kernel
-  objects, allocation layout and processing. Direct/deferred installation and
-  the stored-read callback at `0x0201ad4c` are now reconstructed. Mode selection,
-  temporary-state paths and effect refresh remain open.
+- IR runtime convolution at `0x01c12064..0x01c123fa`: consume the now recovered
+  constructor objects and execute the 128-sample software path. Recover its
+  numerical dependencies beginning at `0x01c145fe`, then the accelerator fallback
+  at `0x01c124a8`/`0x01c1245c` and MMIO behavior at `0x01ee0400`. Join installation
+  and ownership to construction and processing. Mode selection at `0x02029728`,
+  copying wrapper `0x02031bf8`, relocation `0x02031c16`, temporary-state paths
+  and effect refresh remain open.
 - `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
   writers of state words 708/732 and the pair mapping at offset 3476.
 - `0x0200a1d6`: bridge selected scenes into their DSP application dependencies.
 - State word 4092 and global calibration word 44: trace writers and clock
   configuration before assigning physical meanings to load-report arithmetic.
 
-Continue the application path by connecting native capture loading, warm-up and
-block processing with carried contexts, scratch and histories. On the DSP path,
-recover the remaining startup service at `0x01c010a6`, dynamics sample processing,
-the separate four-section processing path and the audio caller around `0x01c026de`.
+Continue the application path by connecting the recovered capture lifecycle to
+its enclosing audio caller. On the DSP path, recover dynamics sample processing
+at `0x01c1a636`, the optional parameter notification body at `0x0201a9ea`,
+and the audio task containing calls at `0x01c02636` and `0x01c026de`. The former
+calls the now recovered four-section path; the latter calls the earlier five-section
+chain. Their static call windows do not establish execution of the enclosing task.
 The broader initializer, its reset helpers and guarded startup now execute in
 their comparison model. The normal modeled startup supplies 48077 after the
 reset-copy divisor 48000; an exhaustive writer map and physical units remain open.
 Establish those units from configuration and hardware evidence before assigning
 sample-rate or frequency meanings.
-IR convolution and complete effect/routing application remain separate components.
+IR runtime convolution and complete effect/routing application remain separate components.
 The read wrapper at `0x02002810`, its physical I/O and the priority/poll helpers
 also remain external. Scheduler and counter tracing remain prerequisites for
 physical time-unit claims; LED behavior remains unqualified. Enabling
@@ -191,4 +214,8 @@ ignored build reports, including native capture loading and IR installation.
 Their required inputs are documented in those milestones. A complete clean-build
 workflow must remove that dependency or explicitly regenerate and verify every
 prerequisite; the current reports do not establish a fresh-checkout build by themselves.
+The new live-capture, startup-input/four-section, transition and IR-construction
+builders obtain their source
+manifests without earlier build reports, while still requiring the original local
+images and toolchain. This closes those new builders' report dependency only.
 The Alpha 13 branch remains a placeholder pending an explicit implementation request.

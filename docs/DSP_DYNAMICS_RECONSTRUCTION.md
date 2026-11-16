@@ -204,3 +204,10 @@ remain unchanged.
 
 The 201 native threshold words in increasing clamped-threshold order have SHA-256
 `3245300be51491ce90b108b6dfb1b00e266813cc36b4e6aae1affa0b065bca37`.
+
+The later [startup input and four-section path](DSP_AUDIO_PATH_RECONSTRUCTION.md)
+executes the remaining platform-input body through this unchanged startup
+adapter and follows initialization with actual Q28 processing. Its separate
+report adds 1,914 comparisons. The dynamics sample processor and enclosing audio
+task remain open; the earlier report's external platform boundary remains an
+accurate description of that earlier corpus.

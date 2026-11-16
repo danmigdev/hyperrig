@@ -35,3 +35,4 @@ firmware/src/hyperrig_capture_processing.c -text whitespace=blank-at-eol,blank-a
 firmware/src/hyperrig_ir_installation.c -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tests/test_ir_installation_machine.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tools/verify_ir_installation.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+tests/capture_warmup_sanitize.c -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

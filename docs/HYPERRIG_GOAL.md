@@ -133,8 +133,15 @@ loading now joins the real parser/reset through installation and recovery with
 numerical kernels, including its final one-frame output ring. DSP dynamics adds
 2,930 comparisons and removes that startup service boundary. IR installation adds
 1,143 comparisons through gain/trimming, storage reads and ownership transitions.
-Joining loaded capture state to processing, warm-up, the remaining IR convolution
-and surrounding audio callers remains work.
+Native warm-up adds 216 comparisons. Live capture integration now carries the
+actual loaded context through warm-up and block processing, adding 695 comparisons
+and the parser's small head rings. Startup input and the four-section sample path
+add 1,914 comparisons with no scripted startup services. Four-section parameter
+requests now generate actual staged records and execute through sample processing,
+with 1,812 comparisons including complete 1,020-step transitions. IR convolution
+construction adds 479 comparisons through resampling, FFT, quantization and
+publication of full 32-partition objects. Runtime convolution, effect/routing
+integration and surrounding audio callers remain work.
 Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
@@ -162,7 +169,12 @@ unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCT
 [CAPTURE_NATIVE_RECONSTRUCTION.md](CAPTURE_NATIVE_RECONSTRUCTION.md),
 [CAPTURE_PROCESSING_RECONSTRUCTION.md](CAPTURE_PROCESSING_RECONSTRUCTION.md),
 [DSP_DYNAMICS_RECONSTRUCTION.md](DSP_DYNAMICS_RECONSTRUCTION.md) and
-[IR_INSTALLATION_RECONSTRUCTION.md](IR_INSTALLATION_RECONSTRUCTION.md).
+[IR_INSTALLATION_RECONSTRUCTION.md](IR_INSTALLATION_RECONSTRUCTION.md),
+[CAPTURE_WARMUP_RECONSTRUCTION.md](CAPTURE_WARMUP_RECONSTRUCTION.md),
+[CAPTURE_LIVE_RECONSTRUCTION.md](CAPTURE_LIVE_RECONSTRUCTION.md) and
+[DSP_AUDIO_PATH_RECONSTRUCTION.md](DSP_AUDIO_PATH_RECONSTRUCTION.md) and
+[DSP_TRANSITION_RECONSTRUCTION.md](DSP_TRANSITION_RECONSTRUCTION.md) and
+[IR_CONVOLUTION_RECONSTRUCTION.md](IR_CONVOLUTION_RECONSTRUCTION.md).
 
 The user also reserved separate branches for Tone3000 integration, a zoomable UI,
 and a complete UltraRig Alpha 11 versus HyperRig feature comparison after reverse
