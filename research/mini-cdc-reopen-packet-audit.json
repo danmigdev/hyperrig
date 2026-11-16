@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "kind": "mini-cdc-reopen-packet-offline-audit",
+  "created_utc": "2026-11-16T08:18:55.247925+00:00",
+  "device_io": false,
+  "browser_io": false,
+  "firmware_modified": false,
+  "image_sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+  "references": [
+    {
+      "path": "analysis/firmware/m571_g_app/app.bin",
+      "sha256": "4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e",
+      "bytes": 485772
+    },
+    {
+      "path": "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin",
+      "sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+      "bytes": 516096
+    },
+    {
+      "path": "build/mini-v3-after-restart-ble-timing-02/report.json",
+      "sha256": "d8e707e8d95a38e9253a7271f0e610deb2f432a742b9e1a854d24a63dc40ac7a",
+      "bytes": 2940
+    },
+    {
+      "path": "recovered/ultrarig-original/web/tankg.html",
+      "sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+      "bytes": 1358828
+    },
+    {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/docs/CHANGELOG.md",
+      "sha256": "ff50afd7c763f157e7ab267a16a8d0544f1b93d04e5c8c90af97138331ec124a",
+      "bytes": 95045
+    },
+    {
+      "path": "research/mini-usb-live-ble-diagnostic-routes.json",
+      "sha256": "3733f74628e32a3c50ab5e4c060d58f6e40991cac98c7f9d5845ce34ed5d545f",
+      "bytes": 14892
+    },
+    {
+      "path": "research/mini-usb-negative-probes-correction.json",
+      "sha256": "dfd1539e0fc9d31ac95f6cc57400267b3b0314d34ea87db5feebf765b1d52850",
+      "bytes": 7090
+    }
+  ],
+  "new_observations": {
+    "report_result": "fail",
+    "failure_stage": "read-only GAIN rejected by unpaired BLE policy, before requested STAT timing",
+    "application_read_responses": {
+      "BLE": [
+        "BLE on=1 adv=1 conn=1 notif=1 mtu=247 name='HyperRig 6833' mac=33:68:A9:59:E3:FC rf_vm=7 osc=0x099a61ff/0x05d9625f rx=55 tx=1207 rxdrop=0 txdrop=0 conns=3 deny=0 deny_addr=0x0 pwr=0xfb enc=0 bonds=0 pairwin=0 bt=1 pairs=0 pdeny=0 pfail=0 keymiss=0 idle=0 auth=0 webkeys=0 recon=0 nudge=0"
+      ],
+      "CLKSTATE": [
+        "CLKSTATE mhz=360 state=untested why=none target=360 hi=396 safe=0 boot=0 prev=37276470 prev_ok=0 ck=c1c56000 cr=5a887e68 best=360 steps=360:ok,372:untested,384:untested,396:untested crash_step=0 bud=22079 lim=154950 base=132871 eng=1"
+      ],
+      "LIFE": [
+        "LIFE v=1 boots=4 exc=1 wdg=0 asrt=0 tst=0 hours=6.3 since=M5.71"
+      ],
+      "CRASH": [
+        "CRASH none cpu=8 dbg=0x42fa387f emu=0x91bb967 reti=0x2146ad37 rets=0xefa51354 other_pc=0xb81fc828 ago=0",
+        "CRASH end"
+      ],
+      "EVT 0": [
+        "EV 1 110 store 909312 1024",
+        "EV 2 710 bt -4 580",
+        "EV 3 730 usb 15 0",
+        "EV 4 730 bt 600 262162",
+        "EV 5 730 boot 0 -503217642",
+        "EV 6 730 rst 1 65537",
+        "EV 7 1480 usb 9 1",
+        "EV 8 3010 usb 8 48167",
+        "EV 9 3010 eng 1 4892",
+        "EV 10 3030 eng 2 5120",
+        "EV 11 3030 load 0 0",
+        "EV 12 3030 pload 343808 27",
+        "EV 13 3030 autostart 0 0",
+        "EV 14 3050 audio 2 0",
+        "EV 15 152360 usb 1 0",
+        "EV 16 157510 usb 0 0",
+        "EVT end 16 0 0 934600"
+      ]
+    },
+    "correct_interpretation": [
+      "Actual USB connected events1/0 prove the control task observed DTR/connected gate transitions during the earlier root host-open interval. Merely hypothesizing that DTR never arrived is no longer supported for this interval.",
+      "The report remained a failed timing trial because GAIN returned ERR GAIN pair. It does not contain completed STAT timing measurements.",
+      "CRASH none is not an exception record: accompanying numeric fields must not be symbolized as a new crash. LIFE shows boots4/exc1/wdg0; CLKSTATE is safe0/eng1."
+    ]
+  },
+  "autostart_event": {
+    "actual": "EV 8 3010 usb 8 48167",
+    "encoded": {
+      "uptime_ms": 3010,
+      "reason": 7
+    },
+    "proof": "020182BA obtains uptime;020182C2 shifts left4;020182C4 ORs selected reason;020182C8..CC logs event14/subtype8. Reason7 is selected at020181F2 in the configured USB quiet branch.",
+    "is_endpoint_rearm_event": false,
+    "audio_start_success_alone_proves_USB_bulk_health": false
+  },
+  "original_connection_contract": {
+    "editor_lines": [
+      10331,
+      10351
+    ],
+    "editor_behavior": "The original UI explicitly accounts for the first packet after COM open sometimes being lost. It sends up to five PING commands at700ms each in the SAME open session before rejecting the connection.",
+    "changelog_line": 334,
+    "installer_behavior_documented": "M5.32 installer sends a second PING in the same session for the data-toggle case. This is source-supported startup synchronization, not proof that these current failures have that cause.",
+    "our_previous_singlePING_limit": "The single-PING trials test a narrower behavior than the original connect sequence. Their failures do not establish that an original multi-PING session would also fail.",
+    "automatic_retry_changed": false
+  },
+  "binary_sequence": [
+    {
+      "address": "0x0201C510..0x0201C586",
+      "fact": "DTR0 clears connected flagbit1; a0to1 transition invokes endpoint_init0201C480 even when the endpoint-configured flagbit4 was already set."
+    },
+    {
+      "address": "0x0201C480..0x0201C4C4",
+      "fact": "Reconfigures IN0x82 and OUT0x02, re-registers OUT callback0201C590, then enables endpoint handling."
+    },
+    {
+      "address": "0x0201C3B0/0x0201C3B6 and0x0201C424/0x0201C42A",
+      "fact": "OUT endpoint configuration writes CSR0x90 through02005D1C; IN configuration writes CSR0x48 through02006AF8. These exact values are established; this audit does not claim a WL82 register-bit mapping from a different USB-controller datasheet."
+    },
+    {
+      "address": "0x0201C590..0x0201C5B0 ->0x02002186..0x020021A0",
+      "fact": "OUT interrupt calls the registered object+20 callback, which sets globalRXpending byte1C26894 and updates lastUSBactivity atglobal+100."
+    },
+    {
+      "address": "0x0201A55C..0x0201A564",
+      "fact": "Control loop skips bulk draining while connected=0. RXpending is cleared only after connected&&RXpending. Thus a DTRfalse PING can leave bytes/pending state undrained until another state transition; this alone is not a demonstrated permanent stall."
+    },
+    {
+      "address": "0x02005D84..0x02005EF0",
+      "fact": "The read helper checks endpointRXcount, switches DMA/FIFO pointers, copies bytes and acknowledges endpointCSR. It may return0 with no current RXcount, including after endpoint reconfiguration. A later fresh OUT callback is needed to request another drain."
+    }
+  ],
+  "hypotheses_and_limits": {
+    "packet_or_toggle_resynchronization": "Supported as an original documented first-packet condition and consistent with reconfiguration on DTRrising; not proven as the current root cause without a same-handle multi-PING transcript or bus capture.",
+    "permanent_CTL_deadlock": "Contradicted during the successful BLE diagnostics.",
+    "DTR_not_received": "Contradicted for the observed usb1/usb0 interval; endpoint bulkRX/TX still not proven.",
+    "audio_autostart_event8_as_USB_reset": "Incorrect;8 encodes autostart reason/time.",
+    "DTRfalse_packet_caused_persistent_endpoint_stall": "Not established by static analysis.",
+    "next_controlled_observation": "Root may separately review a bounded original-style sequence within one DTRtrue open, after requested standard USB unplug/replug if performed by user. No reopen loop, no mutating commands and no firmware change follows from this audit."
+  },
+  "unchanged_binary_spans": [
+    {
+      "name": "DTR_handler",
+      "start": "0x0201c4d2",
+      "end_exclusive": "0x0201c588",
+      "sha256": "5a4cd9a5d23fee8dc7c643ecbdb29f07f26cf2e9f16be3bac922180e246c1699",
+      "original_equals_v3": true
+    },
+    {
+      "name": "endpoint_init",
+      "start": "0x0201c480",
+      "end_exclusive": "0x0201c4d2",
+      "sha256": "b5c986edf21a89d7521fbe63e0164dc232bd5997eca5b96062402173a0725158",
+      "original_equals_v3": true
+    },
+    {
+      "name": "endpoint_configuration",
+      "start": "0x0201c2f4",
+      "end_exclusive": "0x0201c442",
+      "sha256": "eaf434379455492f3f20926da191df93b75a90ace1f67f7646b825d7d5c1f8a8",
+      "original_equals_v3": true
+    },
+    {
+      "name": "OUT_callback",
+      "start": "0x0201c590",
+      "end_exclusive": "0x0201c5b2",
+      "sha256": "c278e55109f6d43cea54e3dcd6b9c85f8321024649470848633b33fbe4933c56",
+      "original_equals_v3": true
+    },
+    {
+      "name": "app_RXpending_callback",
+      "start": "0x02002186",
+      "end_exclusive": "0x020021a2",
+      "sha256": "753e90725a7db5860e9d100e6e1ffcace1bc3cde5e3aa73ef3529c688d68d21c",
+      "original_equals_v3": true
+    },
+    {
+      "name": "ctl_connected_RX_drain",
+      "start": "0x0201a496",
+      "end_exclusive": "0x0201a678",
+      "sha256": "fdb57baaf30a903c284248fad9111693ecd7c650b9df6ccf48d3fe1745c22a6e",
+      "original_equals_v3": true
+    },
+    {
+      "name": "bulk_read",
+      "start": "0x02005d84",
+      "end_exclusive": "0x02005ef2",
+      "sha256": "2ee046810e517626535e1fbd503a351a1a942a4eae98f375770e0dd3b6e09455",
+      "original_equals_v3": true
+    },
+    {
+      "name": "autostart_decision",
+      "start": "0x020181b8",
+      "end_exclusive": "0x02018268",
+      "sha256": "e530febcd7f0616ce9a2196823359d08ec20d236b8e668f1a1cb73b1bae86d32",
+      "original_equals_v3": true
+    },
+    {
+      "name": "autostart_event",
+      "start": "0x020182ae",
+      "end_exclusive": "0x020182d0",
+      "sha256": "d248337f0535be1ee10561e29116270dab9f417e4a20347b63e9d06391c98bb0",
+      "original_equals_v3": true
+    }
+  ],
+  "additional_primary_SDK_reference": {
+    "url": "https://raw.githubusercontent.com/amitv87/fw-AC79_AIoT_SDK/ffbb2a8d925682ba6880d643a83a63ee0691ec09/include_lib/driver/cpu/wl82/asm/usb.h",
+    "sha256": "4ca014dfddff3f84ddd2c132df8430d063abdfa9253fb2602393153558750b59",
+    "role": "Confirms usb_g_ep_config API declaration only; does not supply CSR bit definitions."
+  }
+}

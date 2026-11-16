@@ -1,0 +1,136 @@
+{
+  "schema": 1,
+  "kind": "mini-usb-negative-probes-correction",
+  "created_utc": "2026-11-16T08:00:42.872042+00:00",
+  "device_io": false,
+  "browser_io": false,
+  "original_reports_modified": false,
+  "image_sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+  "summary_it": "Le prove Python negative esaminate chiedevano DTR=False, mentre il firmware richiede DTR=True per aprire il gate applicativo RX/TX. Non attestano un blocco del task ctl n? un guasto persistente dopo il riavvio. Il percorso statico di GC differita resta verificato ma non ? collegato causalmente a queste prove.",
+  "references": [
+    {
+      "path": "tools/probe_mini_app.py",
+      "sha256": "055bf238d1ea9a1a2cba298259391406faa22a3bd75384e2b866b0b9af969b74",
+      "bytes": 19290
+    },
+    {
+      "path": "tools/probe_mini_app_host_open.py",
+      "sha256": "8936ef30d0db27df4ffd91c600e7f1a2c911302f9f1b245df8048691d2ac9c8d",
+      "bytes": 10438
+    },
+    {
+      "path": "research/mini-cdc-host-open.json",
+      "sha256": "aaf1f4d1b53efc80ea8fa0f592a59fb024a4e30dc2f2ee244b5d08790652f860",
+      "bytes": 24575
+    },
+    {
+      "path": "research/mini-post-save-usb-stall-audit.json",
+      "sha256": "1ea19dd011bdd09a4d3c84121f46ff7e133bc0d5fcd735c1cf505186125e59d4",
+      "bytes": 15873
+    },
+    {
+      "path": "build/mini-first-preset-ui-04/report.json",
+      "sha256": "0eb9836638dd2025d9e75f380db4cc9c765c53dcc7ff4e0316ab810c3d2479ff",
+      "bytes": 664252
+    },
+    {
+      "path": "analysis/hardware/mini-v3-unresponsive-pnp-01.json",
+      "sha256": "501b37a222ae475877e64d381df2d4cc393f79a14328405db5e9ee37e179c3c5",
+      "bytes": 3543
+    }
+  ],
+  "corrected_probes": [
+    {
+      "reference": {
+        "path": "analysis/hardware/mini-v3-usb-read-20261116-0649.jsonl",
+        "sha256": "f0f29f0f541fb8c68b2896811e2c60595c3f85c477f6ee16fc976e8ad673ef12",
+        "bytes": 2939
+      },
+      "started_utc": "2026-11-16T06:47:50.753772+00:00",
+      "closed_utc": "2026-11-16T06:47:56.689769+00:00",
+      "error": "response timeout for PING",
+      "requested_dtr": false,
+      "requested_rts": false,
+      "control_line_source": "tools/probe_mini_app.py:182-191, class SerialTransport.open; operators used the frozen probe, whose logs did not record the line flags explicitly",
+      "DTR_request_delivery_measured": false,
+      "received_lines": [],
+      "serial_port_closed": true,
+      "application_liveness_inference": "inconclusive: required DTR gate was not requested",
+      "transmittedPINGcompletion": "host write returned, but valid application RX/TX gate was not requested"
+    },
+    {
+      "reference": {
+        "path": "analysis/hardware/mini-v3-usb-read-20261116-0650.jsonl",
+        "sha256": "024cb41869a50651193dae8280ed53f4ea4b986c3c57390c40f94738e6272b0e",
+        "bytes": 2952
+      },
+      "started_utc": "2026-11-16T06:48:12.581546+00:00",
+      "closed_utc": "2026-11-16T06:48:17.631580+00:00",
+      "error": "Write timeout",
+      "requested_dtr": false,
+      "requested_rts": false,
+      "control_line_source": "tools/probe_mini_app.py:182-191, class SerialTransport.open; operators used the frozen probe, whose logs did not record the line flags explicitly",
+      "DTR_request_delivery_measured": false,
+      "received_lines": [],
+      "serial_port_closed": true,
+      "application_liveness_inference": "inconclusive: required DTR gate was not requested",
+      "transmittedPINGcompletion": "not established by tx intent alone"
+    },
+    {
+      "reference": {
+        "path": "analysis/hardware/mini-v3-after-user-restart-01.jsonl",
+        "sha256": "be323c1050e5bcf10a4ea5ff9af39618c5ad84d5efb7438adaf7afa5ab358977",
+        "bytes": 2946
+      },
+      "started_utc": "2026-11-16T07:57:43.454929+00:00",
+      "closed_utc": "2026-11-16T07:57:47.595902+00:00",
+      "error": "response timeout for PING",
+      "requested_dtr": false,
+      "requested_rts": false,
+      "control_line_source": "tools/probe_mini_app.py:182-191, class SerialTransport.open; operators used the frozen probe, whose logs did not record the line flags explicitly",
+      "DTR_request_delivery_measured": false,
+      "received_lines": [],
+      "serial_port_closed": true,
+      "application_liveness_inference": "inconclusive: required DTR gate was not requested",
+      "transmittedPINGcompletion": "host write returned, but valid application RX/TX gate was not requested"
+    }
+  ],
+  "firmware_basis": {
+    "class_request": "SET_CONTROL_LINE_STATE bRequest0x22, wValue bit0",
+    "handler_span": "0x0201c4d2..0x0201c590",
+    "DTR_false_flags": "(old_flags & 0xEC) | 0x11",
+    "DTR_true_flags": "old_flags | 0x13",
+    "connected_TX_gate": "(flags & 0x12) == 0x12",
+    "RX_dispatch_gate": [
+      "0x0201a55c connected must be nonzero",
+      "0x0201a560 RXpending must be nonzero"
+    ],
+    "v3_unchanged_byte_evidence": {
+      "path": "research/mini-post-save-usb-stall-audit.json",
+      "sha256": "1ea19dd011bdd09a4d3c84121f46ff7e133bc0d5fcd735c1cf505186125e59d4",
+      "bytes": 15873
+    },
+    "DTR_true_necessary": true,
+    "DTR_true_sufficient_for_liveness": false,
+    "all_timeouts_proven_caused_by_DTR": false
+  },
+  "superseded_inferences": [
+    "Do not infer that CDC/control-task became unresponsive after the last save solely from these Python no-response or WriteTimeout results.",
+    "Do not infer that a user power cycle failed to recover the application from after-user-restart-01: it again requested DTR=False.",
+    "Do not label chooser Finding devices with opens=0 as a successful serial open or an application protocol failure.",
+    "Do not attribute a runtime failure to deferred GC, USB suspend, endpoint close, or the appended shim from these observations."
+  ],
+  "retained_facts": [
+    "Session04 really exchanged save ACKs and read-only queries through STAT before closing the native WebSerial port.",
+    "The original/v3-identical append writer verifies the new record synchronously and marks old sectors for later GC in ctl.",
+    "The original/v3-identical erase path includes IRQ masking, inter-core coordination and subsequent restoration.",
+    "PnP presence, ProblemCode0 and arrival metadata establish OS observations, not ongoing MCU task execution.",
+    "The old audit already marked hardware_cause_proven=false; this correction additionally withdraws treating the negative Python tests as evidence that an application stall occurred at all."
+  ],
+  "next_evidence_scope": {
+    "root_is_only_hardware_operator": true,
+    "required_session": "Explicit DTR=True/R?TS=False host-open diagnostic with actual current v3 identity annotation, full raw replies and native port closure; no old v2 expected-image metadata reused",
+    "future_positive_or_negative_result_included_here": false,
+    "reason": "The root diagnostic is separate and was not inspected while active. Its actual result must be reported with its own provenance."
+  }
+}

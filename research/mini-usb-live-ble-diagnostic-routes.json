@@ -1,0 +1,441 @@
+{
+  "schema": 1,
+  "kind": "mini-usb-live-ble-diagnostic-routes",
+  "created_utc": "2026-11-16T08:13:07.711227+00:00",
+  "device_io": false,
+  "browser_io": false,
+  "firmware_or_client_modified": false,
+  "image_sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+  "references": [
+    {
+      "path": "analysis/firmware/m571_g_app/app.bin",
+      "sha256": "4005315c3d58e20beb8e8f5c33e6a65d34f9512051ccf6b43ef2c5eb6a9c604e",
+      "bytes": 485772
+    },
+    {
+      "path": "build/hyperrig-mini-audio-v3/hyperrig-mini.app-area.bin",
+      "sha256": "9c612d2c60e863511e3c20f801c024ac2d0064cf935cdf1131a2a3b9eea2363c",
+      "bytes": 516096
+    },
+    {
+      "path": "analysis/hardware/mini-v3-after-user-restart-ble-read-01.jsonl",
+      "sha256": "7496d5f8fba3eabb791cb28e5b75edcb047e805dcc29bb997ca73a180597d4da",
+      "bytes": 14196
+    },
+    {
+      "path": "recovered/ultrarig-original/web/tankg.html",
+      "sha256": "247d152045a9d8f987281e7e943c1ea359ccc2db1392f6a0cb439587717e88e6",
+      "bytes": 1358828
+    },
+    {
+      "path": "artifacts/alpha11/v2/UltraRig-alpha11-v2-win/docs/CHANGELOG.md",
+      "sha256": "ff50afd7c763f157e7ab267a16a8d0544f1b93d04e5c8c90af97138331ec124a",
+      "bytes": 95045
+    },
+    {
+      "path": "research/mini-usb-negative-probes-correction.json",
+      "sha256": "dfd1539e0fc9d31ac95f6cc57400267b3b0314d34ea87db5feebf765b1d52850",
+      "bytes": 7090
+    },
+    {
+      "path": "research/mini-post-save-usb-stall-audit.json",
+      "sha256": "1ea19dd011bdd09a4d3c84121f46ff7e133bc0d5fcd735c1cf505186125e59d4",
+      "bytes": 15873
+    }
+  ],
+  "new_physical_evidence": {
+    "reference": {
+      "path": "analysis/hardware/mini-v3-after-user-restart-ble-read-01.jsonl",
+      "sha256": "7496d5f8fba3eabb791cb28e5b75edcb047e805dcc29bb997ca73a180597d4da",
+      "bytes": 14196
+    },
+    "first_PONG_utc": "2026-11-16T08:06:35.634397+00:00",
+    "session_complete_utc": "2026-11-16T08:06:36.653675+00:00",
+    "commands": [
+      "PING",
+      "MODEL",
+      "MEM",
+      "LVL",
+      "FXS",
+      "PLIST",
+      "SNAPS",
+      "CLIST"
+    ],
+    "actual_lines": {
+      "PING": [
+        "PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11"
+      ],
+      "MODEL": [
+        "MODEL 'A2' layers=23 channels=3 fused=1 engine=A2L trim=0.0"
+      ],
+      "MEM": [
+        "MEM heap=293696 largest=5278 free=124296 B in 1 chunks (5278 0 0) effects=0 B arena=118688 B ram0_code_data=131852 ram0_bss=97604 pool=102400 pool_used=0 pool_largest=102384 compactions=0 compact_us=0/0 compact_moved=0 compact_refused=0 pinned=0 pool_bad=0 heap_fx=0 fxcap=107912 lent=0 lent_used=0 lendable=0 lends=0 reclaims=0 reclaim_fail=0 fit=102384 fitsum=107662 fits=27:1,29:1,31:1,32:1,33:1,34:1,35:1"
+      ],
+      "LVL": [
+        "LVL in=-367 out=-319 ci=0 co=0 fx=0/22368 mem=0 sk=0 m=2 g=0/0 b=1200 s=0 a=1 e=132082/154950 am=118688 c=11 p=0 tu=0 lim=0 ce=0 und=0 ovl=0 cin=-536 ctg=-180 fm=0,0,1,0 stuck=0 bat=-1,0,1"
+      ],
+      "FXS": [
+        "FXS amp=1 on=1",
+        "FXS cpu=0/22368 ticks (0%) mem_fx=0 B",
+        "FXS c1=0 a=0 wait=0/0 jobs=0 to=0 seq=0 skip=0 laneB par=0",
+        "FXS eng=0 posts=0 takes=0 canc=0 lat=0/0 run=0",
+        "FXS lockq=0 locks=0 spinfull=0 spinmax_us=0 heavy=0 hspinfull=0 hspinmax_us=0 hsettle=0",
+        "FXS peak=0 ticks skipped=0"
+      ],
+      "PLIST": [
+        "PRE 0 0 0 -1 'Preset 1A' t=- s=1",
+        "PLIST end current=0"
+      ],
+      "SNAPS": [
+        "SNAPS 1000 current=0"
+      ],
+      "CLIST": [
+        "CAP 0 4892 'A2' trim=0.0",
+        "CLIST end current=0 slots=15"
+      ]
+    },
+    "conclusion": "The application control dispatcher was responsive via BLE during these reads; a global ctl/GC deadlock was absent during this interval. The saved preset0/scene0/capture0 inventory was read after the reported power cycle. This does not prove a PLOAD test or unrestricted editing qualification.",
+    "USB_health_proven": false,
+    "no_new_crash_inferred_from_this_log": false,
+    "BLE_write_qualification_granted": false
+  },
+  "unchanged_binary_spans": [
+    {
+      "name": "BLE_gate_and_dispatch",
+      "start": "0x0201a73e",
+      "end_exclusive": "0x0201a80c",
+      "sha256": "af337e6eeb472a1a4a9cc6f36de6f002c3e9a4461004cd486426b1b85409315b",
+      "bytes": 206,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "BLE_word_and_exact_matchers",
+      "start": "0x020142ca",
+      "end_exclusive": "0x02014366",
+      "sha256": "a5af78ce306e07c76cd3ee8cc4178a9ba691584af507878396834e2912cf4932",
+      "bytes": 156,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "BLE_full_wordlist",
+      "start": "0x02038b09",
+      "end_exclusive": "0x02038cc1",
+      "sha256": "7d480605e882cc07793ac339810473a073166020e0ed06a4148a91f9e72f43f2",
+      "bytes": 440,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "BLE_read_wordlist",
+      "start": "0x020388c4",
+      "end_exclusive": "0x020389a7",
+      "sha256": "c635695748bd0e0ee2e467ef1f4ffb13bee9f1abd9a94eff6293f534691a10c1",
+      "bytes": 227,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "BLE_full_exceptions",
+      "start": "0x02036274",
+      "end_exclusive": "0x02036284",
+      "sha256": "df39e4e5e8ecd576c12993acadef02ac3c495842358a1f58d94dd21682ba7755",
+      "bytes": 16,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "BLE_read_exceptions",
+      "start": "0x02035e78",
+      "end_exclusive": "0x02035e84",
+      "sha256": "40ec5ea9ab23939eeb9e303c02b1a55e5df1ace9dd7fa979ab0a6134df8cc6c9",
+      "bytes": 12,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "EVT_handler",
+      "start": "0x0201174c",
+      "end_exclusive": "0x02011870",
+      "sha256": "78fe3d955e0da3269fefdad9d9765caf3c92c7a837c64f754214ac74584d190c",
+      "bytes": 292,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "USB_connection_and_state_events",
+      "start": "0x0201a496",
+      "end_exclusive": "0x0201a556",
+      "sha256": "f11e8f77ba176c2f7fcfff11a7b00614763cc0675ecd29d5d48cd2f64921fa7b",
+      "bytes": 192,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "CRASH_retention_USB_suffix",
+      "start": "0x02013946",
+      "end_exclusive": "0x0201397e",
+      "sha256": "37c6e7b6672cc625a39766593b63ad0e6f5f1e25b2251553caebec4db77171eb",
+      "bytes": 56,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "USB_apply_action_mask",
+      "start": "0x02005834",
+      "end_exclusive": "0x0200587e",
+      "sha256": "f602e900241f96a48412e00c9d8380d530e024158b1a4c0e2e3a8297bceef060",
+      "bytes": 74,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "USB_arm_resolver",
+      "start": "0x020058ec",
+      "end_exclusive": "0x02005964",
+      "sha256": "eace4e9c5e57e71333b6d3b3e05c8a5a1d3901d8729fbf53fe7e57bdbf1396a6",
+      "bytes": 120,
+      "original_equals_installed_v3": true
+    },
+    {
+      "name": "USB_arm_request_event15",
+      "start": "0x020059fc",
+      "end_exclusive": "0x02005a84",
+      "sha256": "deb00dafa231ee17315f2ba9af6156667e41a27fd380da7a87b4342d24562a18",
+      "bytes": 136,
+      "original_equals_installed_v3": true
+    }
+  ],
+  "BLE_policy": {
+    "full_wordlist_address": "0x02038b09",
+    "read_wordlist_address": "0x020388c4",
+    "full_wordlist": [
+      "PING",
+      "EVT",
+      "LVL",
+      "LVLSUB",
+      "STAT",
+      "MEM",
+      "MODEL",
+      "AUDIO",
+      "FXT",
+      "FXS",
+      "FXA",
+      "FXR",
+      "FXM",
+      "FXE",
+      "FXP",
+      "FXL",
+      "FXOS",
+      "FXMIX",
+      "FXXO",
+      "FXIR",
+      "AMP",
+      "AMPX",
+      "AMPEQ",
+      "GEQ",
+      "GAIN",
+      "LIM",
+      "HPF",
+      "SPUR",
+      "GLIDE",
+      "SPILL",
+      "TUNER",
+      "TUNE",
+      "TAP",
+      "BPM",
+      "IRBEGIN",
+      "IRB",
+      "IREND",
+      "LDBEGIN",
+      "LDB",
+      "LDEND",
+      "PLIST",
+      "PSTAT",
+      "PLOAD",
+      "PSAVE",
+      "PNAME",
+      "PNEW",
+      "PDEL",
+      "PCOLOR",
+      "SNAP",
+      "SNAPS",
+      "SNAPSAVE",
+      "SNAPDEL",
+      "SNAPNAME",
+      "CLIST",
+      "ILIST",
+      "CLOAD",
+      "ILOAD",
+      "CSAVE",
+      "ISAVE",
+      "CDEL",
+      "IDEL",
+      "CTRIM",
+      "CALIB",
+      "GSAVE",
+      "CREAD",
+      "IREAD",
+      "FSA",
+      "FSMODE",
+      "FSDO",
+      "FSPRESS",
+      "FSLED",
+      "LEDCFG",
+      "LEDTEST",
+      "STW",
+      "BLE!",
+      "CRASH!",
+      "CLKSTATE!",
+      "LIFE!",
+      "AUTH"
+    ],
+    "read_wordlist": [
+      "PING",
+      "EVT",
+      "LVL",
+      "LVLSUB",
+      "STAT!",
+      "MEM",
+      "MODEL",
+      "FXT!",
+      "FXS!",
+      "PLIST!",
+      "PSTAT!",
+      "CLIST!",
+      "ILIST!",
+      "SNAPS!",
+      "SNAPNAME!",
+      "AMPEQ!",
+      "FXXO!",
+      "FXMIX!",
+      "GEQ!",
+      "GLIDE!",
+      "HPF!",
+      "SPILL!",
+      "LIM!",
+      "SPUR!",
+      "TUNE!",
+      "FSMODE!",
+      "FSA!",
+      "FSPRESS!",
+      "FSLED!",
+      "LEDCFG!",
+      "BLE!",
+      "CRASH!",
+      "CLKSTATE!",
+      "AUTH",
+      "STW!",
+      "LIFE!"
+    ],
+    "full_exact_exceptions": [
+      "BLE pair",
+      "BLE forget",
+      "BLE key"
+    ],
+    "read_exact_exceptions": [
+      "AMPEQ info",
+      "BLE key"
+    ],
+    "word_bang_semantics": "A token ending ! requires no non-space argument; helper020142CA..02014334 checks the remaining command string.",
+    "caller": "0201A760..0201A790 tests full gate then, if unauthenticated, read-only gate before calling shared02014104 dispatcher",
+    "not_admitted_even_if_authenticated": [
+      "INFO",
+      "REBOOT",
+      "UBOOT",
+      "CLKTEST",
+      "CLKSTATE BAD",
+      "CLKSTATE RESET"
+    ],
+    "no_suggested_auth_or_policy_bypass": true
+  },
+  "readonly_observations_available": [
+    {
+      "request": "EVT 0",
+      "transport": "BLE or USB",
+      "terminator_regex": "^EVT end ([0-9]+) ([0-9]+) ([01]) ([0-9]+)$",
+      "footer_fields": [
+        "cursor",
+        "lost",
+        "more",
+        "uptime_ms"
+      ],
+      "line_regex": "^EV ([0-9]+) ([0-9]+) ([^ ]+) (-?[0-9]+) (-?[0-9]+)$",
+      "line_fields": [
+        "sequence",
+        "uptime_ms",
+        "event_name",
+        "a",
+        "b"
+      ],
+      "max_records_per_reply": 24,
+      "ring_capacity": 128,
+      "next_request": "EVT <actual returned cursor> only if actual more=1 and bounded by operator; no replay or automatic transport retry prescribed",
+      "source": "handler0201174C..02011870, strings02036635/0203664A; original editor10234..10250",
+      "meaning": "Historical event ring, not direct USB register read. lost>0 or wrap prevents absence-of-event proof."
+    },
+    {
+      "request": "CRASH",
+      "transport": "BLE or USB",
+      "argument_policy": "No arguments over BLE; CRASH ALL is not in either exception table.",
+      "meaning": "Retained crash evidence. Conditional usb=%x usb_ms=%u smode_ms=%u auto_ms=%u suffix is from retention1C7FD04 at02013958..1397A, not live INFO or a guaranteed current endpoint snapshot."
+    },
+    {
+      "request": "LIFE",
+      "transport": "BLE or USB",
+      "argument_policy": "No arguments over BLE",
+      "meaning": "Boot/crash counters; correlate with prior actual values, do not invent new fault from USB timeout."
+    },
+    {
+      "request": "CLKSTATE",
+      "transport": "BLE or USB",
+      "argument_policy": "No arguments over BLE",
+      "meaning": "Read clock/safe state. BAD/RESET/RETRY modifications are outside this diagnostic."
+    },
+    {
+      "request": "STAT",
+      "transport": "BLE or USB",
+      "argument_policy": "No arguments; approved read form",
+      "meaning": "Audio processing liveness; diagnostic peaks can be reset by query. Not a proof of USB endpoint health."
+    }
+  ],
+  "useful_USB_events": [
+    {
+      "event": "usb",
+      "a": 0,
+      "b": 0,
+      "origin": "0201A4B8..0201A500",
+      "meaning": "Control task observed connected gate become false."
+    },
+    {
+      "event": "usb",
+      "a": 1,
+      "b": 0,
+      "origin": "0201A4B8..0201A500",
+      "meaning": "Control task observed connected/DTR gate become true."
+    },
+    {
+      "event": "usb",
+      "a": 9,
+      "b": "0 or1",
+      "origin": "0201A51C..0201A552",
+      "meaning": "Observed USB device state==4 changed;1 corresponds to configured-state comparison,0 to otherwise."
+    },
+    {
+      "event": "usb",
+      "a": 15,
+      "origin": "02005A54..02005A7E",
+      "meaning": "USB arm/request action diagnostic; b bit16 indicates action-mask bit1 (enable action), bit17 reflects nonzero caller argument, low16 is bounded prior counter only with enable action. Not direct EP0-transfer completion."
+    },
+    {
+      "event": "usb",
+      "a": 18,
+      "origin": "0200598C..020059B6",
+      "meaning": "USB coordination generation difference logged after detach/restore helper; b is the actual generation delta."
+    }
+  ],
+  "targeted_reset_assessment": {
+    "dedicated_USB_reset_protocol_command_found": false,
+    "scope": "Inspected original command dispatch, exact BLE wordlists/exceptions and documented USB rearm paths; not a formal proof about every possible internal entrypoint.",
+    "internal_USB_rearm": "02005834 applies an action mask: bit0 calls usb_device_mode(0) then close helper0200580C; bit1 calls usb_device_mode(16) and restores RX callback02002186. This is internal code, not an exposed general BLE command.",
+    "clock_paths": "Original changelogM5.34/M5.45 describes detach/rearm duringCLKTEST and CLKSTATE BAD/RESET. These alter clock/qualification state and are not an innocuous USB-only reset; BLE gate rejects them.",
+    "whole_device_reset": "REBOOT and UBOOT exist but are USB-only, change device mode/state and are not read-only indicators. No such command was sent by this audit.",
+    "recommendation": "Use real BLE observations to narrow USB gate/endpoint state first; any OS reenumeration or target reset is a separate reviewed root action."
+  },
+  "limits": [
+    "DTR=True is necessary but its requested host setting does not itself prove the SET_CONTROL_LINE_STATE request completed at the target.",
+    "A live BLE task excludes a contemporaneous global ctl stall, not an earlier transient or an isolated USB-path failure.",
+    "Current evidence does not choose between host enumeration/control requests, target EP0/CDC gating, or endpoints; no firmware fix is justified solely by these logs."
+  ]
+}
