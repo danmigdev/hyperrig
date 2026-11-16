@@ -214,3 +214,9 @@ manifest under the new ignored build directory. Generated artifacts remain
 outside Git. New APIs report -1 before writes or calls for invalid arguments;
 stage returns 1 for an ignored index and 0 for a staged request. Those statuses
 are a C API convention, not original return-register semantics.
+
+The subsequent [bounded generator reconstruction](BIQUAD_GENERATOR_RECONSTRUCTION.md)
+implements the mathematical producer and all five local dependencies, connecting
+the unchanged staging/setup APIs to recovered math. Its separate report includes
+raw coefficient comparisons before normalization. The callback-based baseline
+above and its evidence retain their original scope.

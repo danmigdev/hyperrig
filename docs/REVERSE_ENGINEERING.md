@@ -16,8 +16,11 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [recursive DSP filters](BIQUAD_RECONSTRUCTION.md),
 [IR loading and ownership](IR_LOADER_RECONSTRUCTION.md),
 [the five-section DSP chain](BIQUAD_CHAIN_RECONSTRUCTION.md),
-[capture loading and gain metadata](CAPTURE_LOADER_RECONSTRUCTION.md) and
-[coefficient staging/conversion](BIQUAD_COEFFICIENT_RECONSTRUCTION.md); the investigation
+[capture loading and gain metadata](CAPTURE_LOADER_RECONSTRUCTION.md),
+[coefficient staging/conversion](BIQUAD_COEFFICIENT_RECONSTRUCTION.md),
+[capture container installation](CAPTURE_CONTAINER_RECONSTRUCTION.md),
+[capture journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md) and
+[bounded coefficient generation](BIQUAD_GENERATOR_RECONSTRUCTION.md); the investigation
 notes below retain the context of the original analysis.
 
 ## Samples and sources found

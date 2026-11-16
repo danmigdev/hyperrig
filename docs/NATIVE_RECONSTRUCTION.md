@@ -18,10 +18,15 @@ through the reconstructed original caller, adding 2,445 comparisons for staged
 updates, history retention and timing-accounting behavior.
 The [coefficient staging/conversion path](BIQUAD_COEFFICIENT_RECONSTRUCTION.md)
 adds 11,071 comparisons for request ordering, normalization and binary32-to-Q28
-conversion. Its mathematical producer remains an explicit callback. Separately,
+conversion. The subsequent [bounded generator](BIQUAD_GENERATOR_RECONSTRUCTION.md)
+executes the producer and all five mathematical dependencies, adding 5,542
+instruction comparisons and 18,069 independent binary32 primitive checks.
+Divisor initialization and physical parameter meanings remain unassigned. Separately,
 the [capture slot loader](CAPTURE_LOADER_RECONSTRUCTION.md) adds 6,091 comparisons
-for gain metadata, reuse and partial rollback; container/DSP installation remains
-external. These modules do not yet form a complete firmware replacement.
+for gain metadata, reuse and partial rollback. The [container installer/reader](CAPTURE_CONTAINER_RECONSTRUCTION.md)
+adds 262 comparisons and the [journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md)
+adds 9,764. Parser/DSP-load services and journal writes remain external. These
+modules do not yet form a complete firmware replacement.
 
 ## Reconstructed functions
 

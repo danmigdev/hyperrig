@@ -93,8 +93,12 @@ The [capture loader and gain metadata](docs/CAPTURE_LOADER_RECONSTRUCTION.md)
 add ten functions and 6,091 comparisons for reuse, signature rejection and partial
 rollback. [Coefficient staging and conversion](docs/BIQUAD_COEFFICIENT_RECONSTRUCTION.md)
 add 11,071 instruction comparisons and 6,912 independent binary32 division checks.
-Capture container installation and the mathematical coefficient producer remain
-external to those components.
+The [capture container and record reader](docs/CAPTURE_CONTAINER_RECONSTRUCTION.md)
+add 262 comparisons, including integrated slot loading and failure cleanup.
+The [metadata journal/cache](docs/CAPTURE_METADATA_RECONSTRUCTION.md) add 9,764
+comparisons. The [bounded coefficient generator](docs/BIQUAD_GENERATOR_RECONSTRUCTION.md)
+adds 5,542 instruction comparisons, executing all mathematical dependencies through
+staging, with 18,069 independent binary32 arithmetic checks.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
 These are development components; the installed firmware and qualification of
 physical controls are unchanged.

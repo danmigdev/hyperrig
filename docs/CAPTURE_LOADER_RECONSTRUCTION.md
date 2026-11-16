@@ -223,3 +223,10 @@ Recover installation and the journal next, then connect this loader and the
 [IR loader](IR_LOADER_RECONSTRUCTION.md) to complete preset application. In
 parallel, [coefficient staging/conversion](BIQUAD_COEFFICIENT_RECONSTRUCTION.md)
 has a verified baseline while its mathematical producer remains unfinished.
+
+Subsequent milestones now reconstruct [container installation and its reader](CAPTURE_CONTAINER_RECONSTRUCTION.md)
+and the [metadata journal/cache](CAPTURE_METADATA_RECONSTRUCTION.md). The former
+executes the slot loader together with the installer and record reader; the latter
+retains a separate comparison. The [bounded coefficient generator](BIQUAD_GENERATOR_RECONSTRUCTION.md)
+also executes its mathematical dependencies. Results above retain their original
+scope and immutable evidence.

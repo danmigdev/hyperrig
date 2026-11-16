@@ -104,8 +104,13 @@ The capture loader adds ten functions and 6,091 comparisons, covering packed
 metadata, gain scaling, signature rejection, reuse and partial rollback. Parallel
 coefficient work adds five executed regions and 11,071 comparisons for staging,
 normalization and float-to-Q28 conversion, plus 6,912 binary32 division checks.
-Capture container installation, metadata journal scanning and the mathematical
-coefficient producer remain explicit boundaries.
+The next capture milestone reconstructs container installation and the actual
+record reader, with 262 comparisons including complete slot-loader sequences.
+Parallel journal/cache work adds six regions and 9,764 comparisons. The bounded
+coefficient generator adds six regions and 5,542 instruction comparisons, executing
+all local mathematical dependencies through staging, plus 18,069 binary32
+primitive checks. Capture parser/DSP-load services, journal writes and divisor
+initialization remain separate work.
 Physical storage I/O and DSP application remain explicit boundaries.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
@@ -118,8 +123,11 @@ unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCT
 [BIQUAD_RECONSTRUCTION.md](BIQUAD_RECONSTRUCTION.md),
 [IR_LOADER_RECONSTRUCTION.md](IR_LOADER_RECONSTRUCTION.md),
 [BIQUAD_CHAIN_RECONSTRUCTION.md](BIQUAD_CHAIN_RECONSTRUCTION.md),
-[CAPTURE_LOADER_RECONSTRUCTION.md](CAPTURE_LOADER_RECONSTRUCTION.md) and
-[BIQUAD_COEFFICIENT_RECONSTRUCTION.md](BIQUAD_COEFFICIENT_RECONSTRUCTION.md).
+[CAPTURE_LOADER_RECONSTRUCTION.md](CAPTURE_LOADER_RECONSTRUCTION.md),
+[BIQUAD_COEFFICIENT_RECONSTRUCTION.md](BIQUAD_COEFFICIENT_RECONSTRUCTION.md),
+[CAPTURE_CONTAINER_RECONSTRUCTION.md](CAPTURE_CONTAINER_RECONSTRUCTION.md),
+[CAPTURE_METADATA_RECONSTRUCTION.md](CAPTURE_METADATA_RECONSTRUCTION.md) and
+[BIQUAD_GENERATOR_RECONSTRUCTION.md](BIQUAD_GENERATOR_RECONSTRUCTION.md).
 
 The user also reserved separate branches for Tone3000 integration, a zoomable UI,
 and a complete UltraRig Alpha 11 versus HyperRig feature comparison after reverse
