@@ -11,6 +11,7 @@ import argparse
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import shutil
@@ -225,7 +226,7 @@ def build(output, manifest, *, java="java", check_only=False):
               "android_ble_write_capability":False, "check_only":check_only}
     if check_only:
         return report
-    keystore = ROOT/"build/signing/<REDACTED>.p12"
+    keystore = ROOT/"build/signing/hyperrig-release.p12"
     if not keystore.is_file():
         raise ValueError("the existing HyperRig local signing key is required; no replacement key generated")
     output.mkdir(parents=True, exist_ok=True)
@@ -258,7 +259,7 @@ def build(output, manifest, *, java="java", check_only=False):
     command([java,"-jar",apktool,"b",project,"-o",unsigned,"-p",framework], work/"build.log")
     signed_dir = work/"signed"
     command([java,"-jar",signer,"--apks",unsigned,"--out",signed_dir,"--ks",keystore,"--ksAlias","hyperrig",
-             "--ksPass","<REDACTED>","--ksKeyPass","<REDACTED>"], work/"sign.log")
+             "--ksPass",os.environ["HYPERRIG_ANDROID_STORE_PASSWORD"],"--ksKeyPass",os.environ["HYPERRIG_ANDROID_KEY_PASSWORD"]], work/"sign.log")
     signed = list(signed_dir.glob("*.apk"))
     if len(signed) != 1:
         raise ValueError("expected one signed MINI APK")

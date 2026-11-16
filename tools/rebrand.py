@@ -6,6 +6,7 @@ The Mini port is a separate, unfinished native firmware project.
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -154,10 +155,10 @@ def android(entry, destination, java, keytool):
                     "-p", str(framework)], cwd=ROOT, check=True)
     signing = ROOT / "build/signing"
     signing.mkdir(parents=True, exist_ok=True)
-    keystore = signing / "<REDACTED>.p12"
+    keystore = signing / "hyperrig-release.p12"
     if not keystore.exists():
         subprocess.run([keytool, "-genkeypair", "-keystore", str(keystore), "-storetype", "PKCS12",
-                        "-storepass", "<REDACTED>", "-keypass", "<REDACTED>", "-alias", "hyperrig",
+                        "-storepass", os.environ["HYPERRIG_ANDROID_STORE_PASSWORD"], "-keypass", os.environ["HYPERRIG_ANDROID_KEY_PASSWORD"], "-alias", "hyperrig",
                         "-keyalg", "RSA", "-keysize", "3072", "-validity", "3650",
                         "-dname", "CN=HyperRig Local Development", "-noprompt"], check=True)
     signed = ROOT / "build/android/signed"
@@ -165,8 +166,8 @@ def android(entry, destination, java, keytool):
     signed = signed / sha(unsigned.read_bytes())[:16]
     if not list(signed.glob("*.apk")):
         subprocess.run([java, "-jar", str(signer), "--apks", str(unsigned), "--out", str(signed),
-                        "--ks", str(keystore), "--ksAlias", "hyperrig", "--ksPass", "<REDACTED>",
-                        "--ksKeyPass", "<REDACTED>"], check=True)
+                        "--ks", str(keystore), "--ksAlias", "hyperrig", "--ksPass", os.environ["HYPERRIG_ANDROID_STORE_PASSWORD"],
+                        "--ksKeyPass", os.environ["HYPERRIG_ANDROID_KEY_PASSWORD"]], check=True)
     apks = list(signed.glob("*.apk"))
     if len(apks) != 1:
         raise ValueError("expected exactly one signed derivative APK")

@@ -13,6 +13,7 @@ PATTERNS = {
     'private_key': r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----',
     'provider_key': r'(?:sk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{24,}|gh[pousr]_[A-Za-z0-9]{25,}|github_pat_[A-Za-z0-9_]{30,}|AKIA[A-Z0-9]{16}|xox[baprs]-[A-Za-z0-9-]{20,})',
     'credential_literal': r'(?i)(?:api[_-]?key|access[_-]?token|secret[_-]?key|password|passwd|report[_-]?key)\s*[:=]\s*[\x22\x27]([^\x22\x27\r\n]{8,})[\x22\x27]',
+    'credential_argument': r'(?i)[\x22\x27]--?(?:ksPass|ksKeyPass|storepass|keypass|password|passwd|api-key|access-token)[\x22\x27]\s*,\s*[\x22\x27]([^\x22\x27\r\n]+)[\x22\x27]',
     'url_credentials': r'https?://[^/\s:@]+:[^/\s@]+@',
 }
 
@@ -33,6 +34,8 @@ def scan():
             continue
         for kind, pattern in PATTERNS.items():
             for match in re.finditer(pattern, text):
+                if match.groups() and match[1] == '<REDACTED>':
+                    continue
                 findings.append({'file': name, 'line': text.count('\n', 0, match.start()) + 1, 'kind': kind})
     return {'files_examined': len(files), 'findings': findings, 'values_redacted': True}
 
