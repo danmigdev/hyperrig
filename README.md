@@ -30,6 +30,20 @@ remain outstanding.
 The [agreed objective](docs/HYPERRIG_GOAL.md) and
 [integrated port](docs/MINI_INTEGRATED_PORT.md) document the scope and evidence.
 
+## Install from stock firmware
+
+An English Windows installer preview now automates per-device backup,
+application replacement, full readback, and a separate boot step. The local
+package is `build/hyperrig-mini-installer-one-switch-preview-02`; open its
+`start.cmd` to view the interface without accessing a device.
+
+It targets the new [one-switch recovery candidate](docs/MINI_ONE_SWITCH_RECOVERY.md).
+V4 has passed offline checks but has not been installed or physically qualified;
+its bundled editor currently permits reads only. The installed v3 firmware and
+qualified editor described below are separate. No GitHub release has been
+published. Read the [installation guide](INSTALLATION.md) for the actual preview
+controls, requirements, and remaining release work.
+
 ## Launch the editor
 
 With the MINI powered on and connected by a USB data cable, open

@@ -10,9 +10,10 @@ requires-python = ">=3.12"
 
 [project.optional-dependencies]
 midi = ["python-rtmidi>=1.5,<2"]
+installer = ["python-rtmidi>=1.5,<2", "pyserial>=3.5,<4"]
 
 [project.scripts]
 hyperrig = "hyperrig.__main__:main"
 
 [tool.setuptools]
-packages = ["hyperrig"]
+packages = ["hyperrig", "hyperrig.installer"]

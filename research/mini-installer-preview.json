@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "project": "HyperRig",
+  "target": "tank-mini",
+  "date": "2026-11-16",
+  "status": "developer-preview-hardware-validation-pending",
+  "firmware": {
+    "path": "build/hyperrig-mini-audio-v4/hyperrig-mini.app-area.bin",
+    "bytes": 516096,
+    "sha256": "d5d6109bc707a6402cbed7506fd53aced23baeb27f6ac7ca8703e3f11d2376a2"
+  },
+  "firmware_derivation": {
+    "path": "build/hyperrig-mini-audio-v4/integration-report.json",
+    "bytes": 51682,
+    "sha256": "437b45f89b2a92b2228b7658f40a16e6f5cbab095daace32c42553396ae2d2c5"
+  },
+  "release": {
+    "path": "build/hyperrig-mini-installer-one-switch-preview-02/release.json",
+    "bytes": 10002,
+    "sha256": "e5be0ae206bd330c3b1e5f83e8121e2101e581c14d449c2394de99e8b1abe25a"
+  },
+  "archive": {
+    "path": "build/HyperRig-MINI-one-switch-preview.zip",
+    "bytes": 13970556,
+    "sha256": "3c10ce33edeba6f3ee7989910ab7f8f952c7262444ba2d61d99474d0e2867f6c"
+  },
+  "archive_inventory_verified": 67,
+  "private_dump_or_preset_shipped": false,
+  "recovery_policy": "Any one of PA10/PA0/PA3 active-low at each of 32 startup samples; same individual input throughout is not required.",
+  "changed_physical_sectors_from_v3": [
+    16384,
+    503808
+  ],
+  "audio_and_original_application_code_unchanged_except_declared_guard_and_pc_limit": true,
+  "tests": {
+    "count": 120,
+    "passed": true,
+    "hardware_io": false,
+    "report": {
+      "path": "build/mini-installer-final-validation/tests.json",
+      "bytes": 507,
+      "sha256": "2b6b75976c5f232f34bf201e153ca746f53738ed627f21e380eb755697809e20"
+    }
+  },
+  "gui_check": {
+    "path": "build/mini-installer-one-switch-preview-02-gui-smoke.json",
+    "bytes": 227,
+    "sha256": "ada0c87017bb294eedb280cfdeea0fbf1c1d727f27be7c4eab0a5e6bec6e6185"
+  },
+  "instruction_model_cases": 1038,
+  "qualification": {
+    "direct_stock_to_v4": false,
+    "cold_boot_recovery": false,
+    "interrupted_write_recovery": false
+  },
+  "v4_installed_on_hardware": false,
+  "v4_editor_write_families_enabled": [],
+  "current_device_observation": {
+    "firmware_write_performed_this_work": false,
+    "normal_HyperRig_BLE_identity_verified": true,
+    "BLE_queries": [
+      "PING",
+      "MODEL",
+      "LVL",
+      "PSTAT"
+    ],
+    "audio_listening_performed": false,
+    "USB_descriptor_error": 43,
+    "native_port_cycle_returned_success": true,
+    "USB_reenumeration_restored": false,
+    "Windows_reported_pending_system_reboot": true,
+    "old_editor_USB_handle_closed": true
+  },
+  "next_hardware_steps": [
+    "Restart the Windows PC and observe normal USB enumeration.",
+    "Acquire a fresh complete read before any reviewed v3-to-v4 upgrade.",
+    "Install and independently verify v4, then qualify normal boot and one-switch recovery.",
+    "Qualify editor write access and a fresh stock-to-v4 installation."
+  ],
+  "portable_resume_and_restoration_implemented": false,
+  "source_notes": [
+    "Historical v3 physical command evidence is not represented as v4 hardware evidence.",
+    "The native USB port-cycle helper is restricted to the recorded development PC topology and excluded from the portable package."
+  ]
+}
