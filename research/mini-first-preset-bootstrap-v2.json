@@ -1,0 +1,102 @@
+{
+  "kind": "mini-first-preset-bootstrap-v2-offline",
+  "hardware_executed_by_this_validation": false,
+  "browser_started": false,
+  "historical_failure": {
+    "path": "build/mini-first-preset-ui-01/report.json",
+    "sha256": "292bfed0f1aeea5cfae969ccfe0aaf98535d0403ba52ecb992e56820e88bbd4a",
+    "bytes": 78636
+  },
+  "historical_observation": {
+    "result": "fail",
+    "wire_requests": [
+      "PING",
+      "BLE"
+    ],
+    "local_request": "BLE key",
+    "local_reply": "ERR MINI_APP firmware mutations are not validated for this MINI build",
+    "capture_mutations": 0,
+    "UI_mutations": 0,
+    "native_close_observed": true,
+    "save_reload_verified": false
+  },
+  "sources": {
+    "tools/run_mini_v3_first_preset_a2_v2.py": {
+      "path": "tools/run_mini_v3_first_preset_a2_v2.py",
+      "sha256": "9dec40a7b14a3c07bc5a556779902dcb32d713868518da97177c3abeefca17c9",
+      "bytes": 4273
+    },
+    "tools/mini_browser_first_preset_guard_v2.js": {
+      "path": "tools/mini_browser_first_preset_guard_v2.js",
+      "sha256": "af14b3c7a71e72dffa23228e252b88053a075f0bdeffb024b22783761fc49367",
+      "bytes": 21616
+    },
+    "tests/test_mini_first_preset_bootstrap_v2.py": {
+      "path": "tests/test_mini_first_preset_bootstrap_v2.py",
+      "sha256": "4b8d4e9c1fef4d910c3892b5d0bb265ee95a783ee91930b79acde1fdcbaebea0",
+      "bytes": 7752
+    },
+    "tests/mini_browser_first_preset_bootstrap_v2_test.js": {
+      "path": "tests/mini_browser_first_preset_bootstrap_v2_test.js",
+      "sha256": "d0500a74c4a62662411c39bd54a3ac02aaad4ef1767a20f4cf115a3c09a66793",
+      "bytes": 5496
+    }
+  },
+  "preserved_executed_sources": {
+    "tools/run_mini_v3_first_preset_a2.py": {
+      "path": "tools/run_mini_v3_first_preset_a2.py",
+      "sha256": "c234aa9d36f9b0c95e71a692881f81342773d6e237766f1a2d1ed49df65ac2ab",
+      "bytes": 9887
+    },
+    "tools/mini_browser_first_preset_guard.js": {
+      "path": "tools/mini_browser_first_preset_guard.js",
+      "sha256": "4157be429799c27b404f9d8762866515492af595cbbe432ba6e17d3298d394ce",
+      "bytes": 21196
+    },
+    "tools/probe_mini_browser_first_preset.py": {
+      "path": "tools/probe_mini_browser_first_preset.py",
+      "sha256": "87b4063f8e50cabb2d0cd230b1db279770211636842698d7048f748080831c3b",
+      "bytes": 32940
+    }
+  },
+  "original_editor_used_in_mock": {
+    "path": "build/hyperrig-mini-audio-v3/app/web/tankmini.html",
+    "sha256": "6aa1383c7d644f3dbb3c8b0ce5e2d287d7d24756b8b21b9c4352ed720cde1842",
+    "bytes": 1362515
+  },
+  "validation": {
+    "command": "python -m unittest tests.test_mini_first_preset_bootstrap_v2 -v",
+    "Python_tests_passed": 8,
+    "original_bootstrap_Node_checks_passed": 22,
+    "original_UI_sequence_Node_checks_passed": 69,
+    "closed_v3_real_evidence_preflight": "pass",
+    "device_IO": false,
+    "raw_native_RX_validation": "offline fixture only"
+  },
+  "guard_change": {
+    "local_request": "BLE key",
+    "exact_reply_required": true,
+    "no_wire_command_required": true,
+    "local_event_retained": true,
+    "actual_wire_request_allowed": false,
+    "profile_modified": false,
+    "command_families_granted": []
+  },
+  "future_report_contract": {
+    "extension": "bootstrap_guard_extension",
+    "static_fields": "tools.run_mini_v3_first_preset_a2_v2.description()",
+    "observed_local_rejections": "exact copy of matching guard.events; not a synthesized success"
+  },
+  "claims": {
+    "new_physical_trial_verified": false,
+    "preset_persistence_verified": false,
+    "acoustic_audio_verified": false,
+    "BLE_verified": false,
+    "held_boot_trial_verified": false
+  },
+  "documentation": {
+    "path": "docs/MINI_FIRST_PRESET_BOOTSTRAP_V2.md",
+    "sha256": "ffaed33b0eddd6f78f4af413741d559aea365d933f9df626c361c68b5c19162a",
+    "bytes": 2250
+  }
+}
