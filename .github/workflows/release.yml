@@ -122,7 +122,19 @@ jobs:
           name: reviewed-inputs
           path: build/inputs
       - name: Install Android SDK Build Tools
-        run: sdkmanager 'build-tools;36.0.0'
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import subprocess
+          sdk = Path(os.environ['ANDROID_HOME'])
+          if not (sdk / 'build-tools/36.0.0/lib/apksigner.jar').is_file():
+              managers = sorted((sdk / 'cmdline-tools').glob('*/bin/sdkmanager'))
+              if not managers:
+                  raise RuntimeError('Android SDK command-line tools are missing')
+              subprocess.run([str(managers[-1]), 'build-tools;36.0.0'], check=True)
+          print('Android SDK Build Tools 36.0.0 available.')
+          PY
       - name: Build and verify signed Android APK
         env:
           HYPERRIG_ANDROID_KEYSTORE_BASE64: ${{ secrets.HYPERRIG_ANDROID_KEYSTORE_BASE64 }}
