@@ -239,7 +239,7 @@ def synthetic_continuation(*, v2=False, empty_timeouts=0):
     event('trial_plan', plan=partial['plan'])
     for key, line, response, origin, name, gains in (
         ('ArrowDown', 'GAIN 0 -1', 'GAIN in=0 out=-1 dB', 'Output persistence marker ArrowDown', 'marker', (0, -1)),
-        ('Enter', 'PLOAD 0', "PLOAD ok 0 'Preset 1A' missing=0 capture=0 ir=-1 ms=2", 'Original preset-row Enter', 'reloaded', (0, 0))):
+        ('Enter', 'PLOAD 0', "PLOAD ok 0 'Preset 1A' missing=0 capture=0 ir="+('0' if v2 else '-1')+" ms=2", 'Original preset-row Enter', 'reloaded', (0, 0))):
         guard['ui'].append(dict(seq=tick(), kind='keydown', key=key, trusted=True, target='Output' if key == 'ArrowDown' else 'preset-row'))
         exchange(line, [response], origin); guard['epoch'] += 1
         event('mutation_ack', line=line, lines=[response], epoch=guard['epoch'])
@@ -472,6 +472,37 @@ class QualificationTests(unittest.TestCase):
                 bad['guard']['rx'] = [r for r in bad['guard']['rx'] if not wire['seq'] < r['seq'] < command['seq']]
             with self.subTest(what=what), self.assertRaises(ValueError): q.inspect_continuation(bad, partial)
 
+    def test_v2_pload_status_zero_is_distinct_from_saved_and_loaded_ir_slot_minus_one(self):
+        report, partial = synthetic_continuation(v2=True)
+        proof = q.inspect_continuation(report, partial)
+        self.assertTrue(proof['one_reload_verified'])
+        self.assertEqual(partial['plan']['ir_slot'], -1)
+        self.assertEqual(report['reloaded']['state']['ir_current'], -1)
+        command = next(c for c in report['guard']['commands'] if c['line'] == 'PLOAD 0')
+        self.assertIn('capture=0 ir=0', command['lines'][0])
+        # Even a consistently recorded -1 reply cannot stand in for successful
+        # zero status. Slot references are verified by the subsequent snapshot.
+        for bad_status in ('-1', '-110', '1'):
+            bad = copy.deepcopy(report)
+            for row in bad['guard']['commands'] + bad['guard']['events']:
+                if row.get('line') == 'PLOAD 0' and row.get('lines'):
+                    row['lines'] = [line.replace('ir=0', 'ir='+bad_status) for line in row['lines']]
+            for row in bad['guard']['rx']:
+                raw = bytes.fromhex(row['hex'])
+                if b'PLOAD ok ' in raw: row['hex'] = raw.replace(b'ir=0', ('ir='+bad_status).encode()).hex()
+            with self.subTest(status=bad_status), self.assertRaisesRegex(ValueError, 'PLOAD ACK'):
+                q.inspect_continuation(bad, partial)
+        bad = copy.deepcopy(report); bad['reloaded']['state']['ir_current'] = 0
+        with self.assertRaises(ValueError): q.inspect_continuation(bad, partial)
+        original, blob = synthetic_trial(existing_capture=True)
+        for row in original['guard']['commands'] + original['guard']['events']:
+            if row.get('line') == 'PSAVE 0 Preset 1A' and row.get('lines'):
+                row['lines'] = [line.replace('ir=-1', 'ir=0') for line in row['lines']]
+        for row in original['guard']['rx']:
+            raw = bytes.fromhex(row['hex'])
+            if b'PSAVE ok ' in raw: row['hex'] = raw.replace(b'ir=-1', b'ir=0').hex()
+        with self.assertRaises(ValueError): q.inspect_trial(original, blob)
+
     def test_open_extension_matches_actual_original_method_and_changes_only_one_timeout(self):
         original = q.app.checked(q.app.SOURCE/'web/tankg.html', q.app.SOURCE_SHA).decode().replace('\r\n', '\n')
         start = original.index('  async open(known) {') + 2
@@ -560,7 +591,7 @@ class QualificationTests(unittest.TestCase):
 
     def test_closed_failed_saved_reload_sessions_cannot_qualify(self):
         found = False
-        for attempt in ('05', '06', 'v2-01', 'v2-02', 'v2-03'):
+        for attempt in ('05', '06', 'v2-01', 'v2-02', 'v2-03', 'v2-04', 'v2-05', 'v2-06'):
             path = q.ROOT/f'build/mini-saved-reload-ui-{attempt}/report.json'
             if not path.is_file(): continue
             found = True

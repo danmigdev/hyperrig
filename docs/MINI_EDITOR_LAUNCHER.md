@@ -1,6 +1,19 @@
 # Aprire l'editor HyperRig MINI
 
-Dopo la generazione del bundle qualificato in `build/hyperrig-mini-qualified-editor`, aprire con doppio clic `tools/launch_mini_editor.cmd`. Non serve UAC. Selezionare il MINI nel selettore USB del browser.
+Il bundle verificato è disponibile in `build/hyperrig-mini-qualified-editor`.
+Con il MINI acceso e collegato tramite USB dati, aprire con doppio clic
+`tools/launch_mini_editor.cmd`. Non serve UAC. Su Windows viene usato Microsoft
+Edge già installato, con un profilo separato.
+
+Se compare la guida iniziale, premere **Skip**, poi **Connect** e selezionare
+**Tank-M HyperRig (COM3)** nel selettore USB. L'apertura nativa su questo PC
+ha richiesto anche 15–20 secondi; il timeout dell'editor è esteso a 30 secondi.
+Attendere la connessione senza aprire una seconda finestra.
+
+Per regolare il volume, aprire il meter e usare la manopola Output. Nel pannello
+Presets, Save salva il preset; selezionare la sua riga per richiamarlo. La prova
+reale del 16 novembre ha confermato modifica del volume e ripristino di
+“Preset 1A”, capture A2 e scena A.
 
 Si apre una finestra dell'editor originale con un profilo browser separato. Il profilo dell'app abilita esclusivamente le famiglie USB qualificate `GAIN`, `PLOAD`, `PSAVE`, `SNAPSAVE`: volume, caricamento/salvataggio preset e salvataggio scene. Il launcher non aggiunge un guard di sola lettura o un limite a una singola operazione e non invia comandi di modifica. La barra indica «USB: volume e preset».
 

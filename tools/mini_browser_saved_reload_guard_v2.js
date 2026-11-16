@@ -265,9 +265,10 @@ function installMiniBrowserSavedReloadGuard(config) {
           const n = state.mutations - 1;
           let okay = false;
           if (n === 0) okay = equal(lines, ['GAIN in=' + trial.gain[0] + ' out=' + trial.down[1] + ' dB']);
+          // PLOAD capture/ir are load result codes (0 success), not library slots.
+          // The fresh CLIST/ILIST/PRE snapshot separately verifies slot identity.
           if (n === 1) okay = lines.length === 1 && new RegExp("^PLOAD ok " + trial.slot + " '" +
-            trial.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + "' missing=0 capture=" + trial.capture_slot +
-            ' ir=' + trial.ir_slot + ' ms=\\d+$').test(lines[0]);
+            trial.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + "' missing=0 capture=0 ir=0 ms=\\d+$").test(lines[0]);
           if (!okay || state.phase !== 'ui_in_flight') return deny('Exact actual mutation ACK differs');
           state.epoch++; state.phase = ['marker_ack', 'reload_ack'][n];
           event('mutation_ack', {line, lines, epoch: state.epoch});

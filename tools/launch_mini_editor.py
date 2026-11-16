@@ -29,7 +29,7 @@ from tools.mini_host_journal import atomic_write_json, read_shared_bytes
 
 require, sha, now = browser.require, browser.sha, window.now
 FAMILIES = ['GAIN','PLOAD','PSAVE','SNAPSAVE']
-QUALIFIER_SHA = '6108facfcc2c5cba8de94d6314ebe4ddbc9a71d3acc8cf525e9efda9ad8e6ef6'
+QUALIFIER_SHA = '744015157f7061f518c31e975e7bff7d23e547f7b803d2452ac16d51ef29f636'
 SERIAL_OPEN_EXTENSION = ROOT/'tools/mini_browser_serial_open.js'
 OBSERVER = r"""(()=>{
  const state={opens:0,closes:0,activePorts:0,closeError:null,events:[],pongs:[],lastPort:null};

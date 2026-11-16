@@ -59,7 +59,7 @@ function setup({live=true,pong='PONG tankm_fw M5.71 rel ble Nov 12 2026 16:04:11
     if(line.startsWith('PSAVE ')){hw.preset=+line.split(' ')[1];hw.rows=[`PRE ${hw.preset} 0 ${hw.capture} -1 'Preset 1A' t=- s=0 amp=1`];
       return[`PSAVE ok ${hw.preset} 'Preset 1A' 0 blocks capture=${hw.capture} ir=-1`];}
     if(line==='SNAPSAVE 0'){hw.scene=0;hw.rows[0]=hw.rows[0].replace('s=0','s=1');return[`SNAPSAVE ok 0 preset=${hw.preset}`];}
-    if(line.startsWith('PLOAD ')){hw.gain=[0,0];hw.scene=0;return[`PLOAD ok ${hw.preset} 'Preset 1A' missing=0 capture=${hw.capture} ir=-1 ms=1`];}
+    if(line.startsWith('PLOAD ')){hw.gain=[0,0];hw.scene=0;return[`PLOAD ok ${hw.preset} 'Preset 1A' missing=0 capture=0 ir=0 ms=1`];}
     if(line==='LVL')return[`LVL in=-1440 out=-1440 ci=0 co=0 m=${hw.mode} g=${hw.gain.join('/')} p=${hw.preset}`];
     if(line==='FXS')return['FXS amp=1 on=1','FXS eng=1 posts=100 takes=100 canc=0 lat=1/1 run=0','FXS peak=10 ticks skipped=0'];
     if(line==='PLIST')return[...hw.rows,`PLIST end current=${hw.preset}`];
@@ -139,8 +139,9 @@ async function main(){
   {const x=setup();await x.prepare();x.ctx.document.activeElement={};throws(()=>x.guard.arm('marker'));}
   {const x=setup();await x.prepare();await x.step('marker');throws(()=>x.guard.arm('reload'));}
   {const x=setup();await x.prepare();await x.step('marker');await x.fresh();await rejects(()=>x.pedal.cmd('GAIN 0 -1'));check(x.guard.state.mutations,1);}
-  {const x=setup();await x.prepare();await x.step('marker');await x.fresh();
-    x.override((line,normal)=>line.startsWith('PLOAD ')?["PLOAD ok 0 'Preset 1A' missing=1 capture=0 ir=-1 ms=1"]:normal(line));
+  for(const fields of['missing=1 capture=0 ir=0','missing=0 capture=-110 ir=0','missing=0 capture=0 ir=-1']){
+    const x=setup();await x.prepare();await x.step('marker');await x.fresh();
+    x.override((line,normal)=>line.startsWith('PLOAD ')?["PLOAD ok 0 'Preset 1A' "+fields+" ms=1"]:normal(line));
     await rejects(()=>x.reload());check(x.guard.state.mutations,2);check(x.guard.state.stopped,true);}
   for(const cmd of['CSAVE 0 A2','CREAD 0','PDEL 0','PSAVE 0 Preset 1A','SNAPSAVE 0','SNAP 0','PNEW','UBOOT','GAIN 0 0','GAIN 1 -1','PLOAD 1']){
     const x=setup();await x.prepare();await rejects(()=>x.pedal.cmd(cmd));check(x.guard.state.mutations,0);

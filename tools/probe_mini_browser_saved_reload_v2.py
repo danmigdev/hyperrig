@@ -264,7 +264,9 @@ def verify_wire(guard,plan,expected_pong=PONG):
     require([e['line'] for e in acks]==expected,'actual ACK sequence differs')
     expected_gain=['GAIN in='+str(plan['down'][0])+' out='+str(plan['down'][1])+' dB']
     require(acks[0]['lines']==expected_gain,'actual gain ACK differs')
-    load_pattern="PLOAD ok "+str(plan['slot'])+" '"+re.escape(plan['name'])+"' missing=0 capture="+str(plan['capture_slot'])+" ir="+str(plan['ir_slot'])+r" ms=\d+"
+    # Original 020092FA output parameters are load result codes; library slots
+    # remain independently checked by verify_saved using CLIST/ILIST/PRE.
+    load_pattern="PLOAD ok "+str(plan['slot'])+" '"+re.escape(plan['name'])+r"' missing=0 capture=0 ir=0 ms=\d+"
     require(len(acks[1]['lines'])==1 and re.fullmatch(load_pattern,acks[1]['lines'][0]),'actual PLOAD ACK differs')
     for index,item in enumerate(mutations):
         require(actions[index]['seq']<item['seq']<acks[index]['seq']

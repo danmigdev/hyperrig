@@ -131,7 +131,7 @@ class SavedReloadTests(unittest.TestCase):
         value=probe.processing_progress(before,after,self.saved['state'],self.plan)
         self.assertTrue(value['A2_completion_progress_observed'])
         self.assertFalse(value['physical_audio_output_verified'])
-        for fault in ('nproc','preset','gain','scene','safe','capture','model'):
+        for fault in ('nproc','preset','gain','scene','safe','capture','ir','model'):
             bad=copy.deepcopy(after)
             if fault=='nproc':bad=copy.deepcopy(before)
             elif fault=='preset':bad['plist']['current']=1
@@ -139,6 +139,7 @@ class SavedReloadTests(unittest.TestCase):
             elif fault=='scene':bad['snaps']['current']=1
             elif fault=='safe':bad['runtime']['safe']=1
             elif fault=='capture':bad['clist']['current']=1
+            elif fault=='ir':bad['ir_current']=0
             else:bad['model']=['MODEL wrong']
             with self.subTest(fault=fault),self.assertRaises(ValueError):
                 probe.processing_progress(before,bad,self.saved['state'],self.plan)

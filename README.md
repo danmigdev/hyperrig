@@ -3,18 +3,32 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato documentato al 16 novembre 2026, 06:48 UTC: port UltraRig v3 installato
-e verificato sulla NOR completa. L'editor ha comunicato realmente su COM3:
-avvio normale, `safe=0`, modalità audio 2 e contatore A2 crescente osservati.
-Volume modificato e ripristinato; capture A2 e “Preset 1A” con scena A salvati
-e riletti. Ora Windows rileva ancora COM3, ma due controlli diretti USB non
-ricevono risposta: richiesta una riaccensione fisica. Richiamo del preset,
-ascolto e misura con gli effetti attivi restano da verificare.** HyperRig
+**Stato documentato al 16 novembre 2026: port UltraRig v3 installato
+e verificato sulla NOR completa. Dopo il riavvio fisico, firmware normale,
+A2 attivo e “Preset 1A” con scena A e capture conservati. L'utente conferma
+suono regolare. Letture reali riuscite via Bluetooth e USB. Nell'editor sono
+verificati volume, salvataggio e richiamo di “Preset 1A”, con rilettura dello
+stato sul pedale. L'editor normale è disponibile; la misura con gli effetti
+attivi è ancora in corso.** HyperRig
 è il nome scelto per questo progetto indipendente.
 
 L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
 UltraRig completa adattata al MINI, in sostituzione dello stock, e copie
 locali di firmware e app con strumenti di reverse engineering e modifica.
+
+## Provare l'editor sul MINI
+
+Con il MINI acceso e collegato tramite USB dati, aprire
+[launch_mini_editor.cmd](tools/launch_mini_editor.cmd). Non richiede UAC.
+Se compare la guida iniziale, premere **Skip**, poi **Connect** e scegliere
+**Tank-M HyperRig (COM3)**. Su questo PC l'apertura USB può impiegare circa
+15–20 secondi. Usare una sola finestra collegata al pedale.
+
+Il bundle verificato è `build/hyperrig-mini-qualified-editor`: abilita volume,
+salvataggio del preset/scena e richiamo dei preset via USB. Per il volume,
+aprire il meter e la manopola Output; per salvare o richiamare usare Presets.
+La modifica generale della catena effetti e le scritture BLE non sono ancora
+abilitate in questo bundle. [Istruzioni di avvio](docs/MINI_EDITOR_LAUNCHER.md).
 
 ## Risultati disponibili
 
@@ -99,10 +113,20 @@ locali di firmware e app con strumenti di reverse engineering e modifica.
   `GAIN 0 -1`, `GAIN 0 0`, `PSAVE 0 Preset 1A` e `SNAPSAVE 0`, con ACK e
   riletture dello stato. La prova si è fermata prima del marker successivo:
   il pannello preset aveva chiuso il popup del volume. Il preset viene
-  conservato; il richiamo sarà verificato separatamente, senza riscriverlo.
+  conservato; il richiamo è stato verificato separatamente, senza riscriverlo.
   Report originale: `build/mini-first-preset-ui-04/report.json`.
+  La continuazione `build/mini-saved-reload-ui-v2-07/report.json` ha superato
+  la prova reale: due comandi dall'interfaccia, 99 scambi USB, risposte native
+  verificate e porta chiusa. Il bundle unisce le due prove senza promuovere
+  a successo il primo report parziale.
   La [correzione dei nodi dell'interfaccia](docs/MINI_UI_CONNECTION_FIX.md)
   risolve il precedente blocco delle manopole mantenendo `setLock` originale.
+- Dopo il riavvio dell'utente, Bluetooth e USB rileggono il firmware normale,
+  la capture A2, il preset 0 e la scena A. L'utente riferisce audio regolare.
+  I precedenti timeout del client con DTR disattivato non dimostravano un
+  blocco dell'applicazione: la [corrigenza](research/mini-usb-negative-probes-correction.json)
+  conserva e distingue quei risultati. Il nuovo [diagnostico CDC](docs/MINI_CDC_HANDSHAKE.md)
+  richiede DTR attivo e riprende il collegamento iniziale dell'editor originale.
 - [Misura preliminare dei tempi interni](docs/MINI_LATENCY.md): con A2 e
   zero effetti aggiuntivi, tre finestre aggiornate riportano circa 2,15 ms
   per blocco e 2,26 ms come massimo osservato, usando la scala nominale del

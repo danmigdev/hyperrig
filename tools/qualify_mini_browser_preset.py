@@ -67,8 +67,8 @@ RESUME_PINS = {
     'tools/mini_browser_saved_reload_guard.js': 'e0de0abe48c29ec28ba7c7a02ecfe1ce79225db8079786e1e34fc31c8c9982f9',
 }
 RESUME_V2_PINS = {
-    'tools/probe_mini_browser_saved_reload_v2.py': '3fb223f203d524c51c91d3cfc9302bcab1276c0221f3c4a58f30a285420cfc66',
-    'tools/mini_browser_saved_reload_guard_v2.js': 'ed25540b9195b3a948c8cc076867ba8c7cb62c71a966b70604293dc29ed9849e',
+    'tools/probe_mini_browser_saved_reload_v2.py': 'ef00dce1e188de5385e6f26fb7d339ba8ada2b2cad4b4b686e1332505542d06b',
+    'tools/mini_browser_saved_reload_guard_v2.js': '4dfebaa6ab093c3d6c810272f19f1bb57bd1e3d0fa09609e2cc3badcd7e99ac4',
     'tools/mini_browser_windows.py': '92b6e259da3ff7eb79d38d4b290a2ea5372310bc1a8993cdbfe2af9296467410',
     'tools/mini_browser_serial_open.js': 'd04ba183de40513d9f490ae4107ea778fffa9fab631104d3f774fb0915439d9f',
 }
