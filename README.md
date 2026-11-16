@@ -3,12 +3,13 @@
 Laboratorio locale per il reverse engineering di UltraRig e lo sviluppo di un
 firmware alternativo per M-VAVE TANK-G, TANK-B e TANK MINI.
 
-**Stato documentato al 16 novembre 2026, 06:11 UTC: port UltraRig v3 installato
-e verificato sulla NOR completa. L'editor comunica realmente su COM3;
-avvio normale, `safe=0`, modalità audio 2 e contatore di elaborazione A2
-crescente osservati sul MINI. Volume modificato e ripristinato dall'editor;
-capture A2 e “Preset 1A” con scena A salvati e riletti. Richiamo del preset
-e ascolto dell'uscita restano da verificare.** HyperRig
+**Stato documentato al 16 novembre 2026, 06:48 UTC: port UltraRig v3 installato
+e verificato sulla NOR completa. L'editor ha comunicato realmente su COM3:
+avvio normale, `safe=0`, modalità audio 2 e contatore A2 crescente osservati.
+Volume modificato e ripristinato; capture A2 e “Preset 1A” con scena A salvati
+e riletti. Ora Windows rileva ancora COM3, ma due controlli diretti USB non
+ricevono risposta: richiesta una riaccensione fisica. Richiamo del preset,
+ascolto e misura con gli effetti attivi restano da verificare.** HyperRig
 è il nome scelto per questo progetto indipendente.
 
 L'[obiettivo concordato](docs/HYPERRIG_GOAL.md) comprende l'applicazione
