@@ -220,8 +220,12 @@ adds seven functions and 768 comparisons for cascades, mixing, width, ring
 correlation and transition updates. Ten dispatcher sites now execute the real
 numerical bodies, including retained constructor state for types 25, 36 and 37.
 Twenty invariant-excluded instructions remain separate from executed coverage.
+[Storage runtime integration](docs/STORAGE_RUNTIME_RECONSTRUCTION.md) joins
+preparation, controller and coordination bodies at all eighteen original sites.
+Its 135 comparisons preserve private-buffer initialization, shared observation
+limits and first-fault ordering, with explicit simulated bus behavior.
 The [audited inventory](docs/REVERSE_INVENTORY.md) now records 461 reconstructed
-function regions across 60 reports, with 90 unreconstructed direct dependency
+function regions across 61 reports, with 90 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

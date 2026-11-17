@@ -62,9 +62,10 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [preset storage preparation](PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md),
 [IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md),
 [parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md),
-[storage control](STORAGE_CONTROL_RECONSTRUCTION.md) and
-[storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md) and
-[effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md). The
+[storage control](STORAGE_CONTROL_RECONSTRUCTION.md),
+[storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md),
+[effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md) and
+[storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.

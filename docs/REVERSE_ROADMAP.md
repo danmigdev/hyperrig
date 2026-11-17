@@ -75,6 +75,7 @@ original firmware C sources have not been recovered.
 | Storage control | 45 new function regions; 626 further comparisons | Actual read/program/control wrappers and command, status and cache bodies retain raw counts and native error ordering. Coverage is 1,164/1,165 instructions; the fatal loop is observed before execution, and full polling timeout outcomes remain unexecuted. MMIO and platform services use synthetic observations. |
 | Storage coordination | Nine new function regions; 442 further comparisons | Timing gates, notification records, IRQ nesting and lock loops preserve raw counter/core arithmetic and callback-visible state. All 178 new and 184 combined instructions are visited. CPU events and clock/wait/poll services remain explicit observations; no hardware atomicity or IRQ-delivery claim. |
 | Effect sample processing | Seven new function regions; 768 further comparisons | Ten dispatcher sites execute the actual cascade, mixer, width, ring/correlation and transition bodies. Types 25, 36 and 37 carry real constructor state through 432 retained allocation chains. Coverage is 1,304/1,324 new and 4,469/22,919 loaded instructions; twenty full-entry invariant gaps remain explicit. |
+| Storage runtime integration | 75 existing bodies joined; 135 further comparisons | All eighteen original preparation-to-control/coordination sites execute on shared state. Private payload leases, actual-store initialization and first-fault ordering are preserved, including 66 matched failure prefixes. Coverage is 1,701/2,283 loaded instructions; no new function or data exclusion. Physical flash and scheduling remain external. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -133,9 +134,10 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [preset storage preparation](PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md),
 [IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md),
 [parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md),
-[storage control](STORAGE_CONTROL_RECONSTRUCTION.md) and
-[storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md) and
-[effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md) for exact
+[storage control](STORAGE_CONTROL_RECONSTRUCTION.md),
+[storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md),
+[effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md) and
+[storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -234,11 +236,13 @@ original call sites, memory ownership and callback order:
    then join those paths to parameter/resource ownership. The completed
    synchronous preparation handoff covers types 1, 13, 25, 36, 37 and 38; it does not
    establish scheduling, concurrent state changes or every effect algorithm.
-4. Join preparation/writer calls to the recovered controller and coordination
-   bodies at all eighteen original call sites. Internal private command
-   buffers require scoped access without exposing private frames to callbacks.
-   Preserve MMIO ordering, polling counts, status words and error handling;
-   synthetic bus observations do not establish durable physical flash behavior.
+4. Recover remaining storage platform services for clocks, interrupt
+   registration, critical sections and peer coordination. Preparation now
+   executes the recovered controller and coordination bodies at all eighteen
+   original sites, with private leases restricted to actual internal payload
+   accesses. Further joins must preserve CPU/MMIO ordering, raw counters and
+   failure effects; synthetic bus observations do not establish physical
+   flash durability or interrupt scheduling.
 
 The full reverse-engineering objective also requires these broader areas:
 
