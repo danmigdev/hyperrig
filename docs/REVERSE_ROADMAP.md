@@ -73,6 +73,7 @@ original firmware C sources have not been recovered.
 | IR numerical integration | Existing bodies joined; 128 further comparisons | Actual preparation and copy-construction sites execute recovered numerical code with native aliases, count arithmetic and retained allocation chains. Coverage is 1,418/1,453 loaded instructions; 35 inherited gaps remain explicit. No new function or data exclusion. |
 | Parameter-constructor integration | Existing bodies joined; 625 further comparisons | Three direct sites execute the recovered constructor/model closure through parameter, resource, ownership and scene/stage callers. Temporary copies retain live object aliases. Coverage is 5,741/6,507 joined and 7,469/20,072 loaded instructions; all gaps remain explicit. No new function or data exclusion. |
 | Storage control | 45 new function regions; 626 further comparisons | Actual read/program/control wrappers and command, status and cache bodies retain raw counts and native error ordering. Coverage is 1,164/1,165 instructions; the fatal loop is observed before execution, and full polling timeout outcomes remain unexecuted. MMIO and platform services use synthetic observations. |
+| Storage coordination | Nine new function regions; 442 further comparisons | Timing gates, notification records, IRQ nesting and lock loops preserve raw counter/core arithmetic and callback-visible state. All 178 new and 184 combined instructions are visited. CPU events and clock/wait/poll services remain explicit observations; no hardware atomicity or IRQ-delivery claim. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -130,8 +131,9 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [effect model construction](EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md),
 [preset storage preparation](PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md),
 [IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md),
-[parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md) and
-[storage control](STORAGE_CONTROL_RECONSTRUCTION.md) for exact
+[parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md),
+[storage control](STORAGE_CONTROL_RECONSTRUCTION.md) and
+[storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -209,6 +211,10 @@ Storage read, program and control wrappers now execute their recovered device
 commands in the standalone comparison corpus. MMIO, cache/barrier events, IRQ
 registration, scheduling and cross-core services remain explicit boundaries.
 The actual caller joins from preparation and journal operations remain open.
+Coordination now supplies the timing gates, notification ring, IRQ-nesting
+counters and lock loops. The three rate-helper calls execute the existing body.
+Initial IRQ words remain mutable runtime state, and synthetic CLI/STI/TESTSET
+observations do not establish physical interrupt delivery or atomicity.
 
 The immediate work is to connect more recovered pieces while preserving the
 original call sites, memory ownership and callback order:
@@ -225,8 +231,8 @@ original call sites, memory ownership and callback order:
    then join those paths to parameter/resource ownership. The completed
    synchronous preparation handoff covers types 1, 13 and 38; it does not
    establish scheduling, concurrent state changes or every effect algorithm.
-4. Recover storage coordination and join preparation/writer calls to the
-   recovered controller at their actual call sites. Internal private command
+4. Join preparation/writer calls to the recovered controller and coordination
+   bodies at all eighteen original call sites. Internal private command
    buffers require scoped access without exposing private frames to callbacks.
    Preserve MMIO ordering, polling counts, status words and error handling;
    synthetic bus observations do not establish durable physical flash behavior.

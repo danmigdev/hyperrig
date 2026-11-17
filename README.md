@@ -211,8 +211,12 @@ All 625 comparisons and sanitizer replays pass within the documented domain.
 626 comparisons for reads, programming, erase dispatch and device commands.
 Register and platform observations are simulated; the fatal-loop observation and
 unexecuted full polling timeouts remain explicit.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 445 reconstructed
-function regions across 58 reports, with 102 unreconstructed direct dependency
+[Storage coordination](docs/STORAGE_COORDINATION_RECONSTRUCTION.md) adds nine
+functions and 442 comparisons for timing gates, interrupt-mask state, locking
+and notification records. All 178 new instructions are exercised with explicit
+CPU/platform observations; physical interrupt and scheduling behavior remain open.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 454 reconstructed
+function regions across 59 reports, with 96 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

@@ -1,6 +1,6 @@
 # Reverse engineering inventory
 
-The current audited report set contains **445 reconstructed function regions**.
+The current audited report set contains **454 reconstructed function regions**.
 Five bodies are single RTS instructions; four carry the earlier reports' explicit
 return-only annotation, while the asynchronous command no-op is declared as an
 ordinary complete function. Four earlier parser/command fragments remain
@@ -45,8 +45,10 @@ in total. Snapshot `-14` adds eleven storage-preparation bodies
 and the IR numerical integration report, retaining all 54 prior reports for a
 total of 56. Snapshot `-15` retains those reports and adds the
 parameter-constructor integration, for 57 reports with no additional function.
-The current `-16` snapshot adds 45 storage-control bodies, retaining all 57
-preceding reports for a total of 58. Reused numerical bodies remain counted once.
+Snapshot `-16` adds 45 storage-control bodies, retaining all 57 preceding reports
+for a total of 58. The current `-17` snapshot adds nine storage-coordination
+bodies and retains all 58 reports, giving 59. Its reused rate helper and all
+reused numerical bodies remain counted once.
 
 The original [`inventory_reverse.py`](../tools/inventory_reverse.py) is unchanged.
 The unchanged [`inventory_reverse_expanded.py`](../tools/inventory_reverse_expanded.py)
@@ -106,35 +108,41 @@ binds 107 reused declarations and the exact union of both parent instruction
 corpora. It checks the three direct-call instructions and their executed target
 entries, separate joined/loaded gaps and all inherited static roles, including
 duplicates. Every prior code/data rule and all 56 preceding reports remain.
-The new [`inventory_reverse_storage_control.py`](../tools/inventory_reverse_storage_control.py)
+The unchanged [`inventory_reverse_storage_control.py`](../tools/inventory_reverse_storage_control.py)
 adds five exact embedded data spans, bound to four complete consumers and sixteen
 decoded proof sites. It authenticates all 45 whole bodies, direct platform-call
 sites and coverage gaps. The reset witness stays auxiliary, BSS stays mutable,
 and terminal polling timeouts remain distinct from instruction coverage. All
 57 preceding reports and every earlier code/data rule remain selected.
+The new [`inventory_reverse_storage_coordination.py`](../tools/inventory_reverse_storage_coordination.py)
+binds nine new and one reused complete body, every canonical visited PC, nine
+direct platform sites and three calls to the existing rate helper. Five CPU
+instructions and their complete primary ISA records are independently decoded
+and authenticated. The eight-byte initial IRQ witness remains auxiliary mutable
+state. No new data exclusion is added; all 58 preceding reports remain selected.
 Generated reports remain outside Git: the unchanged baseline is
 `build/reverse-inventory-01/inventory.json`, and the current snapshot is
-`build/reverse-inventory-16/inventory.json`. Snapshots `-02` through `-15` are also
+`build/reverse-inventory-17/inventory.json`. Snapshots `-02` through `-16` are also
 preserved. Each manifest records its report hash.
 No device access, hardware/audio test, firmware build or installation is performed
 by this inventory.
 
 ## What is counted
 
-| Evidence class | Meaning | Baseline | Snapshot -03 | Snapshot -04 | Snapshot -05 | Snapshot -06 | Snapshot -07 | Snapshot -08 | Snapshot -09 | Snapshot -10 | Snapshot -11 | Snapshot -12 | Snapshot -13 | Snapshot -14 | Snapshot -15 | Current -16 |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Reconstructed function region | An exact original range with compilable C and recorded comparisons within the module's documented domain | 88 | 106 | 126 | 145 | 168 | 202 | 226 | 287 | 306 | 331 | 340 | 389 | 400 | 400 | 445 |
-| Separate parser fragment | Compared parser subsection outside a reconstructed whole parent | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Separate command fragment | Compared command continuation outside a reconstructed whole parent | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Archived contained fragment | Prior fragment evidence inside a complete parent; adds no function or bytes | 0 | 0 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
-| Explicit return-only annotation | Report marks an exact single-RTS body; included in the function total | 0 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
-| Distinct active regions | Function regions plus separate fragments, with no overlapping bytes | 90 | 110 | 126 | 145 | 168 | 202 | 226 | 287 | 306 | 331 | 340 | 389 | 400 | 400 | 445 |
-| Partial Ghidra entries | Automatic G v2 labels without a full endpoint inventory or semantic validation | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 |
-| Linear direct-call target candidates | Distinct in-range targets after known-data and invalid-target exclusions | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 |
-| Combined candidate entries | Union of call targets, partial Ghidra labels, reconstructed entries and reset entry | 2,218 | 2,218 | 2,219 | 2,220 | 2,222 | 2,223 | 2,225 | 2,226 | 2,226 | 2,226 | 2,227 | 2,227 | 2,227 | 2,227 | 2,227 |
-| Candidates outside reconstructed regions | Candidate entries without a reconstructed range; **not** confirmed remaining functions | 2,130 | 2,112 | 2,093 | 2,075 | 2,054 | 2,021 | 1,999 | 1,939 | 1,920 | 1,895 | 1,887 | 1,838 | 1,827 | 1,827 | 1,782 |
-| Unreconstructed direct dependency targets | Direct callees whose bodies are outside reconstructed ranges | 35 | 40 | 42 | 39 | 38 | 92 | 94 | 121 | 112 | 111 | 108 | 102 | 101 | 101 | 102 |
-| Indirect call sites inside reconstructed regions | Call instructions whose targets require runtime context | 4 | 4 | 4 | 4 | 9 | 13 | 19 | 29 | 32 | 35 | 41 | 41 | 41 | 41 | 41 |
+| Evidence class | Meaning | Baseline | Snapshot -03 | Snapshot -04 | Snapshot -05 | Snapshot -06 | Snapshot -07 | Snapshot -08 | Snapshot -09 | Snapshot -10 | Snapshot -11 | Snapshot -12 | Snapshot -13 | Snapshot -14 | Snapshot -15 | Snapshot -16 | Current -17 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Reconstructed function region | An exact original range with compilable C and recorded comparisons within the module's documented domain | 88 | 106 | 126 | 145 | 168 | 202 | 226 | 287 | 306 | 331 | 340 | 389 | 400 | 400 | 445 | 454 |
+| Separate parser fragment | Compared parser subsection outside a reconstructed whole parent | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Separate command fragment | Compared command continuation outside a reconstructed whole parent | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Archived contained fragment | Prior fragment evidence inside a complete parent; adds no function or bytes | 0 | 0 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+| Explicit return-only annotation | Report marks an exact single-RTS body; included in the function total | 0 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+| Distinct active regions | Function regions plus separate fragments, with no overlapping bytes | 90 | 110 | 126 | 145 | 168 | 202 | 226 | 287 | 306 | 331 | 340 | 389 | 400 | 400 | 445 | 454 |
+| Partial Ghidra entries | Automatic G v2 labels without a full endpoint inventory or semantic validation | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 | 260 |
+| Linear direct-call target candidates | Distinct in-range targets after known-data and invalid-target exclusions | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 | 2,207 |
+| Combined candidate entries | Union of call targets, partial Ghidra labels, reconstructed entries and reset entry | 2,218 | 2,218 | 2,219 | 2,220 | 2,222 | 2,223 | 2,225 | 2,226 | 2,226 | 2,226 | 2,227 | 2,227 | 2,227 | 2,227 | 2,227 | 2,227 |
+| Candidates outside reconstructed regions | Candidate entries without a reconstructed range; **not** confirmed remaining functions | 2,130 | 2,112 | 2,093 | 2,075 | 2,054 | 2,021 | 1,999 | 1,939 | 1,920 | 1,895 | 1,887 | 1,838 | 1,827 | 1,827 | 1,782 | 1,773 |
+| Unreconstructed direct dependency targets | Direct callees whose bodies are outside reconstructed ranges | 35 | 40 | 42 | 39 | 38 | 92 | 94 | 121 | 112 | 111 | 108 | 102 | 101 | 101 | 102 | 96 |
+| Indirect call sites inside reconstructed regions | Call instructions whose targets require runtime context | 4 | 4 | 4 | 4 | 9 | 13 | 19 | 29 | 32 | 35 | 41 | 41 | 41 | 41 | 41 | 41 |
 
 Candidate categories overlap before taking their union. The 2,227 candidate
 entries are **not a denominator for a completion percentage**. Some may be data
@@ -157,8 +165,8 @@ candidate entry. Snapshot `-12` adds the copy-constructor wrapper at
 These are concrete
 examples of why the candidate count is not a complete function denominator.
 
-The current 445 active ranges span 101,456 original bytes, including 538 bytes
-of embedded branch tables/alignment. The tool decodes 32,356 instructions
+The current 454 active ranges span 102,034 original bytes, including 538 bytes
+of embedded branch tables/alignment. The tool decodes 32,534 instructions
 after excluding those data bytes. The separate
 36-byte IR coefficient table, 3,360-byte parameter metadata, 64-byte accelerator
 tables, two FIR tables totaling 30 bytes and 40-byte stage-capability table add
@@ -182,6 +190,9 @@ data bytes: 29 branch entries and three zero padding bytes across five spans.
 All four complete consumers and sixteen index/dispatch proof sites are decoded
 independently. The separate 22-byte BSS-reset witness adds no function or data
 exclusion. There are now 62 known data spans; the preceding 57 are unchanged.
+Snapshot `-17` adds 578 function bytes and 178 instructions, with no new data
+exclusion. The 62 data spans remain unchanged. Its eight initially zero IRQ bytes
+are mutable runtime state and add neither immutable data nor function bytes.
 Snapshot `-09` spans 74,872 bytes and 24,246 instructions, including 366 embedded
 data bytes. Snapshot `-10` adds 48 embedded data bytes and no external data span.
 Snapshot `-08` spans 54,304 bytes and 17,603 instructions.
@@ -269,7 +280,8 @@ The current snapshot adds these completed reports to that baseline:
 | [IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md) | 0 | `build/reverse-ir-effect-numerical-02/verification.json` |
 | [Parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md) | 0 | `build/reverse-effect-parameter-construction-02/verification.json` |
 | [Storage control](STORAGE_CONTROL_RECONSTRUCTION.md) | 45 | `build/reverse-storage-control-01/verification.json` |
-| **Current function total, including baseline** | **445** | |
+| [Storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md) | 9 | `build/reverse-storage-coordination-01/verification.json` |
+| **Current function total, including baseline** | **454** | |
 
 Journal evidence includes six function ranges, but its comparison helper at
 `0x020282bc..0x020282f4` was already counted in the preset loader. Its append
@@ -329,8 +341,8 @@ only these four explicit containments:
 
 Each archived record retains its original hash, module evidence and a parent
 link with the complete parent's hash and evidence. All other differing overlaps
-stop the audit for explicit review. The 449 deduplicated evidence records therefore
-describe 445 active regions and four archived fragments, not 449 functions.
+stop the audit for explicit review. The 458 deduplicated evidence records therefore
+describe 454 active regions and four archived fragments, not 458 functions.
 
 The capture layer dispatch table occupies exactly
 `0x01c12bf2..0x01c12bf6` inside `0x01c12a54..0x01c12c32`. Its pinned bytes are
@@ -639,6 +651,15 @@ arithmetic and ignored error results are retained. MMIO, cache/barrier,
 scheduling, IRQ and cross-core behavior remain synthetic observations; event
 prefix comparisons do not establish physical completion or durability.
 
+Storage coordination visits all 178 new and 184 combined instructions in 442
+comparisons, including the existing rate helper. Twenty-eight finite event/service
+prefix cases retain earlier CPU/RAM effects and untouched outputs. CLI/STI change
+only ICFG bit 9; TESTSET writes one byte and derives flags from its old low nibble;
+CNUM remains a supplied context word with wrapped counter-address arithmetic.
+Those explicit observations do not establish atomicity, interrupt delivery,
+scheduler progress or real-time behavior. No code/data classification is inferred
+from the auxiliary initial IRQ values.
+
 The audio task is nonreturning. Its comparisons resume at completed waits or
 frame boundaries and observe both fatal spins. Covering every instruction
 across these bounded cases does not establish every path combination, indefinite
@@ -672,9 +693,9 @@ not a second function.
 
 The current audit checked:
 
-- All 445 active region hashes and four archived fragment hashes against the pinned image.
-- **433 distinct source hashes** recorded by the 58 selected reports.
-- **957 generated artifact hashes** from the completed build manifests.
+- All 454 active region hashes and four archived fragment hashes against the pinned image.
+- **440 distinct source hashes** recorded by the 59 selected reports.
+- **970 generated artifact hashes** from the completed build manifests.
 - Exact bytes and contiguous addresses in both linear disassembly listings.
 - All selected report/input hashes, recorded as relative paths in the inventory.
 
@@ -688,7 +709,7 @@ Snapshot `-07` checked 206 region/fragment hashes, 263 source hashes and 343
 artifacts. Snapshot `-08` checked 230 region/fragment hashes, 291 source hashes
 and 442 artifacts. Snapshot `-09` checked 291 region/fragment hashes, 327 source
 hashes and 542 artifacts. Snapshot `-10` checked 310 region/fragment hashes, 334
-source hashes and 582 artifacts. The current report captures all fourteen inventory-tool hashes;
+source hashes and 582 artifacts. The current report captures all fifteen inventory-tool hashes;
 earlier tools and snapshots remain unchanged. Older development reports stay
 outside the selected current set. Twenty-two read-only adapter checks cover
 containment order, evidence deduplication, rejected unknown overlaps, bad hashes
@@ -740,6 +761,11 @@ packet-start targets, all sixteen direct service sites, retained reports,
 coverage gaps, timeout outcomes and the auxiliary reset witness. Independent
 review found no further provenance, overlap or coverage inconsistency.
 
+The storage-coordination adapter adds 200 checks for exact new/reused bodies,
+canonical visited addresses, all platform/rate sites, original CPU instructions,
+primary ISA records, auxiliary initial-state bytes and all 58 retained reports.
+Independent review found no further provenance or classification gap.
+
 Snapshot `-12` records **1,276 input hashes**; a separate read-back audit
 checked every input and the generated manifest. All **1,149 prior input bindings**
 from snapshot `-11` are retained unchanged. That preceding snapshot checked
@@ -770,7 +796,7 @@ the numerical library also match the unselected earlier candidate. The new
 integration contributes 625 comparisons and sanitizer replays, with 18 focused
 tests and its separately documented guard checks.
 
-The current `-16` snapshot records **1,471 input hashes**, independently read
+Snapshot `-16` records **1,471 input hashes**, independently read
 back after generation, and retains all **1,455 prior input bindings** unchanged.
 All sixteen inventory manifests match their reports. The 57 previous data spans
 are retained exactly, with five new embedded spans. The new module's 64 source
@@ -778,12 +804,28 @@ and seven artifact bindings also passed independent read-back. Its 626 original
 comparisons and sanitizer replays, twenty focused tests, 81 API checks and
 thirteen additional sanitizer guards passed within the documented domain.
 
-Snapshot report SHA-256:
+Snapshot `-16` report SHA-256:
 `fcf6d314599f8d9cc6a9e835b121c9db9f633bb09bb6206e22ead9c026d9a53c`.
-Snapshot manifest SHA-256:
+Snapshot `-16` manifest SHA-256:
 `89a1e510012508a141cfa6afb7acc56851e93efea9d7042b9f37f8b05af0e5bf`.
 Storage-control inventory adapter SHA-256:
 `38674dc56a964dbf2d1e82e50769375a4e9cb1c67d64fdc0799d2ce9e9af3486`.
+
+The current `-17` snapshot records **1,493 input hashes**, independently read
+back after generation, and retains all **1,471 prior input bindings** unchanged.
+All seventeen inventory manifests match their reports. The 62 data spans,
+candidate-address union and 41 indirect sites are unchanged. The coordination
+module's 78 source and thirteen artifact bindings passed independent read-back;
+all six reused target objects match storage-preparation `-02`. Its 442 comparisons
+and sanitizer replays, 24 focused tests, 51 API checks and thirteen additional
+sanitizer guards passed within the documented domain.
+
+Snapshot `-17` report SHA-256:
+`8ff55f38329c5721a5197b5029af8f89e26a792439f66e1c124eab255275b7d7`.
+Snapshot `-17` manifest SHA-256:
+`ad0848dc8edb8bb062896697e817f1032ff7ca5c0fa1f250cf1f093ca75dfb86`.
+Storage-coordination inventory adapter SHA-256:
+`033417b8bef843423b119e37585fad74e7226e846c87206af001ac7bb78d4cb4`.
 
 The selected scene report is `-03`: `-01` omitted three external-service
 arguments, corrected and independently asserted in `-02`; `-03` additionally
@@ -817,7 +859,10 @@ sanitizer fixture lacked immutable table mappings; `-02` corrects that fixture
 with no change to the numerical library or target objects. Snapshot `-16` adds
 storage-control `-01`, including all 45 complete bodies and only the five proved
 embedded table/padding spans. Further storage integration, coordination and
-sample-processing work remain outside this snapshot.
+sample-processing work remain outside that snapshot. Snapshot `-17` adds
+storage-coordination `-01`, with nine new bodies and the exact existing rate
+helper. Initial IRQ bytes remain auxiliary, and storage integration and further
+sample-processing work remain outside the current snapshot.
 
 The baseline flash listing ends at `0x02056780`, before the stored RAM copy, so
 this input already avoids duplicate decoding of that copy. The inventory also
@@ -849,7 +894,7 @@ In the current snapshot, examples include:
 | Command output | Formatting `0x02007010`, report helper `0x0200a768` |
 | Effect setup and refresh | `0x0202e710`, `0x0202f46c`, `0x0202e328` and other services exposed by preset application and the recovered callers |
 | Audio and effect numerical processing | `0x01c012d8`, `0x01c01de4`, `0x01c08b3e`, `0x01c0ba14`, `0x01c18f90` and other numerical leaves; dispatcher, individual/group wrappers and stage orchestration are now recovered |
-| Storage coordination and platform | Remaining synchronization, IRQ, scheduler, clock and cross-core bodies; read/program/control command bodies are now reconstructed |
+| Storage/platform services | Clock `0x01c04862`, polling `0x0203ea6e`, wait `0x0203feb8` and device-facing platform bodies; controller and coordination bodies now have standalone evidence |
 | Memory/platform services | Allocator/free, bounded memory-library contracts, notification and mode services |
 
 IR preparation and convolution construction now execute recovered code through
@@ -861,7 +906,7 @@ This list is a snapshot. A subsequent report can replace some of these boundarie
 with reconstructed code while exposing new dependencies. An indirect call site
 can correspond to multiple targets, and a function body can depend on hardware
 or concurrency beyond its immediate call graph. The list therefore does not
-mean only 102 functions remain to finish the firmware. Earlier snapshots counted
+mean only 96 functions remain to finish the firmware. Earlier snapshots counted
 35, 40, 42, 39, 38, 92 and 94 targets. Snapshot `-07` closes the old direct boundary at
 `0x020092fa` while exposing 55 additional direct targets through the newly
 reconstructed callers. The four additional indirect sites are all within preset
@@ -932,6 +977,12 @@ and `0x02002ef2`. It exposes nine platform targets: `0x01c01108`, `0x01c011da`,
 102. The 41 indirect sites and 2,227 candidate addresses are unchanged;
 candidates outside reconstructed ranges fall to 1,782. These counts describe
 the current graph, not a complete set of remaining firmware functions.
+
+Snapshot `-17` closes six direct targets: `0x02002920`, `0x02002bec`,
+`0x02002bf6`, `0x02002d06`, `0x02002d10` and `0x02002d70`. It exposes
+no new direct dependency, leaving 96. All nine new entries were already
+candidates, so the union remains 2,227 and candidates outside reconstructed
+ranges fall to 1,773. The 41 indirect call sites remain unchanged.
 
 An outside target means its body has no separately declared reconstructed
 whole-function region in this inventory. Executing a dependency inside another
@@ -1052,16 +1103,16 @@ $inventoryArguments = @(
 python -B tools/inventory_reverse_stage.py @inventoryArguments
 ```
 
-The storage-control adapter retains the entire inventory `-15` report set
-and requires frozen storage-control `-01`. Configured-signal `-02`, IR
+The storage-coordination adapter retains the entire inventory `-16` report set
+and requires frozen storage-coordination `-01`. Configured-signal `-02`, IR
 numerical `-02` and parameter-constructor `-02` retain their empty function schemas;
 model-construction `-03` retains its original hash field. Use a fresh output
-directory to reproduce the current `-16` evidence:
+directory to reproduce the current `-17` evidence:
 
 ```powershell
-python -B tools/inventory_reverse_storage_control.py --self-test
+python -B tools/inventory_reverse_storage_coordination.py --self-test
 $inventoryArguments = @(
-    "--output", "build/reverse-inventory-storage-control-new",
+    "--output", "build/reverse-inventory-storage-coordination-new",
     "--parser-report", "build/reverse-capture-parser-03/verification.json",
     "--processing-report", "build/reverse-capture-processing-03/verification.json",
     "--ir-report", "build/reverse-ir-convolution-02/verification.json",
@@ -1086,9 +1137,10 @@ $inventoryArguments = @(
     "--add-report", "build/reverse-preset-storage-preparation-02/verification.json",
     "--ir-numerical-report", "build/reverse-ir-effect-numerical-02/verification.json",
     "--parameter-construction-report", "build/reverse-effect-parameter-construction-02/verification.json",
-    "--storage-control-report", "build/reverse-storage-control-01/verification.json"
+    "--storage-control-report", "build/reverse-storage-control-01/verification.json",
+    "--storage-coordination-report", "build/reverse-storage-coordination-01/verification.json"
 )
-python -B tools/inventory_reverse_storage_control.py @inventoryArguments
+python -B tools/inventory_reverse_storage_coordination.py @inventoryArguments
 ```
 
 Use `--check` instead of `--output` for a read-only audit. Additional frozen
