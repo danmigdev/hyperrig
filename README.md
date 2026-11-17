@@ -197,8 +197,14 @@ rollback, ownership and relocation, visiting all 422 new instructions.
 adds 49 functions and 1,657 comparisons, closing all six numerical builder
 dependencies in the main constructor. Five statically unreachable instructions
 remain distinct from executed coverage.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 389 reconstructed
-function regions across 54 reports, with 102 unreconstructed direct dependency
+[Preset storage preparation](docs/PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md)
+adds eleven functions and 217 comparisons for discovery, pair replacement and
+ordered record writes. Two static instruction gaps remain explicit.
+[IR numerical integration](docs/IR_EFFECT_NUMERICAL_RECONSTRUCTION.md) joins the
+actual lifecycle preparation and copy-construction calls to recovered numerical
+code, with 128 comparisons and no additional function entries.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 400 reconstructed
+function regions across 56 reports, with 101 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

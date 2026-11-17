@@ -69,6 +69,8 @@ original firmware C sources have not been recovered.
 | Constructor-to-signal integration | Existing bodies joined; 681 further comparisons | Types 1, 13 and 38 carry actual constructor output into numerical kernels, stage and carried audio observations on 142 retained-allocation chains. Preparation is a separate synchronous invocation; no scheduler or new native call edge is claimed. |
 | IR effect lifecycle | Nine new function regions; 808 further comparisons | Source/mode selection, temporary buffers, assignment and rollback, ownership query, copy wrapper and relocation. All 422 new and 537 loaded instructions visited, including full signed metadata and overlapping copies. Real prepare/construct bodies remain a separate integration boundary. |
 | Effect model construction | 49 new function regions; 1,657 further comparisons | All six main-constructor numerical builder dependencies now execute recovered arithmetic. Coverage is 3,076/3,081 new and 3,441/4,775 loaded instructions; five static gaps remain explicit. Native aliases, sparse coefficient reads, object layouts and carried updates are compared. |
+| Preset storage preparation | Eleven new function regions; 217 further comparisons | Discovery, pair replacement, record writes and header edits preserve original ordering and callback aliases. Coverage is 675/677 new and 938/940 loaded instructions, with two static gaps. Preparation changes block/pair metadata without directly writing availability masks; physical storage remains external. |
+| IR numerical integration | Existing bodies joined; 128 further comparisons | Actual preparation and copy-construction sites execute recovered numerical code with native aliases, count arithmetic and retained allocation chains. Coverage is 1,418/1,453 loaded instructions; 35 inherited gaps remain explicit. No new function or data exclusion. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -122,8 +124,10 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [effect ownership](EFFECT_OWNERSHIP_RECONSTRUCTION.md),
 [resource/ownership integration](EFFECT_RESOURCE_OWNERSHIP_RECONSTRUCTION.md),
 [constructor-to-signal integration](EFFECT_CONFIGURED_SIGNAL_RECONSTRUCTION.md),
-[IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md) and
-[effect model construction](EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md) for exact
+[IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md),
+[effect model construction](EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md),
+[preset storage preparation](PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md) and
+[IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -188,12 +192,17 @@ write. Broader fault prefixes inside inherited transition helpers remain open.
 The 49-body model reconstruction covers all six previously explicit constructor
 builders and their numerical/layout dependencies. Its corpus retains five static
 instruction gaps and does not establish every effect's sample processing.
+IR lifecycle preparation and copy construction now execute recovered numerical
+bodies at all three direct sites, including the mode-zero retry. The integration
+retains native aliases, producer callbacks and wrapped count arithmetic. Its
+35 inherited instruction gaps and C-only guards remain separately documented.
 
 The immediate work is to connect more recovered pieces while preserving the
 original call sites, memory ownership and callback order:
 
-1. Join the constructor at the parameter caller's two actual direct sites,
-   `0x0202f37c` and `0x0202f970`. A platform callback can have the same numeric
+1. Join construction at the parameter caller's three actual direct sites:
+   `0x0202f37c` and `0x0202f970` call the main constructor, while `0x0202f7ba`
+   calls the object builder. A platform callback can have the same numeric
    token and argument count, so the public join must distinguish those sites.
    The completed resource integration supplies the corresponding pattern for
    allocation, migration, fingerprints and mode changes.
@@ -205,24 +214,27 @@ original call sites, memory ownership and callback order:
    then join those paths to parameter/resource ownership. The completed
    synchronous preparation handoff covers types 1, 13 and 38; it does not
    establish scheduling, concurrent state changes or every effect algorithm.
-4. Join the IR lifecycle's preparation and copy-construction calls to the
-   recovered convolution constructor. Preserve actual temporary-state and
-   callback behavior, native aliases and count arithmetic across the join.
-   The nine lifecycle bodies are verified, but their preparation/constructor
-   services are still explicit in that corpus.
+4. Recover the storage controller behind the now-reconstructed preparation and
+   writer paths. Preserve original MMIO ordering, polling counts, status words
+   and error handling; synthetic bus observations must remain distinct from
+   durable physical flash behavior.
 
 The full reverse-engineering objective also requires these broader areas:
 
-- Complete protocol, command and persistent-state coverage. Trace storage
-  discovery/preparation at `0x020031d4`, writers of state words 708/732 and the
-  pair map at offset 3476. Physical read/write/erase services at `0x02002810`,
-  `0x02002ef2` and `0x02002b80` remain explicit, together with polling/priority
-  helpers and power-loss behavior.
+- Complete protocol, command and persistent-state coverage. Discovery at
+  `0x020031d4` and pair replacement at `0x02003040` now have complete bodies:
+  they update flags 712/716 and block/pair metadata, with no direct store to
+  availability masks 708/732. The recovered invalidator clears mask 708;
+  validation updates both masks. Trace the remaining command writer/invalidation
+  sequences. Physical read/write/erase services at `0x02002810`, `0x02002ef2`
+  and `0x02002b80` remain explicit, together with polling/priority helpers and
+  power-loss behavior.
 - Complete IR, capture and preset application through their actual ownership
   and scheduling callers. IR mode selection, copy wrapper, relocation,
   temporary-state paths and effect refresh now have complete reconstructed
-  bodies. Their actual numerical preparation and caller integration remain
-  open. Recovered runtime convolution already executes through the effect
+  bodies, and their numerical preparation/copy-construction join is now verified
+  within its documented domain. Wider ownership and scheduling integration
+  remains open. Recovered runtime convolution already executes through the effect
   dispatcher; accelerator MMIO and transform behavior are still simulated.
 - Recover remaining input/output, USB, scheduler, clock and control services.
   Trace state word 4092, calibration word 44, and their writers before assigning
