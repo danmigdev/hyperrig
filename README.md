@@ -193,8 +193,12 @@ original-instruction comparisons without adding function entries.
 [IR effect lifecycle](docs/IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md) adds nine
 functions and 808 comparisons for source selection, temporary installation,
 rollback, ownership and relocation, visiting all 422 new instructions.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 340 reconstructed
-function regions across 53 reports, with 108 unreconstructed direct dependency
+[Effect model construction](docs/EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md)
+adds 49 functions and 1,657 comparisons, closing all six numerical builder
+dependencies in the main constructor. Five statically unreachable instructions
+remain distinct from executed coverage.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 389 reconstructed
+function regions across 54 reports, with 102 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

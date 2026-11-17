@@ -68,6 +68,7 @@ original firmware C sources have not been recovered.
 | Resource/ownership integration | Existing bodies joined; 1,284 further comparisons | Actual slot removal through resource flush, retry and parameter/scene/stage callers. All nineteen direct resource sites and the flush-to-removal edge execute. Coverage is 1,476/1,732 joined instructions; 35 fourth-read prefixes preserve nested state, including the scene busy flag. |
 | Constructor-to-signal integration | Existing bodies joined; 681 further comparisons | Types 1, 13 and 38 carry actual constructor output into numerical kernels, stage and carried audio observations on 142 retained-allocation chains. Preparation is a separate synchronous invocation; no scheduler or new native call edge is claimed. |
 | IR effect lifecycle | Nine new function regions; 808 further comparisons | Source/mode selection, temporary buffers, assignment and rollback, ownership query, copy wrapper and relocation. All 422 new and 537 loaded instructions visited, including full signed metadata and overlapping copies. Real prepare/construct bodies remain a separate integration boundary. |
+| Effect model construction | 49 new function regions; 1,657 further comparisons | All six main-constructor numerical builder dependencies now execute recovered arithmetic. Coverage is 3,076/3,081 new and 3,441/4,775 loaded instructions; five static gaps remain explicit. Native aliases, sparse coefficient reads, object layouts and carried updates are compared. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -120,8 +121,9 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [signal kernels](EFFECT_SIGNAL_RECONSTRUCTION.md),
 [effect ownership](EFFECT_OWNERSHIP_RECONSTRUCTION.md),
 [resource/ownership integration](EFFECT_RESOURCE_OWNERSHIP_RECONSTRUCTION.md),
-[constructor-to-signal integration](EFFECT_CONFIGURED_SIGNAL_RECONSTRUCTION.md) and
-[IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md) for exact
+[constructor-to-signal integration](EFFECT_CONFIGURED_SIGNAL_RECONSTRUCTION.md),
+[IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md) and
+[effect model construction](EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -183,6 +185,9 @@ within their documented domains. These integrations preserve the borrowed
 allocation flag, callback order and actual coefficient/history state. The
 ownership guard also propagates through the scene before its cached busy-byte
 write. Broader fault prefixes inside inherited transition helpers remain open.
+The 49-body model reconstruction covers all six previously explicit constructor
+builders and their numerical/layout dependencies. Its corpus retains five static
+instruction gaps and does not establish every effect's sample processing.
 
 The immediate work is to connect more recovered pieces while preserving the
 original call sites, memory ownership and callback order:
@@ -192,10 +197,10 @@ original call sites, memory ownership and callback order:
    token and argument count, so the public join must distinguish those sites.
    The completed resource integration supplies the corresponding pattern for
    allocation, migration, fingerprints and mode changes.
-2. Recover the remaining type-specific builders at `0x0202b838`, `0x0202b87e`,
-   `0x0202ba90`, `0x0202a872`, `0x0202cd32` and `0x0202cf5a`, including their
-   mathematical, state and numerical dependencies. Keep the remaining effect
-   algorithms visible in the [dependency inventory](REVERSE_INVENTORY.md).
+2. Recover the remaining effect sample-processing algorithms and their
+   numerical dependencies. Their parameter builders are now available for
+   comparisons with actual generated coefficients and state. Keep those
+   remaining algorithms visible in the [dependency inventory](REVERSE_INVENTORY.md).
 3. Carry more constructor branches through their actual numerical consumers,
    then join those paths to parameter/resource ownership. The completed
    synchronous preparation handoff covers types 1, 13 and 38; it does not

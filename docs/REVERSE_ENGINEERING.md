@@ -56,8 +56,9 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [signal kernels](EFFECT_SIGNAL_RECONSTRUCTION.md),
 [effect ownership](EFFECT_OWNERSHIP_RECONSTRUCTION.md),
 [resource/ownership integration](EFFECT_RESOURCE_OWNERSHIP_RECONSTRUCTION.md),
-[constructor-to-signal integration](EFFECT_CONFIGURED_SIGNAL_RECONSTRUCTION.md) and
-[IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md). The
+[constructor-to-signal integration](EFFECT_CONFIGURED_SIGNAL_RECONSTRUCTION.md),
+[IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md) and
+[effect model construction](EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.
