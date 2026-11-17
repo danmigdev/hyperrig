@@ -172,8 +172,12 @@ remain documented. [Parameter updates](docs/EFFECT_PARAMETERS_RECONSTRUCTION.md)
 add seven functions and 5,679 comparisons for immediate changes, automation
 production, classification and resource probing, with actual scene callers and
 DSP automation consumption.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 287 reconstructed
-function regions across forty-five reports, with 121 unreconstructed direct dependency
+[Parameter resources](docs/EFFECT_PARAMETER_RESOURCES_RECONSTRUCTION.md) add
+nineteen functions and 2,850 comparisons for allocation/recovery, packed history,
+state fingerprints, mode changes and IR lengths. All 579 new instructions are
+visited; allocator internals and complete slot removal remain explicit services.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 306 reconstructed
+function regions across forty-six reports, with 112 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

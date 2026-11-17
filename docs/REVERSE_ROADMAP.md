@@ -60,6 +60,7 @@ original firmware C sources have not been recovered.
 | Parameter support | Nineteen new function regions; 4,250 further comparisons | Packing with aliases, selectors, tempo, size, overlapping memory moves and signed/unsigned division. All 449 new instructions visited. |
 | Effect processing callers | Sixteen new function regions; 4,664 further comparisons | Dispatcher, individual/group processing, timing and numerical helpers through actual resampling, IR, stage and audio-task bodies. Coverage is 4,218/4,223 new instructions; five invariant gaps remain explicit. Effect-specific numerical leaves remain services. |
 | Parameter changes and automation | Seven new function regions; 5,679 further comparisons | Immediate update, record producer, classifiers, wrapper and resource probe through actual scene/stage bodies. Coverage is 993/994 new instructions; one redundant type test remains unexecuted. Construction and allocation remain explicit mutable services. |
+| Parameter resources | Nineteen new function regions; 2,850 further comparisons | Actual allocation/recovery, packed-history migration, fingerprints, mode changes and IR length selection. All 579 new instructions visited; eight inherited gaps are classified by caller invariants. Allocator internals and complete slot removal remain services; the preceding parameter corpus is unchanged. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -105,7 +106,8 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [effect enable/fades](EFFECT_ENABLE_RECONSTRUCTION.md),
 [parameter support](EFFECT_PARAMETER_SUPPORT_RECONSTRUCTION.md),
 [effect processing callers](EFFECT_PROCESSING_RECONSTRUCTION.md) and
-[parameter updates](EFFECT_PARAMETERS_RECONSTRUCTION.md) for exact
+[parameter updates](EFFECT_PARAMETERS_RECONSTRUCTION.md) and
+[parameter resources](EFFECT_PARAMETER_RESOURCES_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
