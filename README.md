@@ -203,8 +203,12 @@ ordered record writes. Two static instruction gaps remain explicit.
 [IR numerical integration](docs/IR_EFFECT_NUMERICAL_RECONSTRUCTION.md) joins the
 actual lifecycle preparation and copy-construction calls to recovered numerical
 code, with 128 comparisons and no additional function entries.
+[Parameter-constructor integration](docs/EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md)
+connects three actual parameter call sites to the recovered numerical builders,
+including temporary-record aliases, ownership recovery and scene/stage callers.
+All 625 comparisons and sanitizer replays pass within the documented domain.
 The [audited inventory](docs/REVERSE_INVENTORY.md) now records 400 reconstructed
-function regions across 56 reports, with 101 unreconstructed direct dependency
+function regions across 57 reports, with 101 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

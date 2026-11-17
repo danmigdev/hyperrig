@@ -71,6 +71,7 @@ original firmware C sources have not been recovered.
 | Effect model construction | 49 new function regions; 1,657 further comparisons | All six main-constructor numerical builder dependencies now execute recovered arithmetic. Coverage is 3,076/3,081 new and 3,441/4,775 loaded instructions; five static gaps remain explicit. Native aliases, sparse coefficient reads, object layouts and carried updates are compared. |
 | Preset storage preparation | Eleven new function regions; 217 further comparisons | Discovery, pair replacement, record writes and header edits preserve original ordering and callback aliases. Coverage is 675/677 new and 938/940 loaded instructions, with two static gaps. Preparation changes block/pair metadata without directly writing availability masks; physical storage remains external. |
 | IR numerical integration | Existing bodies joined; 128 further comparisons | Actual preparation and copy-construction sites execute recovered numerical code with native aliases, count arithmetic and retained allocation chains. Coverage is 1,418/1,453 loaded instructions; 35 inherited gaps remain explicit. No new function or data exclusion. |
+| Parameter-constructor integration | Existing bodies joined; 625 further comparisons | Three direct sites execute the recovered constructor/model closure through parameter, resource, ownership and scene/stage callers. Temporary copies retain live object aliases. Coverage is 5,741/6,507 joined and 7,469/20,072 loaded instructions; all gaps remain explicit. No new function or data exclusion. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -126,8 +127,9 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [constructor-to-signal integration](EFFECT_CONFIGURED_SIGNAL_RECONSTRUCTION.md),
 [IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md),
 [effect model construction](EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md),
-[preset storage preparation](PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md) and
-[IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md) for exact
+[preset storage preparation](PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md),
+[IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md) and
+[parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -196,16 +198,19 @@ IR lifecycle preparation and copy construction now execute recovered numerical
 bodies at all three direct sites, including the mode-zero retry. The integration
 retains native aliases, producer callbacks and wrapped count arithmetic. Its
 35 inherited instruction gaps and C-only guards remain separately documented.
+Parameter construction now joins the actual live-record, temporary-record and
+object-builder calls. The corpus carries constructor output through resource
+ownership and scene/stage callers, including live pointed-object aliases and
+the established ownership failure prefix. Arbitrary constructor guard prefixes
+and the remaining effect sample algorithms still require separate evidence.
 
 The immediate work is to connect more recovered pieces while preserving the
 original call sites, memory ownership and callback order:
 
-1. Join construction at the parameter caller's three actual direct sites:
-   `0x0202f37c` and `0x0202f970` call the main constructor, while `0x0202f7ba`
-   calls the object builder. A platform callback can have the same numeric
-   token and argument count, so the public join must distinguish those sites.
-   The completed resource integration supplies the corresponding pattern for
-   allocation, migration, fingerprints and mode changes.
+1. Recover remaining effect creation/setup at `0x0202e710` and global tempo
+   propagation at `0x0202f46c`, preserving their actual allocation, resource
+   and parameter calls. Trace the coherent helper closure and callback ABIs
+   before joining these paths to preset application.
 2. Recover the remaining effect sample-processing algorithms and their
    numerical dependencies. Their parameter builders are now available for
    comparisons with actual generated coefficients and state. Keep those
