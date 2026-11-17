@@ -229,8 +229,12 @@ creation, allocation, type-29/30 initialization, routing costs and tempo changes
 Its 4,229 comparisons execute ten actual calls into recovered parameter,
 constructor and IR code. One fixed-input saturation instruction remains
 unexecuted and is documented separately.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 506 reconstructed
-function regions across 62 reports, with 82 unreconstructed direct dependency
+[Storage platform](docs/STORAGE_PLATFORM_RECONSTRUCTION.md) adds nine functions
+for clock reads, interrupt registration, critical sections and peer handling.
+Its 641 comparisons exercise all 200 new instructions and both reused IRQ bodies;
+interrupt delivery, lock completion and register values remain supplied fixtures.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 515 reconstructed
+function regions across 63 reports, with 78 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

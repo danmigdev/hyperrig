@@ -65,8 +65,9 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [storage control](STORAGE_CONTROL_RECONSTRUCTION.md),
 [storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md),
 [effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md),
-[storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md) and
-[effect setup](EFFECT_SETUP_RECONSTRUCTION.md). The
+[storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md),
+[effect setup](EFFECT_SETUP_RECONSTRUCTION.md) and
+[storage platform](STORAGE_PLATFORM_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.

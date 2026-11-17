@@ -77,6 +77,7 @@ original firmware C sources have not been recovered.
 | Effect sample processing | Seven new function regions; 768 further comparisons | Ten dispatcher sites execute the actual cascade, mixer, width, ring/correlation and transition bodies. Types 25, 36 and 37 carry real constructor state through 432 retained allocation chains. Coverage is 1,304/1,324 new and 4,469/22,919 loaded instructions; twenty full-entry invariant gaps remain explicit. |
 | Storage runtime integration | 75 existing bodies joined; 135 further comparisons | All eighteen original preparation-to-control/coordination sites execute on shared state. Private payload leases, actual-store initialization and first-fault ordering are preserved, including 66 matched failure prefixes. Coverage is 1,701/2,283 loaded instructions; no new function or data exclusion. Physical flash and scheduling remain external. |
 | Effect creation, allocation and tempo | 45 new complete bodies; 4,229 further comparisons | Ten original joins execute recovered parameter, constructor and IR callees on shared RAM. Allocation failures, callback changes, raw segment indices and cost arithmetic retain native ordering. Coverage is 1,758/1,759 new and 8,518/22,289 loaded instructions; one fixed-input saturation assignment remains unexecuted. Preset callers and hardware execution remain separate work. |
+| Storage platform | Nine new complete bodies; 641 further comparisons | Clock reads, interrupt registration, critical sections and the peer ISR preserve original CPU/MMIO order and callback mutations. All 200 new and 217 loaded instructions execute, including two reused IRQ bodies. The ISR uses a separately supplied context; delivery, lock completion and register values remain synthetic observations. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -138,8 +139,9 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [storage control](STORAGE_CONTROL_RECONSTRUCTION.md),
 [storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md),
 [effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md),
-[storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md) and
-[effect setup](EFFECT_SETUP_RECONSTRUCTION.md) for exact
+[storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md),
+[effect setup](EFFECT_SETUP_RECONSTRUCTION.md) and
+[storage platform](STORAGE_PLATFORM_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -214,8 +216,9 @@ ownership and scene/stage callers, including live pointed-object aliases and
 the established ownership failure prefix. Arbitrary constructor guard prefixes
 and the remaining effect sample algorithms still require separate evidence.
 Storage read, program and control wrappers now execute their recovered device
-commands in the standalone comparison corpus. MMIO, cache/barrier events, IRQ
-registration, scheduling and cross-core services remain explicit boundaries.
+commands in the standalone comparison corpus. Clock, IRQ registration and
+critical-section bodies now have separate original-instruction comparisons.
+MMIO, cache/barrier events and physical scheduling remain explicit boundaries.
 The runtime integration covers eighteen preparation/controller joins; further
 caller and platform integration remains open.
 Coordination now supplies the timing gates, notification ring, IRQ-nesting
@@ -240,13 +243,13 @@ original call sites, memory ownership and callback order:
    then join those paths to parameter/resource ownership. The completed
    synchronous preparation handoff covers types 1, 13, 25, 36, 37 and 38; it does not
    establish scheduling, concurrent state changes or every effect algorithm.
-4. Recover remaining storage platform services for clocks, interrupt
-   registration, critical sections and peer coordination. Preparation now
-   executes the recovered controller and coordination bodies at all eighteen
-   original sites, with private leases restricted to actual internal payload
-   accesses. Further joins must preserve CPU/MMIO ordering, raw counters and
-   failure effects; synthetic bus observations do not establish physical
-   flash durability or interrupt scheduling.
+4. Join the recovered clocks, interrupt registration and critical sections to
+   their actual storage callers, and recover diagnostic/fatal and remaining
+   platform services. Preparation already executes the controller and
+   coordination bodies at all eighteen original sites, with private leases
+   restricted to actual internal payload accesses. Further joins must preserve
+   CPU/MMIO ordering, raw counters and failure effects; synthetic observations
+   do not establish physical flash durability or interrupt scheduling.
 
 The full reverse-engineering objective also requires these broader areas:
 
