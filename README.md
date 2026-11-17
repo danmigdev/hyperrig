@@ -233,8 +233,12 @@ unexecuted and is documented separately.
 for clock reads, interrupt registration, critical sections and peer handling.
 Its 641 comparisons exercise all 200 new instructions and both reused IRQ bodies;
 interrupt delivery, lock completion and register values remain supplied fixtures.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 515 reconstructed
-function regions across 63 reports, with 78 unreconstructed direct dependency
+[Diagnostic records and fatal handling](docs/STORAGE_FAULT_RECONSTRUCTION.md)
+adds fifteen functions for record packing, counter updates and register exchange.
+Its 1,744 comparisons preserve aliases, callback changes and fault ordering;
+the original fatal stop is observed with its entry caller address retained.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 530 reconstructed
+function regions across 64 reports, with 77 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

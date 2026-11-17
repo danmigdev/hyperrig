@@ -78,6 +78,7 @@ original firmware C sources have not been recovered.
 | Storage runtime integration | 75 existing bodies joined; 135 further comparisons | All eighteen original preparation-to-control/coordination sites execute on shared state. Private payload leases, actual-store initialization and first-fault ordering are preserved, including 66 matched failure prefixes. Coverage is 1,701/2,283 loaded instructions; no new function or data exclusion. Physical flash and scheduling remain external. |
 | Effect creation, allocation and tempo | 45 new complete bodies; 4,229 further comparisons | Ten original joins execute recovered parameter, constructor and IR callees on shared RAM. Allocation failures, callback changes, raw segment indices and cost arithmetic retain native ordering. Coverage is 1,758/1,759 new and 8,518/22,289 loaded instructions; one fixed-input saturation assignment remains unexecuted. Preset callers and hardware execution remain separate work. |
 | Storage platform | Nine new complete bodies; 641 further comparisons | Clock reads, interrupt registration, critical sections and the peer ISR preserve original CPU/MMIO order and callback mutations. All 200 new and 217 loaded instructions execute, including two reused IRQ bodies. The ISR uses a separately supplied context; delivery, lock completion and register values remain synthetic observations. |
+| Diagnostic records and fatal handling | Fifteen new complete bodies; 1,744 further comparisons | Record packing, metadata counters, byte locking and register exchange retain native aliases and event order. All 315 new and 332 loaded instruction addresses are reached, including observation of the fatal self-loop. The incoming storage call is authenticated separately; physical retention, reset and durability remain unproven. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -140,8 +141,9 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md),
 [effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md),
 [storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md),
-[effect setup](EFFECT_SETUP_RECONSTRUCTION.md) and
-[storage platform](STORAGE_PLATFORM_RECONSTRUCTION.md) for exact
+[effect setup](EFFECT_SETUP_RECONSTRUCTION.md),
+[storage platform](STORAGE_PLATFORM_RECONSTRUCTION.md) and
+[diagnostic records and fatal handling](STORAGE_FAULT_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -219,6 +221,9 @@ Storage read, program and control wrappers now execute their recovered device
 commands in the standalone comparison corpus. Clock, IRQ registration and
 critical-section bodies now have separate original-instruction comparisons.
 MMIO, cache/barrier events and physical scheduling remain explicit boundaries.
+Diagnostic records, metadata counters and the fatal register-control path now
+have complete standalone bodies. Their storage caller remains a separate join;
+reaching the original fatal self-loop does not establish physical reset.
 The runtime integration covers eighteen preparation/controller joins; further
 caller and platform integration remains open.
 Coordination now supplies the timing gates, notification ring, IRQ-nesting
@@ -244,8 +249,9 @@ original call sites, memory ownership and callback order:
    synchronous preparation handoff covers types 1, 13, 25, 36, 37 and 38; it does not
    establish scheduling, concurrent state changes or every effect algorithm.
 4. Join the recovered clocks, interrupt registration and critical sections to
-   their actual storage callers, and recover diagnostic/fatal and remaining
-   platform services. Preparation already executes the controller and
+   their actual storage callers, then trace remaining platform services and
+   integrate the diagnostic/fatal boundary where it is reached. Preparation
+   already executes the controller and
    coordination bodies at all eighteen original sites, with private leases
    restricted to actual internal payload accesses. Further joins must preserve
    CPU/MMIO ordering, raw counters and failure effects; synthetic observations
