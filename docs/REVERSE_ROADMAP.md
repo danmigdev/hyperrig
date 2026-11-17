@@ -65,6 +65,9 @@ original firmware C sources have not been recovered.
 | Parameter/resource integration | Existing bodies joined; 1,293 further comparisons | All nineteen direct resource call sites execute through the real parameter callers, including allocation recovery and history migration. Coverage is 1,334/1,573 joined instructions; no new original function. Indirect callback collisions and the allocation flag's borrowed lifetime are compared. |
 | All-pass, gate and state-variable filter | Three new function regions; 555 further comparisons | All 708 new instructions visited through direct kernels, dispatch, real resampling, stage and carried audio-task observations. Native raw-count behavior and exact budget-stop prefixes are preserved. Constructor-produced parameters are a separate integration boundary. |
 | Effect routing and ownership | Eight new function regions; 1,536 further comparisons | Route lookup/repair, group counting, buffer release and complete slot teardown. All 236 new and 264 loaded instructions visited; twenty fourth-read prefixes preserve prior writes and callbacks. Allocator/free effects and global refresh remain explicit. |
+| Resource/ownership integration | Existing bodies joined; 1,284 further comparisons | Actual slot removal through resource flush, retry and parameter/scene/stage callers. All nineteen direct resource sites and the flush-to-removal edge execute. Coverage is 1,476/1,732 joined instructions; 35 fourth-read prefixes preserve nested state, including the scene busy flag. |
+| Constructor-to-signal integration | Existing bodies joined; 681 further comparisons | Types 1, 13 and 38 carry actual constructor output into numerical kernels, stage and carried audio observations on 142 retained-allocation chains. Preparation is a separate synchronous invocation; no scheduler or new native call edge is claimed. |
+| IR effect lifecycle | Nine new function regions; 808 further comparisons | Source/mode selection, temporary buffers, assignment and rollback, ownership query, copy wrapper and relocation. All 422 new and 537 loaded instructions visited, including full signed metadata and overlapping copies. Real prepare/construct bodies remain a separate integration boundary. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -113,9 +116,12 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [parameter updates](EFFECT_PARAMETERS_RECONSTRUCTION.md) and
 [parameter resources](EFFECT_PARAMETER_RESOURCES_RECONSTRUCTION.md),
 [effect construction](EFFECT_CONSTRUCTION_RECONSTRUCTION.md),
-[parameter/resource integration](EFFECT_PARAMETER_LIFECYCLE_RECONSTRUCTION.md) and
-[signal kernels](EFFECT_SIGNAL_RECONSTRUCTION.md) and
-[effect ownership](EFFECT_OWNERSHIP_RECONSTRUCTION.md) for exact
+[parameter/resource integration](EFFECT_PARAMETER_LIFECYCLE_RECONSTRUCTION.md),
+[signal kernels](EFFECT_SIGNAL_RECONSTRUCTION.md),
+[effect ownership](EFFECT_OWNERSHIP_RECONSTRUCTION.md),
+[resource/ownership integration](EFFECT_RESOURCE_OWNERSHIP_RECONSTRUCTION.md),
+[constructor-to-signal integration](EFFECT_CONFIGURED_SIGNAL_RECONSTRUCTION.md) and
+[IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -172,29 +178,33 @@ numerical engines and effect cleanup. The table above and linked module reports
 record their exact comparison domains. Earlier notes that listed these bodies as tracing-only work
 are superseded by that evidence.
 
-The immediate work is to connect the recovered pieces while preserving the
+The resource/ownership join and constructor-to-signal handoff are now verified
+within their documented domains. These integrations preserve the borrowed
+allocation flag, callback order and actual coefficient/history state. The
+ownership guard also propagates through the scene before its cached busy-byte
+write. Broader fault prefixes inside inherited transition helpers remain open.
+
+The immediate work is to connect more recovered pieces while preserving the
 original call sites, memory ownership and callback order:
 
-1. Join the recovered slot removal at `0x0202eb4c` to resource flush and
-   allocation recovery, then carry that actual ownership behavior through the
-   parameter/scene/stage callers. Preserve direct-call identity, route/queue
-   compaction, cached releases, borrowed allocation flags and retained failure
-   prefixes. The separate eight-body ownership reconstruction is now complete
-   within its documented offline domain.
-2. Carry actual constructor-produced parameters into the all-pass, gate and
-   state-variable filter, including the stage and audio-task paths. The current
-   signal corpus uses explicitly synthetic parameter words. Synchronous
-   constructor/process comparisons must preserve public state without inventing
-   task scheduling or a new original call edge.
-3. Join the constructor at the parameter caller's two actual direct sites,
+1. Join the constructor at the parameter caller's two actual direct sites,
    `0x0202f37c` and `0x0202f970`. A platform callback can have the same numeric
    token and argument count, so the public join must distinguish those sites.
    The completed resource integration supplies the corresponding pattern for
    allocation, migration, fingerprints and mode changes.
-4. Recover the remaining type-specific builders at `0x0202b838`, `0x0202b87e`,
+2. Recover the remaining type-specific builders at `0x0202b838`, `0x0202b87e`,
    `0x0202ba90`, `0x0202a872`, `0x0202cd32` and `0x0202cf5a`, including their
    mathematical, state and numerical dependencies. Keep the remaining effect
    algorithms visible in the [dependency inventory](REVERSE_INVENTORY.md).
+3. Carry more constructor branches through their actual numerical consumers,
+   then join those paths to parameter/resource ownership. The completed
+   synchronous preparation handoff covers types 1, 13 and 38; it does not
+   establish scheduling, concurrent state changes or every effect algorithm.
+4. Join the IR lifecycle's preparation and copy-construction calls to the
+   recovered convolution constructor. Preserve actual temporary-state and
+   callback behavior, native aliases and count arithmetic across the join.
+   The nine lifecycle bodies are verified, but their preparation/constructor
+   services are still explicit in that corpus.
 
 The full reverse-engineering objective also requires these broader areas:
 
@@ -204,9 +214,10 @@ The full reverse-engineering objective also requires these broader areas:
   `0x02002ef2` and `0x02002b80` remain explicit, together with polling/priority
   helpers and power-loss behavior.
 - Complete IR, capture and preset application through their actual ownership
-  and scheduling callers. IR mode selection `0x02029728`, copying wrapper
-  `0x02031bf8`, relocation `0x02031c16`, temporary-state paths and effect refresh
-  remain open. Recovered runtime convolution already executes through the effect
+  and scheduling callers. IR mode selection, copy wrapper, relocation,
+  temporary-state paths and effect refresh now have complete reconstructed
+  bodies. Their actual numerical preparation and caller integration remain
+  open. Recovered runtime convolution already executes through the effect
   dispatcher; accelerator MMIO and transform behavior are still simulated.
 - Recover remaining input/output, USB, scheduler, clock and control services.
   Trace state word 4092, calibration word 44, and their writers before assigning

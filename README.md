@@ -183,8 +183,18 @@ the all-pass, gate and state-variable filter. The
 executes actual recovery and migration through the parameter callers.
 [Effect ownership](docs/EFFECT_OWNERSHIP_RECONSTRUCTION.md) adds eight functions
 for route/queue cleanup and resource release, preserving callback order.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 331 reconstructed
-function regions across fifty reports, with 111 unreconstructed direct dependency
+[Resource/ownership integration](docs/EFFECT_RESOURCE_OWNERSHIP_RECONSTRUCTION.md)
+executes that teardown through allocation recovery and parameter/scene callers,
+including the retained failure prefix.
+[Constructor-to-signal integration](docs/EFFECT_CONFIGURED_SIGNAL_RECONSTRUCTION.md)
+carries actual generated parameters into three numerical engines, stage
+processing and audio-task observations. Together these integrations add 1,965
+original-instruction comparisons without adding function entries.
+[IR effect lifecycle](docs/IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md) adds nine
+functions and 808 comparisons for source selection, temporary installation,
+rollback, ownership and relocation, visiting all 422 new instructions.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 340 reconstructed
+function regions across 53 reports, with 108 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
