@@ -74,6 +74,7 @@ original firmware C sources have not been recovered.
 | Parameter-constructor integration | Existing bodies joined; 625 further comparisons | Three direct sites execute the recovered constructor/model closure through parameter, resource, ownership and scene/stage callers. Temporary copies retain live object aliases. Coverage is 5,741/6,507 joined and 7,469/20,072 loaded instructions; all gaps remain explicit. No new function or data exclusion. |
 | Storage control | 45 new function regions; 626 further comparisons | Actual read/program/control wrappers and command, status and cache bodies retain raw counts and native error ordering. Coverage is 1,164/1,165 instructions; the fatal loop is observed before execution, and full polling timeout outcomes remain unexecuted. MMIO and platform services use synthetic observations. |
 | Storage coordination | Nine new function regions; 442 further comparisons | Timing gates, notification records, IRQ nesting and lock loops preserve raw counter/core arithmetic and callback-visible state. All 178 new and 184 combined instructions are visited. CPU events and clock/wait/poll services remain explicit observations; no hardware atomicity or IRQ-delivery claim. |
+| Effect sample processing | Seven new function regions; 768 further comparisons | Ten dispatcher sites execute the actual cascade, mixer, width, ring/correlation and transition bodies. Types 25, 36 and 37 carry real constructor state through 432 retained allocation chains. Coverage is 1,304/1,324 new and 4,469/22,919 loaded instructions; twenty full-entry invariant gaps remain explicit. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -133,7 +134,8 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md),
 [parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md),
 [storage control](STORAGE_CONTROL_RECONSTRUCTION.md) and
-[storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md) for exact
+[storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md) and
+[effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -224,12 +226,13 @@ original call sites, memory ownership and callback order:
    and parameter calls. Trace the coherent helper closure and callback ABIs
    before joining these paths to preset application.
 2. Recover the remaining effect sample-processing algorithms and their
-   numerical dependencies. Their parameter builders are now available for
-   comparisons with actual generated coefficients and state. Keep those
-   remaining algorithms visible in the [dependency inventory](REVERSE_INVENTORY.md).
+   numerical dependencies, including the complete type-29 engine and public
+   chunk wrapper. The seven recovered type-25/36/37 numerical bodies now join
+   ten actual dispatcher sites. Keep remaining algorithms visible in the
+   [dependency inventory](REVERSE_INVENTORY.md).
 3. Carry more constructor branches through their actual numerical consumers,
    then join those paths to parameter/resource ownership. The completed
-   synchronous preparation handoff covers types 1, 13 and 38; it does not
+   synchronous preparation handoff covers types 1, 13, 25, 36, 37 and 38; it does not
    establish scheduling, concurrent state changes or every effect algorithm.
 4. Join preparation/writer calls to the recovered controller and coordination
    bodies at all eighteen original call sites. Internal private command

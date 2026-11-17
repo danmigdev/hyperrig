@@ -215,8 +215,13 @@ unexecuted full polling timeouts remain explicit.
 functions and 442 comparisons for timing gates, interrupt-mask state, locking
 and notification records. All 178 new instructions are exercised with explicit
 CPU/platform observations; physical interrupt and scheduling behavior remain open.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 454 reconstructed
-function regions across 59 reports, with 96 unreconstructed direct dependency
+[Effect sample processing](docs/EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md)
+adds seven functions and 768 comparisons for cascades, mixing, width, ring
+correlation and transition updates. Ten dispatcher sites now execute the real
+numerical bodies, including retained constructor state for types 25, 36 and 37.
+Twenty invariant-excluded instructions remain separate from executed coverage.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 461 reconstructed
+function regions across 60 reports, with 90 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
