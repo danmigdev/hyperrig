@@ -44,7 +44,12 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [scene application](SCENE_APPLICATION_RECONSTRUCTION.md) and
 [transition notification](DSP_TRANSITION_NOTIFICATION_RECONSTRUCTION.md) and
 [asynchronous capture](CAPTURE_ASYNC_RECONSTRUCTION.md) and
-[DSP stage/routing](DSP_STAGE_RECONSTRUCTION.md). The
+[DSP stage/routing](DSP_STAGE_RECONSTRUCTION.md),
+[effect resampling](EFFECT_RESAMPLING_RECONSTRUCTION.md),
+[effect enable and fades](EFFECT_ENABLE_RECONSTRUCTION.md),
+[parameter support](EFFECT_PARAMETER_SUPPORT_RECONSTRUCTION.md),
+[effect processing callers](EFFECT_PROCESSING_RECONSTRUCTION.md) and
+[parameter updates](EFFECT_PARAMETERS_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.

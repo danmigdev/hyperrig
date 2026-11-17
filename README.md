@@ -156,9 +156,24 @@ Scheduling and accelerator completion remain controlled offline fixtures.
 The [DSP stage and routing](docs/DSP_STAGE_RECONSTRUCTION.md) add sixteen
 regions and 806 comparisons through automation, branch alignment, Q28 filters,
 mixing and the audio task. Seven unreachable empty-group instructions remain
-explicitly classified; individual/grouped effect bodies remain services.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 226 reconstructed
-function regions across forty reports, with 94 unreconstructed direct dependency
+explicitly classified; individual/grouped effect bodies remain services in that
+stage-only corpus.
+The [effect resampling](docs/EFFECT_RESAMPLING_RECONSTRUCTION.md) recovers six
+functions with 1,563 comparisons and carried history. The
+[enable/fade handlers](docs/EFFECT_ENABLE_RECONSTRUCTION.md) add thirteen
+functions and 2,941 comparisons, including the actual installed clear callback.
+[Parameter support](docs/EFFECT_PARAMETER_SUPPORT_RECONSTRUCTION.md) adds nineteen
+functions and 4,250 comparisons for packing, tempo, memory moves and division.
+The [effect processing callers](docs/EFFECT_PROCESSING_RECONSTRUCTION.md) add
+sixteen functions and 4,664 comparisons, joining the dispatcher, individual/group
+processing, actual resampling and IR execution to the stage and audio task.
+Five invariant instruction gaps and explicit effect-specific numerical services
+remain documented. [Parameter updates](docs/EFFECT_PARAMETERS_RECONSTRUCTION.md)
+add seven functions and 5,679 comparisons for immediate changes, automation
+production, classification and resource probing, with actual scene callers and
+DSP automation consumption.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 287 reconstructed
+function regions across forty-five reports, with 121 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

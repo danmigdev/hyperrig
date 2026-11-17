@@ -55,6 +55,11 @@ original firmware C sources have not been recovered.
 | Complete scene application | Three new function regions; 561 further comparisons | Direct/pending selection through both application passes, retries, failure accounting, actual transitions and report packing. All 370 new and 517 declared instructions visited; effect services remain explicit. |
 | Asynchronous capture and worker | Four new function regions; 137 further comparisons | Shared-state wrapper/worker and numerical processing through the audio task, exact timeout/fallback replay and accelerator descriptors. All 550 new instructions visited; scheduling and accelerator completion remain controlled fixtures. |
 | DSP stage and routing | Sixteen new function regions; 806 further comparisons | Automation, route masks, branch alignment/filtering, stereo mixing and real audio-task entries. Coverage is 1,996/2,003 new instructions; seven empty-group gaps are classified by entry invariants. Effect wrappers remain external. |
+| Effect resampling | Six new function regions; 1,563 further comparisons | Actual up/down wrappers and four kernels, clipping, retained history and selector-dependent tap counts. All 612 instructions visited. |
+| Effect enable and fades | Thirteen new function regions; 2,941 further comparisons | Immediate enable, fade state, installed clear callback, memory fill and IR reset. Coverage is 364/365 new instructions; one redundant instruction remains excluded by its entry invariant. |
+| Parameter support | Nineteen new function regions; 4,250 further comparisons | Packing with aliases, selectors, tempo, size, overlapping memory moves and signed/unsigned division. All 449 new instructions visited. |
+| Effect processing callers | Sixteen new function regions; 4,664 further comparisons | Dispatcher, individual/group processing, timing and numerical helpers through actual resampling, IR, stage and audio-task bodies. Coverage is 4,218/4,223 new instructions; five invariant gaps remain explicit. Effect-specific numerical leaves remain services. |
+| Parameter changes and automation | Seven new function regions; 5,679 further comparisons | Immediate update, record producer, classifiers, wrapper and resource probe through actual scene/stage bodies. Coverage is 993/994 new instructions; one redundant type test remains unexecuted. Construction and allocation remain explicit mutable services. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -94,8 +99,13 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [the complete audio task](AUDIO_TASK_RECONSTRUCTION.md),
 [installed transition notification](DSP_TRANSITION_NOTIFICATION_RECONSTRUCTION.md),
 [scene application](SCENE_APPLICATION_RECONSTRUCTION.md),
-[asynchronous capture](CAPTURE_ASYNC_RECONSTRUCTION.md) and
-[DSP stage/routing](DSP_STAGE_RECONSTRUCTION.md) for exact
+[asynchronous capture](CAPTURE_ASYNC_RECONSTRUCTION.md),
+[DSP stage/routing](DSP_STAGE_RECONSTRUCTION.md),
+[effect resampling](EFFECT_RESAMPLING_RECONSTRUCTION.md),
+[effect enable/fades](EFFECT_ENABLE_RECONSTRUCTION.md),
+[parameter support](EFFECT_PARAMETER_SUPPORT_RECONSTRUCTION.md),
+[effect processing callers](EFFECT_PROCESSING_RECONSTRUCTION.md) and
+[parameter updates](EFFECT_PARAMETERS_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
