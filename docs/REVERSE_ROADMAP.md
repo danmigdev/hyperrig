@@ -72,6 +72,7 @@ original firmware C sources have not been recovered.
 | Preset storage preparation | Eleven new function regions; 217 further comparisons | Discovery, pair replacement, record writes and header edits preserve original ordering and callback aliases. Coverage is 675/677 new and 938/940 loaded instructions, with two static gaps. Preparation changes block/pair metadata without directly writing availability masks; physical storage remains external. |
 | IR numerical integration | Existing bodies joined; 128 further comparisons | Actual preparation and copy-construction sites execute recovered numerical code with native aliases, count arithmetic and retained allocation chains. Coverage is 1,418/1,453 loaded instructions; 35 inherited gaps remain explicit. No new function or data exclusion. |
 | Parameter-constructor integration | Existing bodies joined; 625 further comparisons | Three direct sites execute the recovered constructor/model closure through parameter, resource, ownership and scene/stage callers. Temporary copies retain live object aliases. Coverage is 5,741/6,507 joined and 7,469/20,072 loaded instructions; all gaps remain explicit. No new function or data exclusion. |
+| Storage control | 45 new function regions; 626 further comparisons | Actual read/program/control wrappers and command, status and cache bodies retain raw counts and native error ordering. Coverage is 1,164/1,165 instructions; the fatal loop is observed before execution, and full polling timeout outcomes remain unexecuted. MMIO and platform services use synthetic observations. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -128,8 +129,9 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md),
 [effect model construction](EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md),
 [preset storage preparation](PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md),
-[IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md) and
-[parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md) for exact
+[IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md),
+[parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md) and
+[storage control](STORAGE_CONTROL_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -203,6 +205,10 @@ object-builder calls. The corpus carries constructor output through resource
 ownership and scene/stage callers, including live pointed-object aliases and
 the established ownership failure prefix. Arbitrary constructor guard prefixes
 and the remaining effect sample algorithms still require separate evidence.
+Storage read, program and control wrappers now execute their recovered device
+commands in the standalone comparison corpus. MMIO, cache/barrier events, IRQ
+registration, scheduling and cross-core services remain explicit boundaries.
+The actual caller joins from preparation and journal operations remain open.
 
 The immediate work is to connect more recovered pieces while preserving the
 original call sites, memory ownership and callback order:
@@ -219,10 +225,11 @@ original call sites, memory ownership and callback order:
    then join those paths to parameter/resource ownership. The completed
    synchronous preparation handoff covers types 1, 13 and 38; it does not
    establish scheduling, concurrent state changes or every effect algorithm.
-4. Recover the storage controller behind the now-reconstructed preparation and
-   writer paths. Preserve original MMIO ordering, polling counts, status words
-   and error handling; synthetic bus observations must remain distinct from
-   durable physical flash behavior.
+4. Recover storage coordination and join preparation/writer calls to the
+   recovered controller at their actual call sites. Internal private command
+   buffers require scoped access without exposing private frames to callbacks.
+   Preserve MMIO ordering, polling counts, status words and error handling;
+   synthetic bus observations do not establish durable physical flash behavior.
 
 The full reverse-engineering objective also requires these broader areas:
 
@@ -231,9 +238,9 @@ The full reverse-engineering objective also requires these broader areas:
   they update flags 712/716 and block/pair metadata, with no direct store to
   availability masks 708/732. The recovered invalidator clears mask 708;
   validation updates both masks. Trace the remaining command writer/invalidation
-  sequences. Physical read/write/erase services at `0x02002810`, `0x02002ef2`
-  and `0x02002b80` remain explicit, together with polling/priority helpers and
-  power-loss behavior.
+  sequences. Read/write/erase bodies at `0x02002810`, `0x02002ef2` and
+  `0x02002b80` now have standalone comparison evidence. Their caller integration,
+  remaining platform/coordination helpers and power-loss behavior remain open.
 - Complete IR, capture and preset application through their actual ownership
   and scheduling callers. IR mode selection, copy wrapper, relocation,
   temporary-state paths and effect refresh now have complete reconstructed

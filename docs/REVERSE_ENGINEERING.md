@@ -60,8 +60,9 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [IR effect lifecycle](IR_EFFECT_LIFECYCLE_RECONSTRUCTION.md),
 [effect model construction](EFFECT_MODEL_CONSTRUCTION_RECONSTRUCTION.md),
 [preset storage preparation](PRESET_STORAGE_PREPARATION_RECONSTRUCTION.md),
-[IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md) and
-[parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md). The
+[IR numerical integration](IR_EFFECT_NUMERICAL_RECONSTRUCTION.md),
+[parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md) and
+[storage control](STORAGE_CONTROL_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.

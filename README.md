@@ -207,8 +207,12 @@ code, with 128 comparisons and no additional function entries.
 connects three actual parameter call sites to the recovered numerical builders,
 including temporary-record aliases, ownership recovery and scene/stage callers.
 All 625 comparisons and sanitizer replays pass within the documented domain.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 400 reconstructed
-function regions across 57 reports, with 101 unreconstructed direct dependency
+[Storage control](docs/STORAGE_CONTROL_RECONSTRUCTION.md) adds 45 functions and
+626 comparisons for reads, programming, erase dispatch and device commands.
+Register and platform observations are simulated; the fatal-loop observation and
+unexecuted full polling timeouts remain explicit.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 445 reconstructed
+function regions across 58 reports, with 102 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
