@@ -153,7 +153,23 @@ native RAM, plus recording FIR and queue/statistics handling. Its resumable API
 observes the nonreturning task at original waits, queue boundaries and fatal
 spins. Asynchronous capture, remaining sample services and platform callbacks
 are explicit boundaries.
-Physical storage I/O and DSP application remain explicit boundaries.
+Scene application adds three function regions and 561 comparisons, connecting
+direct/pending selection, retry/failure handling, actual transitions and report
+packing. The installed transition notification adds one region and 918
+comparisons through the existing clamp and gain mixer. Other effect and
+platform services remain explicit boundaries.
+Asynchronous capture adds four regions and 137 comparisons through its actual
+wrapper, worker, descriptor submission and numerical processing. The unchanged
+audio task now reaches those bodies; exact busy-poll timeout and synchronous
+fallback execute in the original instruction model. Scheduling and accelerator
+completion are controlled fixtures, with physical behavior still unverified.
+The DSP stage adds sixteen regions and 806 comparisons through automation,
+route masks, branch filters/alignment and stereo mixing, including real entries
+from the audio task. It visits 1,996/2,003 new instructions; seven empty-group
+fallbacks are excluded by valid entry invariants. Complete effect wrappers and
+their numerical dispatcher remain open.
+Physical storage drivers, remaining effect/application dependencies and
+hardware execution still need separate reconstruction or validation.
 These milestones do not modify the installed/released firmware or enable
 unqualified editor controls; see [CONTROL_RECONSTRUCTION.md](CONTROL_RECONSTRUCTION.md),
 [CONTROL_ACTIONS.md](CONTROL_ACTIONS.md),

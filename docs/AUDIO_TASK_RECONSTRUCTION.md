@@ -12,6 +12,17 @@ capture warm-up/reset/layer kernels in the task's original shared RAM layout.
 It does not recover every external service or establish physical audio quality,
 sample rates, latency, interrupt behavior, or hardware timing.
 
+The later [asynchronous capture component](CAPTURE_ASYNC_RECONSTRUCTION.md)
+replaces the capture-wrapper and accelerator-wait boundaries in a separate
+joined corpus. Its actual worker and recovered numerical functions share the
+task's mapped state. Platform scheduling and accelerator completion remain
+controlled fixtures; this original report is preserved unchanged.
+The separate [DSP-stage corpus](DSP_STAGE_RECONSTRUCTION.md) joins the original
+stage body and routing/mixing helpers to the unchanged task. Its 24 observation
+segments enter the stage eight times. Individual/grouped effect bodies and
+platform services remain external; these separate joins do not establish one
+complete firmware execution.
+
 Required Notice: Copyright (c) 2026 Manuel Aguirre.
 The original evidence and this reconstruction retain the
 [PolyForm Noncommercial 1.0.0 license](../third_party/ultrarig/LICENSE.md).

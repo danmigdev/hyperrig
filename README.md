@@ -143,9 +143,24 @@ and 317 comparisons, joining the recovered filters, dynamics and capture warm-up
 on shared native state. Its recording FIR, queue handling and bounded task
 continuations are verified; unrecovered sample and platform services remain
 explicit dependencies.
-The [audited inventory](docs/REVERSE_INVENTORY.md) separates recovered functions,
-partial regions and candidate entries; a firmware-wide completion percentage
-is not yet established.
+The [scene application](docs/SCENE_APPLICATION_RECONSTRUCTION.md) adds three
+regions and 561 comparisons, joining direct/pending selection to actual scene
+application, parameter transitions and reporting. Effect services remain
+explicit boundaries. The [transition notification](docs/DSP_TRANSITION_NOTIFICATION_RECONSTRUCTION.md)
+adds one region and 918 comparisons through the installed callback and gain
+mixer, including shared-state callback mutations.
+The [asynchronous capture path](docs/CAPTURE_ASYNC_RECONSTRUCTION.md) adds four
+regions and 137 comparisons through the real wrapper, worker and numerical
+processing, including audio-task integration and exact timeout/fallback replay.
+Scheduling and accelerator completion remain controlled offline fixtures.
+The [DSP stage and routing](docs/DSP_STAGE_RECONSTRUCTION.md) add sixteen
+regions and 806 comparisons through automation, branch alignment, Q28 filters,
+mixing and the audio task. Seven unreachable empty-group instructions remain
+explicitly classified; individual/grouped effect bodies remain services.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 226 reconstructed
+function regions across forty reports, with 94 unreconstructed direct dependency
+targets. Candidate entries are separate evidence; a firmware-wide completion
+percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
 These are development components; the installed firmware and qualification of
 physical controls are unchanged.

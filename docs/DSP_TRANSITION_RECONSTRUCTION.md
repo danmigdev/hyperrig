@@ -11,6 +11,11 @@ value and before/after state are compared explicitly. This milestone does not
 execute that callback's body, the surrounding audio task or hardware. Earlier
 sources, models, images and completed reports remain unchanged.
 
+The later [notification reconstruction](DSP_TRANSITION_NOTIFICATION_RECONSTRUCTION.md)
+executes the installed callback, its signed division/clamp and the existing gain
+mixer on borrowed native state. It adds separate comparisons and preserves the
+external-callback boundary in this earlier report.
+
 Required Notice: Copyright (c) 2026 Manuel Aguirre
 
 The reconstruction retains the original project's

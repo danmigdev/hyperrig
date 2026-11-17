@@ -40,7 +40,11 @@ documented in [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [IR runtime convolution](IR_PROCESSING_RECONSTRUCTION.md),
 [complete preset application](PRESET_APPLICATION_RECONSTRUCTION.md) and
 [dynamics sample processing](DSP_DYNAMICS_PROCESSING_RECONSTRUCTION.md) and
-[the complete audio task](AUDIO_TASK_RECONSTRUCTION.md). The
+[the complete audio task](AUDIO_TASK_RECONSTRUCTION.md),
+[scene application](SCENE_APPLICATION_RECONSTRUCTION.md) and
+[transition notification](DSP_TRANSITION_NOTIFICATION_RECONSTRUCTION.md) and
+[asynchronous capture](CAPTURE_ASYNC_RECONSTRUCTION.md) and
+[DSP stage/routing](DSP_STAGE_RECONSTRUCTION.md). The
 [audited inventory](REVERSE_INVENTORY.md) distinguishes reconstructed regions
 from unverified function candidates; the investigation
 notes below retain the context of the original analysis.

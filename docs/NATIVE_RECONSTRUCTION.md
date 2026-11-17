@@ -36,7 +36,10 @@ processing and gain ramps. Physical units remain open; the later audio-task
 milestone below joins those processors to their enclosing caller.
 [Parameter transitions](DSP_TRANSITION_RECONSTRUCTION.md) add 1,812 comparisons
 through the actual request producer, generated staged records and that sample
-path. The optional sixth-parameter callback body remains external.
+path. The later [notification reconstruction](DSP_TRANSITION_NOTIFICATION_RECONSTRUCTION.md)
+executes the installed sixth-parameter callback through its actual clamp and gain
+mixer, adding 918 comparisons on shared state. Other callback tokens remain
+explicit services.
 [Dynamics sample processing](DSP_DYNAMICS_PROCESSING_RECONSTRUCTION.md) adds
 756 comparisons through the full 128-sample kernel, reset, state cloning and
 both callers, with actual configuration/startup and meter updates.
@@ -59,9 +62,19 @@ new adapter for the parser's small head rings. Surrounding audio scheduling rema
 The [complete audio task](AUDIO_TASK_RECONSTRUCTION.md) adds 317 comparisons
 through the recovered filter chains, dynamics and capture warm-up on shared RAM,
 alongside queue handling, recording FIR and statistics. Its new runner exposes
-bounded observations of the nonreturning original task. Asynchronous capture,
-other unrecovered sample services and platform scheduling remain explicit
+bounded observations of the nonreturning original task. The later
+[asynchronous capture reconstruction](CAPTURE_ASYNC_RECONSTRUCTION.md) adds 137
+comparisons through the actual wrapper, worker, descriptor submission and
+recovered numerical kernels, joined to the unchanged task. All 550 new
+instructions are visited, including exact timeout/fallback replay. Accelerator
+completion and worker interleaving remain controlled fixtures. Other
+unrecovered sample services and platform scheduling remain explicit
 boundaries; it does not join the complete native-loading chain into the task.
+The later [DSP stage reconstruction](DSP_STAGE_RECONSTRUCTION.md) adds 806
+comparisons through automation, routing masks, branch alignment/filtering and
+stereo mixing, with eight actual entries from the unchanged audio task. Its
+individual/grouped effect wrappers remain explicit services. This does not yet
+join the reconstructed IR runtime through its owning effect dispatcher.
 [IR installation](IR_INSTALLATION_RECONSTRUCTION.md) adds 1,143 comparisons for
 gain/trimming, stored reads and ownership.
 [IR convolution construction](IR_CONVOLUTION_RECONSTRUCTION.md) adds 479

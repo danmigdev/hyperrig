@@ -18,6 +18,12 @@ the availability boundary with address/header/CRC/cache logic and integrates it
 with this unchanged model. The results below remain the original selection-only
 baseline, with scripted availability and load outcomes.
 
+The later [scene application component](SCENE_APPLICATION_RECONSTRUCTION.md)
+executes direct and pending scene selection through the real inner application,
+retry wrapper, parameter transition and report formatter on shared native RAM.
+Its separate evidence preserves this earlier selection report and leaves
+unreconstructed effect services explicit.
+
 ## Original functions and MINI binding
 
 The reference G v2 M5.71 application has SHA256

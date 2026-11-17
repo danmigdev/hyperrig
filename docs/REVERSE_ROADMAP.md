@@ -51,6 +51,10 @@ original firmware C sources have not been recovered.
 | Dynamics sample processing | Five new function regions; 756 further comparisons | Configuration/startup through actual 128-sample numerical processing, reset, cloning and both meter-updating callers. All 515 new instructions visited, including raw integer extremes and carried histories. |
 | Complete audio task and helpers | Six new function regions; 317 further comparisons | All 1,399 new instructions visited through queue/wait/fatal boundaries, recording FIR, real filters, dynamics and capture warm-up on shared RAM. The original task never returns; asynchronous capture, other sample services and platform callbacks remain explicit dependencies. |
 | IR runtime convolution | Sixteen new function regions; 399 further comparisons | Real constructor objects through software integer FFT, cyclic partition MAC, inverse/output stages and gains. All 2,266 new instructions visited; accelerator control uses explicitly simulated registers and transform output. |
+| Installed transition notification | One new function region; 918 further comparisons | Original signed division/clamp and gain mixing through borrowed-state requests; all nine new instructions visited, with 302 installed callbacks and explicit alternate callback services. |
+| Complete scene application | Three new function regions; 561 further comparisons | Direct/pending selection through both application passes, retries, failure accounting, actual transitions and report packing. All 370 new and 517 declared instructions visited; effect services remain explicit. |
+| Asynchronous capture and worker | Four new function regions; 137 further comparisons | Shared-state wrapper/worker and numerical processing through the audio task, exact timeout/fallback replay and accelerator descriptors. All 550 new instructions visited; scheduling and accelerator completion remain controlled fixtures. |
+| DSP stage and routing | Sixteen new function regions; 806 further comparisons | Automation, route masks, branch alignment/filtering, stereo mixing and real audio-task entries. Coverage is 1,996/2,003 new instructions; seven empty-group gaps are classified by entry invariants. Effect wrappers remain external. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -87,7 +91,11 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [IR runtime convolution](IR_PROCESSING_RECONSTRUCTION.md),
 [preset application](PRESET_APPLICATION_RECONSTRUCTION.md),
 [dynamics sample processing](DSP_DYNAMICS_PROCESSING_RECONSTRUCTION.md) and
-[the complete audio task](AUDIO_TASK_RECONSTRUCTION.md) for exact
+[the complete audio task](AUDIO_TASK_RECONSTRUCTION.md),
+[installed transition notification](DSP_TRANSITION_NOTIFICATION_RECONSTRUCTION.md),
+[scene application](SCENE_APPLICATION_RECONSTRUCTION.md),
+[asynchronous capture](CAPTURE_ASYNC_RECONSTRUCTION.md) and
+[DSP stage/routing](DSP_STAGE_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -205,34 +213,68 @@ Continue into preset storage and application contracts:
   and effect refresh remain open.
 - `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
   writers of state words 708/732 and the pair mapping at offset 3476.
-- `0x0200a1d6..0x0200a228`: bridge selected scenes into their DSP application
-  dependencies. Static tracing identifies the complete inner application at
-  `0x02009e14..0x0200a1d6` (329 decoded instructions). The wrapper can invoke it
-  again after selector-one notification and compare the two results. Its selector
-  query receives the first failure count, and selector one returns the second
-  result. The inner body applies two parameter/enable passes to sixteen effect
-  slots from a 260-byte scene record, with explicit fallback and partial writes.
-  Its record lies beyond the earlier application's 4,100-byte state view, so a
-  new borrowed view must cover the full scene storage. The reporting wrapper at
-  `0x0200a228..0x0200a256` packs the low result byte with bounded elapsed-counter
-  arithmetic. These bodies are statically traced only; none adds verified
-  execution or a function to the current reconstruction inventory.
+- Scene application at `0x02009e14..0x0200a256` now executes through direct and
+  pending selection, the real transition producer and its installed gain
+  notification. Its borrowed state includes all four 260-byte scene records.
+  Continue into its parameter probe `0x0202fd18..0x0202fe58`, fast-update wrapper
+  `0x0202fba6..0x0202fbd6` and commit `0x0202f07e..0x0202f46c`. Their signatures
+  are audited; their bodies remain unreconstructed. Probe, fast update and
+  commit take the desired parameter value, and enable services take the desired
+  raw byte. Shared boundary tables alone are insufficient ABI evidence.
+- The statically traced fast-update core `0x0202f6d4..0x0202fba6` compares old/new
+  effect objects and produces up to forty changed-word entries in each 448-byte
+  automation record at `0x01c2e5a0`. Recover it with its classification helpers
+  `0x0202f4e8..0x0202f6d4` to connect actual parameter production to the stage
+  consumer. Preserve the 39-entry halfword jump table as data. Effect-state
+  derivation at `0x0202cf62`, allocation and type-specific rebuilds remain open.
+- The enable cores/wrappers at `0x02030466..0x02030614` lead to fade/tail state
+  at `0x01c069e4..0x01c06b2c` and duration calculation at
+  `0x020303f4..0x02030466`. These are traced next scopes, not reconstructed
+  functions or executed comparisons.
 - State word 4092 and global calibration word 44: trace writers and clock
   configuration before assigning physical meanings to load-report arithmetic.
 
-Continue the application path by joining the recovered capture lifecycle through
-the asynchronous wrapper at `0x01c04cda`. The complete audio task now executes
+The asynchronous wrapper at `0x01c04cda` and its worker now execute on the native
+capture context and alternating banks, including real numerical layers/heads,
+descriptor submission and the exact timeout to synchronous fallback. A separate
+adapter joins these bodies to the unchanged audio task. Timer/MMIO responses,
+worker interleaving and accelerator completion remain controlled fixtures.
+Continue toward the whole loading/application path and real platform ownership.
+The complete audio task also executes
 the four-section and five-section calls at `0x01c02636` and `0x01c026de`, actual
-dynamics reset/clone/process callers, and capture warm-up. Its remaining stage
-dispatcher at `0x01c10e06`, effect processing, input/output services and platform
-callbacks need their own reconstructions. The capture wrapper is not equivalent
-to the already recovered numerical processor at `0x01c12d34`.
-On the DSP path, recover the optional parameter notification body at `0x0201a9ea`.
-The notification body statically divides its signed argument by five, calls the
-already recovered clamp at `0x02007ece`, writes state word 268 and calls the
-already recovered gain mixer at `0x02007ef2`. Joining these bodies will close the
-transition callback without inventing a new gain formula; it remains traced
-only at this stage.
+dynamics reset/clone/process callers, and capture warm-up. A separate corpus
+now joins its stage dispatcher at `0x01c10e06` through automation, route masks,
+branch alignment/filtering and stereo mixing. Complete effect wrappers at
+`0x01c0f678..0x01c10446` and `0x01c10446..0x01c10818`, their numerical dispatcher
+at `0x01c0deb6..0x01c0f678`, input/output services and platform callbacks remain
+open. The dispatcher's 39-entry halfword table at
+`0x01c0e0a8..0x01c0e0f6` is statically traced data outside this milestone's
+reconstructed ranges. Its type-seven branch at `0x01c0e31c` reaches the IR
+runtime at `0x01c12064` through call site `0x01c0e334`; that actual owning path
+still needs recovery and integration. The asynchronous wrapper preserves
+buffered ordering distinct from the synchronous processor at `0x01c12d34`.
+
+Read-only tracing of those three effect bodies identifies 3,456 instructions
+after excluding their 136 bytes of halfword tables. The second table is at
+`0x01c10204..0x01c1023e`. Their 42 distinct direct call targets comprise two
+within those bodies, seven already reconstructed and 33 still unreconstructed.
+Treat the complete dispatcher and both wrappers as the next orchestration unit,
+joining the existing IR/filter/gain/copy bodies while keeping other effect
+algorithms explicit. Include the guarded IR-history reset at
+`0x01c11f76..0x01c11faa`, called by the individual wrapper at `0x01c101a4`.
+Four six-byte state-copy layouts at `0x0203b7b0..0x0203b7c8` are additional
+static evidence; they are not yet an inventory exclusion. A parallel numerical
+scope is the up/downsampling wrappers at `0x01c07986..0x01c07a4c` and
+`0x01c08a76..0x01c08b34`, with kernels entered at `0x01c1ae86`, `0x01c1b056`,
+`0x01c1b23a` and `0x01c1b3d4`. These traces add no reconstructed function or
+executed comparison to the current inventory.
+
+On the DSP path, the installed parameter notification at `0x0201a9ea` now
+executes signed division by five, the existing clamp at `0x02007ece`, state-word
+268 publication and the original gain mixer at `0x02007ef2`. Borrowed requests
+and scene application use that actual callback; other indirect tokens remain
+explicit services. Its produced gain word still needs its actual sample
+consumer joined before claiming application through the whole audio path.
 The broader initializer, its reset helpers and guarded startup now execute in
 their comparison model. The normal modeled startup supplies 48077 after the
 reset-copy divisor 48000; an exhaustive writer map and physical units remain open.
@@ -251,7 +293,8 @@ Their required inputs are documented in those milestones. A complete clean-build
 workflow must remove that dependency or explicitly regenerate and verify every
 prerequisite; the current reports do not establish a fresh-checkout build by themselves.
 The new live-capture, startup-input/four-section, transition, IR-construction,
-preset-application, dynamics-processing, IR-runtime and audio-task builders obtain
+preset-application, dynamics-processing, IR-runtime, audio-task, scene,
+transition-notification, asynchronous-capture and DSP-stage builders obtain
 their source manifests without earlier build reports, while still requiring the
 original local images and toolchain. This closes those new builders' report
 dependency only.

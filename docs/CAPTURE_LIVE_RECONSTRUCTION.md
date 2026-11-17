@@ -15,8 +15,11 @@ images and completed reports remain unchanged.
 
 The later [audio-task reconstruction](AUDIO_TASK_RECONSTRUCTION.md) separately
 joins these warm-up/reset kernels to their original wrapper and task. It does
-not yet join this full loading/processing adapter: asynchronous capture at
-`0x01c04cda`, platform scheduling and sample services remain explicit boundaries.
+not join this full loading/processing adapter in its original report. The later
+[asynchronous capture component](CAPTURE_ASYNC_RECONSTRUCTION.md) reconstructs
+`0x01c04cda`, its actual worker and descriptor submission, joins the recovered
+numerical processing and separately reaches them from the audio task.
+Platform scheduling and other sample services remain explicit boundaries.
 
 Required Notice: Copyright (c) 2026 Manuel Aguirre. The reconstructed source
 retains the [UltraRig license](../third_party/ultrarig/LICENSE.md). These are
