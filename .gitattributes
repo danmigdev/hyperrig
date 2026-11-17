@@ -31,6 +31,7 @@ research/mini-cdc-reopen-packet-audit.json -text whitespace=blank-at-eol,blank-a
 tools/launch_mini_fx_editor.cmd -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tools/launch_hyperrig_editor.cmd -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Preserve frozen reconstruction source bytes identified by audited build reports.
+firmware/src/hyperrig_effect_setup.c -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 firmware/src/hyperrig_capture_processing.c -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 firmware/src/hyperrig_ir_installation.c -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tests/test_ir_installation_machine.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

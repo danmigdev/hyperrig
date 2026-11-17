@@ -224,8 +224,13 @@ Twenty invariant-excluded instructions remain separate from executed coverage.
 preparation, controller and coordination bodies at all eighteen original sites.
 Its 135 comparisons preserve private-buffer initialization, shared observation
 limits and first-fault ordering, with explicit simulated bus behavior.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 461 reconstructed
-function regions across 61 reports, with 90 unreconstructed direct dependency
+[Effect setup](docs/EFFECT_SETUP_RECONSTRUCTION.md) adds 45 complete bodies for
+creation, allocation, type-29/30 initialization, routing costs and tempo changes.
+Its 4,229 comparisons execute ten actual calls into recovered parameter,
+constructor and IR code. One fixed-input saturation instruction remains
+unexecuted and is documented separately.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 506 reconstructed
+function regions across 62 reports, with 82 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.

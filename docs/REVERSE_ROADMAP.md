@@ -76,6 +76,7 @@ original firmware C sources have not been recovered.
 | Storage coordination | Nine new function regions; 442 further comparisons | Timing gates, notification records, IRQ nesting and lock loops preserve raw counter/core arithmetic and callback-visible state. All 178 new and 184 combined instructions are visited. CPU events and clock/wait/poll services remain explicit observations; no hardware atomicity or IRQ-delivery claim. |
 | Effect sample processing | Seven new function regions; 768 further comparisons | Ten dispatcher sites execute the actual cascade, mixer, width, ring/correlation and transition bodies. Types 25, 36 and 37 carry real constructor state through 432 retained allocation chains. Coverage is 1,304/1,324 new and 4,469/22,919 loaded instructions; twenty full-entry invariant gaps remain explicit. |
 | Storage runtime integration | 75 existing bodies joined; 135 further comparisons | All eighteen original preparation-to-control/coordination sites execute on shared state. Private payload leases, actual-store initialization and first-fault ordering are preserved, including 66 matched failure prefixes. Coverage is 1,701/2,283 loaded instructions; no new function or data exclusion. Physical flash and scheduling remain external. |
+| Effect creation, allocation and tempo | 45 new complete bodies; 4,229 further comparisons | Ten original joins execute recovered parameter, constructor and IR callees on shared RAM. Allocation failures, callback changes, raw segment indices and cost arithmetic retain native ordering. Coverage is 1,758/1,759 new and 8,518/22,289 loaded instructions; one fixed-input saturation assignment remains unexecuted. Preset callers and hardware execution remain separate work. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -136,8 +137,9 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [parameter-constructor integration](EFFECT_PARAMETER_CONSTRUCTION_RECONSTRUCTION.md),
 [storage control](STORAGE_CONTROL_RECONSTRUCTION.md),
 [storage coordination](STORAGE_COORDINATION_RECONSTRUCTION.md),
-[effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md) and
-[storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md) for exact
+[effect sample processing](EFFECT_SAMPLE_PROCESSING_RECONSTRUCTION.md),
+[storage runtime integration](STORAGE_RUNTIME_RECONSTRUCTION.md) and
+[effect setup](EFFECT_SETUP_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -214,7 +216,8 @@ and the remaining effect sample algorithms still require separate evidence.
 Storage read, program and control wrappers now execute their recovered device
 commands in the standalone comparison corpus. MMIO, cache/barrier events, IRQ
 registration, scheduling and cross-core services remain explicit boundaries.
-The actual caller joins from preparation and journal operations remain open.
+The runtime integration covers eighteen preparation/controller joins; further
+caller and platform integration remains open.
 Coordination now supplies the timing gates, notification ring, IRQ-nesting
 counters and lock loops. The three rate-helper calls execute the existing body.
 Initial IRQ words remain mutable runtime state, and synthetic CLI/STI/TESTSET
@@ -223,10 +226,11 @@ observations do not establish physical interrupt delivery or atomicity.
 The immediate work is to connect more recovered pieces while preserving the
 original call sites, memory ownership and callback order:
 
-1. Recover remaining effect creation/setup at `0x0202e710` and global tempo
-   propagation at `0x0202f46c`, preserving their actual allocation, resource
-   and parameter calls. Trace the coherent helper closure and callback ABIs
-   before joining these paths to preset application.
+1. Join the recovered effect creation/setup at `0x0202e710` and global tempo
+   propagation at `0x0202f46c` to their actual preset-application callers.
+   The setup module now executes allocation, resource, parameter, constructor
+   and IR paths. Preserve shared byte storage, callback changes, failure
+   effects and every original caller site when connecting the parent.
 2. Recover the remaining effect sample-processing algorithms and their
    numerical dependencies, including the complete type-29 engine and public
    chunk wrapper. The seven recovered type-25/36/37 numerical bodies now join
