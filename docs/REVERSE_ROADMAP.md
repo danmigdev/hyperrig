@@ -61,6 +61,10 @@ original firmware C sources have not been recovered.
 | Effect processing callers | Sixteen new function regions; 4,664 further comparisons | Dispatcher, individual/group processing, timing and numerical helpers through actual resampling, IR, stage and audio-task bodies. Coverage is 4,218/4,223 new instructions; five invariant gaps remain explicit. Effect-specific numerical leaves remain services. |
 | Parameter changes and automation | Seven new function regions; 5,679 further comparisons | Immediate update, record producer, classifiers, wrapper and resource probe through actual scene/stage bodies. Coverage is 993/994 new instructions; one redundant type test remains unexecuted. Construction and allocation remain explicit mutable services. |
 | Parameter resources | Nineteen new function regions; 2,850 further comparisons | Actual allocation/recovery, packed-history migration, fingerprints, mode changes and IR length selection. All 579 new instructions visited; eight inherited gaps are classified by caller invariants. Allocator internals and complete slot removal remain services; the preceding parameter corpus is unchanged. |
+| Effect construction | Fourteen new function regions; 3,270 further comparisons | Main constructor, type-26 builder and mathematical/selector helpers. All 1,242 new instructions visited. Six larger builders remain services; the 72 parameter-caller fixtures use an explicitly restricted test bridge. |
+| Parameter/resource integration | Existing bodies joined; 1,293 further comparisons | All nineteen direct resource call sites execute through the real parameter callers, including allocation recovery and history migration. Coverage is 1,334/1,573 joined instructions; no new original function. Indirect callback collisions and the allocation flag's borrowed lifetime are compared. |
+| All-pass, gate and state-variable filter | Three new function regions; 555 further comparisons | All 708 new instructions visited through direct kernels, dispatch, real resampling, stage and carried audio-task observations. Native raw-count behavior and exact budget-stop prefixes are preserved. Constructor-produced parameters are a separate integration boundary. |
+| Effect routing and ownership | Eight new function regions; 1,536 further comparisons | Route lookup/repair, group counting, buffer release and complete slot teardown. All 236 new and 264 loaded instructions visited; twenty fourth-read prefixes preserve prior writes and callbacks. Allocator/free effects and global refresh remain explicit. |
 
 See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [control reconstruction](CONTROL_RECONSTRUCTION.md),
@@ -107,7 +111,11 @@ See [native DSP reconstruction](NATIVE_RECONSTRUCTION.md),
 [parameter support](EFFECT_PARAMETER_SUPPORT_RECONSTRUCTION.md),
 [effect processing callers](EFFECT_PROCESSING_RECONSTRUCTION.md) and
 [parameter updates](EFFECT_PARAMETERS_RECONSTRUCTION.md) and
-[parameter resources](EFFECT_PARAMETER_RESOURCES_RECONSTRUCTION.md) for exact
+[parameter resources](EFFECT_PARAMETER_RESOURCES_RECONSTRUCTION.md),
+[effect construction](EFFECT_CONSTRUCTION_RECONSTRUCTION.md),
+[parameter/resource integration](EFFECT_PARAMETER_LIFECYCLE_RECONSTRUCTION.md) and
+[signal kernels](EFFECT_SIGNAL_RECONSTRUCTION.md) and
+[effect ownership](EFFECT_OWNERSHIP_RECONSTRUCTION.md) for exact
 evidence and limits. The [inventory](REVERSE_INVENTORY.md) records reconstructed
 regions separately from unresolved candidates; it does not use candidate counts
 as a completion denominator.
@@ -157,157 +165,65 @@ feature validation; the three newer branches start from `20fe29d`.
 
 ## Next concrete milestone
 
-The executable C model now connects controls/selection, preset availability,
-record validation, legacy conversion and loader commit/binding/report behavior.
-The application handler at `0x020092fa` now has a complete separate reconstruction
-through reuse/rebuild and its asset/query helpers. Its downstream effect and
-capture/IR services remain external in that corpus. A zero loader result
-does not establish successful DSP application or persistence. See the
-[documented offline boundary](PRESET_LOADER_RECONSTRUCTION.md).
-Its asset-header/identity, reuse-descriptor and routing-layout dependencies now
-have independent C/instruction comparisons. The IR loader now executes those
-metadata/record dependencies and the ownership sequence, with explicit allocator
-and DSP service boundaries. In parallel, the five-section DSP caller now executes
-both Q28 kernels and preserves their live history during staged updates.
-Capture loading now executes the container installer and record reader, including
-ownership, mode restoration and the original partial rollback. Journal/cache
-reading has an independent verified component, ready to join that path. Capture
-dispatch now executes preparation, sizing, DSP-load wrappers, capability queries
-and cleanup. The bounded coefficient generator executes through staging and the
-active five-section chain with carried sample/history state. Journal writes,
-erase orchestration, append retries and rewrite/readback now have a separate
-synthetic-storage comparison.
-The whole native parser and its read64 helper now have separate complete-body
-comparisons, including the native allocation layout and partial failures. Reset
-executes through new container/slot adapters. The complete metadata command now
-connects parsing and packing through reload/retries to active gain changes. DSP
-initialization and guarded startup execute the recovered coefficient producer.
-Native loading now executes the complete parser/reset in that caller chain.
-Separately, native block processing executes its actual numerical kernels,
-including the final one-frame output ring. Dynamics configuration now executes
-inside startup, and IR load/attach/refresh now execute the recovered installation,
-gain/trimming and read/CRC bodies.
-Native warm-up and live processing now execute on the actual parser-produced
-context and histories, including small head rings and real recovery. Startup
-input now executes internally, followed by actual four-section filtering and
-gain ramps. Real parameter requests now generate and apply staged filter records,
-including interrupted and fully converged transitions. The enclosing audio task
-now executes the recovered filter, dynamics and capture warm-up entries on shared
-native RAM. Recording FIR, queue handling and timing/statistics arithmetic are
-also reconstructed. The new runner exposes bounded observations of the original
-nonreturning task; it does not supply the RTOS or unrecovered sample services.
-IR construction now produces the original partitioned kernel objects through
-both real coefficient producers, software FFT and quantization. Its full runtime
-consumer now executes those objects through software integer FFT, cyclic
-partition convolution, inverse/output stages and wet/dry gains. Accelerator
-control also executes, with register responses and transform output explicitly
-simulated. The owning effect/audio caller remains separate.
+The current verified components recover the effect dispatcher and individual/group
+callers, actual resampling, enable/fade handling, parameter production and
+consumption, resource management, the main effect constructor, three more
+numerical engines and effect cleanup. The table above and linked module reports
+record their exact comparison domains. Earlier notes that listed these bodies as tracing-only work
+are superseded by that evidence.
 
-Continue into preset storage and application contracts:
+The immediate work is to connect the recovered pieces while preserving the
+original call sites, memory ownership and callback order:
 
-- `0x020092fa`: join the now reconstructed application to the loader and replace
-  its downstream service boundaries. Its result is an effect failure count;
-  output words independently retain capture and IR statuses. Slot loading, container orchestration and
-  its reader, dispatch, raw parser and memory reset now execute together; the
-  resulting native context also executes warm-up and block processing. Join
-  journal/cache and effect-state reuse/routing to the actual application caller.
-  The earlier portable engine remains separate evidence.
-- Metadata persistence: connect the complete `0x0200a888` command to its protocol
-  dispatcher and reporting bodies. Allocation/reload/retry, lookup and active
-  gain handling are now reconstructed within the command's bounded service domain.
-  Physical write/read/erase drivers and power-loss behavior remain open.
-- IR installation and ownership: join the recovered constructor and full runtime
-  at `0x01c12064..0x01c123fa` to their actual effect/audio caller. The numerical
-  dependencies beginning at `0x01c145fe` and accelerator helpers at
-  `0x01c124a8`/`0x01c1245c` now execute offline; physical MMIO and transform behavior
-  at `0x01ee0400` remain unverified. Mode selection at `0x02029728`,
-  copying wrapper `0x02031bf8`, relocation `0x02031c16`, temporary-state paths
-  and effect refresh remain open.
-- `0x020031d4`: storage discovery/preparation and cache invalidation. Map the
-  writers of state words 708/732 and the pair mapping at offset 3476.
-- Scene application at `0x02009e14..0x0200a256` now executes through direct and
-  pending selection, the real transition producer and its installed gain
-  notification. Its borrowed state includes all four 260-byte scene records.
-  Continue into its parameter probe `0x0202fd18..0x0202fe58`, fast-update wrapper
-  `0x0202fba6..0x0202fbd6` and commit `0x0202f07e..0x0202f46c`. Their signatures
-  are audited; their bodies remain unreconstructed. Probe, fast update and
-  commit take the desired parameter value, and enable services take the desired
-  raw byte. Shared boundary tables alone are insufficient ABI evidence.
-- The statically traced fast-update core `0x0202f6d4..0x0202fba6` compares old/new
-  effect objects and produces up to forty changed-word entries in each 448-byte
-  automation record at `0x01c2e5a0`. Recover it with its classification helpers
-  `0x0202f4e8..0x0202f6d4` to connect actual parameter production to the stage
-  consumer. Preserve the 39-entry halfword jump table as data. Effect-state
-  derivation at `0x0202cf62`, allocation and type-specific rebuilds remain open.
-- The enable cores/wrappers at `0x02030466..0x02030614` lead to fade/tail state
-  at `0x01c069e4..0x01c06b2c` and duration calculation at
-  `0x020303f4..0x02030466`. These are traced next scopes, not reconstructed
-  functions or executed comparisons.
-- State word 4092 and global calibration word 44: trace writers and clock
-  configuration before assigning physical meanings to load-report arithmetic.
+1. Join the recovered slot removal at `0x0202eb4c` to resource flush and
+   allocation recovery, then carry that actual ownership behavior through the
+   parameter/scene/stage callers. Preserve direct-call identity, route/queue
+   compaction, cached releases, borrowed allocation flags and retained failure
+   prefixes. The separate eight-body ownership reconstruction is now complete
+   within its documented offline domain.
+2. Carry actual constructor-produced parameters into the all-pass, gate and
+   state-variable filter, including the stage and audio-task paths. The current
+   signal corpus uses explicitly synthetic parameter words. Synchronous
+   constructor/process comparisons must preserve public state without inventing
+   task scheduling or a new original call edge.
+3. Join the constructor at the parameter caller's two actual direct sites,
+   `0x0202f37c` and `0x0202f970`. A platform callback can have the same numeric
+   token and argument count, so the public join must distinguish those sites.
+   The completed resource integration supplies the corresponding pattern for
+   allocation, migration, fingerprints and mode changes.
+4. Recover the remaining type-specific builders at `0x0202b838`, `0x0202b87e`,
+   `0x0202ba90`, `0x0202a872`, `0x0202cd32` and `0x0202cf5a`, including their
+   mathematical, state and numerical dependencies. Keep the remaining effect
+   algorithms visible in the [dependency inventory](REVERSE_INVENTORY.md).
 
-The asynchronous wrapper at `0x01c04cda` and its worker now execute on the native
-capture context and alternating banks, including real numerical layers/heads,
-descriptor submission and the exact timeout to synchronous fallback. A separate
-adapter joins these bodies to the unchanged audio task. Timer/MMIO responses,
-worker interleaving and accelerator completion remain controlled fixtures.
-Continue toward the whole loading/application path and real platform ownership.
-The complete audio task also executes
-the four-section and five-section calls at `0x01c02636` and `0x01c026de`, actual
-dynamics reset/clone/process callers, and capture warm-up. A separate corpus
-now joins its stage dispatcher at `0x01c10e06` through automation, route masks,
-branch alignment/filtering and stereo mixing. Complete effect wrappers at
-`0x01c0f678..0x01c10446` and `0x01c10446..0x01c10818`, their numerical dispatcher
-at `0x01c0deb6..0x01c0f678`, input/output services and platform callbacks remain
-open. The dispatcher's 39-entry halfword table at
-`0x01c0e0a8..0x01c0e0f6` is statically traced data outside this milestone's
-reconstructed ranges. Its type-seven branch at `0x01c0e31c` reaches the IR
-runtime at `0x01c12064` through call site `0x01c0e334`; that actual owning path
-still needs recovery and integration. The asynchronous wrapper preserves
-buffered ordering distinct from the synchronous processor at `0x01c12d34`.
+The full reverse-engineering objective also requires these broader areas:
 
-Read-only tracing of those three effect bodies identifies 3,456 instructions
-after excluding their 136 bytes of halfword tables. The second table is at
-`0x01c10204..0x01c1023e`. Their 42 distinct direct call targets comprise two
-within those bodies, seven already reconstructed and 33 still unreconstructed.
-Treat the complete dispatcher and both wrappers as the next orchestration unit,
-joining the existing IR/filter/gain/copy bodies while keeping other effect
-algorithms explicit. Include the guarded IR-history reset at
-`0x01c11f76..0x01c11faa`, called by the individual wrapper at `0x01c101a4`.
-Four six-byte state-copy layouts at `0x0203b7b0..0x0203b7c8` are additional
-static evidence; they are not yet an inventory exclusion. A parallel numerical
-scope is the up/downsampling wrappers at `0x01c07986..0x01c07a4c` and
-`0x01c08a76..0x01c08b34`, with kernels entered at `0x01c1ae86`, `0x01c1b056`,
-`0x01c1b23a` and `0x01c1b3d4`. These traces add no reconstructed function or
-executed comparison to the current inventory.
+- Complete protocol, command and persistent-state coverage. Trace storage
+  discovery/preparation at `0x020031d4`, writers of state words 708/732 and the
+  pair map at offset 3476. Physical read/write/erase services at `0x02002810`,
+  `0x02002ef2` and `0x02002b80` remain explicit, together with polling/priority
+  helpers and power-loss behavior.
+- Complete IR, capture and preset application through their actual ownership
+  and scheduling callers. IR mode selection `0x02029728`, copying wrapper
+  `0x02031bf8`, relocation `0x02031c16`, temporary-state paths and effect refresh
+  remain open. Recovered runtime convolution already executes through the effect
+  dispatcher; accelerator MMIO and transform behavior are still simulated.
+- Recover remaining input/output, USB, scheduler, clock and control services.
+  Trace state word 4092, calibration word 44, and their writers before assigning
+  physical time or sample-rate meanings. Existing 48000/48077 arithmetic evidence
+  does not establish a measured physical rate. LED and physical control behavior
+  remain unqualified.
+- Finish the executable entry/dependency inventory, including callbacks,
+  interrupts and code/data boundaries. The candidate-entry union is not a
+  complete function denominator or a completion percentage.
+- Produce a complete reproducible source build and integrated comparison path.
+  Some older composed verifiers obtain transitive source lists from earlier
+  ignored reports, including native capture loading and IR installation. Remove
+  that dependency or explicitly regenerate and verify every prerequisite. Newer
+  module builders enumerate their own source inputs, but still require the
+  pinned original images and local toolchain. Target objects are not a bootable
+  reconstructed firmware image.
 
-On the DSP path, the installed parameter notification at `0x0201a9ea` now
-executes signed division by five, the existing clamp at `0x02007ece`, state-word
-268 publication and the original gain mixer at `0x02007ef2`. Borrowed requests
-and scene application use that actual callback; other indirect tokens remain
-explicit services. Its produced gain word still needs its actual sample
-consumer joined before claiming application through the whole audio path.
-The broader initializer, its reset helpers and guarded startup now execute in
-their comparison model. The normal modeled startup supplies 48077 after the
-reset-copy divisor 48000; an exhaustive writer map and physical units remain open.
-Establish those units from configuration and hardware evidence before assigning
-sample-rate or frequency meanings.
-IR runtime convolution and complete effect/routing application still require
-integration through the actual ownership and scheduling callers.
-The read wrapper at `0x02002810`, its physical I/O and the priority/poll helpers
-also remain external. Scheduler and counter tracing remain prerequisites for
-physical time-unit claims; LED behavior remains unqualified. Enabling
-Footswitches or Stage and changing the four-slot bank grouping to three also
-require integration and physical validation.
-Some composed verifiers still obtain transitive source-name lists from earlier
-ignored build reports, including native capture loading and IR installation.
-Their required inputs are documented in those milestones. A complete clean-build
-workflow must remove that dependency or explicitly regenerate and verify every
-prerequisite; the current reports do not establish a fresh-checkout build by themselves.
-The new live-capture, startup-input/four-section, transition, IR-construction,
-preset-application, dynamics-processing, IR-runtime, audio-task, scene,
-transition-notification, asynchronous-capture and DSP-stage builders obtain
-their source manifests without earlier build reports, while still requiring the
-original local images and toolchain. This closes those new builders' report
-dependency only.
-The Alpha 13 branch remains a placeholder pending an explicit implementation request.
+The reserved Alpha 13, Tone3000, zoom and parity branches remain future work.
+This goal continues the pinned Alpha 11 reconstruction; product backports and
+physical validation require their own implementation and qualification evidence.

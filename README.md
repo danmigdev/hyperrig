@@ -176,8 +176,15 @@ DSP automation consumption.
 nineteen functions and 2,850 comparisons for allocation/recovery, packed history,
 state fingerprints, mode changes and IR lengths. All 579 new instructions are
 visited; allocator internals and complete slot removal remain explicit services.
-The [audited inventory](docs/REVERSE_INVENTORY.md) now records 306 reconstructed
-function regions across forty-six reports, with 112 unreconstructed direct dependency
+[Effect construction](docs/EFFECT_CONSTRUCTION_RECONSTRUCTION.md) adds fourteen
+functions, while [signal processing](docs/EFFECT_SIGNAL_RECONSTRUCTION.md) adds
+the all-pass, gate and state-variable filter. The
+[parameter/resource integration](docs/EFFECT_PARAMETER_LIFECYCLE_RECONSTRUCTION.md)
+executes actual recovery and migration through the parameter callers.
+[Effect ownership](docs/EFFECT_OWNERSHIP_RECONSTRUCTION.md) adds eight functions
+for route/queue cleanup and resource release, preserving callback order.
+The [audited inventory](docs/REVERSE_INVENTORY.md) now records 331 reconstructed
+function regions across fifty reports, with 111 unreconstructed direct dependency
 targets. Candidate entries are separate evidence; a firmware-wide completion
 percentage is not yet established.
 Physical storage I/O and live preset/DSP application remain explicit boundaries.
