@@ -14,7 +14,7 @@ version that is not the one in
 | `HyperRig-X.Y.Z-Windows-x64.zip` | The program: the editor, the installer, and in it the firmware and the loader |
 | `HyperRig-X.Y.Z-firmware.zip` | The firmware and the loader by themselves, with their records and licences |
 | `provenance.json` | The commit, the inputs, the checksums of the firmware, the loader and the archives |
-| `SHA256SUMS`, `NOTES.md` | Checksums, and the text of the release |
+| `SHA256SUMS`, `NOTES.md` | Checksums of the files above, and the text of the release |
 
 The firmware and the loader are compiled from the source of the commit, twice: both times must
 give the same bytes. The firmware without the product option must be the MINI v4 area, byte for

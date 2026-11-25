@@ -105,6 +105,15 @@ class Release(unittest.TestCase):
     def test_a_release_is_verified(self):
         self.assertEqual(release.verify(self.made())['result'], 'pass')
 
+    def test_the_checksums_name_what_is_attached(self):
+        out = self.made()
+        (out / 'NOTES.md').write_bytes(b'the text of the page')
+        self.assertEqual(release.attached(out), ['HyperRig-0.2.0-Windows-x64.zip', 'HyperRig-0.2.0-firmware.zip', 'provenance.json'])
+        self.assertEqual(release.verify(out)['result'], 'pass')
+        (out / 'more.txt').write_bytes(b'x')
+        with self.assertRaisesRegex(ValueError, 'checksums'):
+            release.verify(out)
+
     def test_a_changed_file_another_firmware_and_a_key_are_refused(self):
         out = self.made()
         (out / 'provenance.json').write_bytes(b'{}')

@@ -274,16 +274,19 @@ def finish(version, parts_dir, output, key=None):
     about = {**about, 'kind': 'hyperrig-release', 'tone3000': bool(key), 'signed': False,
              'artifacts': {p.name: {'sha256': sha(p.read_bytes()), 'bytes': p.stat().st_size} for p in sorted(out.glob('*.zip'))}}
     (out / 'provenance.json').write_bytes(json.dumps(about, indent=1, sort_keys=True).encode() + b'\n')
-    names = sorted(p.name for p in out.iterdir() if p.is_file())
-    (out / 'SHA256SUMS').write_bytes(''.join(f'{sha((out / n).read_bytes())}  {n}\n' for n in names).encode())
+    (out / 'SHA256SUMS').write_bytes(''.join(f'{sha((out / n).read_bytes())}  {n}\n' for n in attached(out)).encode())
     return verify(output)
+
+
+def attached(out):
+    """The files of a release that are attached to it, the checksums themselves left out. NOTES.md is the text of its page."""
+    return sorted(p.name for p in out.iterdir() if p.is_file() and p.name not in ('NOTES.md', 'SHA256SUMS'))
 
 
 def verify(output):
     out = (ROOT / output).resolve()
     sums = dict(reversed(line.split('  ', 1)) for line in (out / 'SHA256SUMS').read_text(encoding='ascii').splitlines())
-    here = {p.name for p in out.iterdir() if p.is_file()} - {'SHA256SUMS'}
-    require(here == set(sums) and all(sha((out / n).read_bytes()) == v for n, v in sums.items()), 'a file differs from the checksums')
+    require(set(attached(out)) == set(sums) and all(sha((out / n).read_bytes()) == v for n, v in sums.items()), 'a file differs from the checksums')
     about = json.loads((out / 'provenance.json').read_bytes())
     for name, pin in about['artifacts'].items():
         require(sums[name] == pin['sha256'], 'the record and the checksums differ')
@@ -306,7 +309,7 @@ def draft(output):
     require(git('rev-parse', 'HEAD') == about['commit'], 'the files are of another commit')
     found = subprocess.run(['gh', 'release', 'view', tag, '--json', 'isDraft'], cwd=ROOT, capture_output=True, text=True)
     require(found.returncode != 0, f'{tag} is there already: a release is not changed, and a draft is deleted by a person first')
-    files = sorted(str(p) for p in out.iterdir() if p.is_file() and p.name != 'NOTES.md')
+    files = [str(out / n) for n in sorted([*attached(out), 'SHA256SUMS'])]
     run('gh', 'release', 'create', tag, '--draft', *(['--prerelease'] if '-' in about['version'] else []), '--target', about['commit'], '--title', f"HyperRig {about['version']}",
         '--notes-file', out / 'NOTES.md', *files)
     return {'draft': tag, 'files': len(files)}
