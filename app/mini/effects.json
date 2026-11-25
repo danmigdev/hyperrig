@@ -1,0 +1,40 @@
+{
+  "labels": { "down1": "Octave -1", "down2": "Octave -2", "up": "Octave +1" },
+  "effects": {
+    "octaver": {
+      "name": "Octaver",
+      "colour": "#86b84a",
+      "group": "pitch",
+      "icon": "<path d=\"M3 7c1-3.5 2-3.5 3 0s2 3.5 3 0 2-3.5 3 0 2 3.5 3 0 2-3.5 3 0 2 3.5 3 0\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><path d=\"M3 16.5c3-7 6-7 9 0s6 7 9 0\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"/>",
+      "tips": {
+        "down1_pct": "Octave -1: one octave below. Single notes only: a chord has no single octave.",
+        "down2_pct": "Octave -2: two octaves below.",
+        "up_pct": "Octave +1: one octave above, clearest high on the neck with the neck pickup.",
+        "fuzz_pct": "Fuzz: pushes the octave above. No effect while Octave +1 is at 0.",
+        "tono_pct": "Tone: from round to buzzing, for all the octaves.",
+        "limpio_pct": "Clean: the sound of the guitar beside the octaves."
+      }
+    },
+    "swell": {
+      "name": "Swell",
+      "colour": "#6cc2a6",
+      "icon": "<path d=\"M20 5 4 12l16 7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "tips": {
+        "ataque_ms": "Attack: how long a note takes to grow.",
+        "sens_pct": "Sensitivity: how soft a pick still starts a new note. Less if held chords start again by themselves.",
+        "prof_pct": "Depth: 100 starts every note from nothing, less lets some of the pick through."
+      }
+    },
+    "reverse": {
+      "name": "Reverse Delay",
+      "colour": "#58c7c0",
+      "icon": "<path d=\"M21 12H9m0 0 5-5m-5 5 5 5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"3.5\" cy=\"12\" r=\"1.6\" fill=\"currentColor\" opacity=\".6\"/>",
+      "tips": {
+        "tiempo_ms": "Time: how long each piece is that is played backwards.",
+        "realim_pct": "Feedback: more repeats. Every second one is the right way round again.",
+        "mezcla_pct": "Mix: up to 50 the backward sound comes in, from there the guitar goes out.",
+        "amort_pct": "Damping: takes the highs out of the backward sound."
+      }
+    }
+  }
+}

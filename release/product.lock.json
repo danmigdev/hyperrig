@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "toolchain": {
+    "url": "https://jl-update.oss-cn-shenzhen.aliyuncs.com/jieli-linux-toolchains-20260730.1.tar.xz",
+    "sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "directory": "tools/vendor/jieli-linux-toolchains-20260730.1"
+  },
+  "repositories": {
+    "upstream/pi32v2-isa": {
+      "url": "https://github.com/jvitkauskas/pi32v2-isa.git",
+      "commit": "1f09804d36ddcba36dbd84cb6242ef88f35f15b7"
+    },
+    "upstream/m-bootloader": {
+      "url": "https://github.com/jvitkauskas/m-bootloader.git",
+      "commit": "3ac7651a019fa44daba061b05654278496477b64"
+    }
+  },
+  "editor_base": {
+    "lock": "release/mini-v4-inputs.lock.json",
+    "prefix": "editor/",
+    "directory": "build/hyperrig-mini-installer-v4-fast-01/editor"
+  },
+  "python": [
+    "pyelftools==0.33",
+    "pillow==12.1.0",
+    "pefile==2024.8.26"
+  ]
+}

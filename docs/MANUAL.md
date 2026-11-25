@@ -1,0 +1,247 @@
+# HyperRig on the TANK-MINI: manual
+
+## On the pedal
+
+| Do | What happens |
+|---|---|
+| A, B or C | That preset of the bank |
+| The same again | Bypass |
+| A, B or C held one second | Saves there |
+| A+B | The bank before |
+| B+C | The next bank |
+| B+C held one second | Tuner; a tap closes it |
+| A+B held three seconds | Bluetooth on (there is no phone editor for this version yet) |
+| A+B held six seconds | Bluetooth off |
+| The wheel | Volume; in the editor it can be switched off |
+
+There are 32 presets, 1A to 11B. Under a tenth of the battery the light of the preset flashes
+every eight seconds.
+
+## Footswitches
+
+In the editor, **Footswitches** has the lights, and one choice of what A, B and C do:
+
+| | Tap | Held one second | A+B, B+C |
+|---|---|---|---|
+| **Presets** | A preset of the bank; again, bypass | Saves there | The bank; B+C held, the tuner |
+| **Stomp** | Its block on and off | Nothing | The preset before and the next; B+C held, the tuner |
+| **Scenes** | Three scenes | A the preset before, C the next | The three scenes before and the next; B+C held, the tuner |
+
+For Stomp, choose the block of each switch there. It is the same for every preset: the first
+delay, for example, or nothing in a preset without one. Any other action can be given to a tap, a
+hold or a double press; the choice is then called **Custom**, and has no pairs. **Save to pedal**
+keeps it. The editor shows the choice beside the preset's name when it is not Presets.
+
+## The editor
+
+It finds the pedal by itself. **Ctrl +** and **Ctrl -** make everything larger and smaller.
+
+**Presets** are on the left, in banks of three. **+** makes a new, empty one.
+
+**Saving:** the line under the preset's name says whether it is saved, and where **Save** writes;
+Ctrl+S does the same. **Discard** goes back to what is saved. **Save as** keeps it in another
+slot, with its name: use it for a copy, or for a new preset that has no slot yet.
+
+**Files:** the buttons above the list save one preset, or all of them, to a file, and load them
+back: all at once, each to the slot it came from, or one, which you then save where you want it.
+
+**Names:** the pencil beside the preset's name and the one beside the scenes; Enter keeps the new
+name, Esc leaves the old one. A preset has up to 23 letters, a scene up to 15, plain letters and
+digits. A new preset, or one from a file, can be named before it is saved.
+
+**The chain** is in the middle. **+** adds a block, dragging moves it, and a block can be put on
+two paths, A and B. The amp is a block too: a NAM capture. A chain holds 16 blocks besides it; with
+it, 10 fit before it and 10 after. How many fit also depends on the pedal's time and memory: the
+numbers at the top say what is left, and when there is no more time for a block the pedal lets it
+go by.
+
+**Replace a block** from its menu, with the right button on it or Shift+F10: under **Replace with**
+the blocks of its own kind come first, and each says whether it fits. The new block takes the old
+one's place, its path, and is on in the scenes where the old one was on; its knobs start at their
+usual values. The sound stops for a moment, once. When the new block does not fit, the old one
+stays as it was, in every scene, and the editor says why.
+
+**Captures and cabs:** open the library of the amp or of a Cab IR block, and load a `.nam` or a
+`.wav` file, or press **Browse TONE3000**. A capture must be of architecture A2. There are 15
+places for captures and 8 for cabs (seven of 85 ms, the last of 42 ms). A capture that keeps knobs of
+its amp (a parametric one, of three channels) shows them in place of Gain, Bass, Mid, Treble and
+Presence, by their names and numbers; presets and scenes keep them.
+
+**Trying** plays a sound on the pedal before anything is saved; see below.
+
+**Tap** the tempo or type it. **Tuner** shows the note. **Stage** is a large view for playing.
+
+## Trying a sound
+
+| What | Where |
+|---|---|
+| Presets from files | **Try from files...**, above the list of presets; several files at once, if you like |
+| Captures and cabs from files | **Try a file...**, in their library; several at once |
+| Captures and cabs of TONE3000 | **Try it**, where you choose the tone |
+| Presets of Patchstorage | **Browse Patchstorage**, above the list, in a program that has it |
+
+You hear it at once, and nothing is saved on the pedal. A bar at the top says what you are
+trying, whose it is and under which licence. **Previous** and **Next** go through the list.
+
+- **Volume.** It starts quietly and rises by itself, up to the preset's own volume and never above
+  the limit: 0 dB, or the volume of your own preset. It stops rising when the output is loud.
+  **Quieter** and **Louder** change it. A capture or a cab rises to the volume of your preset.
+- **Back** puts back what was playing: the preset, the scene, the capture, the cab, and the changes
+  you had not saved. When something could not come back, it is asked before the try, and you can
+  save it first: blocks you added or took away, a capture or a cab that is in no slot.
+- **Keep** asks for a slot and a name. A preset is kept as you hear it. The capture and the cab it
+  brings go to free slots, if you want them.
+
+Before a preset is tried you see what it needs and this pedal does not have. Its scenes can be
+tried too; each comes at its own volume. A preset that is chosen with a switch on the pedal ends the
+try. While one is loading, a switch only stops it. If the pedal is switched off, what you tried is
+gone, and the presets are as they were. A preset with more than one cab of its own plays with one of
+them until it is kept.
+
+**Sharing yours:** export a preset to a file and give it to Patchstorage on its own page, in your
+browser, with your own account (**Share your own...**). The program sends nothing.
+
+## Scenes
+
+A preset has up to eight: the same blocks, amp and cabinet, with other knobs and other blocks on
+or off. **+ add** makes one, with the sound as it is at that moment. A scene comes at once,
+without a gap, and the knobs move smoothly; another preset takes a moment.
+
+Adding, replacing, moving or taking away a block, or another capture or IR, is for the whole preset. A block
+you add is in every scene, as it stands when you choose another scene or save; from then on each
+scene has its own. For a block that only one scene shall have, switch it off in the others.
+
+Eight scenes always fit with up to eleven blocks; with more it depends on how many knobs differ,
+and the editor says when there is no room. A preset that uses more than four scenes is for a
+HyperRig that has eight.
+
+## MIDI
+
+The pedal can be a MIDI device over the USB cable: a program, or another device through a computer or a USB MIDI host,
+changes its presets, scenes and blocks, and follows what you change on the pedal. It is off at first. In the editor,
+**Settings**, **MIDI**: turn it **On**. The pedal leaves the computer for a moment and comes back with it; when the
+editor does not find it again, the pedal turns it off by itself. **Save to pedal** keeps it on.
+
+| Message | |
+|---|---|
+| Program change 1 to 32 | Presets 1A to 11B |
+| Controller 20 | Scene: 0 to 7; 8 the next, 9 the one before |
+| Controllers 102 to 117 | The blocks by their place in the chain: on from 64 |
+| Controllers 21, 22, 24 | Bypass, tuner, amp: on from 64 |
+| Controller 23 | Tap tempo |
+| Controller 7 | Volume |
+| MIDI clock | Tempo |
+
+**What the messages do** changes the numbers, and gives up to four controllers a knob of a block each, as with an
+expression pedal. The channels are beside it. What a message changed is not sent back.
+
+## Level volumes
+
+**Level volumes…**, under the list of presets and behind the gains at the top, sets the output gains
+so that the same stroke of your guitar is as loud in every sound: clean, crunch or distorted.
+
+1. **Record my guitar**, once: play chords and single notes for some ten seconds, as you do on
+   stage. The pedal plays the strokes itself from then on. Record again with another guitar, or
+   choose built-in strokes, which are less accurate.
+2. Choose **this scene**, **this preset** with its scenes, or **all presets**, and press **Measure**.
+   The pedal is silent meanwhile, some fifteen seconds for each sound. A footswitch stops it, and
+   nothing is changed.
+3. The list says how loud each is now, and its gain before and after. **−** and **+** at the top
+   move all of them, those of a row only that one. "Loud notes reach the limiter" says where the
+   sound would change: choose a softer volume, or leave it.
+4. **Save** writes the gains. Nothing else of the presets changes. For a single scene it sets the
+   gain, and you save the preset as usual.
+
+Save or discard your changes first, or only this scene can be measured.
+
+## Acoustic
+
+Put it in a chain without the amp, before delays and reverbs. With the amp on there is room for
+6 strings, not for 12: the pedal then lets the block go by.
+
+| Control | |
+|---|---|
+| Strings | **6** or **12**. 12 uses more of the pedal |
+| Body | How much of the wooden box is heard |
+| Top | Brightness: less for a bright pickup, more for a dark one |
+| Decay | How fast notes die. 0 keeps the sustain of the electric |
+| Air | The wood, and the room around a near microphone |
+| Doubles | The second strings, with 12 |
+| Level | Loudness |
+
+The low strings of a 12-string are doubled an octave above, the thin ones in unison. On the
+lowest strings the octave takes a moment to be there in full.
+
+## Octaver, Swell, Reverse Delay
+
+**Octaver** (in Pitch) plays one octave below, two below and one above beside your sound, for single
+notes: a chord has no single octave. Put it first, before drives and the amp. Octave +1 is
+clearest high on the neck with the neck pickup; Fuzz pushes it.
+
+**Swell** (in Dynamics) takes the pick away: every note grows over the time of Attack. If held chords
+start again by themselves, turn Sensitivity down; if a note does not swell, turn it up.
+
+**Reverse Delay** (in Delay) plays what you played backwards, in pieces as long as Time. Up to the
+middle of Mix it comes in beside your sound, from there your sound goes out.
+
+## Settings for every preset
+
+The gear at the top right. What is set there is heard in every preset, in bypass too, and at once; it
+is in no preset. **Save to pedal** keeps it when the pedal is switched off: until then the line beside
+the button says *Unsaved changes*, and closing the window asks.
+
+| | |
+|---|---|
+| Global EQ | Five bands at the end of the chain, 12 dB up or down: 100 Hz and 7 kHz are shelves. **On** switches it off and on again, **Set flat** takes it away. With stereo it makes the sound mono |
+| High-pass | Takes away what is below this frequency at the input: rumble. At first 55 Hz |
+| Cancel the pedal's own whine | A faint tone of the electronics: the pedal learns it in silence, and takes it away |
+| Output limiter | Holds the output under the ceiling, so that it does not clip. Release is how fast it lets go |
+| Let tails ring out | Delays and reverbs end by themselves when they are switched off, or when another preset comes: up to four of them, some four seconds at most, and they fade at the end. Each needs one of the 16 places, memory and time of the pedal's processor: with a preset that is nearly full they stop at once |
+| Smooth scene changes | The knobs move to the new scene; off, they jump |
+
+Each band of the EQ that is in use takes about 3 % of the pedal's time for blocks. Where there is no
+room for one the editor says so; a preset that is nearly full may start with a block switched off.
+
+**Input level of a capture:** in the amp's block, **Calibrate** listens to the guitar for as long as
+you play your loudest chords, then suggests the input trim for that capture. Nothing is changed until
+you press the button that sets it, and it stops by itself after three minutes.
+
+## Harmonizer
+
+It hears the note you play and adds one or two voices at an interval of a key and a scale. Put it
+before the amp and before distortions, delays and reverbs; a compressor may go before it.
+
+| Control | |
+|---|---|
+| Key, Scale | Of the song: the voices stay in it. **Fixed** scales give every note the same interval |
+| Voice 1, Voice 2 | What the voice sings to your note: from an octave below to an octave above, or Off |
+| Balance | 0 is the voice 1 alone, 50 both, 100 the voice 2 alone |
+| Mix | 0 is your guitar alone, 50 both, 100 the voices alone |
+| Level | Loudness |
+
+It is for single notes. Bends and vibrato take the voices with them. A chord is moved as it is, at
+the interval of the last note and a little softer: for chords choose a fixed scale and a fifth or
+an octave. Each voice uses more of the pedal.
+
+## Limits
+
+- Windows only. The program is not signed.
+- **No Bluetooth audio and no USB sound card.** Nothing in this version connects over Bluetooth.
+- Headphones, charging, very long sessions and a comparison with the original firmware by ear
+  were not tried. In the original the pedal switches itself off three minutes after the
+  battery is empty; HyperRig does not.
+- Changes over Bluetooth are not in the editor.
+- The global EQ has one channel: in stereo it is mono.
+- Of a chain of more than 10 blocks without the amp, the last ten are in stereo in the headphones;
+  the first ones are mono. The editor says when a block becomes mono.
+- A preset that is tried can still be loud, through a block of its own for example: keep a hand on
+  the wheel.
+- The acoustic block is one sound in stereo. A preset with it is for a HyperRig that has it:
+  an older one, and UltraRig, make a room reverb of it.
+- Octaver, Swell and Reverse Delay are one sound in stereo too. An older HyperRig leaves them out of a
+  preset and keeps the rest.
+- The harmonizer is one sound in stereo. A preset with it is for a
+  HyperRig that has it: an older one, and UltraRig, make a pitch shifter of it. In a preset of an
+  old UltraRig its first pitch shifter is a harmonizer.
+- The first start of HyperRig makes room for its presets where the original has its amp
+  models. They come back with the original firmware.

@@ -1,0 +1,59 @@
+{
+  "about": [
+    "The JLFS directory of the HyperRig MINI application area, for tools/build_hyperrig_mini_image.py.",
+    "Head, app.bin and cfg_tool.bin: fixed fields and raw 16-byte name fields; sizes, offsets and CRCs are",
+    "computed. VM, PRCT, BTIF and USR: the stock TANK MINI_009 partition records, verbatim (their name",
+    "fields keep the bytes after the NUL). The used part is SFC-encoded with key 0x980F; the partition is",
+    "516,096 bytes (physical flash 0x4000..0x82000), the rest 0xFF."
+  ],
+  "partition_bytes": 516096,
+  "app_offset": 288,
+  "sfc_key": 38927,
+  "records": [
+    {
+      "name": "app_area_head",
+      "header_offset": 0,
+      "flags": 131,
+      "reserved": 255,
+      "index": 0,
+      "name_field_hex": "6170705f617265615f6865616400ffff",
+      "offset": 33554720
+    },
+    {
+      "name": "app.bin",
+      "header_offset": 32,
+      "flags": 130,
+      "reserved": 255,
+      "index": 0,
+      "name_field_hex": "6170702e62696e00ffffffffffffffff"
+    },
+    {
+      "name": "cfg_tool.bin",
+      "header_offset": 64,
+      "flags": 130,
+      "reserved": 255,
+      "index": 0,
+      "name_field_hex": "6366675f746f6f6c2e62696e00ffffff"
+    },
+    {
+      "name": "VM",
+      "header_offset": 96,
+      "record_hex": "791effff0020080000c0030012810000564d00ffffffffffffffffff00800000"
+    },
+    {
+      "name": "PRCT",
+      "header_offset": 128,
+      "record_hex": "1653ffff0000000000200800928200005052435400ffffffffffffff434f4445"
+    },
+    {
+      "name": "BTIF",
+      "header_offset": 160,
+      "record_hex": "cd90ffff00e00b0000100000928100004254494600ffffffffffffff4155544f"
+    },
+    {
+      "name": "USR",
+      "header_offset": 192,
+      "record_hex": "7785ffff00f00b00000004009281010055535200ffffffffffffffffffffffff"
+    }
+  ]
+}

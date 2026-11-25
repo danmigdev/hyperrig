@@ -1,0 +1,197 @@
+; Required Notice: Copyright (c) 2026 Manuel Aguirre (https://polyformproject.org/licenses/noncommercial/1.0.0)
+; See third_party/ultrarig/LICENSE.md and NOTICE.md. Bodies of JieLi AC79 SDK origin are under the Apache
+; License 2.0 (third_party/ac79-sdk/LICENSE); docs/PROVENANCE.md gives the origin of each function.
+
+; effect_parameter_lifecycle: 2 functions, 0x01c065e2..0x01c067e0
+
+; effect_parameter_lifecycle_resource_decode_sample: 0x01c065e2..0x01c065f6, module effect-parameter-lifecycle (resource_decode_sample), effect-parameter-resources (decode_sample), effect-resource-ownership (resource_decode_sample)
+.type effect_parameter_lifecycle_resource_decode_sample,@function
+effect_parameter_lifecycle_resource_decode_sample:
+    r3 = h[r0+r2<<1] (s)
+    r1 = r1 << 1
+    r0 = r0 + r1
+    r1 = r2 >> 4
+    r0 = b[r0+r1] (u)
+    r0 = r3 << r0
+    rts
+
+; effect_parameter_lifecycle_resource_encode_group: 0x01c065f6..0x01c067e0, module effect-parameter-lifecycle (resource_encode_group), effect-parameter-resources (encode_group), effect-resource-ownership (resource_encode_group)
+.type effect_parameter_lifecycle_resource_encode_group,@function
+effect_parameter_lifecycle_resource_encode_group:
+    [--sp] = {rets, r10-r4}
+    r8 = [r3+0]
+    r9 = [r3+4]
+    r4 = r8 >>> 31  #
+    r7 = [r3+8]
+    r4 = r4 ^ r8
+    r5 = r9 >>> 31
+    r5 = r5 ^ r9
+    r4 |= r5  #
+    r5 = [r3+12]
+    r6 = r7 >>> 31
+    r6 ^= r7  #
+    r7 = [r3+16]
+    r4 |= r6
+    r6 = r5 >>> 31
+    r5 ^= r6
+    r4 |= r5  #
+    r5 = [r3+20]
+    r6 = r7 >>> 31
+    r6 ^= r7  #
+    r7 = [r3+24]
+    r4 |= r6
+    r6 = r5 >>> 31
+    r5 ^= r6
+    r4 |= r5  #
+    r5 = [r3+28]
+    r6 = r7 >>> 31
+    r6 ^= r7  #
+    r7 = [r3+32]
+    r4 |= r6
+    r6 = r5 >>> 31
+    r5 ^= r6
+    r4 |= r5  #
+    r5 = [r3+36]
+    r6 = r7 >>> 31
+    r6 ^= r7  #
+    r7 = [r3+40]
+    r4 |= r6
+    r6 = r5 >>> 31
+    r5 ^= r6
+    r4 |= r5  #
+    r5 = [r3+44]
+    r6 = r7 >>> 31
+    r6 ^= r7  #
+    r7 = [r3+48]
+    r4 |= r6
+    r6 = r5 >>> 31
+    r5 ^= r6
+    r4 |= r5  #
+    r5 = [r3+52]
+    r6 = r7 >>> 31
+    r6 ^= r7  #
+    r7 = [r3+56]
+    r4 |= r6
+    r6 = r5 >>> 31
+    r5 ^= r6
+    r4 |= r5  #
+    r5 = [r3+60]
+    r6 = r7 >>> 31
+    r6 ^= r7
+    r4 |= r6
+    r6 = r5 >>> 31
+    r5 ^= r6
+    r5 |= r4
+    r4 = 0
+    if (r5 >= 32768) {
+    r4 = clz(r5)
+    r4 = 0x11 - r4
+    }
+    r5 = r4 + -1
+    r6 = 1
+    r7 = r6 << r5
+    r5 = r4
+    if (r4 == 0) goto L01c066a0
+    r5 = r7
+L01c066a0:
+    r6 = r9 + r5
+    r7 = r6 >>> r4
+    r10 = 32767
+    r9 = smin(r7, r10)
+    r7 = r8 + r5
+    r7 >>>= r4
+    r7 = smin(r7, r10)
+    r6 = r7.l (u)
+    r6 <= insert(r9, p:16, l:16)
+    r7 = r2 << 5
+    [++r7=r0] = r6
+    r8 = [r3+12]
+    r9 = [r3+8]
+    r6 = r8 + r5
+    r6 >>>= r4
+    r8 = smin(r6, r10)
+    r6 = r9 + r5
+    r6 >>>= r4
+    r6 = smin(r6, r10)
+    r6 = r6.l (u)
+    r6 <= insert(r8, p:16, l:16)
+    [r7+4] = r6
+    r8 = [r3+20]
+    r9 = [r3+16]
+    r6 = r8 + r5
+    r6 >>>= r4
+    r8 = smin(r6, r10)
+    r6 = r9 + r5
+    r6 >>>= r4
+    r6 = smin(r6, r10)
+    r6 = r6.l (u)
+    r6 <= insert(r8, p:16, l:16)
+    [r7+8] = r6
+    r8 = [r3+28]
+    r9 = [r3+24]
+    r6 = r8 + r5
+    r6 >>>= r4
+    r8 = smin(r6, r10)
+    r6 = r9 + r5
+    r6 >>>= r4
+    r6 = smin(r6, r10)
+    r6 = r6.l (u)
+    r6 <= insert(r8, p:16, l:16)
+    [r7+12] = r6
+    r8 = [r3+36]
+    r9 = [r3+32]
+    r6 = r8 + r5
+    r6 >>>= r4
+    r8 = smin(r6, r10)
+    r6 = r9 + r5
+    r6 >>>= r4
+    r6 = smin(r6, r10)
+    r6 = r6.l (u)
+    r6 <= insert(r8, p:16, l:16)
+    [r7+16] = r6
+    r8 = [r3+44]
+    r9 = [r3+40]
+    r6 = r8 + r5
+    r6 >>>= r4
+    r8 = smin(r6, r10)
+    r6 = r9 + r5
+    r6 >>>= r4
+    r6 = smin(r6, r10)
+    r6 = r6.l (u)
+    r6 <= insert(r8, p:16, l:16)
+    [r7+20] = r6
+    r8 = [r3+52]
+    r9 = [r3+48]
+    r6 = r8 + r5
+    r6 >>>= r4
+    r8 = smin(r6, r10)
+    r6 = r9 + r5
+    r6 >>>= r4
+    r6 = smin(r6, r10)
+    r6 = r6.l (u)
+    r6 <= insert(r8, p:16, l:16)
+    [r7+24] = r6
+    r6 = [r3+60]
+    r6 = r6 + r5  #
+    r3 = [r3+56]
+    r6 >>>= r4
+    r6 = smin(r6, r10)
+    r3 = r3 + r5
+    r3 >>>= r4
+    r3 = smin(r3, r10)
+    r3 = r3.l (u)
+    r3 <= insert(r6, p:16, l:16)
+    [r7+28] = r3
+    r3 = r2 << 3
+    r1 = r1 << 1
+    r0 = r0 + r1
+    r1 = r2 & 0xFFFFFFFC
+    r2 = [r0+r1]
+    r3 = r3 & 0x18
+    r5 = 255
+    r5 <<= r3
+    r2 = r2 & ~r5
+    r3 = r4 << r3
+    r2 |= r3
+    [r0+r1] = r2
+    {pc, r10-r4} = [sp++]

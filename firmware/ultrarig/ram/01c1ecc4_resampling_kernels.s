@@ -1,0 +1,120 @@
+; Required Notice: Copyright (c) 2026 Manuel Aguirre (https://polyformproject.org/licenses/noncommercial/1.0.0)
+; See third_party/ultrarig/LICENSE.md and NOTICE.md. Bodies of JieLi AC79 SDK origin are under the Apache
+; License 2.0 (third_party/ac79-sdk/LICENSE); docs/PROVENANCE.md gives the origin of each function.
+
+; resampling_kernels: 1 function, 0x01c1ecc4..0x01c1ee40
+
+; resampling_kernels_pitch_shift: 0x01c1ecc4..0x01c1ee40, module resampling-kernels (pitch_shift)
+.type resampling_kernels_pitch_shift,@function
+resampling_kernels_pitch_shift:
+    [--sp] = {rets, r15-r4}
+    sp += -4
+    [sp] = r0
+    r4 = [r0+0]
+    r5 = [r0+4]
+    r6 = [r0+8]
+    r7 = [r0+12]
+    r8 = [r0+16]
+    r9 = [r0+20]
+    r10 = [r0+24]
+    r11 = [r0+28]
+    r12 = [r0+32]
+    r13 = [r0+36]
+L01c1ecea:
+    r0 = [r4+0]
+    r1 = [r4+512]
+    r0 = r0 - r1
+    r15 = r4 + 1024
+    r1 = [r15+0]
+    r0 = r0 + r1
+    r1 = [r15+512]
+    r0 = r0 - r1
+    r0 = r0 >>> 8
+    r1 = 32767
+    r0 = smin(r0, r1)
+    r1 = -32767
+    r0 = smax(r0, r1)
+    h[r5+r8<<1] = r0
+    r14 = r9 >> 16
+    r14 = r14 + 1
+    r15 = r8 - r14
+    r15 = r15 << 20
+    r15 = r15 >> 20
+    r2 = h[r5+r15<<1] (s)
+    r15 = r15 - 0x1
+    r15 = r15 << 20
+    r15 = r15 >> 20
+    r3 = h[r5+r15<<1] (s)
+    r3 = r3 - r2
+    r3 = r3 << 8
+    r14 = r9 >> 1
+    r14 = r14 << 17
+    r14 = r14 >> 17
+    r1_r0 = r3 * r14 (s)
+    r1_r0 >>>= 15
+    r2 = r2 << 8
+    r2 = r2 + r0
+    r15 = r9 + 0x4000000
+    r15 = r15 << 5
+    r15 = r15 >> 5
+    r14 = r15 >> 16
+    r14 = r14 + 1
+    r3 = r8 - r14
+    r3 = r3 << 20
+    r3 = r3 >> 20
+    r14 = h[r5+r3<<1] (s)
+    r3 += -1
+    r3 = r3 << 20
+    r3 = r3 >> 20
+    r0 = h[r5+r3<<1] (s)
+    r0 = r0 - r14
+    r0 = r0 << 8
+    r15 = r15 >> 1
+    r15 = r15 << 17
+    r15 = r15 >> 17
+    r1_r0 = r0 * r15 (s)
+    r1_r0 >>>= 15
+    r14 = r14 << 8
+    r3 = r14 + r0
+    r14 = r9 - 0x4000000
+    r14 = abs(r14)
+    r15 = 0x4000000
+    r14 = r15 - r14
+    r14 = r14 >> 11
+    r15 = r14 * r14
+    r15 = r15 >>> 15
+    r0 = r15 * r14
+    r0 = r0 >>> 15
+    r14 = r15 + r15
+    r14 += r15
+    r0 = r0 + r0
+    r14 = r14 - r0
+    r15 = 0x8000
+    r15 = r15 - r14
+    r1_r0 = r2 * r14 (s)
+    r1_r0 += r3 * r15 (s)
+    r1_r0 >>>= 15
+    r1_r0 = r0 * r11 (s)
+    r1_r0 >>>= 29
+    r0 = r0 - r12
+    r1_r0 = r0 * r13 (s)
+    r14 = r1 >>> 31
+    r15 = 2147483649
+    r1_r0 += r14 * r15 (s)
+    r1_r0 >>>= 31
+    r12 += r0
+    [r6++=4] = r12
+    r9 += r10
+    r9 = r9 << 5
+    r9 = r9 >> 5
+    r8 = r8 + 1
+    r8 = r8 << 20
+    r8 = r8 >> 20
+    r4 = r4 + 4
+    if (--r7 != 0) goto L01c1ecea
+    r0 = [sp]
+    [r0+16] = r8
+    [r0+20] = r9
+    [r0+32] = r12
+    sp += 4
+    {pc, r15-r4} = [sp++]

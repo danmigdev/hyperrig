@@ -1,0 +1,16 @@
+/* The settings for every preset, in Settings, and the calibration of the input. */
+.drawer .hrall { margin: 4px 0 0; padding: 10px 12px; background: var(--bg2); color: var(--dim); font-size: 14px; line-height: 1.45; }
+.drawer .hrall b { color: var(--text); }
+.geq { flex-wrap: wrap; row-gap: 8px; }
+.geq .hreq { flex: 1 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+.geq .hreq .spill { margin: 0; }
+.geq .hreq .hrsay { color: var(--dim); font-size: 14px; }
+.geq .knob.hroff { opacity: .4; }
+.geq .hreq .btn:disabled { opacity: .45; cursor: default; }
+/* Save to pedal, and whether there is something to save, stay in sight. */
+body:not(.ph) .drawer .dfoot { position: sticky; bottom: -16px; z-index: 1; margin-bottom: -16px; padding: 12px 0 16px; background: var(--panel); gap: 14px; }
+body:not(.ph) .drawer .dfoot .gdnote { color: var(--amber); font-size: 15px; }
+body:not(.ph) .calsteps li { font-size: 14px; }
+body:not(.ph) .calsteps li b { font-size: 15px; }
+body:not(.ph) :is(.calread .vals, .calres) { font-size: 14px; }
+.calread .bar i { transition: width .12s linear; }

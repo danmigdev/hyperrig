@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HyperRig</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body data-screen="search">
+<header>
+  <h1 class="brand"><b>Hyper<i>Rig</i></b><span class="tag">TANK-MINI</span></h1>
+  <span class="grow"></span>
+  <button type="button" id="editorBtn" class="quiet">Editor</button>
+  <button type="button" id="detailsBtn" class="quiet" aria-expanded="false" aria-controls="details">Details</button>
+</header>
+
+<main>
+  <section class="stage">
+    <svg id="pedal" viewBox="0 0 1061 440" aria-hidden="true">
+      <g class="cable"><path d="M530.5 0 V44"/><rect x="505.5" y="40" width="50" height="40" rx="7"/><rect class="tip" x="515.5" y="78" width="30" height="20" rx="4"/></g>
+      <rect class="jack" x="194" y="78" width="73" height="20" rx="3"/><rect class="jack" x="783" y="78" width="73" height="20" rx="3"/>
+      <rect class="body" x="24" y="92" width="1013" height="335" rx="9"/>
+      <path class="edge" d="M24 110 H1037 M24 389 H1037"/>
+      <path class="bevel" d="M24 389 H1037 V418 a9 9 0 0 1 -9 9 H33 a9 9 0 0 1 -9 -9 Z"/>
+      <circle class="lamp" cx="125.5" cy="138" r="9"/>
+      <text class="print name" x="330" y="192">TANK-MINI</text>
+      <path class="rule" d="M200 274.5 H276"/><text class="print " x="328" y="283">BANK-</text><path class="rule" d="M380 274.5 H456"/>
+      <path class="rule" d="M605 274.5 H681"/><text class="print " x="733" y="283">BANK+</text><path class="rule" d="M785 274.5 H861"/>
+      <g><circle class="tag-ring" cx="125.5" cy="179" r="15"/><text class="print small" x="125.5" y="186">A</text><circle class="led" cx="125.5" cy="274.5" r="63"/><circle class="nut" cx="125.5" cy="274.5" r="52"/><path class="slot" d="M125.5 222.5 V236.5" transform="rotate(45 125.5 274.5)"/><path class="slot" d="M125.5 222.5 V236.5" transform="rotate(135 125.5 274.5)"/><path class="slot" d="M125.5 222.5 V236.5" transform="rotate(225 125.5 274.5)"/><path class="slot" d="M125.5 222.5 V236.5" transform="rotate(315 125.5 274.5)"/><circle class="thread" cx="125.5" cy="274.5" r="39"/><circle class="cap" cx="125.5" cy="274.5" r="33"/></g>
+      <g><circle class="tag-ring" cx="530.5" cy="179" r="15"/><text class="print small" x="530.5" y="186">B</text><circle class="led" cx="530.5" cy="274.5" r="63"/><circle class="nut" cx="530.5" cy="274.5" r="52"/><path class="slot" d="M530.5 222.5 V236.5" transform="rotate(45 530.5 274.5)"/><path class="slot" d="M530.5 222.5 V236.5" transform="rotate(135 530.5 274.5)"/><path class="slot" d="M530.5 222.5 V236.5" transform="rotate(225 530.5 274.5)"/><path class="slot" d="M530.5 222.5 V236.5" transform="rotate(315 530.5 274.5)"/><circle class="thread" cx="530.5" cy="274.5" r="39"/><circle class="cap" cx="530.5" cy="274.5" r="33"/></g>
+      <g><circle class="tag-ring" cx="935.5" cy="179" r="15"/><text class="print small" x="935.5" y="186">C</text><circle class="led" cx="935.5" cy="274.5" r="63"/><circle class="nut" cx="935.5" cy="274.5" r="52"/><path class="slot" d="M935.5 222.5 V236.5" transform="rotate(45 935.5 274.5)"/><path class="slot" d="M935.5 222.5 V236.5" transform="rotate(135 935.5 274.5)"/><path class="slot" d="M935.5 222.5 V236.5" transform="rotate(225 935.5 274.5)"/><path class="slot" d="M935.5 222.5 V236.5" transform="rotate(315 935.5 274.5)"/><circle class="thread" cx="935.5" cy="274.5" r="39"/><circle class="cap" cx="935.5" cy="274.5" r="33"/></g>
+    </svg>
+    <div class="work" id="work" hidden>
+      <ol class="steps" id="steps"><li>Save</li><li>Install</li><li>Check</li></ol>
+      <div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progress" id="meter"><i id="meterFill"></i></div>
+    </div>
+  </section>
+
+  <section class="talk" aria-live="polite">
+    <div class="say">
+      <p class="over"><span id="over"></span><span class="fw" id="pedalFw"></span></p>
+      <h2 id="title"></h2>
+      <p class="text" id="text"></p>
+    </div>
+    <div class="do">
+      <div class="actions" id="actions"></div>
+      <p class="keep" id="keep" hidden>Keep the pedal connected and switched on.</p>
+      <p class="safe" id="safe"></p>
+    </div>
+  </section>
+</main>
+
+<aside class="details" id="details" hidden>
+  <div class="dhead"><h3>Details</h3><span class="grow"></span><button type="button" class="quiet" id="copyBtn">Copy</button><button type="button" class="quiet" id="folderBtn">Open backups</button><button type="button" class="quiet" id="detailsX">Close</button></div>
+  <pre id="log" tabindex="0"></pre>
+</aside>
+
+<dialog id="ask">
+  <h3 id="askTitle"></h3>
+  <p id="askText"></p>
+  <div class="actions"><button type="button" class="big" id="askYes"></button><button type="button" class="quiet" id="askNo">Not now</button></div>
+</dialog>
+
+<script src="wire.js"></script>
+<script src="flash.js"></script>
+<script src="pedal.js"></script>
+<script src="views.js"></script>
+<script src="flow.js"></script>
+<script src="webmidi.js"></script>
+<script src="serial.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

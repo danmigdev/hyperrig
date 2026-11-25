@@ -1,0 +1,141 @@
+name: Build release artifacts
+
+# Builds a release of HyperRig for the TANK-MINI from a commit of main: firmware and loader from source, editor, desktop program.
+# Started by hand only. It never publishes: at most it prepares a draft release, for a person to look at and publish.
+# docs/RELEASE_BUILD.md
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version, as in firmware/ultrarig/mini/product/VERSION (example: 0.2.1)'
+        required: true
+        type: string
+      create_draft:
+        description: Attach the files to a draft release
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUTF8: '1'
+  RELEASE_VERSION: ${{ inputs.version }}
+
+jobs:
+  parts:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # GitHub shows the sealed inputs of the draft release only to callers with push access.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Check the sources for what must not be published
+        run: |
+          python - <<'PY'
+          from tools.audit_source_privacy import scan
+          result = scan()
+          assert not result['findings'], result['findings']
+          PY
+      - name: Install the pinned packages
+        run: python -m pip install --disable-pip-version-check pyelftools==0.33
+      - name: Fetch the pinned inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/build_product_release.py fetch --no-electron
+      - name: Build the firmware and the loader, twice, and the editor
+        run: python tools/build_product_release.py parts --version "$RELEASE_VERSION" --output build/release-parts
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: parts
+          path: build/release-parts
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: editor-base
+          path: build/release-inputs/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  program:
+    needs: parts
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: parts
+          path: build/release-parts
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: editor-base
+          path: build/inputs
+      - name: Install the pinned packages
+        run: python -m pip install --disable-pip-version-check pyelftools==0.33 pillow==12.1.0 pefile==2024.8.26
+      - name: Fetch the pinned inputs
+        run: python tools/build_product_release.py fetch --editor-base build/inputs/HyperRig-MINI-v4-inputs-02.zip
+      - name: Build the program and the archives
+        shell: bash
+        env:
+          # A publishable key of TONE3000, which is in the program anyway. Without it the program has no Browse TONE3000.
+          TONE3000_PUBLISHABLE_KEY: ${{ secrets.TONE3000_PUBLISHABLE_KEY }}
+        run: |
+          key=()
+          if [ -n "$TONE3000_PUBLISHABLE_KEY" ]; then
+            printf '%s\n' "$TONE3000_PUBLISHABLE_KEY" > build/tone3000-key.txt
+            key=(--tone3000-key build/tone3000-key.txt)
+          fi
+          python tools/build_product_release.py finish --version "$RELEASE_VERSION" --parts build/release-parts --output "build/release-$RELEASE_VERSION" "${key[@]}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: HyperRig-${{ inputs.version }}
+          path: build/release-${{ inputs.version }}/*
+          if-no-files-found: error
+          retention-days: 30
+
+  draft:
+    if: inputs.create_draft
+    needs: program
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: HyperRig-${{ inputs.version }}
+          path: build/release
+      - name: Verify the files and prepare the draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python tools/build_product_release.py verify --output build/release
+          python tools/build_product_release.py draft --output build/release

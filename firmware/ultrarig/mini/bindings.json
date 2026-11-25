@@ -1,0 +1,21 @@
+{
+  "about": "The places of the application that the code the MINI image appends (mini/shims) uses. tools/build_hyperrig_mini_image.py reads each address from the linked application (symbol + offset) and gives it to that code: as a macro to the compiler (c: with the u suffix, asm: without) or as a linker symbol (ld). original is the address in G alpha11 v2/M5.71, which the unchanged tree gives.",
+  "bindings": [
+    {"name": "HYPERRIG_G_GPIO_SET_DIE", "symbol": "phase3_p5_gpio_set_die", "offset": 0, "original": "0x0200187c", "kind": "c"},
+    {"name": "HYPERRIG_G_GPIO_DIRECTION_OUTPUT", "symbol": "phase3_p5_gpio_direction_output", "offset": 0, "original": "0x02004998", "kind": "c"},
+    {"name": "HYPERRIG_G_GPIO_DIRECTION_INPUT", "symbol": "L02004ad6", "offset": 0, "original": "0x02004ad6", "kind": "c"},
+    {"name": "HYPERRIG_G_GPIO_SET_PULL_DOWN", "symbol": "phase3_p5_gpio_set_pull_down", "offset": 0, "original": "0x02004bac", "kind": "c"},
+    {"name": "HYPERRIG_G_GPIO_SET_PULL_UP", "symbol": "phase3_p5_gpio_set_pull_up", "offset": 0, "original": "0x02004c9a", "kind": "c"},
+    {"name": "HYPERRIG_G_START_CHANNELS", "symbol": "mode_and_settings_link_buffers", "offset": 0, "original": "0x02005194", "kind": "c"},
+    {"name": "HYPERRIG_G_CPU_MHZ", "symbol": "ir_reload_and_leaves_get_rate", "offset": 0, "original": "0x020057c6", "kind": "c"},
+    {"name": "HYPERRIG_G_GPIO_SET_HD_0", "symbol": "phase3_p13_gpio_set_hd_0", "offset": 0, "original": "0x0201b1b6", "kind": "c"},
+    {"name": "HYPERRIG_G_DRIVER_STATE", "symbol": "L01c278ac", "offset": 48, "original": "0x01c278dc", "kind": "c"},
+    {"name": "HYPERRIG_G_RATE", "symbol": "L01c278ac", "offset": 56, "original": "0x01c278e4", "kind": "c"},
+    {"name": "HYPERRIG_G_PORTC_LOCK", "symbol": "L01c25ce0", "offset": 2, "original": "0x01c25ce2", "kind": "asm"},
+    {"name": "HYPERRIG_G_IRQ_ENTER", "symbol": "storage_coordination_irq_enter", "offset": 0, "original": "0x01c00e2e", "kind": "asm"},
+    {"name": "HYPERRIG_G_IRQ_LEAVE", "symbol": "storage_coordination_irq_leave", "offset": 0, "original": "0x01c00e46", "kind": "asm"},
+    {"name": "HYPERRIG_G_STACK_TOP", "symbol": "L01c350b8", "offset": 0, "original": "0x01c350b8", "kind": "asm"},
+    {"name": "HYPERRIG_G_SYSTEM_STACK_TOP", "symbol": "L01c360b8", "offset": 0, "original": "0x01c360b8", "kind": "asm"},
+    {"name": "hyperrig_mini_g_startup_resume", "symbol": "phase3_p14_chip_entry", "offset": 12, "original": "0x02000196", "kind": "ld"}
+  ]
+}
