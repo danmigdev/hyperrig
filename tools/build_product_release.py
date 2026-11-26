@@ -295,6 +295,12 @@ def attached(out):
     return sorted(p.name for p in out.iterdir() if p.is_file() and p.name not in ('NOTES.md', 'SHA256SUMS'))
 
 
+def shippable(name):
+    """Not a key, a log, a backup of a pedal or a path that climbs out. The editor's code for backups is code, not a backup."""
+    low = name.lower()
+    return not (low.endswith(('.pem', '.key', '.pfx', '.jsonl', '.log')) or '..' in name or 'backup' in low and not low.endswith(('.js', '.css')))
+
+
 def verify(output):
     out = (ROOT / output).resolve()
     sums = dict(reversed(line.split('  ', 1)) for line in (out / 'SHA256SUMS').read_text(encoding='ascii').splitlines())
@@ -308,7 +314,7 @@ def verify(output):
         require(sha(z.read(inside + 'image.bin')) == about['area_sha256'] == sha(f.read('firmware/hyperrig-mini.app-area.bin')), 'the firmware in the archives is another one')
         require(sha(z.read(inside + 'stage-package.bin')) == about['loader_package_sha256'] == sha(f.read('loader/stage-package.bin')), 'the loader in the archives is another one')
         for archive_names in (names, f.namelist()):
-            require(not any(n.lower().endswith(('.pem', '.key', '.pfx', '.jsonl', '.log')) or 'backup' in n.lower() or '..' in n for n in archive_names), 'a file that must not be shipped')
+            require(all(shippable(n) for n in archive_names), 'a file that must not be shipped')
         require('HyperRig/licenses/NOTICE.md' in names and 'licenses/NOTICE.md' in f.namelist(), 'the notice is missing')
     return {'result': 'pass', 'version': about['version'], 'commit': about['commit'], 'firmware': about['firmware'], 'artifacts': about['artifacts'], 'device_io': False}
 

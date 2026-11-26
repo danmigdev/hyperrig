@@ -144,6 +144,10 @@ class Release(unittest.TestCase):
         out.rmdir()
         with self.assertRaisesRegex(ValueError, 'must not be shipped'):
             release.verify(self.made({'HyperRig/signing.key': b'x'}))
+        for name in ('HyperRig/resources/app/editor/web/product-backup.js', 'HyperRig/resources/app/editor/web/product-ui.css', 'HyperRig/licenses/NOTICE.md'):
+            self.assertTrue(release.shippable(name), name)
+        for name in ('HyperRig/pedal-backup.json', 'HyperRig/backups/area.bin', 'HyperRig/Backup.BIN', 'HyperRig/logs/editor.jsonl', 'HyperRig/run.log', 'HyperRig/../x', 'HyperRig/a.pfx'):
+            self.assertFalse(release.shippable(name), name)
 
     def test_the_notice_names_the_licences_of_the_firmware_archive(self):
         notice = (ROOT / 'release/NOTICE.md').read_text(encoding='utf-8')
