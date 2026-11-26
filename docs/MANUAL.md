@@ -14,7 +14,7 @@
 | A+B held six seconds | Bluetooth off |
 | The wheel | Volume; in the editor it can be switched off |
 
-There are 32 presets, 1A to 11B. Under a tenth of the battery the light of the preset flashes
+The editor shows the battery at the top. There are 32 presets, 1A to 11B. Under a tenth of the battery the light of the preset flashes
 every eight seconds.
 
 ## Footswitches
@@ -67,6 +67,9 @@ places for captures and 8 for cabs (seven of 85 ms, the last of 42 ms). A captur
 its amp (a parametric one, of three channels) shows them in place of Gain, Bass, Mid, Treble and
 Presence, by their names and numbers; presets and scenes keep them.
 
+**Cab:** **Low cut** takes the boom away and **High cut** the fizz. Off is no cut. They can be turned while you
+play; each takes some 3 % of the CPU while it is on. An older HyperRig plays the preset without them.
+
 **Trying** plays a sound on the pedal before anything is saved; see below.
 
 **Tap** the tempo or type it. **Tuner** shows the note. **Stage** is a large view for playing.
@@ -78,7 +81,7 @@ Presence, by their names and numbers; presets and scenes keep them.
 | Presets from files | **Try from files...**, above the list of presets; several files at once, if you like |
 | Captures and cabs from files | **Try a file...**, in their library; several at once |
 | Captures and cabs of TONE3000 | **Try it**, where you choose the tone |
-| Presets of Patchstorage | **Browse Patchstorage**, above the list, in a program that has it |
+| Presets of Patchstorage | **Browse Patchstorage**, above the list |
 
 You hear it at once, and nothing is saved on the pedal. A bar at the top says what you are
 trying, whose it is and under which licence. **Previous** and **Next** go through the list.
@@ -100,6 +103,16 @@ them until it is kept.
 
 **Sharing yours:** export a preset to a file and give it to Patchstorage on its own page, in your
 browser, with your own account (**Share your own...**). The program sends nothing.
+
+**Backup:** in Settings, **Back up the pedal...** puts everything in one file: the presets, the captures
+and cabs with the slot each is in, and the settings. It loads each preset, so the sound is muted for a
+moment, and nothing on the pedal is changed. **Restore a backup...** puts back what you tick; what the
+pedal has already is not sent again, and what is not in the file stays unless you tick that it should be
+erased. It offers a backup of the pedal as it is now first. MIDI over USB stays on or off as it was.
+Import also takes the file.
+
+**CPU overload:** when the pedal runs out of time while a preset plays, it lowers the oversampling of a block
+or switches one off by itself, and the editor says which. **Turn it on** in that message switches it on again.
 
 ## Scenes
 
@@ -219,9 +232,10 @@ before the amp and before distortions, delays and reverbs; a compressor may go b
 | Mix | 0 is your guitar alone, 50 both, 100 the voices alone |
 | Level | Loudness |
 
-It is for single notes. Bends and vibrato take the voices with them. A chord is moved as it is, at
-the interval of the last note and a little softer: for chords choose a fixed scale and a fifth or
-an octave. Each voice uses more of the pedal.
+It is for single notes. Bends and vibrato take the voices with them. A chord is moved as it is and a
+little softer: a power chord at the interval of its root, another one at that of its root if it has a
+clear one, or of the last note. For other chords choose a fixed scale and a fifth or an octave. It
+follows the reference of the tuner. Each voice uses more of the pedal.
 
 ## Limits
 
@@ -234,6 +248,8 @@ an octave. Each voice uses more of the pedal.
 - The global EQ has one channel: in stereo it is mono.
 - Of a chain of more than 10 blocks without the amp, the last ten are in stereo in the headphones;
   the first ones are mono. The editor says when a block becomes mono.
+- The tuner needs 7 KB of the memory that the effects share. Beside a preset that leaves less it has
+  none, and the editor says so.
 - A preset that is tried can still be loud, through a block of its own for example: keep a hand on
   the wheel.
 - The acoustic block is one sound in stereo. A preset with it is for a HyperRig that has it:

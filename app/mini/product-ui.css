@@ -181,3 +181,13 @@ body:not(.ph) .hrlist .irsel { min-width: 104px; padding: 0 10px; }
 .mdlg .hrmknobs > b { font-size: 13px; font-weight: 600; color: var(--dim); }
 .mdlg .hrmknobs :is(input, select) { width: 100%; min-width: 0; box-sizing: border-box; }
 @media (max-width: 640px) { .mdlg .hrmrows { grid-template-columns: 1fr max-content; } .mdlg .hrmrows small { grid-column: 1 / -1; } .mdlg .hrmknobs { grid-template-columns: 1fr 1fr; } }
+/* Backup, in Settings. */
+.hrbook { display: flex; flex-wrap: wrap; gap: 8px; }
+/* The top bar gives way: its meters become narrower before the page becomes wider than the window. */
+body:not(.ph) .top > *, body:not(.ph) .top .clip { flex: none; }
+body:not(.ph) .top > .grow { flex: 1 1 0; min-width: 0; }
+body:not(.ph) .top > .meters, body:not(.ph) .top > .rchips { flex: 0 1 auto; min-width: 0; }
+body:not(.ph) .top .meter { flex: 0 1 auto; min-width: 64px; }
+body:not(.ph) .top .rchips .rchip.res { flex: 0 1 auto; min-width: 94px; }
+body:not(.ph) .top .rchips .rchip.drop { flex: none; }
+@media (max-width: 1400px) { body:not(.ph) .top { gap: 10px; } body:not(.ph) .top .rchips, body:not(.ph) .top .meters { gap: 8px; } body:not(.ph) .rchip.drop span { display: none; } body:not(.ph) .rchip.drop b::before { content: "! "; } }

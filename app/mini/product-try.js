@@ -256,6 +256,10 @@
       const one = b => (b.type !== "ir" ? b : { ...b, ir: ref(b) && irs.some(x => x.key === ref(b).attachment) ? null : ref(b) });
       sound.chain = pre.sound.chain.map(b => (b.split ? { ...b, split: { a: b.split.a.map(one), b: b.split.b.map(one) } } : b.type ? one(b) : b));
       sound.cab_ir = null;
+      sound.scenes = pre.sound.scenes.map(s => ({ ...s, blocks: Object.fromEntries(Object.entries(s.blocks).map(([id, b]) => {
+        const came = b.ir && irs.find(x => x.key === b.ir.attachment), { ir, ...rest } = b;
+        return [id, came ? came.key === main.key ? { ...rest, ir: null } : rest : b];
+      })) }));
     }
     return { pre: { ...pre, sound }, main };
   }

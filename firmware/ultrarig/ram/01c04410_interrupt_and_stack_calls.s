@@ -19,6 +19,9 @@ interrupt_and_stack_calls_aligned_call:
     sp = r4
     {pc, r5, r4} = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; interrupt_and_stack_calls_aligned_call_low: 0x01c0442e..0x01c0444e, module interrupt-and-stack-calls (aligned_call_low)
 .type interrupt_and_stack_calls_aligned_call_low,@function
 interrupt_and_stack_calls_aligned_call_low:
@@ -34,3 +37,4 @@ interrupt_and_stack_calls_aligned_call_low:
     call r5
     sp = r4
     {pc, r5, r4} = [sp++]
+.endif

@@ -61,4 +61,4 @@ The limits of the harmonizer's listening were set with the solos and the notes o
 ## Privacy
 
 The program sends nothing over the network, except to TONE3000 when the person opens Browse
-TONE3000 in it, and to Patchstorage when they open Browse Patchstorage, in a program that has it. It has no telemetry and sends no report by itself.
+TONE3000 in it, and to Patchstorage when they open Browse Patchstorage. It has no telemetry and sends no report by itself.

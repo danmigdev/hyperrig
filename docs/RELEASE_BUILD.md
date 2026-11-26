@@ -43,6 +43,8 @@ notice that names what is not there.
 
 TONE3000's publishable key is not in the repository: `--tone3000-key FILE`, or the secret
 `TONE3000_PUBLISHABLE_KEY` of the workflow. Without it the program has no Browse TONE3000.
+HyperRig's platform on Patchstorage is public and is in the builder (`PATCHSTORAGE`): the program of a
+release always has Browse Patchstorage.
 
 ## Here
 
@@ -51,9 +53,9 @@ On Windows, with WSL (Ubuntu) and its `gcc`, Node.js, and Microsoft Edge for the
 ```
 python -m pip install pyelftools==0.33 pillow==12.1.0 pefile==2024.8.26 websocket-client pytest
 python -B tools/build_product_release.py fetch --editor-base HyperRig-MINI-v4-inputs-02.zip
-python -B tools/build_product_release.py parts --version 0.2.1 --output build/release-parts
-python -B tools/build_product_release.py finish --version 0.2.1 --parts build/release-parts --output build/release-0.2.1 --tone3000-key FILE
-python -B tools/build_product_release.py verify --output build/release-0.2.1
+python -B tools/build_product_release.py parts --version 0.3.0 --output build/release-parts
+python -B tools/build_product_release.py finish --version 0.3.0 --parts build/release-parts --output build/release-0.3.0 --tone3000-key FILE
+python -B tools/build_product_release.py verify --output build/release-0.3.0
 ```
 
 Before a release the checks are run by a person, and the tests:
@@ -64,6 +66,8 @@ python -B tools/check_mini_scenes.py build/release-parts/firmware
 python -B tools/check_mini_midi.py build/release-parts/firmware
 python -B tools/check_mini_usb.py build/release-parts/firmware
 python -B tools/check_mini_library.py build/release-parts/firmware
+python -B tools/check_mini_tuner.py build/release-parts/firmware
+python -B tools/check_mini_cab.py build/release-parts/firmware
 python -B tools/check_mini_globals.py build/release-parts/firmware
 python -B tools/check_mini_effect_block.py build/release-parts/firmware
 python -B tools/check_mini_effects.py build/release-parts/firmware

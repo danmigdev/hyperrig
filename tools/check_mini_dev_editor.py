@@ -53,7 +53,7 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
     load(n) { Object.assign(this, JSON.parse(JSON.stringify(this.store[n]))); this.current = n; this.outs = this.outs || {}; this.at = "start"; }};
   const types = {}; { let cur = null; for (const line of recorded["FXT"] || []) {
     let m = /^FXT (\d+) (\S+) cost=(\d+)(?:.* mem=(\d+))?/.exec(line); if (m) { cur = types[m[2]] = {id: +m[1], cost: +m[3], mem: +(m[4] || 0), p: [0, 0, 0, 0, 0, 0, 0]}; continue; }
-    m = /^FXT\s+(\d+) \S+ -?\d+\.\.-?\d+ \((-?\d+)\)$/.exec(line); if (m && cur) cur.p[+m[1]] = +m[2]; } }
+    m = /^FXT\s+(\d+) (\S+) -?\d+\.\.-?\d+ \((-?\d+)\)$/.exec(line); if (m && cur) { cur.p[+m[1]] = +m[3]; if (m[2] === "os_n") cur.os = +m[1]; } } }
   const find = id => { for (const b of ["P", "Q"]) { const i = pedal.chain[b].findIndex(x => x.id === id); if (i >= 0) return [b, i, pedal.chain[b][i]]; } return null; };
   pedal.bank = 1;
   pedal.budget = pedal.room = Infinity; pedal.shown = "0/22718";      // what FXC finds room in, and what LVL says
@@ -79,12 +79,14 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
     if (word === "FSMODE") { const m = /^layout=(\w+)$/.exec(a[0] || ""); if (m) { if (pedal.layout !== m[1]) pedal.mode = "preset"; pedal.layout = m[1]; }
       const k = /^mode=(\w+)$/.exec(a[0] || ""); if (k) pedal.mode = k[1]; return [settings()]; }
     if (word === "FSPRESS") { if (a.length) pedal.press_bits[+a[0]] = +a[1]; return [`FSPRESS ${pedal.press_bits.join(" ")}`]; }
-    if (word === "FSLED") return a.length ? [`FSLED ${a[0]} auto on=ffffff off=202020`] :
-      [...[0, 1, 2, 3].map(f => `FSLED ${f} auto on=ffffff off=202020`), "FSLED end"];
-    if (word === "LEDCFG") return ["LEDCFG bright=100 tuner=needle tap=1 meter=edit hold=1 anim=1 idle=0"];
+    if (word === "FSLED") { const of = f => `FSLED ${f} ` + (pedal.leds[f] ? `custom on=${pedal.leds[f][0]} off=${pedal.leds[f][1]}` : "auto on=ffffff off=202020");
+      if (a.length) { pedal.leds[+a[0]] = a[1] === "auto" ? null : a.slice(1, 3); return [of(+a[0])]; } return [...[0, 1, 2, 3].map(of), "FSLED end"]; }
+    if (word === "LEDCFG") { const m = /^(\w+)=(\w+)$/.exec(a[0] || ""); if (m) pedal.light[m[1]] = m[2];
+      return ["LEDCFG " + Object.entries(pedal.light).map(([k, v]) => `${k}=${v}`).join(" ")]; }
     if (word === "FSDO") { const n = "abcd".indexOf(a[0]); if (n >= 0 && pedal.store[n]) pedal.press(n); return [settings()]; }
     if (word === "GSAVE") { pedal.saved_settings++; pedal.kept = JSON.stringify({...pedal.globals, pages: 0, cal: 0}); return globalAnswer(pedal.globals, pedal.live(), word, a); }
   }
+  pedal.leds = [null, null, null, null]; pedal.light = {bright: "100", tuner: "needle", tap: "1", meter: "edit", hold: "1", anim: "1", idle: "0"};
   pedal.irs = {}; pedal.ir = null; pedal.ir_slot = -1; pedal.up = null;
   // a byte of a line lost on the way, as the pedal did on 2026-11-24: once at these places, or every time at one
   pedal.lose = []; pedal.loseAlways = -1;
@@ -265,12 +267,16 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
       const [volume, bass, mid, treble, presence, drive] = pedal.ampeq;
       return [`AMPEQ volume=${volume} bass=${bass} mid=${mid} treble=${treble} presence=${presence} drive=${drive}`];
     }
+    if (line === "TUNE" && pedal.tuner[0] && pedal.full) return ["TUNE - n=0 level=-1440 ons=0 nomem"];
+    if (line === "HRST" && __IDENTITY__) return [`HRST wheel=512 level=60 volume=15344 battery=${pedal.battery ?? 53} raw=600`];
     if (line === "TUNE") return pedal.tuner[0] ? ["TUNE A4 hz=440.00 cents=+0.0 conf=98 n=5 level=-200 ons=1"] : ["TUNE off"];
     if (["FSA", "FSMODE", "FSPRESS", "FSLED", "LEDCFG", "FSDO", "GSAVE"].includes(word)) return panelAnswer(word, a);
     if (["GEQ", "HPF", "LIM", "SPILL", "GLIDE", "SPUR", "CALIB"].includes(word)) {
       if (pedal.wrong && a.length) return [pedal.wrong];
       const lines = globalAnswer(pedal.globals, pedal.live(), word, a); if (lines[0].startsWith("ERR")) pedal.refused_globals++; return lines;
     }
+    if (word === "FXOS") { const at = find(+a[0]), i = at && types[at[2].type].os; if (!at || i === undefined) return ["ERR FXOS bad argument"];
+      at[2].p[i] = +a[1]; pedal.changes++; return [`FXOS ok ${a[0]} ${at[2].type} os=${a[1]}`]; }
     if (word === "MIDI") return midiAnswer(a);
     if (word === "STW") { if (a.length) pedal.stereo = +a[0]; return [`STW w=${pedal.stereo} cur=${pedal.stereo} live=0 cpu=0/21391 deg=0`]; }
     if (word === "SNAPNAME" && a.length) { pedal.names[+a[0]] = a.slice(1).join(" "); if (pedal.current >= 0 && pedal.store[pedal.current]) pedal.store[pedal.current].names = pedal.names.slice(); return [`SNAPNAME ok ${a[0]} '${pedal.names[+a[0]]}' preset=${pedal.current}`]; }
@@ -293,7 +299,7 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
     if (word === "PLOAD") {
       if (!pedal.store[a[0]]) return ["ERR PLOAD empty"];
       pedal.load(+a[0]); pedal.changes++;
-      return [`PLOAD ok ${a[0]} '${pedal.presets[a[0]]}' missing=0 capture=-1 ir=-1 ms=0`];
+      return [`PLOAD ok ${a[0]} '${pedal.presets[a[0]]}' missing=${pedal.misses === +a[0] ? 1 : 0} capture=-1 ir=-1 ms=0`];
     }
     if (/^SNAP \d$/.test(line)) { if (pedal.scenes[+a[0]] !== "1") return ["ERR SNAP empty"]; pedal.scene = +a[0]; pedal.at = +a[0];
       if (pedal.outs[a[0]] !== undefined) pedal.gain = [pedal.gain[0], pedal.outs[a[0]]]; return [`SNAP ok ${a[0]} missing=0 ms=0`]; }
@@ -308,7 +314,7 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
     if (word === "GAIN") { if (a.length) pedal.gain = a.map(Number); return [`GAIN in=${pedal.gain[0]} out=${pedal.gain[1]} dB`]; }
     if (["CLIST", "LDBEGIN", "LDB", "LDEND", "CSAVE", "CLOAD", "CDEL", "CREAD", "CTRIM", "AUDIO"].includes(word)) return captureAnswer(word, a);
     if (["ILIST", "IRBEGIN", "IRB", "IREND", "ISAVE", "ILOAD", "IDEL", "IREAD", "FXIR"].includes(word)) return irAnswer(word, a);
-    if (line === "LVL") return [`LVL in=-240 out=-253 ci=0 co=0 fx=${pedal.shown !== "0/22718" ? pedal.shown : pedal.ticks + pedal.globals.geq.reduce((x, v, b) => x + (v ? b ? 580 : 635 : 0), 0) + "/22718"} mem=0 sk=0 m=${pedal.engine ?? 2} g=${pedal.gain.join("/")} b=${pedal.bpm} s=${pedal.scene} a=${pedal.amp} ` +
+    if (line === "LVL") return [`LVL in=-240 out=-253 ci=0 co=0 fx=${pedal.shown !== "0/22718" ? pedal.shown : pedal.ticks + pedal.globals.geq.reduce((x, v, b) => x + (v ? b ? 580 : 635 : 0), 0) + "/22718"} mem=0 sk=${pedal.sk || 0} m=${pedal.engine ?? 2} g=${pedal.gain.join("/")} b=${pedal.bpm} s=${pedal.scene} a=${pedal.amp} ` +
       `e=131732/154950 am=118688 c=${pedal.changes} p=${pedal.current} tu=${pedal.tuner[0]} lim=0 ce=0 und=${pedal.und || 0} ovl=0 cin=-241 ctg=-180 fm=${["factory", "scenes", "custom"].indexOf(pedal.layout)},${pedal.mode === "live" ? 1 : 0},${pedal.bank},${pedal.bypass || 0} stuck=0 bat=-1,0,1`];
     if (recorded[line]) return recorded[line];
     return ["ERR unknown command"];
@@ -360,6 +366,7 @@ HARMONIZER = ['FXT 24 harmonizer cost=11000 cat=mod mem=12632', 'FXT  0 key 0..1
 
 
 # The lines for the effects from the id 40 on (tools/check_mini_effects.py has them from the firmware), and how the page has to show each: its name, its group, its knobs.
+CAB_CUTS = ['FXT  4 lowcut_hz 0..800 (0)', 'FXT  5 hicut_hz 0..18000 (0)']
 OWN_EFFECTS = {'octaver': (40, 8000, 'drive', 772, 'Octaver', 'Pitch', ['Octave -1', 'Octave -2', 'Octave +1', 'Fuzz', 'Tone', 'Clean', 'Level']),
                'swell': (41, 4000, 'dynamics', 1364, 'Swell', 'Dynamics', ['Attack', 'Sensitivity', 'Depth', 'Level']),
                'reverse': (42, 6500, 'delay', 33384, 'Reverse Delay', 'Delay', ['Time', 'Feedback', 'Mix', 'Damping', 'Level'])}
@@ -374,6 +381,8 @@ def answers(identity):
         for before, lines in (('FXT 7 ', ACOUSTIC), ('FXT 25 ', HARMONIZER)):
             i = next(k for k, line in enumerate(out['FXT']) if line.startswith(before))
             out['FXT'] = out['FXT'][:i] + lines + out['FXT'][i:]
+        i = out['FXT'].index('FXT  3 largo_ms 0..85 (21)') + 1
+        out['FXT'][i:i] = CAB_CUTS
         out['FXT'] = out['FXT'][:-1] + OWN_LINES + out['FXT'][-1:]
     return out
 
@@ -381,6 +390,124 @@ def answers(identity):
 def pedal_source(identity):
     """The simulated pedal, with the answers and the USB numbers of the build it stands for."""
     return PEDAL.replace('__GLOBALS__', simulated_globals.GLOBALS).replace('__RECORDED__', json.dumps(answers(identity))).replace('__IDENTITY__', json.dumps(identity)).replace('__VENDOR__', '0x4c4a' if identity else '0x3654').replace('__SCENES__', '8' if identity else '4')
+
+
+def cab_cuts(page, output):
+    """The cab's two cuts: their names, off at 0, what they say, and what is sent."""
+    cdp, quiet = page.cdp, 'S.connected && !refreshing && !txn && !saveRun && !Pedal.busy'
+    sent = lambda: cdp.evaluate('__pedal.sent')
+    said = cdp.evaluate('[["lowcut_hz", 0], ["lowcut_hz", 120], ["hicut_hz", 0], ["hicut_hz", 12000], ["hicut_hz", 18000]].map(([n, v]) => plabel(n).lab + ": " + fmtVal(v, plabel(n).unit))')
+    require(said == ['Low cut: Off', 'Low cut: 120 Hz', 'High cut: Off', 'High cut: 8.0 kHz', 'High cut: 2.0 kHz'], f'the cuts of the cab: {said}')
+    n = len(sent())
+    cdp.evaluate('void addFx("ir")')
+    page.wait('/Low cut/i.test(document.getElementById("edKnobs")?.innerText || "") && ' + quiet, 'the knobs of the cab', 20)
+    knobs = cdp.evaluate('document.getElementById("edKnobs").innerText.replace(/\\s+/g, " ")')
+    require(re.search(r'low cut', knobs, re.I) and re.search(r'high cut', knobs, re.I) and len(re.findall(r'\bOff\b', knobs, re.I)) >= 2, f'the knobs of the cab: {knobs}')
+    cdp.screenshot(output / 'cab-cuts.png')
+    ident = next(c for c in cdp.evaluate('__pedal.chain.P.concat(__pedal.chain.Q).map(x => x.type + " " + x.id)') if c.startswith('ir ')).split()[1]
+    require(any(c.startswith('FXA ') and c.endswith(' ir') for c in sent()[n:]), f'what was sent: {sent()[n:]}')
+    cdp.evaluate(f'void Pedal.cmd("FXR {ident}", "FXR").then(() => syncGen && loadChain())')
+    page.wait(quiet, 'the cab taken away', 20)
+    return {'said': said, 'knobs': knobs}
+
+
+def battery(page, output):
+    """The gauge of the battery: what the pedal says, red when there is little, hidden when it says nothing."""
+    cdp, out = page.cdp, {}
+    look = ('(() => { const e = document.getElementById("batt"); return {hidden: e.hidden, text: document.getElementById("battTxt").textContent, low: e.classList.contains("low"), '
+            'usb: e.classList.contains("usb"), on: e.querySelectorAll(".seg.on").length, title: e.title}; })()')
+    for said, wait in ((53, '!document.getElementById("batt").hidden && document.getElementById("battTxt").textContent === "53 %"'),
+                       (8, 'document.getElementById("battTxt").textContent === "8 %"'), (-1, 'document.getElementById("batt").hidden'),
+                       (100, '!document.getElementById("batt").hidden && document.getElementById("battTxt").textContent === "100 %"')):
+        cdp.evaluate(f'__pedal.battery = {said}; hrBatteryNext = 0')
+        page.wait(wait, f'the battery at {said}', 20)
+        out[said] = cdp.evaluate(look)
+        if said == 53:
+            cdp.screenshot(output / 'battery.png')
+    require([(out[k]['low'], out[k]['usb'], out[k]['on']) for k in (53, 8, 100)] == [(False, False, 2), (True, False, 0), (False, False, 4)], f'the gauge: {out}')
+    require(out[53]['title'] == 'Battery: 53 %, as the pedal reads it', f'the gauge: {out}')
+    return out
+
+
+def overload(page, quiet, output):
+    """The pedal switched a block off because it had no time for it: the message says which one, and switches it on again; for a lower oversampling there is
+    nothing to press."""
+    cdp, out = page.cdp, {}
+    sent = lambda n: cdp.evaluate('__pedal.sent')[n:]
+    cdp.evaluate('void addFx("plate")')
+    page.wait('S.chain.P.concat(S.chain.Q).some(x => x.type === "plate" && x.on) && ' + quiet, 'a plate', 20)
+    ident = cdp.evaluate('S.chain.P.concat(S.chain.Q).find(x => x.type === "plate").id')
+    cdp.evaluate(f'__pedal.chain.P.concat(__pedal.chain.Q).find(x => x.id === {ident}).on = 0; void loadChain()')
+    page.wait(f'!findInst({ident}).inst.on && ' + quiet, 'the plate that is off', 20)
+    cdp.evaluate(TOASTS + '.forEach(e => e.remove()); S.ovlN = 4; noteOvl("LVL x ovl=5 ovx=' + str(ident) + ',plate,off,0")')
+    page.wait(TOASTS + '.some(e => /Turn it on/.test(e.innerText))', 'the way back', 10)
+    out['says'] = cdp.evaluate(TOASTS + '.map(e => e.innerText.replace(/\\s+/g, " ")).join(" | ")')
+    require('overload' in out['says'].lower() and 'plate' in out['says'].lower(), f"the overload: {out['says']}")
+    cdp.screenshot(output / 'overload.png')
+    page.wait(quiet, 'a quiet page', 20)
+    n = len(sent(0))
+    cdp.evaluate(TOASTS + '.flatMap(e => [...e.querySelectorAll("button")]).find(b => /Turn it on/.test(b.innerText)).click()')
+    page.wait(f'findInst({ident}).inst.on && ' + quiet, 'the plate that is on again', 20)
+    require(f'FXE {ident} 1' in sent(n), f'what switched it on: {sent(n)}')
+    cdp.evaluate(TOASTS + '.forEach(e => e.remove()); S.ovlN = 5; noteOvl("LVL x ovl=6 ovx=' + str(ident) + ',plate,os,1")')
+    page.wait(TOASTS + '.some(e => /lowered|quality/i.test(e.innerText))', 'the message of a lower oversampling', 10)
+    require(not cdp.evaluate(TOASTS + '.some(e => /Turn it on/.test(e.innerText))'), 'a way back that there is not')
+    cdp.evaluate(TOASTS + '.forEach(e => e.remove())')
+    cdp.evaluate(f'void Pedal.cmd("FXR {ident}", "FXR").then(() => loadChain())')
+    page.wait(f'!findInst({ident}) && ' + quiet, 'the plate taken away', 20)
+    return out
+
+
+def replugged(page, quiet, output):
+    """A pedal that comes and goes twice: the port that is there is opened, not the one of the first time; where the system names none, the one it came with."""
+    cdp = page.cdp
+    page.wait(quiet, 'a quiet page', 20)
+    cdp.evaluate("""window.__tried = null; void (async () => {
+      const was = [connect, Pedal.disconnect, navigator.serial.getPorts, S.connected, Pedal.tr.known], of = name => Object.assign(Object.create(SerialPort.prototype), { name, getInfo: () => ({ usbVendorId: 0x4c4a, usbProductId: 0x5155 }) }), out = [];
+      try {
+        for (const there of [[of("new")], []]) {
+          let got = null;
+          connect = async p => { got = p && p.name; S.connected = true; }; Pedal.disconnect = async () => {}; navigator.serial.getPorts = async () => there;
+          S.connected = false; autoRe = { t: Date.now(), timer: null };
+          portBack(of("old"));
+          for (let k = 0; k < 120 && !got; k++) await new Promise(r => setTimeout(r, 50));
+          out.push(got);
+        }
+      } catch (e) { out.push(String(e)); }
+      [connect, Pedal.disconnect, navigator.serial.getPorts, S.connected] = was; autoRe = null;
+      window.__tried = out;
+    })()""")
+    page.wait('window.__tried !== null', 'both ports tried', 25)
+    tried = cdp.evaluate('__tried')
+    require(tried == ['new', 'old'], f'the port that is opened: {tried}')
+    cdp.evaluate(TOASTS + '.forEach(e => e.remove())')
+    return {'opened': tried}
+
+
+def scene_cabs(page, quiet, output):
+    """A scene can have another cab than the block has otherwise. In a preset file, and back: what each scene has, what the file must bring, and the commands."""
+    cdp = page.cdp
+    made = json.loads(cdp.evaluate("""(() => {
+      const ir = v => ({ id: 3, type: "ir", on: true, lane: 0, p: [100, 0, v, 85, 0, 0, 0, 0] }), chain = v => ({ P: [], Q: [ir(v)] });
+      const scene = v => ({ chain: chain(v), gain: [0, 3], amp: { on: true, present: 1 }, aeq: null });
+      const irs = { cur: 0, full: true, list: [{ slot: 0, name: "Shared cab", bytes: 2000 }, { slot: 1, name: "Own cab", bytes: 2200 }, { slot: 4, name: "Third cab", bytes: 2400 }] };
+      const st = { live: { chain: chain(2), mix: { P: [], Q: [] }, xo: { P: [], Q: [] }, xeq: { P: [], Q: [] }, amp: { present: 0, on: true }, gain: [0, 3], aeq: null }, caps: { cur: -1, list: [], full: true }, irs,
+        scenes: [scene(0), scene(2), scene(5), null, null, null, null, null], names: Array(8).fill(""), active: 1, bpm10: 1200, color: null, stereo: false };
+      const pre = pioPresetOut(st, S.types, { name: "Cabs", att: {} }), doc = JSON.parse(JSON.stringify(pioDoc("preset", [pre], {}))), read = pioParse(JSON.stringify(doc));
+      const ctx = pioCtxOf({ cur: -1, list: [], full: true }, irs), plan = pioPlan(read.presets[0], ctx), less = pioPlan(read.presets[0], pioCtxOf({ cur: -1, list: [], full: true }, { ...irs, list: irs.list.slice(0, 2) }));
+      const key = Object.keys(pre.sound.scenes[0].blocks)[0], safe = HyperRigPresetFile.clean(JSON.stringify(doc));
+      const old = JSON.parse(JSON.stringify(doc));
+      for (const s of old.presets[0].sound.scenes) for (const b of Object.values(s.blocks)) delete b.ir;
+      const lines = p => p.cmds.map(c => c.line).filter(l => /^(FXIR|SNAPSAVE|ILOAD)/.test(l));
+      return JSON.stringify({ block: pre.sound.chain.find(b => b.type === "ir").ir.name, scenes: pre.sound.scenes.map(s => "ir" in s.blocks[key] ? s.blocks[key].ir && s.blocks[key].ir.name : "-"), used: pioUsed(st, S.types).irs,
+        needs: pre.compat.needs.irs.map(x => x.name), lines: lines(plan), warn: plan.warn.length, less: [lines(less), less.warn.map(w => w.name || "")], old: lines(pioPlan(pioParse(JSON.stringify(old)).presets[0], ctx)), safe: JSON.stringify(safe).split("Third cab").length });
+    })()"""))
+    require(made['block'] == 'Own cab' and made['scenes'] == [None, '-', 'Third cab'], f'the cabs of the scenes in a file: {made}')
+    require(made['used'] == [0, 1, 4] and sorted(made['needs']) == ['Own cab', 'Shared cab', 'Third cab'] and made['safe'] > 1, f'what the file must bring: {made}')
+    require(made['lines'] == ['ILOAD 0', 'FXIR {0} 1', 'FXIR {0} -1', 'SNAPSAVE 0', 'FXIR {0} 4', 'SNAPSAVE 2', 'FXIR {0} 1', 'SNAPSAVE 1'] and made['warn'] == 0, f"and back: {made['lines']}, {made['warn']}")
+    require('FXIR {0} 4' not in made['less'][0] and 'FXIR {0} -1' in made['less'][0] and 'Third cab' in made['less'][1], f"a cab that is not there: {made['less']}")
+    require(made['old'] == ['ILOAD 0', 'FXIR {0} 1', 'SNAPSAVE 0', 'SNAPSAVE 2', 'SNAPSAVE 1'], f"a file of before: {made['old']}")
+    return made
 
 
 def acoustic(page, output):
@@ -1631,6 +1758,151 @@ def import_all(page, output):
     return out
 
 
+def backup(page, output):
+    """Everything in one file and back: what is in it, that nothing is changed by making it; each thing in its place again, with what is there already not sent
+    twice, and the rest kept or erased; the backup before a restore; a damaged file, a damaged part, a footswitch in the middle, and what is no backup."""
+    cdp, quiet = page.cdp, 'S.connected && !refreshing && !txn && !saveRun && !pioBusy && !hrBook.busy && !hrSaving && !Pedal.busy'
+    kept = ('(() => { const p = __pedal, c = x => [x.name, x.trim || 0, x.gain || 0, x.fs || 0, Array.from(x.data).join()]; return JSON.stringify({'
+            'presets: Object.fromEntries(Object.entries(p.store).map(([k, s]) => [k, [p.presets[k], s.scenes, s.names.filter((x, i) => s.scenes[i] === "1"), s.ampeq, s.gain, s.bpm, [...s.chain.P, ...s.chain.Q].map(x => [x.type, x.on, x.p])]])),'
+            'captures: Object.fromEntries(Object.entries(p.caps).map(([k, x]) => [k, c(x)])), irs: Object.fromEntries(Object.entries(p.irs).map(([k, x]) => [k, c(x)])),'
+            'settings: [p.globals.geq, p.globals.hpf, p.globals.lim, p.globals.spill, p.globals.spur, p.fsa, p.press_bits, p.layout, p.leds, p.light, p.midi.set]}); })()')
+    state = lambda: json.loads(cdp.evaluate(kept))
+    sent = lambda n, *words: [c for c in cdp.evaluate('__pedal.sent')[n:] if c.split(' ')[0] in words]
+    count = lambda: cdp.evaluate('__pedal.sent.length')
+    out = {}
+
+    def talk(start, answers, what, seconds=120):
+        """Starts something and answers its dialogs by their titles: 'ok', 'cancel', or the boxes to tick. What was said and asked."""
+        cdp.evaluate(TOASTS + '.forEach(e => e.remove())')
+        cdp.evaluate('window.__said = []; if (!window.__toast) { window.__toast = toast; toast = (m, ...more) => { __said.push(String(m)); return __toast(m, ...more); }; }')
+        cdp.evaluate('window.__over = undefined; void Promise.resolve(' + start + ').then(v => { window.__over = v; }, e => { window.__over = "threw " + e; })')
+        asked, deadline = [], time.monotonic() + seconds
+        while cdp.evaluate('window.__over === undefined'):
+            require(time.monotonic() < deadline, f'{what} does not end: {asked}')
+            shown = cdp.evaluate('document.querySelector(".mdlg")?.innerText || ""')
+            if shown:
+                asked.append(shown)
+                answer = next((a for k, a in answers.items() if k.upper() in shown.upper()), 'ok')
+                if isinstance(answer, dict):
+                    cdp.evaluate('(want => { for (const l of document.querySelectorAll(".mdlg .mdlg-chk")) for (const [k, v] of Object.entries(want)) if (l.innerText.includes(k)) l.querySelector("input").checked = v; })(' + json.dumps(answer) + ')')
+                    if 'form' not in out:
+                        out['form'] = cdp.screenshot(output / 'restore-form.png')['path']
+                cdp.evaluate('(document.querySelector(".mdlg .mdlg-cancel") && ' + json.dumps(answer == 'cancel') + ' ? document.querySelector(".mdlg .mdlg-cancel") : document.querySelector(".mdlg .mdlg-ok"))?.click()')
+                page.wait(f'(document.querySelector(".mdlg")?.innerText || "") !== {json.dumps(shown)}', 'the answered question', 15)
+            time.sleep(0.1)
+        page.wait('!document.querySelector(".mdlg") && ' + quiet, f'the end of {what}', 40)
+        return cdp.evaluate('__said'), asked, cdp.evaluate('window.__over')
+
+    page.wait(quiet, 'a quiet page', 30)
+    cdp.evaluate('window.__files = []; pioSaveFile = async (name, text) => { __files.push([name, text]); return "file"; };')
+    slots = sorted(int(k) for k in cdp.evaluate('Object.keys(__pedal.store)'))
+    require(len(slots) >= 2, f'the presets: {slots}')
+    free = next(n for n in range(32) if n not in slots)
+    cdp.evaluate(f'void loadPreset({slots[0]})')
+    page.wait(f'curPreset === {slots[0]} && ' + quiet, 'a preset', 20)
+    # two captures at the ends, one that is not whole, two cabs, and settings that are not the first ones
+    cdp.evaluate("""(() => { const p = __pedal, nam = k => { const d = new Uint8Array(4892); d.set([65, 50, 76, 49]); for (let i = 4; i < d.length; i++) d[i] = (i * k) & 255; return d; };
+        const ir = k => { const d = new Uint8Array(2048); for (let i = 0; i < d.length; i++) d[i] = (i * k) & 255; return d; };
+        p.caps = {0: {data: nam(3), trim: -2.5, name: "Clean amp"}, 9: {data: new Uint8Array(4892), trim: 0, name: "Broken"}, 14: {data: nam(7), trim: 0, name: "Lead amp"}}; p.cap = p.caps[0]; p.cap_slot = 0;
+        p.irs = {0: {n: 1024, data: ir(5), gain: -300, fs: 48, name: "Cab one"}, 7: {n: 1024, data: ir(9), gain: 0, fs: 24, name: "Cab last"}}; p.ir_slot = 0; p.ir = p.irs[0];
+        p.fsa[2][1] = [7, 3, 255]; p.press_bits = [1, 0, 1, 1]; p.leds[1] = ["ff0000", "200000"]; p.light.bright = "60"; })()""")
+    for line, word in (('GEQ 2 5', 'GEQ'), ('HPF 80', 'HPF'), ('LIM 1 -6 250', 'LIM '), ('SPILL 0', 'SPILL')):
+        cdp.evaluate(f'window.__set = false; void Pedal.cmd("{word.strip()}", "{word}").then(() => Pedal.cmd("{line}", "{word}")).then(() => {{ window.__set = true; }})')
+        page.wait('window.__set === true && ' + quiet, line, 15)
+
+    # ---- the backup: what cannot be read is said, the rest is in the file, and the pedal is as before
+    n, before = count(), state()
+    said, asked, over = talk('hrBackup()', {}, 'the backup with a broken capture')
+    require(over is True and any('"Broken"' in x and 'NOT IN THE FILE' in x.upper() for x in asked), f'a capture that is not whole: {asked}')
+    cdp.evaluate('delete __pedal.caps[9]')
+    before = state()
+    cdp.evaluate('__files.length = 0')
+    n = count()
+    said, asked, over = talk('hrBackup()', {}, 'the backup')
+    require(over is True and not asked and any('presets' in x and '2 captures' in x and '2 cabs' in x for x in said), f'the backup: {said}, {asked}')
+    require(state() == before, 'the backup changed the pedal')
+    require(cdp.evaluate('curPreset') == slots[0] and cdp.evaluate('__pedal.current') == slots[0], 'another preset plays after the backup')
+    require(not sent(n, 'PSAVE', 'PDEL', 'CSAVE', 'ISAVE', 'GSAVE', 'CDEL', 'IDEL', 'FXA', 'FXP', 'SNAPSAVE', 'LDBEGIN', 'IRBEGIN', 'CTRIM', 'PNEW'), 'the backup wrote to the pedal')
+    file, text = cdp.evaluate('__files[0]')
+    doc = json.loads(text)
+    out['file'], out['bytes'] = file, len(text)
+    require(re.fullmatch(r'HyperRig backup \d{4}-\d\d-\d\d\.hyperrig\.json', file) and doc['kind'] == 'backup' and [x['slot'] for x in doc['backup']['captures']] == [0, 14] and
+            [x['slot'] for x in doc['backup']['irs']] == [0, 7] and len(doc['presets']) == len(slots), f"the file: {file}, {doc['backup']}")
+    settings = doc['backup']['settings']
+    require(settings['eq'] == [0, 0, 5, 0, 0] and settings['high_pass_hz'] == 80 and settings['limiter'] == {'on': True, 'threshold': -6, 'release': 250} and settings['tails'] is False and
+            settings['switches'][2][1] == [7, 3, 255] and settings['press'] == [1, 0, 1, 1] and settings['switch_lights'][1] == ['ff0000', '200000'] and settings['light']['bright'] == '60' and
+            len(settings) == 12, f'the settings in the file: {settings}')
+
+    # ---- and back, on a pedal that went on: a preset gone, one changed, one more; captures, cabs and settings likewise
+    def spoil():
+        cdp.evaluate(f"""(() => {{ const p = __pedal, s = p.store, copy = x => JSON.parse(JSON.stringify(x)); s[{free}] = copy(s[{slots[0]}]); p.presets[{free}] = "Newer";
+            delete s[{slots[1]}]; delete p.presets[{slots[1]}]; s[{slots[0]}].chain.Q = []; s[{slots[0]}].chain.P = []; s[{slots[0]}].scenes = "1" + "0".repeat(s[{slots[0]}].scenes.length - 1); p.presets[{slots[0]}] = "Spoilt";
+            p.caps[0] = {{...p.caps[0], trim: 1}}; delete p.caps[14]; const d = p.caps[0].data.slice(); d[100] ^= 1; p.caps[5] = {{data: d, trim: 0, name: "Newer amp"}}; p.cap = p.caps[0]; p.cap_slot = 0;
+            p.irs[7] = {{...p.irs[0], name: "Other cab"}}; p.irs[2] = {{...p.irs[0], name: "Newer cab"}}; p.globals.geq = [1, 1, 1, 1, 1]; p.globals.hpf = 0; p.globals.lim = {{on: 0, thr: -10, rel: 100}}; p.globals.spill = 1;
+            p.fsa[2][1] = [0, 0, 255]; p.press_bits = [1, 1, 1, 1]; p.leds[1] = null; p.light.bright = "100"; window.__spoilt = false; void loadPresets().then(() => {{ window.__spoilt = true; }}); }})()""")
+        page.wait('window.__spoilt === true && ' + quiet, 'a pedal that went on', 20)
+    spoil()
+    n, kept_before = count(), cdp.evaluate('__pedal.saved_settings')
+    said, asked, over = talk('pioImport(__files[0][1])', {'Restore this backup': {'Back up the pedal': False, 'Erase': False}}, 'the restore')
+    form = asked[0].upper()
+    require(len(asked) == 1 and all(x in form for x in (f'{len(slots)} PRESETS', '2 CAPTURES AND 2 CABS', 'SETTINGS', 'BACK UP THE PEDAL', 'ERASE')), f'the question: {asked}')
+    require(over is True, f'the restore: {said}, {over}')
+    now = state()
+    require({k: now['presets'][str(k)] for k in slots} == {k: before['presets'][str(k)] for k in slots}, f"presets: {now['presets']}, {before['presets']}")
+    require(all(now['captures'][k] == v for k, v in before['captures'].items()) and all(now['irs'][k] == v for k, v in before['irs'].items()), 'a capture or a cab is not as it was')
+    require(now['settings'] == before['settings'], f"settings: {now['settings']}, {before['settings']}")
+    require(str(free) in now['presets'] and '5' in now['captures'] and '2' in now['irs'], 'something that is not in the backup was erased')
+    require(cdp.evaluate('__pedal.saved_settings') == kept_before + 1, 'the settings were not kept')
+    require(len(sent(n, 'CSAVE')) == 2 and len(sent(n, 'ISAVE')) == 1, f"sent: {sent(n, 'CSAVE', 'ISAVE')}")
+    # once more, with the rest erased: nothing is sent twice, and the pedal is what it was
+    n = count()
+    said, asked, over = talk('pioImport(__files[0][1])', {'Restore this backup': {'Back up the pedal': False, 'Erase': True}}, 'the restore that erases')
+    now = state()
+    require(over is True and now == before, f'the pedal after a restore that erases: {said}, {over}')
+    require(not sent(n, 'CSAVE', 'ISAVE', 'LDBEGIN', 'IRBEGIN') and sorted(sent(n, 'PDEL', 'CDEL', 'IDEL')) == sorted([f'PDEL {free}', 'CDEL 5', 'IDEL 2']), f"erased: {sent(n, 'PDEL', 'CDEL', 'IDEL', 'CSAVE', 'ISAVE')}")
+    out['said'] = said
+    # one part alone
+    spoil()
+    n, was = count(), state()
+    talk('pioImport(__files[0][1])', {'Restore this backup': {'Back up the pedal': False, 'presets': False, 'captures': False}}, 'the settings alone')
+    now = state()
+    require(now['settings'] == before['settings'] and (now['presets'], now['captures'], now['irs']) == (was['presets'], was['captures'], was['irs']), 'the settings alone')
+    # the backup before it, and no at the question after it: the pedal as it is now is in the file, and nothing is changed
+    was, n = state(), count()
+    said, asked, over = talk('pioImport(__files[0][1])', {'Restore this backup': {'Back up the pedal': True}, 'Restore now': 'cancel'}, 'the backup before a restore')
+    require(over is False and len(cdp.evaluate('__files.map(f => f[0])')) == 2 and state() == was and any('RESTORE NOW?' in x.upper() for x in asked), f'the backup before a restore: {asked}, {over}')
+    require(sorted(x['slot'] for x in json.loads(cdp.evaluate('__files[1][1]'))['backup']['captures']) == sorted(int(k) for k in was['captures']), 'the second file')
+    said, asked, over = talk('pioImport(__files[0][1])', {'Restore this backup': 'cancel'}, 'no restore')
+    require(over is False and state() == was, 'a restore that was answered no')
+    # a damaged capture is left out and said; a footswitch in the middle stops it; what is no backup is refused
+    doc['attachments']['cap14']['data'] = 'AAAA' + doc['attachments']['cap14']['data'][4:]
+    cdp.evaluate('window.__damaged = ' + json.dumps(json.dumps(doc)))
+    said, asked, over = talk('hrRestore(__damaged)', {'Restore this backup': {'Back up the pedal': False, 'presets': False, 'Settings': False}}, 'a damaged capture')
+    require('"LEAD AMP" IS DAMAGED AND LEFT OUT' in asked[0].upper() and '14' not in state()['captures'], f'a damaged capture: {asked}')
+    others = {k: v for k, v in state()['presets'].items() if int(k) not in slots}
+    cdp.evaluate('(() => { let saves = 0; __pedal.hook = line => { if (line.startsWith("PSAVE")) saves++; '
+                 f'if (saves === 1 && line.startsWith("FXA")) {{ __pedal.hook = null; __pedal.press({free}); }} }}; }})()')
+    saves = len(sent(0, 'PSAVE'))
+    said, asked, over = talk('hrRestore(__files[0][1])', {'Restore this backup': {'Back up the pedal': False, 'captures': False, 'Settings': False}}, 'a footswitch in the middle')
+    require(cdp.evaluate('__pedal.hook === null'), 'the footswitch was not pressed')
+    require(over is False and any('stopped' in x and 'another preset was chosen' in x for x in said), f'a footswitch in the middle: {said}, {over}')
+    require(len(sent(0, 'PSAVE')) == saves + 1 and {k: v for k, v in state()['presets'].items() if int(k) not in slots} == others, 'a preset was saved over by mistake')
+    for bad in ('{}', json.dumps({**doc, 'backup': {'version': 2}}), json.dumps({k: v for k, v in doc.items() if k != 'backup'})):
+        n = count()
+        cdp.evaluate('window.__bad = ' + json.dumps(bad))
+        said, asked, over = talk('hrRestore(__bad)', {}, 'what is no backup')
+        require(over is False and not asked and any('backup' in x for x in said) and not sent(n, 'PNEW', 'PSAVE', 'LDBEGIN'), f'what is no backup: {said}, {asked}')
+    # while a sound is tried, and without a pedal, it says so
+    cdp.evaluate('window.__try = globalThis.hrTry; globalThis.hrTry = {on: true, muted: false, state: "off"}')
+    said, asked, over = talk('hrBackup()', {}, 'a backup while a sound is tried')
+    cdp.evaluate('globalThis.hrTry = window.__try')
+    require(over is False and any('being tried' in x for x in said), f'a backup while a sound is tried: {said}')
+    # as it was before the check
+    talk('pioImport(__files[0][1])', {'Restore this backup': {'Back up the pedal': False, 'Erase': True}}, 'the last restore')
+    require(state() == before, 'the pedal after the last restore')
+    return out
+
+
 def same_volume(page, output):
     """The same volume for scenes and presets: the guitar that is recorded, what is measured, the gains that are shown, corrected and written, and nothing else; the
     single scene, whose gain is a change like any other; what stops it, from the page and from the pedal, and what cannot be measured."""
@@ -1819,6 +2091,24 @@ def same_volume(page, output):
     cdp.evaluate('__pedal.late = null')
     press('Cancel')
     page.wait('!document.querySelector("dialog.hrvol") && ' + quiet, 'the window closed', 20)
+    # a preset that a block does not fit of is left as it is, and that is said: in the list, over it, and when the others are saved
+    opened()
+    cdp.evaluate('{ const way = document.querySelector("dialog.hrvol select"); way.value = "medium"; way.dispatchEvent(new Event("change")); }')
+    pick('all')
+    cdp.evaluate(f'__pedal.misses = {c}; __said.length = 0; void 0')
+    kept = cdp.evaluate(f'JSON.stringify(__pedal.store[{c}])')
+    press('Measure')
+    page.wait('!!document.getElementById("hrVolSave")', 'all presets but one', 120)
+    out['left'] = cdp.evaluate('document.getElementById("hrVolLeft")?.textContent || ""')
+    slot = cdp.evaluate(f'slotTxt({c})')
+    require(slot in out['left'] and len([r for r in cdp.evaluate(rows) if 'does not fit' in r[3]]) == 1, f"what was left out: {out['left']}, {cdp.evaluate(rows)}")
+    cdp.screenshot(output / 'same-volume-left.png')
+    cdp.evaluate('document.getElementById("hrVolMore").click()')
+    cdp.evaluate('document.getElementById("hrVolSave").click()')
+    page.wait('!document.querySelector("dialog.hrvol") && ' + quiet, 'the others saved', 40)
+    require(any('Not measured, and as it was: ' + slot in x for x in cdp.evaluate('__said')), f"what is said of it: {cdp.evaluate('__said')}")
+    require(cdp.evaluate(f'JSON.stringify(__pedal.store[{c}])') == kept, 'the one that was left out was changed')
+    cdp.evaluate('__pedal.misses = null')
     for why, back, said in (('full = true', 'full = false', 'no free memory'), ('bypass = 1', 'bypass = 0', 'in bypass'), ('engine = 0', 'engine = 2', 'engine is not running')):
         opened()
         cdp.evaluate(f'__pedal.{why}')
@@ -2143,6 +2433,7 @@ def long_delay(page):
       return r; })()""")
     answer, held, sent, said = out['first']
     require(1220 <= int(answer.split()[-1]) <= 1230 and held == int(answer.split()[-1]), f'the longest delay: {out["first"]}')
+    sent = [c for c in sent if c.split()[0] not in ('LVL', 'EVT', 'HRST')]           # what the page asks by itself meanwhile
     require(all(c.startswith('FXP 7 0 ') for c in sent) and len(sent) <= 9, f'the search: {sent}')
     require(len(said) == 1 and 'longest delay that fits here is 1.2' in said[0], f'what is said: {said}')
     require(out['again'][0] == answer and out['again'][1] == [] and out['again'][2] == [], f'asked again at once: {out["again"]}')
@@ -2625,6 +2916,15 @@ def run(bundle, output, page_class=Page):
         page.wait('/A/.test(document.querySelector("#tuner .note")?.textContent || "")', 'the note shown')
         steps['tuner'] = cdp.evaluate('({pedal: __pedal.tuner.slice(), note: document.querySelector("#tuner .note").textContent})')
         steps['tuner_picture'] = cdp.screenshot(output / 'tuner.png')['path']
+        if product:
+            cdp.evaluate('__pedal.full = true')
+            page.wait('/^No memory for the tuner/.test(document.getElementById("tuStat").textContent)', 'the tuner says that it has no memory')
+            steps['tuner_full'] = cdp.evaluate('''(() => { const e = document.getElementById("tuStat"), b = document.querySelector("#tuner .box").getBoundingClientRect(),
+                r = e.getBoundingClientRect(); return {note: document.querySelector("#tuner .note").textContent, inside: r.left >= b.left && r.right <= b.right && r.bottom <= b.bottom}; })()''')
+            require(steps['tuner_full']['inside'] and steps['tuner_full']['note'] == '–', 'the tuner without memory')
+            steps['tuner_full_picture'] = cdp.screenshot(output / 'tuner-full.png')['path']
+            cdp.evaluate('delete __pedal.full')
+            page.wait('/A/.test(document.querySelector("#tuner .note")?.textContent || "")', 'the note again')
         cdp.evaluate('document.getElementById("tuClose").click()')
         page.wait('__pedal.tuner[0] === 0', 'the tuner closed')
         # The amp, as a person does it: select its block, then its Bypass button, then again.
@@ -2741,6 +3041,11 @@ def run(bundle, output, page_class=Page):
             steps['cab_irs'] = cab_irs(page, quiet, output)
             steps['captures'] = captures(page, quiet, output)
             steps['knobs'] = knobs(page, quiet, output)
+            steps['cab_cuts'] = cab_cuts(page, output)
+            steps['battery'] = battery(page, output)
+            steps['overload'] = overload(page, quiet, output)
+            steps['scene_cabs'] = scene_cabs(page, quiet, output)
+            steps['replugged'] = replugged(page, quiet, output)
             steps['acoustic'] = acoustic(page, output)
             steps['own_effects'] = own_effects(page, output)
             steps['harmonizer'] = harmonizer(page, output)
@@ -2781,6 +3086,7 @@ def run(bundle, output, page_class=Page):
             steps['eight_scenes'] = eight_scenes(page, output)
             steps['preset_files'] = preset_files(page)
             steps['import_all'] = import_all(page, output)
+            steps['backup'] = backup(page, output)
             steps['long_delay'] = long_delay(page)
             steps['same_volume'] = same_volume(page, output)
         steps['page_errors'] = cdp.evaluate('__errors')

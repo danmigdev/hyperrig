@@ -1054,9 +1054,14 @@ L020186be:
     b[r14+53] = r9
     goto L0201938e
 L020186d6:
+; HyperRig MINI, product option: the memory of the effects is put together for the tuner (mini/product/tuner.c)
+.if MINI_PRODUCT
+    call hyperrig_tuner_memory
+.else
     r0 = r14 + 2452
     r1 = 7168
     call block_pool_allocate
+.endif
     r1 = 1
     if (r0 == 0) goto L020186e8
     r1 = 0
@@ -1172,7 +1177,11 @@ L020187fe:
     goto L0201938e
 L02018836:
     r0 = r1
+.if MINI_PRODUCT
+    call hyperrig_tuner_give
+.else
     call L0203d218  ; @call.xl
+.endif
 L0201883e:
     r0 = 1020
     [r14+1016] = r9

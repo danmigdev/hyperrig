@@ -12,6 +12,9 @@ phase3_p7_norflash_spi_cs:
     call storage_control_chip_select
     pc = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; phase3_p7_norflash_spi_read_byte: 0x01c00ad2..0x01c00ada, module phase3-p7 (norflash_spi_read_byte)
 .type phase3_p7_norflash_spi_read_byte,@function
 phase3_p7_norflash_spi_read_byte:
@@ -25,3 +28,4 @@ phase3_p7_norflash_spi_write_byte:
     [--sp] = rets
     call storage_control_send_byte
     pc = [sp++]
+.endif

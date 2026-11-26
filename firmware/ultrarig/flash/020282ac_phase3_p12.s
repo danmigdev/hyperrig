@@ -11,9 +11,13 @@ phase3_p12_atoi:
     r2 = 10
     goto capture_command_decimal  ; @goto.l
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; phase3_p12_atoi_r: 0x020282b4..0x020282bc, module phase3-p12 (atoi_r)
 .type phase3_p12_atoi_r,@function
 phase3_p12_atoi_r:
     r2 = 0
     r3 = 10
     goto capture_command_decimal_core  ; @goto.l
+.endif

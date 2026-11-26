@@ -4,6 +4,9 @@
 
 ; clock_test: 1 function, 0x02010af4..0x020112f8
 
+; HyperRig MINI, product option: no processor test
+.if MINI_PRODUCT
+.else
 ; clock_test_clock_test: 0x02010af4..0x020112f8, module clock-test (clock_test)
 .type clock_test_clock_test,@function
 clock_test_clock_test:
@@ -804,3 +807,4 @@ L020112ec:
     call fault_record_fatal_record
 L020112f6:
     goto L020112f6
+.endif

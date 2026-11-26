@@ -48,6 +48,9 @@ L01c00a5a:
     r0 = 0
     {pc, r8-r4} = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; phase3_p7_norflash_read_otp_general: 0x01c00a68..0x01c00ab2, module phase3-p7 (norflash_read_otp_general)
 .type phase3_p7_norflash_read_otp_general,@function
 phase3_p7_norflash_read_otp_general:
@@ -83,3 +86,4 @@ L01c00a9e:
 L01c00aae:
     r0 = r6
     {pc, r8-r4} = [sp++]
+.endif

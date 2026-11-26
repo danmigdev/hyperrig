@@ -9,6 +9,7 @@ for one channel of 16, 24 or 32 bits at 48 kHz, which the pedal takes as 48,077 
 """
 from __future__ import annotations
 
+import struct
 import sys
 import wave
 from operator import mul
@@ -43,13 +44,12 @@ def away(start, to):
 
 
 def note_of(lag):
-    log = lag.bit_length() - 1
-    lag <<= 31 - log
-    for _ in range(12):
-        lag *= lag
-        high = lag >> 63
-        log, lag = 2 * log + high, lag >> (31 + high)
-    return IS['REFERENCE'] - ((3 * log + 2) >> 2)
+    return IS['REFERENCE'] - ((3 * numbers.log_of(lag) + 2) >> 2)
+
+
+def tuned(bits):
+    """How far the tuner's A is from 440 Hz, in 1/256 of a semitone. It is a number of 32 bits with a point, from 256 to 512."""
+    return ((3 * numbers.log_of((bits & 0x7FFFFF | 0x800000) >> 7) + 2) >> 2) - IS['A440'] if bits >> 23 == 135 else 0
 
 
 def speed_of(interval):
@@ -139,15 +139,15 @@ class Voice:
 
 
 class Harmonizer:
-    def __init__(self, parameters=DEFAULTS):
-        self.settings = Settings(parameters)
+    def __init__(self, parameters=DEFAULTS, a=440.0):
+        self.settings, self.a = Settings(parameters), a
         self.line = [0] * (BEFORE + RING + AFTER)
         self.slow = [0] * (BACK + LOOK)
         self.unlike, self.power, self.wide = [0] * (LONGEST + 2), [0] * (LONGEST + 2), [0] * WIDE
         self.voices, self.gain = [Voice(), Voice()], [0, 0, 0]
         self.now = self.at = self.turn = self.started = self.deep = self.soft = self.most = 0
         self.age = self.note = self.lag = self.pitch = self.mean = self.other = self.lost = self.waiting = 0
-        self.since = self.doubt = self.chord = self.home = self.held = self.jump = 0
+        self.since = self.doubt = self.chord = self.home = self.held = self.jump = self.tuned = self.root = 0
 
     # the listening
 
@@ -155,6 +155,7 @@ class Harmonizer:
         self.unlike, self.power = [0] * (LONGEST + 2), [0] * (LONGEST + 2)
         self.age = self.note = self.other = self.chord = self.since = self.doubt = 0
         self.waiting = 1
+        self.tuned = tuned(struct.unpack('<I', struct.pack('<f', self.a))[0])
 
     def note_starts(self, lag, pitch):
         self.note, self.lag, self.pitch, self.mean = 1, lag, pitch, pitch
@@ -209,6 +210,30 @@ class Harmonizer:
                 best = i
         if self.age >= 11:
             self.jump = (((LONGEST + 2) << 8) + 2 * dip(best, *w[best - 1:best + 2])) << 10
+            if self.chord:
+                self.chord_goes_on(here)
+
+    def chord_goes_on(self, here):
+        """A chord that is like itself again after some lag, as a power chord is, has a root: the voices take the intervals of that."""
+        w, root = self.wide, -1
+        for i in range(1, WIDE - 1):
+            if w[i] >= w[i - 1] or w[i] > w[i + 1]:
+                continue
+            place = BACK - (LONGEST + 2 + 2 * i)
+            then = self.slow[place:place + LOOK:2]
+            if w[i] >> 3 < ((here + sum(map(mul, then, then))) >> 16) * IS['CLEAR']:
+                pitch = note_of(((LONGEST + 2) << 8) + 2 * dip(i, *w[i - 1:i + 2])) - self.tuned
+                root = ((pitch + HALF) >> 8) % 12
+                break
+        if root < 0 or root != self.root:
+            self.root, self.held = root, 0
+            return
+        self.held += 1
+        if self.held == numbers.AGREE:
+            self.home = root
+            for steps, v in zip(self.settings.steps, self.voices):
+                if abs(steps[root] * 256 - v.interval) > 16:
+                    v.interval, v.jump = steps[root] * 256, 1
 
     def listen(self):
         u, p, mine = self.unlike, self.power, self.slow[BACK:]
@@ -255,12 +280,12 @@ class Harmonizer:
         lag = lag or kept
         if lag:
             place = dip(lag, *u[lag - 1:lag + 2])
-            pitch = note_of(place)
+            pitch = note_of(place) - self.tuned
             again = self.other and abs(away(self.other, pitch)) < HALF
             self.lost = 0
             if self.note and abs(away(self.pitch, pitch)) < HALF:
                 self.pitch, self.lag, self.other = pitch, place, 0
-            elif (again and sure) if self.doubt else (again or sure and not self.note):
+            elif (again and sure) if self.doubt else (again or sure and not self.note and not self.chord):
                 self.note_starts(place, pitch)
             else:
                 self.other = pitch

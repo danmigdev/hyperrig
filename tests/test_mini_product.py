@@ -67,7 +67,7 @@ class Option(unittest.TestCase):
                     self.assertTrue(any(stack), f'{path.name}: {line}')
                     used += 1
             self.assertEqual(stack, [], path.name)
-        self.assertEqual(used, 91)
+        self.assertEqual(used, 97)
 
     def test_the_way_to_the_loader_has_the_loaders_numbers(self):
         """STAGE looks for what the bootloader and the loader look for, writes no flash, and restarts as the stock firmware does."""

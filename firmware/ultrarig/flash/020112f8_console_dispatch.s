@@ -221,10 +221,14 @@ console_dispatch_console_dispatch:
     r0 = r6
     call L02028308  ; @call.xl
     if (r0 == 0) goto L02013738
+; HyperRig MINI, product option: no processor test
+.if MINI_PRODUCT
+.else
     r1 = r15 + 1014
     r0 = r6
     call L02028308  ; @call.xl
     if (r0 == 0) goto L02013a32
+.endif
     r1 = r15 + 900
     r0 = r6
     call L02028308  ; @call.xl
@@ -3254,10 +3258,13 @@ L02013a22:
 L02013a2c:
     if (r0 != 4) goto L02013a22
     goto L02013a58
+.if MINI_PRODUCT
+.else
 L02013a32:
     r0 = r5
     call clock_test_clock_test
     goto L02011a58
+.endif
 L02013a3c:
     r0 = 8728
     r5 = r14 + r0

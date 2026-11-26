@@ -727,6 +727,10 @@ L02009a82:
     r0 = 0
     call r1
 L02009ab2:
+; HyperRig MINI, product option: the cuts of the cabs are there at once, the sound being paused (mini/product/cab.c)
+.if MINI_PRODUCT
+    call hyperrig_cab_now
+.endif
     r0 = 0
     r4 = 0
     call storage_control_activity

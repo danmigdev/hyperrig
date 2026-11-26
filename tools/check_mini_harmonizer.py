@@ -31,7 +31,7 @@ ID, PARAMETERS, MEMORY, STATE, SAMPLES, HEAP = 24, 70, 84, 288, block.SAMPLES, b
 ROWS = [(0, 11, 0, 'key'), (0, 10, 0, 'scale'), (-7, 7, 2, 'voice1'), (-7, 7, 0, 'voice2'), (0, 100, 50, 'balance_pct'), (0, 100, 50, 'mezcla_pct'),
         (-12, 12, 0, 'nivel_db')]
 COST, SECOND, CYCLES, TICK = 11000, 2500, block.CYCLES, block.TICK         # what the firmware counts, and more for a second voice
-RATE, CHECKS = 48077, 28
+RATE, CHECKS, TUNED_TO = 48077, 34, 144              # where the settings have the tuner's A
 
 
 def strings(events, blocks):
@@ -164,12 +164,13 @@ class Check(scenes.Pedal):
             out += struct.unpack(f'<{count}i', self.mem.read(SAMPLES, 4 * count))
         return out
 
-    def fresh(self, *parameters):
+    def fresh(self, *parameters, a=440.0):
         self.mem.write(HEAP, bytes(2 * self.halfwords))
         self.mem.write(self.object(1) + 10, bytes(2))
+        self.mem.write(self.where[harness.SETTINGS] + TUNED_TO, struct.pack('<f', a))
         self.commit(1, *parameters)
         self.steps.clear()
-        return model.Harmonizer(parameters)
+        return model.Harmonizer(parameters, a)
 
     def same(self, name, mine, samples, count=128, and_also=lambda out: True):
         out = self.play(samples, count)
@@ -193,6 +194,22 @@ class Check(scenes.Pedal):
         chord = [sum(round(2 ** 20 * math.sin(2 * math.pi * f * i / RATE)) for f in (110.0, 164.8, 220.0, 277.2)) for i in range(128 * 44)]
         self.same('a chord is that of the model', mine, chord, and_also=lambda out: mine.chord == 1 and not mine.note)
         two = max(self.steps)
+        # the interval of a chord is that of its root, whatever the note before it was; in C major a third above
+        for name, root, shape in (('a power chord on E', 40, (0, 7)), ('a power chord on F, with the octave', 41, (0, 7, 12)), ('a power chord on B, after a note', 47, (0, 7))):
+            mine = self.fresh(0, 0, 2, 0, 50, 50, 0)
+            before = strings([(0, 64 if root == 41 else 65, 0, 0.8)], 10)
+            tones = [(440 * 2 ** ((root + s - 69) / 12), 1 / (1 + s / 12)) for s in shape]
+            x = before + [round(2 ** 20 * (1 - math.exp(-i / 60)) * sum(a * math.sin(2 * math.pi * k * f * i / RATE) / k for f, a in tones for k in (1, 2, 3, 4, 5))) for i in range(128 * 36)]
+            want = mine.settings.steps[0][root % 12]
+            self.same(f'{name}: the interval of its root', mine, x, and_also=lambda out: mine.chord == 1 and mine.home == root % 12 and mine.voices[0].interval == want * 256)
+        # the tuner's A: the same note is in tune with another one, and what is no number for one is 440
+        for a, note in ((432.0, 57), (445.5, 64), (0.0, 57)):
+            mine = self.fresh(0, 0, 2, 0, 50, 50, 0, a=a)
+            x = [round(v * 2 ** 21) for v in (math.sin(2 * math.pi * (a or 440) * 2 ** ((note - 69) / 12) * i / RATE) * (1 - math.exp(-i / 60)) for i in range(128 * 20))]
+            self.same(f'the tuner at {a or "nothing"}: {note} is heard as it is', mine, x, and_also=lambda out: mine.note > 0 and abs(mine.pitch - note * 256) < 6)
+        mine = self.fresh(*parameters)
+        self.play(chord[:128 * 4])
+        mine.run(chord[:128 * 4])
         self.same('what is too loud stays within 24 bits', mine, [8388607 if i // 109 % 2 else -8388608 for i in range(1280)], and_also=lambda out: max(map(abs, out)) <= 8388607)
         # parameters that move while it sounds
         self.commit(1, 4, 0, 7, -7, 50, 100, 0)

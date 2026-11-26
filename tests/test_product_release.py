@@ -105,6 +105,21 @@ class Release(unittest.TestCase):
     def test_a_release_is_verified(self):
         self.assertEqual(release.verify(self.made())['result'], 'pass')
 
+    def test_the_notes_say_what_is_new_and_how_to_update(self):
+        version = (ROOT / 'firmware/ultrarig/mini/product/VERSION').read_text(encoding='ascii').strip()
+        if '-' not in version:
+            text = release.notes({'version': version, 'firmware': {'build_id': '0' * 16}, 'commit': '0' * 40})
+            self.assertIn(f'**New in {version}**\n\n' + release.changes(version), text)
+            self.assertIn('Update now', text)
+        page = '# Changes\n\n## 1.1.0\n\n- one\n- two\n\n## 1.0.0\n\nThe first.\n'
+        self.assertEqual(release.changes('1.1.0', page), '- one\n- two')
+        self.assertEqual(release.changes('1.0.0', page), 'The first.')
+        for missing in ('1.2.0', '1.0'):
+            with self.assertRaisesRegex(ValueError, 'nothing for'):
+                release.changes(missing, page)
+        with self.assertRaisesRegex(ValueError, 'nothing for'):
+            release.changes('1.0.0', '## 1.0.0\n\n## 0.9.0\n\nx\n')
+
     def test_the_checksums_name_what_is_attached(self):
         out = self.made()
         (out / 'NOTES.md').write_bytes(b'the text of the page')

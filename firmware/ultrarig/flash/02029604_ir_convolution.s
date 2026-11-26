@@ -56,6 +56,14 @@ L02029660:
     call r1
     r8 = r0
     if (r0 != 0) goto L0202967c
+; HyperRig MINI, product option: the block's convolution of now gives its place to the new one (mini/product/cab.c)
+.if MINI_PRODUCT
+    r0 = r11
+    r1 = r10
+    call hyperrig_cab_room
+    r8 = r0
+    if (r0 != 0) goto L0202967c
+.endif
 L02029676:
     r0 = r6
     sp += 12

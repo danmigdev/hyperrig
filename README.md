@@ -3,7 +3,7 @@
 Firmware, editor and installer for the **M-VAVE TANK-MINI**, independently maintained and
 based on UltraRig.
 
-[Install it](INSTALLATION.md) | [Manual](docs/MANUAL.md) |
+[Install it](INSTALLATION.md) | [Manual](docs/MANUAL.md) | [What is new](docs/CHANGES.md) |
 [Downloads](https://github.com/danmigdev/hyperrig/releases) |
 [Report an issue](https://github.com/danmigdev/hyperrig/issues/new/choose)
 
@@ -21,6 +21,8 @@ based on UltraRig.
 - **Harmonizer.** One or two voices that follow your notes in the key and the scale of the song.
 - **Captures and cabs.** 15 NAM captures and 8 cab IRs in the pedal, from files or straight from
   [TONE3000](https://www.tone3000.com). Powered by TONE3000.
+- **Presets of others.** From [Patchstorage](https://patchstorage.com/platform/hyperrig/), heard on
+  the pedal before you keep them. A backup of the whole pedal in one file.
 - **One program.** The editor finds the pedal by itself over USB; the installer is in it. No
   administrator rights, no drivers, nothing else to install.
 - **The way back.** Before anything changes the whole pedal is saved on your computer, and the
@@ -47,7 +49,7 @@ warranty.
 
 No telemetry, no donations, no automatic reports. The program sends nothing over the
 network, except to TONE3000 when you open Browse TONE3000, and to Patchstorage when you open
-Browse Patchstorage, in a program that has it. Reporting an issue opens GitHub,
+Browse Patchstorage. Reporting an issue opens GitHub,
 where you look at it and send it yourself.
 
 ## Licence

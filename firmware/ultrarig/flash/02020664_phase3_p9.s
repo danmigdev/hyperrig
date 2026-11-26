@@ -551,6 +551,9 @@ L02020c44:
 L02020c4e:
     goto L02020c4e
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; phase3_p9_fread: 0x02020c50..0x02020ca6, module phase3-p9 (fread)
 .type phase3_p9_fread,@function
 phase3_p9_fread:
@@ -686,3 +689,4 @@ L02020d74:
     r0 = r1.b0 (s)
     sp += 4
     {pc, r4} = [sp++]
+.endif

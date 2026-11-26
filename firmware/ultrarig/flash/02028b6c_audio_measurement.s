@@ -15,6 +15,9 @@ audio_measurement_control_value:
     }
     rts
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; audio_measurement_controls_zero: 0x02028b80..0x02028b9a, module audio-measurement (controls_zero)
 .type audio_measurement_controls_zero,@function
 audio_measurement_controls_zero:
@@ -69,3 +72,4 @@ L02028be6:
 L02028bf0:
     b[r8+0] = r3
     {pc, r8-r4} = [sp++]
+.endif

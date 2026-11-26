@@ -10,6 +10,9 @@ ram_callbacks_signed_max:
     r0 = smax(r0, r1)
     rts
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; ram_callbacks_second_word: 0x01c11f4c..0x01c11f56, module ram-callbacks (second_word)
 .type ram_callbacks_second_word,@function
 ram_callbacks_second_word:
@@ -19,3 +22,4 @@ ram_callbacks_second_word:
     r0 = 0
     }
     rts
+.endif

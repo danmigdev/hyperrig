@@ -14,6 +14,9 @@ phase3_p7_norflash_enter_spi_code:
     [r1+0] = r0
     pc = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; phase3_p7_norflash_entry_sleep: 0x01c008d8..0x01c00904, module phase3-p7 (norflash_entry_sleep)
 .type phase3_p7_norflash_entry_sleep,@function
 phase3_p7_norflash_entry_sleep:
@@ -121,3 +124,4 @@ L01c009da:
     r0 = 0
     call storage_control_bus_leave
     pc = [sp++]
+.endif

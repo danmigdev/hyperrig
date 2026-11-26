@@ -14,7 +14,7 @@ Usage, from the repository root:
     python -B tools/build_product_release.py draft --output build/release-X.Y.Z                      (the workflow only: GitHub)
 fetch downloads what is missing and checks it; a part that is there is checked too. The editor's base comes from --editor-base, or with
 GitHub's gh from the draft release that keeps it. finish makes
-    HyperRig-X.Y.Z-Windows-x64.zip   the program: editor, installer, firmware and loader in it
+    HyperRig-X.Y.Z-Windows-x64.zip   the program: editor, installer, firmware and loader in it, with HyperRig's platform on Patchstorage
     HyperRig-X.Y.Z-firmware.zip      the firmware and the loader by themselves, with their records and licences
     provenance.json, SHA256SUMS, NOTES.md
 draft puts them into a draft release of GitHub, which nobody sees until a person publishes it, and runs only in the workflow.
@@ -42,6 +42,7 @@ V4_AREA = 'd5d6109bc707a6402cbed7506fd53aced23baeb27f6ac7ca8703e3f11d2376a2'
 LICENSES = {'NOTICE.md': 'release/NOTICE.md', 'LICENSE.md': 'third_party/ultrarig/LICENSE.md', 'ac79-sdk-LICENSE.txt': 'third_party/ac79-sdk/LICENSE',
             'btstack-LICENSE.txt': 'third_party/btstack/LICENSE', 'm-bootloader.md': 'firmware/mini_stage/THIRD_PARTY.md'}
 STAMP = (2026, 1, 1, 0, 0, 0)                # one time for every file of an archive, so that it is the same when it is made again
+PATCHSTORAGE = 12712                         # HyperRig's platform on Patchstorage (patchstorage.com/platform/hyperrig/), which is public
 
 
 def sha(raw):
@@ -234,12 +235,23 @@ Build {build}, commit {commit}.
 '''
 
 
+def changes(version, text=None):
+    """What is new in a version: its section of docs/CHANGES.md, which a release must have."""
+    text = (ROOT / 'docs/CHANGES.md').read_text(encoding='utf-8') if text is None else text
+    found = re.search(rf'^## {re.escape(version)}\n(.*?)(?=^## |\Z)', text, re.M | re.S)
+    require(found and found.group(1).strip(), f'docs/CHANGES.md has nothing for {version}')
+    return found.group(1).strip()
+
+
 def notes(about):
     version, docs = about['version'], f"https://github.com/danmigdev/hyperrig/blob/v{about['version']}"
     return ('Firmware, editor and installer for the **M-VAVE TANK-MINI**.\n\n'
+            f'**New in {version}**\n\n{changes(version)}\n\n'
             f'**To install it** you need a TANK-MINI with the original firmware **011** and a Windows PC. Download `HyperRig-{version}-Windows-x64.zip`, extract the whole of it, '
             f'start `HyperRig.exe` and follow the [installation guide]({docs}/INSTALLATION.md). Then the [manual]({docs}/docs/MANUAL.md); what is not there and what was not tried is in '
             f'its [limits]({docs}/docs/MANUAL.md#limits).\n\n'
+            f'**To update** a pedal that has an older HyperRig, start the new program and connect the pedal: it offers **Update now**, and your presets stay '
+            f'([how]({docs}/INSTALLATION.md#update)).\n\n'
             'Installing it replaces the firmware of the pedal, at your own risk and without any warranty. The whole pedal is saved on your computer first, and the original comes back from that '
             'copy. It was tried on one TANK-MINI. The program is not signed: Windows may ask before it starts.\n\n'
             f'- `HyperRig-{version}-Windows-x64.zip`: the program: editor, installer, firmware.\n'
@@ -258,7 +270,7 @@ def finish(version, parts_dir, output, key=None):
     out = fresh(output)
     rel, parts_rel = out.relative_to(ROOT).as_posix(), made.relative_to(ROOT).as_posix()
     tool('build_desktop_editor', '--bundle', f'{parts_rel}/editor', '--output', f'{rel}/program', '--firmware', f'{parts_rel}/firmware', '--loader', f'{parts_rel}/loader',
-         *(['--tone3000-key', Path(key).resolve()] if key else []))
+         '--patchstorage-platform', str(PATCHSTORAGE), *(['--tone3000-key', Path(key).resolve()] if key else []))
     folder = out / 'program/HyperRig'
     program = {f'HyperRig/{p.relative_to(folder).as_posix()}': p.read_bytes() for p in folder.rglob('*') if p.is_file()}
     archive(out / f'HyperRig-{version}-Windows-x64.zip', program)
@@ -271,7 +283,7 @@ def finish(version, parts_dir, output, key=None):
     archive(out / f'HyperRig-{version}-firmware.zip', files)
     shutil.rmtree(out / 'program')
     (out / 'NOTES.md').write_bytes(notes(about).encode())
-    about = {**about, 'kind': 'hyperrig-release', 'tone3000': bool(key), 'signed': False,
+    about = {**about, 'kind': 'hyperrig-release', 'tone3000': bool(key), 'patchstorage': PATCHSTORAGE, 'signed': False,
              'artifacts': {p.name: {'sha256': sha(p.read_bytes()), 'bytes': p.stat().st_size} for p in sorted(out.glob('*.zip'))}}
     (out / 'provenance.json').write_bytes(json.dumps(about, indent=1, sort_keys=True).encode() + b'\n')
     (out / 'SHA256SUMS').write_bytes(''.join(f'{sha((out / n).read_bytes())}  {n}\n' for n in attached(out)).encode())

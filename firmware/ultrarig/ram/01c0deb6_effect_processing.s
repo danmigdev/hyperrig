@@ -408,6 +408,13 @@ L01c0e31c:
     [sp] = r1
     r2 = r13
     call ir_processing_process  ; @call.xl
+; HyperRig MINI, product option: the low and the high cut of the cab (mini/product/cab.c)
+.if MINI_PRODUCT
+    r0 = r14
+    r1 = r15
+    r2 = r13
+    call hyperrig_cab_sound  ; @call.xl
+.endif
     sp += 388
     {pc, r15-r4} = [sp++]
 L01c0e33e:

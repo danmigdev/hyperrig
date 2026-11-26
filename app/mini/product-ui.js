@@ -26,6 +26,18 @@ function hrNamePending() {
     save: v => { S.pendName = v; renderPresets(); }, focusEl: () => $("presetBtn"), minW: 240 });
 }
 
+/* The tuner takes 7 KB of the pedal's memory while it is open, and beside a full preset there may be none. */
+let hrTunerFull = false;
+function hrTunerRoom(none) {
+  if (none) {
+    TU.tgt = null;
+    const say = "No memory for the tuner beside this preset. Remove a block or shorten a delay, then open it again.";
+    if (!hrTunerFull) { $("tuSay").textContent = say; $("tuLvl").textContent = "–"; }
+    $("tuStat").textContent = say;
+  } else if (hrTunerFull) { $("tuStat").textContent = "Play a string"; TU.drawn = ""; }
+  hrTunerFull = none;
+}
+
 /* The places of the chain. The firmware holds ten blocks before the AMP block and ten after it, sixteen in all. Without a capture nothing stands between
  * the two sections and a block sounds the same in both (tools/check_mini_places.py), so one chain is shown and both are used for it. Two things are not the
  * same, and decide where they meet: only the second is in stereo, so a chain of more than ten has ten there and the first ones in the other; and neither a
@@ -310,6 +322,34 @@ async function hrSaveTo() {
   if (curPreset !== pick.n || S.pendName) { S.pendName = was; renderPresets(); }      // not saved: it was answered no
 }
 
+/* The battery, as the pedal reads it (HRST): asked when it connects and every half minute, between other commands. Before its first mean the pedal says
+ * -1, and nothing is shown. Whether it charges it does not say. */
+let hrBattery = null, hrBatteryNext = 0;
+async function hrBatteryAsk() {
+  if (!S.connected) { hrBattery = null; hrBatteryNext = 0; return; }
+  if (DEMO || performance.now() < hrBatteryNext || txn || saveRun || edSaving || refreshing || (globalThis.hrTry && hrTry.on)) return;
+  hrBatteryNext = performance.now() + 30000;
+  let said = "";
+  try { said = reply(await Pedal.cmd("HRST", "HRST "), "HRST "); } catch (e) { /* asked again in half a minute */ }
+  const m = /\bbattery=(\d{1,3})\b/.exec(said);
+  hrBattery = m && +m[1] <= 100 ? { pct: +m[1], mv: null, usb: false, chg: false, note: `Battery: ${+m[1]} %, as the pedal reads it` } : null;
+  if (S.connected) battShow(hrBattery);
+}
+setInterval(hrBatteryAsk, 1730);
+
+/* The pedal had no time for all of it and switched a block off by itself: which one it says, and here it can be switched on again. */
+function hrOverloadAction(m) {
+  if (!m || m[4] !== "off") return undefined;
+  const id = +m[2], type = m[3];
+  return { label: "Turn it on", fn: async () => {
+    const f = findInst(id);
+    if (S.connected && f && f.inst.type === type && !f.inst.on) await toggle(id);
+  } };
+}
+
+/* The cab that a block plays, as its parameter says it: 0 for the preset's, or one more than the slot of its own. */
+const hrIrSlot = (it, types) => { const t = types[it.type], q = it.type === "ir" && t ? t.params.find(x => x.name === "ir_slot") : null; return q ? it.p[q.idx] || 0 : 0; };
+
 /* What A, B and C do: one choice of three, in the footswitches' window. Presets is the pedal's own layout, with the pairs for the banks and the tuner. Stomp and
  * Scenes are actions of each switch, with pairs of their own (mini/product/pairs.c). Custom is any other set of actions, without pairs. */
 const HR_HOLD = { 1: [4, 0, 3], 8: [0, 0, 0] };               // held, in Scenes: the preset before and the next; the pairs do the rest (mini/product/pairs.c)
@@ -444,6 +484,15 @@ async function hrFiles(pre, doc, ctx, note) {
   }
   return ups;
 }
+/* One preset of a file, built on the pedal and saved in slot n. */
+async function hrPutPreset(pre, n, ctx, note, on) {
+  const plan = pioPlan(pre, ctx), res = await pioRun(plan, pioSendLive, ctx, on);
+  await hrStillNew(pioSendLive);
+  const name = pioAscii(plan.name, 23) || "Preset " + slotTxt(n), w = reply(await Pedal.cmd(`PSAVE ${n} ${name}`, "PSAVE", 8000), "PSAVE");
+  if (!w.startsWith("PSAVE ok")) throw new Error(`${slotTxt(n)} was not saved: ${w || "no answer"}`);
+  if (!plan.scenes.length) await sceneAOnSave(n);
+  for (const x of [...plan.warn, ...res.warn]) note(T(x.k, { ...x, why: x.why ? T(x.why) : "" }));
+}
 async function hrImportAll(r) {
   if (pioBusy) return false;
   try { const p = await readPlist(); if (!p.ok) throw new Error(p.why || "no answer"); plist = p.list; plistHave = true; } catch (e) { toast("Couldn't read the presets of the pedal. Try again.", "err"); return false; }
@@ -457,7 +506,7 @@ async function hrImportAll(r) {
   const load = files.size > 0 && await uiConfirm({ title: "Load the presets' files?", okLabel: "Load them", cancelLabel: "Not now",
     body: [...files.values()].map(a => (a.role === "ir" ? "Cab IR: " : "Amp capture: ") + pioText(a.a.name, 40)).join("\n") });
   Log.act("preset_import_all", { n: go.length, over: over.length, files: files.size, load });
-  const notes = [], said = w => T(w.k, { ...w, why: w.why ? T(w.why) : "" });
+  const notes = [];
   let done = 0, tun = null, err = "";
   pioBusy = true; txn++; edClear();
   try {
@@ -479,12 +528,7 @@ async function hrImportAll(r) {
           catch (e) { delete ctx.att[u.x.key]; note(`"${pioText(u.x.a.name, 40)}" could not be saved (${errText(String(e && e.message || e))})`); }
         }
       }
-      const plan = pioPlan(pre, ctx), res = await pioRun(plan, pioSendLive, ctx, (k, of) => busy(true, say, (i + .5 + k / of / 2) / go.length));
-      await hrStillNew(pioSendLive);
-      const name = pioAscii(plan.name, 23) || "Preset " + slotTxt(n), w = reply(await Pedal.cmd(`PSAVE ${n} ${name}`, "PSAVE", 8000), "PSAVE");
-      if (!w.startsWith("PSAVE ok")) throw new Error(`${slotTxt(n)} was not saved: ${w || "no answer"}`);
-      if (!plan.scenes.length) await sceneAOnSave(n);
-      for (const x of [...plan.warn, ...res.warn]) note(said(x));
+      await hrPutPreset(pre, n, ctx, note, (k, of) => busy(true, say, (i + .5 + k / of / 2) / go.length));
       done++;
     }
   } catch (e) { err = String(e && e.message || e); }

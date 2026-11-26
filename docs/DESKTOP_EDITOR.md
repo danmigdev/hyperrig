@@ -59,9 +59,10 @@ licence and address inside. They also stay beside a preset that is kept, on this
 - A file comes from Patchstorage only, not along a redirect elsewhere, up to 4 MB, and must be a
   HyperRig preset. What the service says is shown as plain text.
 - Publishing is on Patchstorage's own page, in the person's browser.
-- It needs HyperRig's platform there: `--patchstorage-platform NUMBER` of the builder. Without it the
-  button does not appear and nothing is asked. A platform is requested on Patchstorage's page
-  `/requests/`; its files end in `.json`.
+- It needs HyperRig's platform there, [number 12712](https://patchstorage.com/platform/hyperrig/):
+  `--patchstorage-platform NUMBER` of the builder, which a release always passes
+  (`tools/build_product_release.py`). Without it the button does not appear and nothing is asked.
+  Its files end in `.json`; a preset that is exported ends in `.hyperrig.json`.
 - `app/desktop/patchstorage.js` has the rules; the checks use a simulated Patchstorage
   (`tools/simulated_patchstorage.py`). No check reaches the real one.
 

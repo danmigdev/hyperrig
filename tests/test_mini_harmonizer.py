@@ -1,6 +1,7 @@
 """The harmonizer of the product build: its numbers, its names, where its code may run, and what its model does. The compiled code against the
 model is in tools/check_mini_harmonizer.py."""
 import math
+import random
 import re
 import struct
 import sys
@@ -44,6 +45,15 @@ class Numbers(unittest.TestCase):
         for p, row in enumerate(model.BETWEEN):
             self.assertTrue(16381 <= sum(row) <= 16384 and all(-32768 <= v <= 32767 for v in row), [p, row])
             self.assertEqual(row, model.BETWEEN[64 - p][::-1] if p else [0, 16384, 0, 0])
+
+    def test_the_tuners_reference(self):
+        word = lambda hertz: struct.unpack('<I', struct.pack('<f', hertz))[0]
+        for hertz in (400.0, 415.0, 432.0, 440.0, 442.5, 445.0, 466.0, 480.0):
+            self.assertLessEqual(abs(model.tuned(word(hertz)) - 3072 * math.log2(hertz / 440)), 1.6, hertz)
+        self.assertEqual(model.tuned(word(440.0)), 0)
+        for nothing in (0, 0xFFFFFFFF, word(100.0), word(512.0), word(-440.0), word(float('nan'))):
+            self.assertEqual(model.tuned(nothing), 0, nothing)
+        self.assertEqual(int(re.search(r'TUNED_TO = (\d+)', CODE).group(1)), 144)
 
     def test_the_scales_have_seven_notes_that_rise(self):
         for name, scale in tables.SCALES:
@@ -161,6 +171,30 @@ class Sound(unittest.TestCase):
         self.assertEqual(s(0, 0, 2, 4, 0, 50, 0).wet[1], 0)
         self.assertEqual(s(0, 0, 2, 4, 100, 50, 0).wet[0], 0)
         self.assertGreater(s(0, 0, 2, 4, 50, 50, 6).dry, s(0, 0, 2, 4, 50, 50, 0).dry)
+
+
+class Chords(unittest.TestCase):
+    """In C major, a third above: the interval of a chord is that of its root, whatever was played before."""
+
+    @staticmethod
+    def chord(root, shape, blocks=40):
+        hertz = [440 * 2 ** ((root + s - 69) / 12) for s in shape]
+        return [round(2 ** 20 * (1 - math.exp(-i / 60)) * sum(math.sin(2 * math.pi * k * f * i / RATE) / k for f in hertz for k in (1, 2, 3, 4, 5))) for i in range(128 * blocks)]
+
+    def test_a_power_chord_takes_the_interval_of_its_root(self):
+        for root, before in ((40, 65), (41, 64), (43, 64), (45, 65), (47, 65), (48, 64)):
+            block = model.Harmonizer((0, 0, 2, 0, 50, 50, 0))
+            heard(block, sine(440 * 2 ** ((before - 69) / 12), 12))
+            note, _, intervals = heard(block, self.chord(root, (0, 7)))
+            self.assertEqual((note, block.chord, block.home, intervals[0]), (False, 1, root % 12, block.settings.steps[0][root % 12]), [root, before])
+
+    def test_what_has_no_clear_root_keeps_the_interval(self):
+        block = model.Harmonizer((0, 0, 2, 0, 50, 50, 0))
+        before = heard(block, sine(440 * 2 ** ((52 - 69) / 12), 16))[2][0]
+        self.assertEqual(before, 3)
+        chance = random.Random(3)
+        self.assertEqual(heard(block, [chance.randint(-2 ** 20, 2 ** 20) for _ in range(128 * 60)])[2][0], 3)
+        self.assertEqual(block.chord, 1)
 
 
 if __name__ == '__main__':

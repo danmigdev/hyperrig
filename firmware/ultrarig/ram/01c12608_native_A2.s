@@ -106,6 +106,9 @@ L01c126f0:
     sp += 28
     {pc, r15-r4} = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; native_A2_dot_i32: 0x01c126f4..0x01c127de, module native-A2 (dot_i32)
 .type native_A2_dot_i32,@function
 native_A2_dot_i32:
@@ -207,3 +210,4 @@ L01c127b8:
 L01c127da:
     sp += 28
     {pc, r15-r4} = [sp++]
+.endif

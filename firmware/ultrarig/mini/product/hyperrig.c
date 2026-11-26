@@ -28,6 +28,8 @@ int hyperrig_stage(const char *rest);
 int hyperrig_replace(const char *rest);
 int hyperrig_level(const char *rest);
 void hyperrig_level_turn(void);
+extern uint8_t hyperrig_tuner_asked;
+void hyperrig_cab_turn(void);
 void hyperrig_pairs_turn(uint32_t now);
 void hyperrig_parametric_turn(void);
 void hyperrig_amp_knobs(void);
@@ -35,7 +37,7 @@ void hyperrig_midi_turn(uint32_t now);
 int hyperrig_midi_console(const char *rest);
 uint32_t hyperrig_midi_volume(uint32_t gain);
 
-enum { STATE_FLASH_GOOD = 49, STATE_FLASH_TIME = 920 };
+enum { STATE_FLASH_GOOD = 49, STATE_TUNER = 52, STATE_FLASH_TIME = 920 };
 enum { SETTING_FLASH_SWITCH = 13, SETTING_VOLUME_ON = 14, SETTING_VOLUME_SHOWN = 15, SETTING_VOLUME = 36, SETTING_PRESET = 92 };
 enum { WHEEL_PIN = 41, WHEEL_CHANNEL = 8, BATTERY_PIN = 32, BATTERY_CHANNEL = 6, CONVERTER_WAIT = 15, CONVERTER_LIMIT = 20000 };
 enum { UNITY = 0x10000, LEVEL_MAX = 124, WHEEL_STEP = 6, NEVER = 0xffff };
@@ -161,6 +163,9 @@ void hyperrig_panel_turn(uint32_t now)
     hyperrig_parametric_turn();
     hyperrig_midi_turn(now);
     hyperrig_level_turn();
+    if (!L01c26890[STATE_TUNER])
+        hyperrig_tuner_asked = 0;
+    hyperrig_cab_turn();
     if (!panel.ready) {
         analog_input(WHEEL_PIN);
         analog_input(BATTERY_PIN);

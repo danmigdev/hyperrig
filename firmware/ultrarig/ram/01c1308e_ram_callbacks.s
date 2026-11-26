@@ -13,6 +13,9 @@ ram_callbacks_clear_pointed:
 L01c13096:
     rts
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; ram_callbacks_zero_stub_b: 0x01c13098..0x01c1309c, module ram-callbacks (zero_stub_b)
 .type ram_callbacks_zero_stub_b,@function
 ram_callbacks_zero_stub_b:
@@ -30,6 +33,7 @@ ram_callbacks_zero_stub_c:
 ram_callbacks_zero_stub_d:
     r0 = 0
     rts
+.endif
 
 ; ram_callbacks_clear_record: 0x01c130a4..0x01c130b4, module ram-callbacks (clear_record)
 .type ram_callbacks_clear_record,@function

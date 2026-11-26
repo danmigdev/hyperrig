@@ -2,8 +2,8 @@
 
 A parametric capture is a NAM model of an amp or pedal over the range of some of its knobs, where an
 ordinary capture is of one setting. The pedal plays those of architecture A2-Lite, and the amp's own
-controls move the knobs. What follows was shown offline, with a synthetic amp and the simulator; no
-pedal has played one.
+controls move the knobs. What follows was shown offline, with a synthetic amp and the simulator. A
+pedal has played the synthetic amp; none has played a model of a real one.
 
 ## What exists
 

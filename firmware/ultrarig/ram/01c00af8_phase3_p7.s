@@ -11,6 +11,9 @@ phase3_p7_norflash_wait_busy:
     call storage_control_busy_wait
     pc = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; phase3_p7_norflash_write_otp: 0x01c00b00..0x01c00b70, module phase3-p7 (norflash_write_otp)
 .type phase3_p7_norflash_write_otp,@function
 phase3_p7_norflash_write_otp:
@@ -75,3 +78,4 @@ phase3_p7_sfc_suspend:
 .type phase3_p7_sfc_resume,@function
 phase3_p7_sfc_resume:
     rts
+.endif

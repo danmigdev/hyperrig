@@ -240,7 +240,7 @@
               if (item) item.name = m[2];
             }
             const miss = /(?:missing|faltan)=([1-9]\d*)/.exec(at.r);
-            if (miss) for (const item of plan) item.note = "A block of it did not fit on the pedal.";
+            if (miss) for (const item of plan) item.note = "Not measured: a block of it does not fit on the pedal.";
             plans.set(n, plan);
           }
           for (const item of plans.get(n)) {
@@ -376,6 +376,7 @@
         rows.push({ i, gain, why });
       }
     }
+    const left = [...new Set(got.items.filter(i => !got.good.includes(i)).map(i => i.preset))].filter(n => n >= 0).map(slotTxt);
     const changes = () => got.good.map(i => ({ preset: i.preset, scene: i.scene, first: i.first, gain: gainOf(i), was: i.out })).filter(c => c.gain !== c.was);
     function draw() {
       shown.textContent = `${plain(volume)} dB`;
@@ -415,11 +416,11 @@
       await readAgain();
       close();
       if (message) toast(`${done} of ${of} presets have their new volume, then it stopped: ${message}`, "err");
-      else toast(done === 1 ? "The preset has its new volume." : `${done} presets have their new volume.`, "ok");
+      else toast((done === 1 ? "The preset has its new volume." : `${done} presets have their new volume.`) + (left.length ? ` Not measured, and as it was: ${left.join(", ")}.` : ""), left.length ? "warn" : "ok");
     }
     const all = d => () => { volume = Math.max(-60, Math.min(0, volume + d)); draw(); };
     show(el("div", { class: "vall" }, el("span", { text: got.good.length === 1 ? "Volume" : "Volume for all" }), step("−", "Softer", all(-1), "hrVolLess"), shown, step("+", "Louder", all(1), "hrVolMore")),
-      got.good.length > 1 ? note(`Now they are between ${plain(range[0])} and ${plain(range[1])} dB. The numbers below are output gains.`) : "", say, list,
+      got.good.length > 1 ? note(`Now they are between ${plain(range[0])} and ${plain(range[1])} dB. The numbers below are output gains.`) : "", left.length ? el("p", { class: "vnote vwarn", id: "hrVolLeft", text: `Not all could be measured: ${left.join(", ")}. What is in the list without a number stays as loud as it is.` }) : "", say, list,
       el("div", { class: "vacts" }, button("Cancel", "", close), save));
     draw();
   }

@@ -39,7 +39,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 BASE = ROOT / 'build/hyperrig-mini-installer-v4-fast-01/editor'
-KIND, REVISION, PRODUCT_REVISION = 'hyperrig-mini-development-editor', 'mini-dev-05', 'mini-product-31'
+KIND, REVISION, PRODUCT_REVISION = 'hyperrig-mini-development-editor', 'mini-dev-05', 'mini-product-33'
 PAGE_FILE = 'tank-mini.html'      # of the v4 package: tankmini.html, a pinned input
 FAMILIES = ['GAIN', 'PLOAD', 'PSAVE', 'SNAPSAVE', 'FXA', 'FXP', 'FXE', 'FXR', 'SNAP']    # of mini-v4-usb-01
 ADDED = ['BPM', 'TUNER', 'AMP', 'AMPX', 'AMPEQ', 'STW', 'FXM', 'FXL', 'FXOS', 'FXMIX', 'FXXO', 'PNEW', 'PNAME', 'PDEL', 'PCOLOR',
@@ -51,6 +51,7 @@ PRODUCT_FILES = ['product-ui.css', 'product-ui.js',      # of app/mini: the size
                  'product-try.css', 'product-presetfile.js', 'product-try.js', 'product-share.js',      # trying without saving; Patchstorage in the desktop program
                  'product-parametric.js', 'product-amp-knobs.js',    # NAM captures that keep knobs: their conversion, and the amp's panel
                  'product-midi.js',      # MIDI, in the settings
+                 'product-backup.js',      # everything the pedal keeps in one file, and back
                  'product-tone3000.css', 'product-tone3000.js',      # TONE3000 in the desktop program, with its official logos
                  'product-globals.css', 'product-globals.js',      # the settings for every preset, and the calibration of the input
                  'product-loudness.css', 'product-loudness.js', 'product-loudness-ui.js',      # the same volume for every preset
@@ -150,7 +151,7 @@ PRODUCT_PAGE = [
      '<circle cx="9.600" cy="13.800" r="1.500" fill="currentColor"/>\' },\n  doubler:   { name: "Doubler",'),
     ('  { key: "amp", name: "Amp", c: "#d9a441" },', '  { key: "amp", name: "Amp", c: "#d9a441" },\n  { key: "acoustic", name: "Acoustic", c: "#c98f4e" },'),
     ('const WEB_CAT = { pitch: "pitch",', 'const WEB_CAT = { acoustic: "acoustic", pitch: "pitch",'),
-    ('const KNOB_TIP = { ', 'const KNOB_TIP = { "acoustic.body_pct": "Body: how much of the wooden box is heard.", "acoustic.top_db": "Top: the brightness. Less for a bright pickup, more for a dark one.",\n'
+    ('const KNOB_TIP = { ', 'const KNOB_TIP = { "ir.lowcut_hz": "Low cut: takes the boom away, 12 dB an octave. It costs no processor time.", "ir.hicut_hz": "High cut: takes the fizz away, 12 dB an octave. It costs no processor time.", "acoustic.body_pct": "Body: how much of the wooden box is heard.", "acoustic.top_db": "Top: the brightness. Less for a bright pickup, more for a dark one.",\n'
      '  "acoustic.decay_pct": "Decay: how fast notes die, as on an acoustic. 0 keeps the sustain of the electric.", "acoustic.air_pct": "Air: the wood and the room around a near microphone.",\n'
      '  "acoustic.doubles_pct": "Doubles: the second strings. Only with 12 strings.",\n  '),
     ('function plabel0(n) { if (n === "sync")', 'function plabel0(n) { if (n === "strings") return { lab: "Strings", unit: "strings" }; if (n === "sync")'),
@@ -264,12 +265,22 @@ PRODUCT_PAGE += [
 PRODUCT_PAGE += [
     ('  if (tu && !S.saveMute) {', '  if (tu && !S.saveMute && !(globalThis.hrTry && hrTry.muted)) {'),
 ]
+# The pedal has no memory for its tuner beside a full preset: said in words (hrTunerRoom, in app/mini/product-ui.js).
+PRODUCT_PAGE += [
+    ('  if (/^TUNE (?:off|apagado)/.test(l) && tuFromPedal) { tuHide(); return; }\n',
+     '  if (/^TUNE (?:off|apagado)/.test(l) && tuFromPedal) { tuHide(); return; }\n  hrTunerRoom(/ nomem$/.test(l));\n'),
+]
 # A delay longer than the memory takes: the longest that fits is found and said, not just that it did not (hrLongest, in app/mini/product-ui.js).
 PRODUCT_PAGE += [
     ('      const r = DEMO ? "FXP ok " + nv : reply(await Pedal.cmd(`FXP ${it.id} ${p.idx} ${nv}`, "FXP"), "FXP");\n',
      '      const turn = dly && p.idx === 0 ? hrTimeTurned() : 0;\n'
      '      let r = DEMO ? "FXP ok " + nv : reply(await Pedal.cmd(`FXP ${it.id} ${p.idx} ${nv}`, "FXP"), "FXP");\n'
      '      if (turn && isMemErr(r)) r = await hrLongest(it.id, nv, r, turn);\n'),
+]
+# Everything the pedal keeps in one file (app/mini/product-backup.js): a file that has it all is offered as that, wherever it is opened.
+PRODUCT_PAGE += [
+    ('<script src="product-try.js"></script>', '<script src="product-try.js"></script>\n<script src="product-backup.js"></script>'),
+    ('  const r = pioParse(text);\n  if (!r.ok) { Log.act("preset_import",', '  if (!DEMO && HyperRigPresetFile.isBackup(text)) return hrRestore(text);\n  const r = pioParse(text);\n  if (!r.ok) { Log.act("preset_import",'),
 ]
 # All the presets of a file at once (hrImportAll, in app/mini/product-ui.js); the name of one without a slot beside the slot it is meant for; after an export the
 # scene that was on is chosen again, which the rules allow only when the scenes are known; the pedal's names are plain letters.
@@ -457,6 +468,50 @@ PRODUCT_PAGE += [
     ('  for (const c of CATS) {\n    const names = by[c.key] || [], ampRow',
      '  for (const c of o.cur ? [...CATS].sort((a, b) => (b.key === o.cur) - (a.key === o.cur)) : CATS) {\n    const names = by[c.key] || [], ampRow'),
     ('async function addFx(type, loc) {\n', 'async function addFx(type, loc) {\n  if (loc && loc.t === "replace") return hrReplace(loc.id, type, loc);\n'),
+]
+# The low and the high cut of the cab (firmware/ultrarig/mini/product/cab.c). The high one is kept as Hz below 20,000, so that 0 is off.
+PRODUCT_PAGE += [
+    ('if (n === "lowcut_hz") return { lab: "Low cut", unit: "lowcut" };', 'if (n === "lowcut_hz") return { lab: "Low cut", unit: "lowcut" }; if (n === "hicut_hz") return { lab: "High cut", unit: "hicut" };'),
+    ('  if (unit === "lowcut") return v > 0 ? v + " Hz" : "Off";\n',
+     '  if (unit === "lowcut") return v > 0 ? v + " Hz" : "Off";\n  if (unit === "hicut") return v > 0 ? ((20000 - v) / 1000).toFixed(1) + " kHz" : "Off";\n'),
+]
+# The battery's gauge, with what the pedal reads (hrBattery, in app/mini/product-ui.js): its LVL says nothing of it.
+PRODUCT_PAGE += [
+    ('  if (/^LVL /.test(l)) battShow(parseLvlBat(l));', '  if (/^LVL /.test(l)) battShow(parseLvlBat(l) || hrBattery);'),
+    ('    : v != null ? T("Battery {n} %, {v} V", { n: b.pct, v }) : "";', '    : v != null ? T("Battery {n} %, {v} V", { n: b.pct, v }) : b.note || "";'),
+]
+# The pedal switched a block off because it had no time for it: the message has a way back (hrOverloadAction, in app/mini/product-ui.js).
+PRODUCT_PAGE += [
+    ('  toast(msg + ".", "err");\n  refreshFromPedal();\n', '  toast(msg + ".", "err", hrOverloadAction(m));\n  refreshFromPedal();\n'),
+]
+# A pedal that comes and goes twice, as one that starts again at once does: the port of the first time cannot be opened any more, and that was tried
+# again and again. The port that is there now is taken.
+PRODUCT_PAGE += [
+    ('    const p = Pedal.tr.isKnown(port) ? port : await Pedal.tr.known();\n', '    const p = await Promise.resolve(Pedal.tr.known()).catch(() => null) || (Pedal.tr.isKnown(port) ? port : null);\n'),
+]
+# A scene can have another cab than the block has otherwise (its ir_slot): in a preset file, and back. What did not fit may be memory too.
+PRODUCT_PAGE += [
+    ('  const scenes = [];\n  for (let k = 0; k < 8; k++) {\n    const sc = st.scenes && st.scenes[k]; if (!sc) continue;\n',
+     '  const scenes = [], hrCabs = new Map([...(L.chain.P || []), ...(L.chain.Q || [])].map(x => [x.id, hrIrSlot(x, types)]));\n  for (let k = 0; k < 8; k++) {\n    const sc = st.scenes && st.scenes[k]; if (!sc) continue;\n'),
+    ('if (it) blocks[keyOf[id]] = { on: !!it.on, params: pioParamsOut(it, types[it.type]) }; }',
+     'if (!it) continue; const b = blocks[keyOf[id]] = { on: !!it.on, params: pioParamsOut(it, types[it.type]) }, v = hrIrSlot(it, types); if (v !== hrCabs.get(id)) { b.ir = v > 0 ? pioRef(st.irs, v - 1, att.ir) : null; irNeed(b.ir || cabRef); } }'),
+    ('  for (const it of [...(L.chain.P || []), ...(L.chain.Q || [])]) {\n    if (it.type !== "ir") continue;\n',
+     '  for (const it of [L, ...pioArr(st.scenes).filter(Boolean)].flatMap(x => [...(x.chain.P || []), ...(x.chain.Q || [])])) {\n    if (it.type !== "ir") continue;\n'),
+    ('  walk(snd.chain);\n  return out;\n}\n',
+     '  walk(snd.chain);\n  for (const s of pioArr(snd.scenes)) for (const b of pioObj(s) && pioObj(s.blocks) ? Object.values(s.blocks) : []) if (pioObj(b) && pioObj(b.ir)) add(b.ir, "ir");\n  return out;\n}\n'),
+    ('st.p[i] = pioObj(e) ? params(b.type, types[b.type], e.params, base.p[i], "scene") : base.p[i].slice(); });',
+     'st.p[i] = pioObj(e) ? params(b.type, types[b.type], e.params, base.p[i], "scene") : base.p[i].slice(); st.ir[i] = b.type === "ir" && pioObj(e) && e.ir !== undefined ? hrCab(e.ir) : b.ir; });'),
+    ('st = { k, name: pioAscii(s.name, 15), on: [], p: [],', 'st = { k, name: pioAscii(s.name, 15), on: [], p: [], ir: [],'),
+    ('  const seen = new Set(), scenes = [];\n  for (const s of pioArr(snd.scenes)) {\n',
+     '  const hrCab = ref => {\n    const m = pioObj(ref) ? match(ref, ctx.irs) : null;\n    if (pioObj(ref) && !m) W.warn.push({ k: "The cab IR \\"{name}\\" isn\'t on this pedal: the block uses the preset\'s IR instead.", name: pioText(ref.name, 40) });\n    return m ? m.slot : null;\n  };\n'
+     '  const seen = new Set(), scenes = [];\n  for (const s of pioArr(snd.scenes)) {\n'),
+    ('base = { on: blocks.map(b => b.on), p: blocks.map(b => b.p),', 'base = { on: blocks.map(b => b.on), p: blocks.map(b => b.p), ir: blocks.map(b => b.ir),'),
+    ('let cur = { on: blocks.map(() => false), p: blocks.map(b => b.p.slice()),', 'let cur = { on: blocks.map(() => false), p: blocks.map(b => b.p.slice()), ir: blocks.map(b => b.ir),'),
+    ('    blocks.forEach((b, i) => { if (!s.on[i] && cur.on[i]) cmd(`FXE {${i}} 0`, "FXE", { ref: i }); });\n',
+     '    blocks.forEach((b, i) => { if (!s.on[i] && cur.on[i]) cmd(`FXE {${i}} 0`, "FXE", { ref: i }); });\n    blocks.forEach((b, i) => { if (s.ir[i] !== cur.ir[i]) cmd(`FXIR {${i}} ${s.ir[i] == null ? -1 : s.ir[i]}`, "FXIR", { ref: i, tmo: 3000 }); });\n'),
+    ('cur = { on: s.on.slice(), p: s.p.map(x => x.slice()),', 'cur = { on: s.on.slice(), ir: s.ir.slice(), p: s.p.map(x => x.slice()),'),
+    ('Scene {n} not saved: not enough CPU for its blocks.', 'Scene {n} not saved: not all of its blocks fit (CPU or memory).'),
+    ('Scenes {list} not saved: not enough CPU for their blocks.', 'Scenes {list} not saved: not all of their blocks fit (CPU or memory).'),
 ]
 # The capture that plays has no slot: the person is asked by name, and may keep it (hrKeepCapture, in app/mini/product-ui.js).
 PRODUCT_PAGE += [

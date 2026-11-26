@@ -542,7 +542,10 @@ def check_heard(build, flash, row):
     row('it goes on when it is saved', c == pedal.block(0) and c[0] == 1200 and pedal.library('ILIST')[1].startswith('ILIST end current=2'), c)
     pedal.room = False
     answer = pedal.upload_ir(short)
-    row('without memory for it the block goes on as it was', answer[0].startswith('IR ok') and pedal.block(0) == c, [answer, pedal.block(0)])
+    d = pedal.block(0)
+    row('without memory for a second one it is made in the place of the one before', answer[0].startswith('IR ok') and d[0] == 300 and d[1] == b[0][1], [answer, d, b[0]])
+    answer = pedal.upload_ir(second)
+    row('one that is longer than that place: the block goes on as it was', answer[0].startswith('IR ok') and pedal.block(0) == d, [answer, pedal.block(0), d])
 
 
 def main(argv=None):

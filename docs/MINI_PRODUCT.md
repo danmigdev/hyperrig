@@ -43,6 +43,28 @@ second is the tuner, and a tap closes it. The lights show the scenes of the grou
 In live mode the application's table of kinds called the id 6 a reverb; it is the acoustic block now,
 and no footswitch takes it. The id 24, the harmonizer, is a modulation as before.
 
+## The tuner's memory
+
+The tuner takes 7,168 bytes while it is open: of the heap, or of the memory the effects share. In the
+application it asks for one piece of that size and stays silent when there is none, although there may be
+more than enough in smaller pieces. Here (`tuner.c`) the pieces are put together first, as for a block
+that is added, with the sound paused once, and the second memory is asked too when it is in use. When there
+is really no room `TUNE` says `nomem`, and the editor says it in words.
+
+## The cuts of the cab
+
+The cab block has a low cut (0 to 800 Hz) and a high cut (20 kHz down to 2 kHz), 12 dB an octave, both off at
+0 (`cab.c`): two biquads behind the convolution, as the application runs them for its equalizers, on what the
+block gives. They are within 0.02 dB of a Butterworth filter. The control scan moves the frequency a quarter of
+the way in each turn, and a filter that is switched on or off is faded within 21 ms: the sound has no pause and
+no step. A block of 128 samples takes 34 instructions more when both are off and some 2,000 for each that is on.
+Their memory is in the block's object, in a part that the cab did not use. The two are the fifth and the sixth
+parameter, which had no meaning and were stored as 0; the high cut is kept as Hz below 20,000.
+
+Another cab in a block (a scene, a preset, an upload) was made beside the one before, and kept that when there
+was no room for two. The one before now gives its place when there is none and the new one is no longer
+(`hyperrig_cab_room`); the sound is paused for a change of cab as before.
+
 ## Eight scenes
 
 The application has four scenes in a preset. Here the records of the scenes and their names are eight
@@ -165,6 +187,8 @@ written into stored presets. `REC` and `INJ`, the diagnostic words, lend the mem
 | A chain without a capture in both sections, sixteen blocks stored and read | `tools/check_mini_places.py` |
 | Captures and cab IRs, power cut at each erase and program; an uploaded cab that is heard at once | `tools/check_mini_library.py` |
 | A block in the place of another | `tools/check_mini_replace.py` |
+| The tuner with little memory | `tools/check_mini_tuner.py` |
+| The cuts of the cab | `tools/check_mini_cab.py` |
 | The settings for every preset, what they do to the sound, how they are stored; the calibration of the input | `tools/check_mini_globals.py` |
 | The acoustic block | `tools/check_mini_effect_block.py` |
 | The [effects from the id 40 on](EFFECT_PLUGINS.md) | `tools/check_mini_effects.py` |

@@ -39,11 +39,13 @@ In the editor the first four are lists of names.
 - **A note that slides** to another one and stays there for 50 to 200 ms gets that one's interval.
 - **Fixed:** every note has the same interval, whatever the key: those of the major or of the
   minor scale from its first note, above and below.
-- **A chord** is no note. After 48 ms without one the voices take the whole sound at the interval
-  of the last note (at the start, of the key), 4 dB softer.
+- **A chord** is no note. After 48 ms without one the voices take the whole sound, 4 dB softer, at
+  the interval of its root where it has a clear one, as a power chord has; otherwise at that of the
+  last note (at the start, of the key).
 - **Between notes,** from an attack until the new note is known, the voices are 10 dB softer.
 
-The tuning is A at 440 Hz; up to 30 cents beside it nothing changes.
+The tuning is that of the tuner (A at 440 Hz from the start), looked at with every attack; up to
+30 cents beside it nothing changes.
 
 ## How
 
@@ -57,6 +59,10 @@ All of it is in whole numbers, for 32 samples at a time.
   otherwise. An attack (four times the power of the last some 13 ms) and a sound that is not
   what it was a period ago start it anew, and a lag counts as soon as there is a little more
   new sound than it.
+- **The root of a chord.** Without a note the sound is compared with itself 14 to 28 ms ago. A fifth
+  above a root repeats after two periods of it, a major triad after four: the first lag with a dip
+  under 22% of the power is a period some octaves under the root. It counts after three
+  listenings (8 ms) more that say the same. A note in the middle of a chord needs two listenings.
 - **The voices** read the last 43 ms faster or slower, between four samples by a third power, and
   step back or on by whole periods (6 to 14 ms, by the same dips) with a fade of 2.7 ms: the
   pitch of a voice does not depend on how exactly the period is known. Without a note the steps
@@ -97,8 +103,16 @@ A new note without an attack (a hammer-on) is known after 8 ms, nine of ten afte
 - Chords with the fixed interval: what is not at the right pitch is 15 to 28 dB lower for a power
   chord, a triad and a dyad of a third, 6 to 10 dB for a minor seventh chord.
 
+- Made power chords from E2 to C#3, with and without the octave, clean and distorted, after another
+  note: the interval of the root in all of them (it was in half of them, by chance), 53 ms after
+  the attack in the middle, and the interval changes once at most. Open major chords: all of those
+  on E and A; minor ones 60 to 70%, where the sound is not clearly like itself again. From D3 up a
+  power chord is heard as its root, as before.
+- Nine solos of GuitarSet: another interval than before for 1.3% of the time, and fewer changes of
+  it (2.8 a second instead of 3.0). Nine chord parts: another one for 11% of the time.
+
 What is not there: a voice is in full some 10 to 25 ms after the note, and a long pick noise makes
-it later; two notes that ring together are a chord, or the root of the two; the voices have the
+it later; a chord without a clear root keeps the interval of the last note; the voices have the
 tone of the note that is played, read faster or slower.
 
 ## In the firmware

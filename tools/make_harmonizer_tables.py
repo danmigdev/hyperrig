@@ -36,6 +36,7 @@ PATIENCE = 18                               # 48 ms without a note: a chord
 HELD = 80                                   # another note than the one before: after 53 ms, 0.1 s if it is out of tune or not of the scale, 0.2 s if both
 EARLY = 12                                  # 32 ms: at first a note is only about where it will be
 STILL_CENTS, NEARLY_CENTS = 50, 15          # so far from a note the interval stays its own; so near the next one it is already the next one's
+CLEAR, AGREE = 0.22, 3                      # a chord has a root when it is so little unlike itself a period ago, and the same one so many listenings more
 DUCK_DB, CHORD_DB, LOUDNESS = -10.0, -4.0, 80
 
 
@@ -59,11 +60,22 @@ def reference():
     return round(69 * 256 + 3072 * math.log2(FS / 4 * 256 / 440))
 
 
+def log_of(v):
+    """The logarithm of a whole number, 4096 for twice as much, a bit at a time as the block has it."""
+    log = v.bit_length() - 1
+    v <<= 31 - log
+    for _ in range(12):
+        v *= v
+        high = v >> 63
+        log, v = 2 * log + high, v >> (31 + high)
+    return log
+
+
 def constants():
     return [('SCALES', len(SCALES)), ('FIXED', FIXED), ('REFERENCE', reference()), ('UP', round(65536 * 2 ** (1 / 12))), ('DOWN', round(65536 * 2 ** (-1 / 12))),
             ('LOUDER', round(32768 * 10 ** (1 / 20))), ('SOFTER', round(32768 * 10 ** (-1 / 20))), ('STILL', round(STILL_CENTS * 2.56)), ('NEARLY', round(NEARLY_CENTS * 2.56)),
             ('QUIET', QUIET), ('RISE', RISE), ('DEEP', round(DEEP * 256)), ('SURE', round(SURE * 256)), ('KEEP', round(KEEP * 256)), ('CHANGE', round(CHANGE * 256)),
-            ('ONCE', ONCE), ('DOUBT', DOUBT), ('PATIENCE', PATIENCE), ('HELD', HELD), ('EARLY', EARLY),
+            ('CLEAR', round(CLEAR * 256)), ('AGREE', AGREE), ('A440', (3 * log_of(440 * 256) + 2) >> 2), ('ONCE', ONCE), ('DOUBT', DOUBT), ('PATIENCE', PATIENCE), ('HELD', HELD), ('EARLY', EARLY),
             ('DUCK', round(256 * 10 ** (DUCK_DB / 20))), ('CHORD', round(256 * 10 ** (CHORD_DB / 20))), ('LOUDNESS', LOUDNESS)]
 
 

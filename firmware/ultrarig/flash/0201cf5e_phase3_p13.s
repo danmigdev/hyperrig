@@ -10,6 +10,9 @@ phase3_p13_cxx_zero_a:
     r0 = 0
     rts
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; phase3_p13_cxx_zero_b: 0x0201cf62..0x0201cf66, module phase3-p13 (cxx_zero_b)
 .type phase3_p13_cxx_zero_b,@function
 phase3_p13_cxx_zero_b:
@@ -75,6 +78,7 @@ phase3_p13_operator_delete_array:
     [--sp] = rets
     call phase3_p13_operator_delete
     pc = [sp++]
+.endif
 
 ; phase3_p13_fseek: 0x0201cfa2..0x0201cff8, module phase3-p13 (fseek)
 .type phase3_p13_fseek,@function
@@ -118,6 +122,9 @@ L0201cff4:
     r0 = r6
     {pc, r7-r4} = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; phase3_p13_fseeko: 0x0201cff8..0x0201cffe, module phase3-p13 (fseeko)
 .type phase3_p13_fseeko,@function
 phase3_p13_fseeko:
@@ -175,3 +182,4 @@ phase3_p13_ftello:
 phase3_p13_cxx_zero_g:
     r0 = 0
     rts
+.endif

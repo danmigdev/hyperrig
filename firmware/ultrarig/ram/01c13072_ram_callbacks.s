@@ -9,6 +9,9 @@
 ram_callbacks_stub_a:
     rts
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; ram_callbacks_stub_b: 0x01c13074..0x01c13076, module ram-callbacks (stub_b)
 .type ram_callbacks_stub_b,@function
 ram_callbacks_stub_b:
@@ -25,3 +28,4 @@ ram_callbacks_process_call:
 .type ram_callbacks_stub_c,@function
 ram_callbacks_stub_c:
     rts
+.endif

@@ -140,9 +140,13 @@ L01c0457a:
     sp += 12
     {pc, r10-r4} = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; ram_callbacks_idle_word: 0x01c0457e..0x01c04588, module ram-callbacks (idle_word)
 .type ram_callbacks_idle_word,@function
 ram_callbacks_idle_word:
     r0 = L01c2bff0
     r0 = [r0+12]
     rts
+.endif

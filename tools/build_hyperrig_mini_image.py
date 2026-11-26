@@ -76,6 +76,7 @@ AUDIO_SOURCES = ('audio_port_v2/pre_pc5.c', 'audio_port_v2/audio_port.c', 'audio
 GUARD_SOURCES = ('entry_recovery_v2/prefix.S', 'entry_recovery_one/check.S', 'entry_recovery/reset.S')
 C_FLAGS = ['-std=c11', '-Wall', '-Wextra', '-Werror', '-Os', '-ffreestanding', '-fno-builtin']
 FAST = {'acoustic.c': ['-O2']}              # product sources that run for every block of sound: for speed, not size
+SMALL = ('cab.c', 'hyperrig.c', 'irlive.c', 'loader_entry.c', 'midi.c', 'pairs.c', 'replace.c', 'scenes.c', 'tuner.c')   # and those that never do: for size alone
 APP_OBJECTS = tuple(f'{name}.o' for name in UNITS)
 ENTRIES = ('hyperrig_mini_g_audio_pre_current_clock', 'hyperrig_mini_g_audio_post', 'hyperrig_mini_entry_guard_v2',
            'hyperrig_mini_append_end')
@@ -198,7 +199,7 @@ def compile_appended(tools, source, link, bindings, product=None):
     if product:
         own = source / PRODUCT_DIR
         identity = [f'-DHYPERRIG_VERSION="{product[0]}"', f'-DHYPERRIG_BUILD="{product[1]}"']
-        jobs += [('c', path, [*C_FLAGS, *FAST.get(path.name, []), f'-I{rel(own)}', *identity]) for path in sorted(own.glob('*'))
+        jobs += [('c', path, [*C_FLAGS, *FAST.get(path.name, ['-Oz'] if path.name in SMALL else []), f'-I{rel(own)}', *identity]) for path in sorted(own.glob('*'))
                  if path.suffix in ('.c', '.S')]
     objects = []
     for group, path, flags in jobs:

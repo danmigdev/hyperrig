@@ -8,7 +8,8 @@
  * - the listening, every 128 samples: how unlike the sound is to itself a lag ago, for every lag of a guitar's notes. The first lag with
  *   a dip that is deep enough is the period. A new attack, and a sound that is not what it was a period ago, start it anew. What is no
  *   note for some time is a chord, and is looked for at longer lags, where a chord is like itself again;
- * - the interval: of the note that is played, in the scale; between two notes of the scale, as in a bend, what is between theirs;
+ * - the interval: of the note that is played, in the scale; between two notes of the scale, as in a bend, what is between theirs. A
+ *   chord that is clearly like itself again, as a power chord is, has a root, and the interval is of that;
  * - the voices: a place in the line that is read faster or slower, and that steps back or on by whole periods before it runs out.
  *
  * An effect is an object of 480 bytes: its type in the first byte, its parameters as 16-bit words from the byte 70, the address of its
@@ -30,7 +31,16 @@
 
 enum { FADE = 10, PARAMETERS = 70, MEMORY = 84, STATE = 288, CHUNK = 32, RING = 2048, BEFORE = 24, AFTER = 4,
        SHORTEST = 8, LONGEST = 168, WIDE = 84, LOOK = 32, BACK = 340, OCTAVE = 12 * 256, HALF = 128,
-       NEAR = 3 << 16, FAR = 1900 << 16, ONE = 1 << 16 };
+       NEAR = 3 << 16, FAR = 1900 << 16, ONE = 1 << 16, TUNED_TO = 144 };
+
+/* The settings of the application; at TUNED_TO is the A of its tuner in Hz, a number with a point. */
+#ifdef HOST
+extern uint8_t settings_of_the_application[];
+#define SETTINGS settings_of_the_application
+#else
+extern uint8_t L01c1f180[];
+#define SETTINGS L01c1f180
+#endif
 
 /* The names the firmware reports; the rows of the parameters refer to them. */
 const char hyperrig_name_harmonizer[] = "harmonizer";
@@ -65,7 +75,7 @@ struct lag {
 
 struct memory {
     int32_t started, at, turn, deep, soft;
-    int32_t age, note, lag, pitch, mean, other, lost, waiting, since, doubt, chord, home, held, jump, most;
+    int32_t age, note, lag, pitch, mean, other, lost, waiting, since, doubt, chord, home, held, jump, most, tuned, root;
     uint32_t now;
     int32_t gain[3];                             /* of the voices and of what is played */
     struct voice voice[2];
@@ -129,18 +139,24 @@ SOUND static ONCE_ONLY int away(int from, int to)
     return d >= OCTAVE / 2 ? d - OCTAVE : d < -OCTAVE / 2 ? d + OCTAVE : d;
 }
 
-/* The note of a lag (in 1/256 of a slow sample), in 1/256 of a semitone, A at 440 Hz being 69. */
-SOUND static int note_of(uint32_t lag)
+/* The logarithm of a number, 3072 (twelve semitones of 256) for twice as much. */
+SOUND static ONCE_ONLY int log_of(uint32_t x)
 {
-    int log = 31 - __builtin_clz(lag);
-    lag <<= 31 - log;
-    for (int i = 0; i < 12; ++i) {                             /* a bit of the logarithm at a time */
-        uint64_t v = (uint64_t)lag * lag;
+    int log = 31 - __builtin_clz(x);
+    x <<= 31 - log;
+    for (int i = 0; i < 12; ++i) {                             /* a bit of it at a time */
+        uint64_t v = (uint64_t)x * x;
         int high = (int)(v >> 63);
         log = log * 2 + high;
-        lag = (uint32_t)(v >> (31 + high));
+        x = (uint32_t)(v >> (31 + high));
     }
-    return REFERENCE - ((log * 3 + 2) >> 2);
+    return (log * 3 + 2) >> 2;
+}
+
+/* The note of a lag (in 1/256 of a slow sample), in 1/256 of a semitone, the tuner's A being 69. */
+SOUND static ONCE_ONLY int note_of(const struct memory *m, int lag)
+{
+    return REFERENCE - log_of((uint32_t)lag) - m->tuned;
 }
 
 /* How much faster a voice reads that is an interval (in 1/256 of a semitone) away, in 1/65536. */
@@ -179,6 +195,21 @@ SOUND static ONCE_ONLY void listen_anew(struct memory *m)
     m->chord = 0;
     m->since = 0;
     m->doubt = 0;
+    uint32_t a = *(const volatile uint32_t *)(const void *)(SETTINGS + TUNED_TO);         /* from 256 to 512, or it is 440 */
+    m->tuned = a >> 23 == 135 ? log_of(((a & 0x7FFFFF) | 0x800000) >> 7) - A440 : 0;
+}
+
+/* The voices get the intervals of a note of the twelve, at once. */
+SOUND static ONCE_ONLY void intervals_of(struct memory *m, const struct settings *s, int note)
+{
+    m->home = note;
+    for (int k = 0; k < 2; ++k) {
+        int now = s->steps[k][note] * 256;
+        if (size_of(now - m->voice[k].interval) > 16) {
+            m->voice[k].interval = now;
+            m->voice[k].jump = 1;
+        }
+    }
 }
 
 SOUND static void note_starts(struct memory *m, const struct settings *s, int lag, int pitch)
@@ -190,14 +221,7 @@ SOUND static void note_starts(struct memory *m, const struct settings *s, int la
     m->waiting = 0;
     m->chord = 0;
     m->held = 0;
-    m->home = ((pitch + HALF) >> 8) % 12;
-    for (int k = 0; k < 2; ++k) {
-        int now = s->steps[k][m->home] * 256;
-        if (size_of(now - m->voice[k].interval) > 16) {
-            m->voice[k].interval = now;
-            m->voice[k].jump = 1;
-        }
-    }
+    intervals_of(m, s, ((pitch + HALF) >> 8) % 12);
 }
 
 /* A note goes on: which one is it, and what are the intervals. Near a note it is its own; on the way to the next note of the scale it
@@ -247,8 +271,29 @@ SOUND static void note_goes_on(struct memory *m, const struct settings *s)
     }
 }
 
+/* A chord that is like itself again after some lag, as a power chord is, has a root: the first such lag is a period of it, some octaves below. */
+SOUND static ONCE_ONLY void chord_goes_on(struct memory *m, const struct settings *s, int64_t here)
+{
+    const uint32_t *w = m->wide;
+    const int32_t *then = m->slow + BACK - (LONGEST + 2);
+    int root = -1;
+    for (int i = 1; i < WIDE - 1; ++i) {
+        if (w[i] >= w[i - 1] || w[i] > w[i + 1])
+            continue;
+        if (w[i] >> 3 < (uint32_t)((here + power_of(then - 2 * i, LOOK / 2, 2)) >> 16) * CLEAR) {
+            root = ((note_of(m, ((LONGEST + 2) << 8) + 2 * dip(i, w[i - 1], w[i], w[i + 1])) + HALF) >> 8) % 12;
+            break;
+        }
+    }
+    if (root < 0 || root != m->root) {
+        m->root = root;
+        m->held = 0;
+    } else if (++m->held == AGREE)
+        intervals_of(m, s, root);
+}
+
 /* Without a note there may be a chord: where it is most like itself, 14 to 28 ms ago, by every second sample. */
-SOUND static void listen_wide(struct memory *m)
+SOUND static void listen_wide(struct memory *m, const struct settings *s)
 {
     const int32_t *now = m->slow + BACK, *then = now - (LONGEST + 2);
     int64_t here = power_of(now, LOOK / 2, 2), there = power_of(then, LOOK / 2, 2);
@@ -267,8 +312,11 @@ SOUND static void listen_wide(struct memory *m)
         if (i < WIDE - 1 && w[i] < w[best])
             best = i ? i : best;
     }
-    if (m->age >= 11)
+    if (m->age >= 11) {
         m->jump = (((LONGEST + 2) << 8) + 2 * dip(best, w[best - 1], w[best], w[best + 1])) << 10;
+        if (m->chord)
+            chord_goes_on(m, s, here);
+    }
 }
 
 /* What the last 128 samples say. */
@@ -348,14 +396,14 @@ SOUND static void listen(struct memory *m, const struct settings *s)
     }
     lag = lag ? lag : kept;
     if (lag) {
-        int place = dip(lag, u[lag - 1].unlike, u[lag].unlike, u[lag + 1].unlike), pitch = note_of((uint32_t)place);
+        int place = dip(lag, u[lag - 1].unlike, u[lag].unlike, u[lag + 1].unlike), pitch = note_of(m, place);
         int again = m->other && size_of(away(m->other, pitch)) < HALF;
         m->lost = 0;
         if (m->note && size_of(away(m->pitch, pitch)) < HALF) {
             m->pitch = pitch;
             m->lag = place;
             m->other = 0;
-        } else if (m->doubt ? again && sure : again || (sure && !m->note))
+        } else if (m->doubt ? again && sure : again || (sure && !m->note && !m->chord))
             note_starts(m, s, place, pitch);
         else
             m->other = pitch;
@@ -380,7 +428,7 @@ SOUND static void listen(struct memory *m, const struct settings *s)
         if (best)
             m->jump = dip(best, u[best - 1].unlike, u[best].unlike, u[best + 1].unlike) << 10;
     } else
-        listen_wide(m);
+        listen_wide(m, s);
     for (int k = 0; k < 2; ++k)
         m->voice[k].step = speed_of(m->voice[k].interval);
     move(m->slow, m->slow + LOOK, BACK / 4);

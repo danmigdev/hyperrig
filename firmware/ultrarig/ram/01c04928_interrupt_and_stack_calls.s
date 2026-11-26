@@ -46,6 +46,9 @@ L01c0498a:
     sp += 4
     {pc, r4} = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; interrupt_and_stack_calls_clock_mode_set: 0x01c0498e..0x01c049f0, module interrupt-and-stack-calls (clock_mode_set)
 .type interrupt_and_stack_calls_clock_mode_set,@function
 interrupt_and_stack_calls_clock_mode_set:
@@ -87,3 +90,4 @@ L01c049e4:
 L01c049ec:
     sp += 4
     {pc, r4} = [sp++]
+.endif
