@@ -76,6 +76,12 @@ licence and address inside. They also stay beside a preset that is kept, on this
 - **One port.** Of the serial ports only the pedal's (USB `4C4A:5155`, or the vendor `3654` of builds
   before the released 0.2.0) is given to the page, without a question. With two pedals connected it
   asks which.
+- **Bluetooth.** The page's request for a device over Bluetooth is answered with the one that says
+  the pedal's name (**HyperRig** and four characters); with several, it asks which; with none within
+  fifteen seconds it ends the request and says what to do. Only the editor's page is answered. When the
+  editor was connected over Bluetooth last time, the program lets its page look for the pedal once the page
+  is loaded, as a click would (a page may not look by itself); not finding it then is not said, and the page
+  goes on over the cable.
 - **Permissions.** Writing the clipboard, keeping the screen on, full screen, reading a file the
   person picks. Camera, microphone, place, MIDI, USB, HID, notifications and reading the clipboard are
   refused.

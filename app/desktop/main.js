@@ -1,13 +1,14 @@
 /* The desktop editor of HyperRig for the TANK-MINI: a window with the editor's page, which is in this folder and was checked
  * by its builder. The page runs in a sandbox, without Node and without the network; it reaches the pedal through the serial
- * interface it uses in a browser, and the pedal's port is the only one it is given. Nothing is sent anywhere, unless the person
+ * interface it uses in a browser, and the pedal's port is the only one it is given; over Bluetooth, which the page also uses as
+ * in a browser, the only device it is given is one that says the pedal's name. Nothing is sent anywhere, unless the person
  * presses Browse TONE3000: then this process, not the page, talks to TONE3000 (tone3000.js), and TONE3000's own page opens in a
  * window of its own; or Browse Patchstorage: then this process asks Patchstorage (patchstorage.js), and only reads.
  *
  * The installer is a page of its own (app/installer), with the pedal's MIDI port; it has the firmware and the loader with it and
  * keeps its copies of the pedal in this computer's profile (store.js). --install starts with it.
  *
- * Switches, for checks: --no-pedal gives the page no port, --off-screen opens the window outside the screens, --profile=FOLDER
+ * Switches, for checks: --no-pedal gives the page no port and no Bluetooth device, --off-screen opens the window outside the screens, --profile=FOLDER
  * keeps the settings and the log there, and with --off-screen --tone3000=ADDRESS is a simulated TONE3000 and --patchstorage=ADDRESS
  * a simulated Patchstorage. */
 "use strict";
@@ -300,6 +301,59 @@ function guard(ses) {
   });
 }
 
+/* The page asked for a Bluetooth device ("Connect via Bluetooth"). Chromium scans and says what it has found so far, again and
+ * again, until it is answered. The answer is the pedal with HyperRig, a moment after the first one shows so that a second one
+ * can; the person chooses among several. None within the time ends the request, with a word about what to do. Only the editor's
+ * page is answered, and nothing with --no-pedal. Of other devices only their number is noted. */
+const AIR = { wait: 15000, settle: 800 };
+let air = null;
+/* A start goes the way the editor was connected last (hrBootAir in product-ui.js). A page may look for a Bluetooth device only when
+ * the person clicked, so once the editor's page is loaded the program says it for the page, as a click; the page connects over
+ * Bluetooth when that was the way last time, and otherwise does nothing. Not finding the pedal then is no news: the page goes on
+ * over the cable, and no dialog says so. */
+let airBootUntil = 0;
+function airBoot(contents) {
+  if (NO_PEDAL || !rules.isEditor(contents.getURL())) return;
+  airBootUntil = Date.now() + 5000;
+  contents.executeJavaScript('void (typeof hrBootAir === "function" && hrBootAir())', true).catch(() => {});
+}
+function airEnd(id) {
+  if (!air) return;
+  const { done, timer, settle } = air;
+  air = null;
+  clearTimeout(timer);
+  clearTimeout(settle);
+  done(id);
+}
+function airChoose() {
+  if (!air) return;
+  const found = air.found;
+  air.settle = null;
+  if (!found.length) return;                                // it went away again: keep waiting
+  note("air", { seen: air.seen, pedals: found.length });
+  if (found.length === 1) { airEnd(found[0].deviceId); return; }
+  const buttons = [...found.map(d => d.deviceName), "Cancel"];
+  const chosen = dialog.showMessageBoxSync(win, { type: "question", title: "HyperRig", message: "More than one pedal is near.", buttons, cancelId: buttons.length - 1 });
+  airEnd(chosen < found.length ? found[chosen].deviceId : "");
+}
+function airAsked(event, list, done, contents) {
+  event.preventDefault();
+  if (NO_PEDAL || !rules.isEditor(contents.getURL())) { done(""); return; }
+  if (!air) {
+    const quiet = Date.now() < airBootUntil;
+    air = { done, found: [], seen: 0, settle: null, timer: setTimeout(() => {
+      note("air", { seen: air ? air.seen : 0, pedals: 0 });
+      airEnd("");
+      if (!quiet && win && !win.isDestroyed()) dialog.showMessageBox(win, { type: "info", title: "HyperRig", message: "No pedal with HyperRig was found over Bluetooth.",
+        detail: "Switch Bluetooth on at the pedal: hold A and B for 3 seconds. Keep the pedal near this computer, whose Bluetooth has to be on, and try again." });
+    }, AIR.wait) };
+  }
+  air.done = done;
+  air.seen = Array.isArray(list) ? list.length : 0;
+  air.found = rules.airPedals(list);
+  if (air.found.length && !air.settle) air.settle = setTimeout(airChoose, AIR.settle);
+}
+
 /* The size of everything: it fits the window until the person chooses one. */
 function applyZoom() {
   if (!win || win.isDestroyed()) return;
@@ -334,7 +388,8 @@ function open() {
   win.on("resize", applyZoom);
   win.on("closed", () => { win = null; });
   const contents = win.webContents;
-  contents.on("did-finish-load", applyZoom);
+  contents.on("did-finish-load", () => { applyZoom(); airBoot(contents); });
+  contents.on("select-bluetooth-device", (event, list, done) => airAsked(event, list, done, contents));
   contents.setWindowOpenHandler(({ url }) => { if (rules.mayOpen(url)) shell.openExternal(url); return { action: "deny" }; });
   contents.on("will-navigate", (event, url) => {
     if (rules.ownPage(url)) return;

@@ -769,3 +769,143 @@ async function hrOtherBuild(b, mine) {
   addEventListener("resize", () => { clearTimeout(wait); wait = setTimeout(() => ask(""), 120); });
   ask("");
 })();
+
+/* Bluetooth. The pedal ends a link on which no line came for a minute and a half: a computer may keep a link after its
+ * program has closed it, and the pedal is then closed to everything. So the page says HRBYE before it lets go of the link, and
+ * the pedal ends it at once; and it says PING when it would otherwise say nothing for long (it asks nothing while it is
+ * hidden, or while the pedal sends the levels by itself), so that a link in use is never taken for one that nobody uses. */
+async function hrBye(rx, writing) {
+  const line = new TextEncoder().encode("HRBYE\n"), wait = ms => new Promise(done => setTimeout(done, ms));
+  try { if (!rx || !HyperRigMini.commandPolicy("HRBYE", "ble-nus").allowed) return; } catch (e) { return; }
+  // One write at a time on this link: what the page was writing goes first, and the word is said again when it was refused.
+  await Promise.race([Promise.resolve(writing).catch(() => {}), wait(400)]);
+  for (let k = 0; k < 3; k++) {
+    try {
+      const said = await Promise.race([(rx.writeValueWithoutResponse ? rx.writeValueWithoutResponse(line) : rx.writeValue(line)).then(() => true), wait(400)]);
+      if (said) { await wait(150); return; }               // the pedal ends the link in its next turn
+    } catch (e) { await wait(80); }
+  }                                                        // not said: the pedal notices the silence
+}
+setInterval(() => {
+  if (DEMO || !S.connected || Pedal.tr !== BleTransport || Pedal.busy) return;
+  Pedal.cmd("PING", "PONG", 2000).catch(() => {});
+}, 20000);
+/* The link and the pedal's service on it. The request to connect is a single packet on the air, and when it is lost the browser
+ * says at once that the link is gone, though nothing is wrong: so it is asked again, a few times, a moment apart. */
+async function hrAirOpen(device, service) {
+  hrConn.found = true; hrConn.k = 0; setLock();
+  for (let k = 0; ; k++) {
+    try { return await (await device.gatt.connect()).getPrimaryService(service); }
+    catch (e) {
+      if (k >= 4 || e.name !== "NetworkError") throw e;
+      Log.ev("ble_again", { k: k + 1 });
+      hrConn.k = k + 1; setLock();
+      await new Promise(done => setTimeout(done, 700));
+    }
+  }
+}
+/* Connecting over Bluetooth may take half a minute. Meanwhile the screen shown when nothing is connected says so, with a turning
+ * mark, how far it is (looking for the pedal, then connecting, and each new try) and no button to press again; the page calls
+ * hrConnecting when it begins and ends, and hrConnShow from setLock. Over the cable it takes a moment: no words, no buttons. The
+ * page asks the pedal who it is after the link is open: the screen stays as it is for that moment too (tail), or the buttons
+ * would show for a blink before the editor. */
+const hrConn = { found: false, k: 0, tail: false, timer: null };
+function hrConnecting(on) {
+  clearTimeout(hrConn.timer);
+  if (on) { hrConn.found = false; hrConn.k = 0; hrConn.tail = false; }
+  else { hrConn.tail = true; hrConn.timer = setTimeout(() => { hrConn.tail = false; setLock(); }, 1500); }
+  setLock();
+}
+const hrConnBusy = () => S.connecting || (hrConn.tail && !S.connected);
+function hrConnShow(shown) {
+  const box = document.querySelector(".lockbox"), air = Pedal.tr === BleTransport && !DEMO, now = hrConnBusy();
+  const busy = !!shown && now, back = !!shown && !now && air && !!autoRe && !!autoRe.hrAir;
+  if (box) box.classList.toggle("hrconn", busy && air);
+  if (!air || !(busy || back)) return;
+  $("lockTxt").textContent = back ? "Reconnecting via Bluetooth…" : hrConn.found ? "Connecting via Bluetooth…" : "Looking for the pedal over Bluetooth…";
+  $("lockSub").textContent = back ? "Keep the pedal on and near: the editor tries again by itself. Or click Connect."
+    : !hrConn.found ? "Keep the pedal near, with its Bluetooth on (hold A and B for 3 seconds)."
+    : "This can take up to half a minute." + (hrConn.k ? ` Trying again (${hrConn.k} of 4)…` : "");
+  $("stat").textContent = $("lockTxt").textContent;
+}
+/* A link over Bluetooth that was lost (the pedal was turned off, or went out of reach) is tried again by itself, with the same
+ * device and without looking for it, every few seconds for three minutes; the cable's own way back waits for the port to show,
+ * which a link over the air never does. Connect stops it. */
+const HR_AIR_BACK = { first: 2000, gap: 3000, until: 180000 };
+function hrAirBack(a) {
+  const dev = BleTransport.hrLast;
+  if (!a || DEMO || APP || capBle() || Pedal.tr !== BleTransport || !dev) return;
+  const turn = async () => {
+    a.timer = null;
+    if (autoRe !== a || S.connected || ctlReleased || Tabs.busy) return;
+    if (Date.now() - a.t > HR_AIR_BACK.until) {
+      autoRe = null; waitEnd(); setLock();
+      toast("Couldn't reconnect over Bluetooth. Switch the pedal on, keep it near and click Connect.", "err");
+      return;
+    }
+    if (!S.connecting) {
+      a.hrAir = (a.hrAir || 0) + 1; setLock();
+      Log.ev("auto_reconnect", { st: "air", n: a.hrAir });
+      await connect(dev, { auto: true, quietFail: true, noPongQuiet: true });
+      if (S.connected || autoRe !== a) return;
+      setLock();
+    }
+    a.timer = setTimeout(turn, HR_AIR_BACK.gap);
+  };
+  a.timer = setTimeout(turn, HR_AIR_BACK.first);
+}
+/* The way to the pedal used last is the way of the next start: with the cable in for power, someone who edits over Bluetooth is
+ * not put on the cable. The page decides in bootOpen (localStorage HR_VIA) and waits; a page may look for a Bluetooth device only
+ * when the person clicked, so the program says hrBootAir for it once the page is loaded. When the pedal is not found or not
+ * reached, the start goes on over the cable, as before. */
+const HR_VIA = "hyperrig.mini.via";
+function hrViaKeep() { try { localStorage.setItem(HR_VIA, Pedal.tr === BleTransport ? "ble" : "usb"); } catch (e) {} }
+async function hrBootAir() {
+  const plan = await Promise.resolve(globalThis.hrBootPlan).catch(() => null);
+  if (plan !== "air" || !globalThis.hrBootAirWanted || S.connected || S.connecting) return false;
+  globalThis.hrBootAirWanted = false;
+  Log.ev("boot_open", { plan: "air" });
+  await connect(undefined, { auto: true, quietFail: true });
+  if (S.connected || S.connecting) return true;
+  Pedal.tr = SerialTransport; setLock();
+  globalThis.hrBootPlan = bootOpen();
+  return false;
+}
+/* Over Bluetooth a computer may look at the pedal, but changes it only once it has the pedal's key. The pedal gives the key over
+ * the cable, or over Bluetooth for one minute after A and B were held on it for three seconds: someone who has the pedal in
+ * their hands. The page asks for it by itself when it connects, so right after the buttons were held editing is simply
+ * unlocked; and when the pedal gives none, the page says so in the middle of the window, with what to do. */
+async function hrAirKey() {                                // true: this computer has the key now, and the pedal took it
+  try { const k = await bleKeyFetch(S.btMac); return !!(k && k.k) && await bleAuthTry(S.btMac); } catch (e) { return false; }
+}
+let hrAirAsking = false;
+function hrAirLocked() {
+  if (hrAirAsking || DEMO || !S.connected || !bleRo()) return;
+  hrAirAsking = true;
+  let say = null;
+  uiForm({
+    title: "Editing is locked",
+    body: "Over Bluetooth this computer can look at your pedal, but it cannot change it yet. The pedal lets a computer in once, " +
+      "when you show that the pedal is yours:\n\n1. On the pedal, hold A and B together for 3 seconds, then let go.\n" +
+      "2. Within one minute, press Unlock editing here.\n\nOr connect once with the USB cable: that lets this computer in too.\n" +
+      "After that it stays unlocked.",
+    okLabel: "Unlock editing", busyLabel: "Asking the pedal…", cancelLabel: "Only look",
+    build: box => { say = document.createElement("p"); say.className = "hrnote"; say.setAttribute("role", "status"); box.append(say); },
+    submit: async () => {
+      if (!S.connected || !bleRo()) return true;
+      if (await hrAirKey()) { if (S.bt) S.bt.auth = true; bleRoShow(false); toast("Editing unlocked on this computer.", "ok"); return true; }
+      if (say) say.textContent = "The pedal did not let this computer in. Hold A and B on the pedal for 3 seconds, let go, and press Unlock editing again within a minute.";
+      return false;
+    },
+  }).then(() => { hrAirAsking = false; }, () => { hrAirAsking = false; });
+}
+/* The other way to the pedal, from the menu of the connection, while one is in use: with the cable in, the page connects over USB
+ * by itself, and Connect via Bluetooth was only on the screen shown when nothing is connected. */
+async function hrSwitchVia() {
+  const other = otherTransport();
+  if (!other || !S.connected || S.connecting) return;
+  await connect();                                         // the link in use ends first
+  if (S.connected) return;
+  Pedal.tr = other; Log.ev("transport", { via: other.name, from: "menu" }); setLock();
+  return connect();
+}

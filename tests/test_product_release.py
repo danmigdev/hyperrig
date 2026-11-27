@@ -109,8 +109,15 @@ class Release(unittest.TestCase):
         version = (ROOT / 'firmware/ultrarig/mini/product/VERSION').read_text(encoding='ascii').strip()
         if '-' not in version:
             text = release.notes({'version': version, 'firmware': {'build_id': '0' * 16}, 'commit': '0' * 40})
-            self.assertIn(f'**New in {version}**\n\n' + release.changes(version), text)
+            docs = f'https://github.com/danmigdev/hyperrig/blob/v{version}'
+            self.assertIn(f'**New in {version}**\n\n' + release.linked(release.changes(version), docs), text)
             self.assertIn('Update now', text)
+            self.assertNotRegex(text, r'\]\((?!https://)')         # no link that leads nowhere on the release's page
+        docs = 'https://github.com/danmigdev/hyperrig/blob/v1.1.0'
+        self.assertEqual(release.linked('a [manual](MANUAL.md#bluetooth), the [guide](../INSTALLATION.md#update), '
+                                        '[a page](https://example.org/x), [here](#up)', docs),
+                         f'a [manual]({docs}/docs/MANUAL.md#bluetooth), the [guide]({docs}/INSTALLATION.md#update), '
+                         '[a page](https://example.org/x), [here](#up)')
         page = '# Changes\n\n## 1.1.0\n\n- one\n- two\n\n## 1.0.0\n\nThe first.\n'
         self.assertEqual(release.changes('1.1.0', page), '- one\n- two')
         self.assertEqual(release.changes('1.0.0', page), 'The first.')

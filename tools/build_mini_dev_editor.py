@@ -10,7 +10,9 @@ and tuner, presets, scenes and footswitches (app/mini/mini-dev-rules.js). It als
 - after the pedal refused a command on the chain, the next one was refused by the editor.
 Captures and IRs, calibration, Bluetooth, firmware update and authentication stay blocked; the editor of a product build
 loads NAM captures and cab IRs (tools/check_mini_library.py runs that build's own commands for them in the simulator), and has
-the settings for every preset and the calibration of the input (tools/check_mini_globals.py).
+the settings for every preset and the calibration of the input (tools/check_mini_globals.py). It also changes over
+Bluetooth what it changes over USB, less CABLE: the pedal takes changes there from a paired phone or from a computer that
+shows the pedal's key, which this editor asks for over USB and keeps (app/mini/mini-dev-rules.js, link).
 
 It claims no qualification. hardware_verified stays false, no validation report is attached, the profile says
 "development" and the page says so. The firmware cannot attest its binary. Of a build from source without the product
@@ -39,13 +41,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 BASE = ROOT / 'build/hyperrig-mini-installer-v4-fast-01/editor'
-KIND, REVISION, PRODUCT_REVISION = 'hyperrig-mini-development-editor', 'mini-dev-05', 'mini-product-36'
+KIND, REVISION, PRODUCT_REVISION = 'hyperrig-mini-development-editor', 'mini-dev-05', 'mini-product-38'
 PAGE_FILE = 'tank-mini.html'      # of the v4 package: tankmini.html, a pinned input
 FAMILIES = ['GAIN', 'PLOAD', 'PSAVE', 'SNAPSAVE', 'FXA', 'FXP', 'FXE', 'FXR', 'SNAP']    # of mini-v4-usb-01
 ADDED = ['BPM', 'TUNER', 'AMP', 'AMPX', 'AMPEQ', 'STW', 'FXM', 'FXL', 'FXOS', 'FXMIX', 'FXXO', 'PNEW', 'PNAME', 'PDEL', 'PCOLOR',
          'SNAPNAME', 'SNAPDEL', 'FSA', 'FSMODE', 'FSPRESS', 'FSLED', 'LEDCFG', 'FSDO', 'GSAVE']    # of app/mini/mini-dev-rules.js
 PRODUCT_ADDED = ['KNOB', 'IRBEGIN', 'IRB', 'IREND', 'ISAVE', 'ILOAD', 'IDEL', 'IREAD', 'FXIR',
                  'LDBEGIN', 'LDB', 'LDEND', 'CSAVE', 'CLOAD', 'CDEL', 'CREAD', 'CTRIM', 'AUDIO', 'GEQ', 'HPF', 'LIM', 'SPILL', 'GLIDE', 'SPUR', 'CALIB', 'FXC', 'MIDI', 'SNAPCAP', 'HRLV', 'REC', 'RECD', 'INJBEGIN', 'INJB']
+CABLE = ['REC', 'RECD', 'INJBEGIN', 'INJB']      # of a product build: not over Bluetooth, the firmware keeps them to the cable
 RULES = ROOT / 'app/mini/mini-dev-rules.js'
 PRODUCT_FILES = ['product-ui.css', 'product-ui.js',      # of app/mini: the sizes of the controls, and the size of everything;
                  'product-try.css', 'product-presetfile.js', 'product-try.js', 'product-share.js',      # trying without saving; Patchstorage in the desktop program
@@ -91,7 +94,7 @@ POLICY = [
     ('    const result = inspectPong(pong, transport); identified', '    rules.forget(); const result = inspectPong(pong, transport); identified'),
     ('  const familyWriteEnabled = transport => profile.capabilities.read === true && profile.hardware_verified === true &&\n',
      '  const familyWriteEnabled = transport => developmentBuild() ? profile.capabilities.read === true &&\n'
-     '    transport === "usb-cdc" && Array.isArray((profile.family_capabilities || {})[transport]) &&\n'
+     '    familyTransports.has(transport) && Array.isArray((profile.family_capabilities || {})[transport]) &&\n'
      '    profile.family_capabilities[transport].some(c => familyCommands.has(c)) :\n'
      '    profile.capabilities.read === true && profile.hardware_verified === true &&\n'),
     ('l.startsWith("ERR"))) { invalidate(command); return; }\n',
@@ -110,6 +113,11 @@ POLICY = [
      '      if (developmentBuild()) rules.plan(command, state);\n'
      '      // Planning PSAVE changes the destination of a following scene save.\n'),
     ('root.HyperRigMini = Object.freeze({profile, ', 'root.HyperRigMini = Object.freeze({profile, developmentBuild, product, acceptBuild, '),
+    # The link itself: the key over USB, showing it over Bluetooth, the word before a disconnection (mini-dev-rules.js, link).
+    ('    if (isRead(value) && profile.capabilities.read) return {allowed: true, capability: "read"};\n',
+     '    if (isRead(value) && profile.capabilities.read) return {allowed: true, capability: "read"};\n'
+     '    if (developmentBuild() && identifiedTransport === transport && rules.link(value, transport, product()))\n'
+     '      return {allowed: true, capability: "link", command, transport};\n'),
 ]
 PAGE = [
     ('<title>HyperRig for TANK MINI</title>', '<title>HyperRig for TANK-MINI</title>'),
@@ -596,10 +604,82 @@ PRODUCT_PAGE += [
 PRODUCT_PAGE += [
     ('  logCrash();\n', '  logCrash();\n  if (typeof hrStartersSoon === "function") hrStartersSoon();\n'),
 ]
-# Bluetooth from a computer comes with 0.5.0: until then the page offers no Bluetooth connection (Connect via Bluetooth hidden).
+# Bluetooth: before the page lets go of the link it says HRBYE, and the pedal ends the link itself (product-ui.js, hrBye).
 PRODUCT_PAGE += [
-    ('  available() { return !!capBle() || !!(typeof navigator !== "undefined" && navigator.bluetooth && navigator.bluetooth.requestDevice); },',
-     '  available() { return !!capBle(); },'),
+    ('    this.closing = true; this.dev = null; this.rxc = null;\n',
+     '    const hrRx = this.rxc; this.closing = true; this.dev = null; this.rxc = null;\n'
+     '    if (!B && hrRx && typeof hrBye === "function") await hrBye(hrRx, this.q);\n'),
+    # The request to connect is one packet and may be lost: the browser then says at once that the link is gone. The page tries again
+    # (product-ui.js, hrAirOpen), and when that does not help either it does not blame another program.
+    ('      const s = await (await d.gatt.connect()).getPrimaryService(NUS.svc);\n',
+     '      const s = typeof hrAirOpen === "function" ? await hrAirOpen(d, NUS.svc) : await (await d.gatt.connect()).getPrimaryService(NUS.svc);\n'),
+    ('    if (!none) toast(busy ? "Pedal in use by another program. Close it." : ',
+     '    if (!none) toast(busy && Pedal.tr === BleTransport ? "No Bluetooth link to the pedal. Keep it near and try again." : '
+     'busy ? "Pedal in use by another program. Close it." : '),
+    # A computer without the pedal's key only looks. The page asks for the key by itself when it connects (the pedal gives it for a
+    # minute after A and B were held), and when it gets none it says so where it cannot be missed, with what to do (product-ui.js,
+    # hrAirKey and hrAirLocked). The buttons are the TANK-MINI's.
+    ('if (S.bt && !S.bt.enc && !S.bt.auth) bleRoShow(true);',
+     'if (S.bt && !S.bt.enc && !S.bt.auth && !APP && S.btMac && typeof hrAirKey === "function" && await hrAirKey()) S.bt.auth = true;\n'
+     '    if (S.bt && !S.bt.enc && !S.bt.auth) { bleRoShow(true); if (!APP && typeof hrAirLocked === "function") setTimeout(() => hrAirLocked(true), 1200); }'),
+    ('b.onclick = () => bleUnlock();', 'b.onclick = () => !APP && typeof hrAirLocked === "function" ? hrAirLocked(true) : bleUnlock();'),
+    # The other way to the pedal from the menu of the connection, above Disconnect (product-ui.js, hrSwitchVia).
+    ('  else mItem(m, "Disconnect", () => { if (S.connected) connect(); });',
+     '  else {\n'
+     '    const hrOther = S.connected && typeof hrSwitchVia === "function" ? otherTransport() : null;\n'
+     '    if (hrOther) mItem(m, hrOther === BleTransport ? "Connect via Bluetooth" : "Connect via USB", hrSwitchVia);\n'
+     '    mItem(m, "Disconnect", () => { if (S.connected) connect(); });\n'
+     '  }'),
+    ('const BLE_RO_NOTE = "Read only. Hold B+C 3 s, then Unlock editing.";',
+     'const BLE_RO_NOTE = "Editing is locked. Hold A and B on the pedal for 3 seconds, then press Unlock editing.";'),
+    ('const BLE_UNLOCK_HOLD = "Hold B+C 3 s, then Unlock editing again.";',
+     'const BLE_UNLOCK_HOLD = "Hold A and B on the pedal for 3 seconds, let go, then press Unlock editing again.";'),
+    # The pedal's minute for letting a device in is opened with A and B, and lets a computer in as well as a phone; forgetting
+    # (BLE forget) takes the computers' keys too.
+    ('  rejected: "Couldn\'t pair. Hold B+C for 3 s, or tap Pair another phone on a paired phone, and try again. If it fails, forget the pedal in Bluetooth settings.",',
+     '  rejected: "Couldn\'t pair. Hold A and B on the pedal for 3 seconds, or choose Let another device in on a computer or phone that is in, and try again. If it fails, forget the pedal in Bluetooth settings.",'),
+    ('  unknown: "Couldn\'t pair. Hold B+C for 3 s, or tap Pair another phone on a paired phone, and try again. If it fails, forget the pedal in Bluetooth settings.",',
+     '  unknown: "Couldn\'t pair. Hold A and B on the pedal for 3 seconds, or choose Let another device in on a computer or phone that is in, and try again. If it fails, forget the pedal in Bluetooth settings.",'),
+    ('    mItem(m, "Pair another phone", bleWindow);', '    mItem(m, "Let another device in", bleWindow);'),
+    ('    mItem(m, "Forget paired phones…", bleForget);', '    mItem(m, "Forget phones and computers…", bleForget);'),
+    ('  toast("Pairing open for 1 minute. Connect from the other phone.");',
+     '  toast("For one minute the pedal lets another phone or computer in: connect from it now.");'),
+    ('title: "Forget all paired phones?", body: "Every phone has to pair again. Forget the pedal in each phone\'s Bluetooth settings."',
+     'title: "Forget all phones and computers?", body: "Every phone has to pair again, and every computer has to be let in again: hold A and B '
+     'on the pedal for 3 seconds, or connect it once with the cable. Forget the pedal in each phone\'s Bluetooth settings."'),
+    # After forgetting, a computer over Bluetooth has no key and is not paired: it is not told to forget a pairing, but how it gets in.
+    ('toast("Couldn\'t forget the phones (the pedal is busy). Try again.", "err")',
+     'toast("The pedal did not forget the phones and computers. Try again.", "err")'),
+    ('toast(ble ? BLE_PAIR_MSG.stale : "The pedal forgot the paired phones.", ble ? "warn" : "")',
+     'toast(ble ? "The pedal forgot every phone and computer. To edit from here again, hold A and B on the pedal for 3 seconds and '
+     'connect." : "The pedal forgot every phone and computer.", ble ? "warn" : "")'),
+]
+# Connecting over Bluetooth is seen (product-ui.js, hrConnecting and hrConnShow); a link over Bluetooth that was lost is tried again
+# by itself with the same device (hrAirBack), which the page's way back, waiting for a port to show, never did; and a start goes the
+# way that was used last (hrViaKeep, and hrBootAir, which the program says once the page is loaded).
+PRODUCT_PAGE += [
+    ('  S.connecting = true;\n', '  S.connecting = true; if (typeof hrConnecting === "function") hrConnecting(true);\n'),
+    ('  } finally { S.connecting = false; }',
+     '  } finally { S.connecting = false; if (typeof hrConnecting === "function") hrConnecting(false); }'),
+    ('  $("lockConn").style.display = term || noSerial || rec ? "none" : "";',
+     '  const hrBusy = locked && typeof hrConnBusy === "function" && hrConnBusy();\n'
+     '  $("lockConn").style.display = term || noSerial || rec || hrBusy ? "none" : "";'),
+    ('$("lockAlt").hidden = term || rec || !alt; $("lockAlt").textContent = T(alt === BleTransport ? "Connect via Bluetooth" : "Connect via USB");',
+     '$("lockAlt").hidden = term || rec || !alt || hrBusy; $("lockAlt").textContent = T(alt === BleTransport ? "Connect via Bluetooth" : "Connect via USB");\n'
+     '  if (typeof hrConnShow === "function") hrConnShow(locked && !term && !tab && !noSerial);'),
+    ('    if (this.closing || !this.dev) return;\n', '    if (this.closing || !this.dev) return;\n    if (this.dev.gatt) this.hrLast = this.dev;\n'),
+    ('  async known(pref) { return capBle() && pref && pref.ble ? { ble: pref.ble } : null; },',
+     '  async known(pref) { return capBle() && pref && pref.ble ? { ble: pref.ble } : !capBle() && this.hrLast && this.hrLast.gatt ? this.hrLast : null; },'),
+    ('Log.ev("auto_reconnect", { st: "wait" });', 'Log.ev("auto_reconnect", { st: "wait" }); if (typeof hrAirBack === "function") hrAirBack(autoRe);'),
+    ('  saveIntent("on", Pedal.tr.info ? Pedal.tr.info() : null);',
+     '  saveIntent("on", Pedal.tr.info ? Pedal.tr.info() : null); if (typeof hrViaKeep === "function") hrViaKeep();'),
+    ('  if (plan !== "open") return plan;\n',
+     '  if (plan !== "open") return plan;\n'
+     '  if (globalThis.hrBootAirWanted === undefined && !APP && !capBle() && BleTransport.available()) {\n'
+     '    let via = null; try { via = localStorage.getItem("hyperrig.mini.via"); } catch (e) {}\n'
+     '    if (via === "ble") { globalThis.hrBootAirWanted = true; Pedal.tr = BleTransport; setLock(); return "air"; }\n'
+     '  }\n'),
+    ('Tabs.init(); bootOpen();', 'Tabs.init(); globalThis.hrBootPlan = bootOpen();'),
 ]
 PRODUCT_POLICY = [
     ('/^SNAPS ([01]{4}) (?:current|actual)=(-?\\d+)$/', '/^SNAPS ([01]{8}) (?:current|actual)=(-?\\d+)$/'),
@@ -722,11 +802,18 @@ def added_of(area):
     return ADDED + PRODUCT_ADDED if area.get('product') else ADDED
 
 
+def families_of(area):
+    """What the editor may change, by the kind of link: over USB on every build from source; over Bluetooth on a product
+    build, whose firmware takes there, from a paired phone or with the pedal's key, what it takes over USB less CABLE."""
+    usb = FAMILIES + added_of(area)
+    return {'usb-cdc': usb, 'ble-nus': [c for c in usb if c not in CABLE]} if area.get('product') else {'usb-cdc': usb}
+
+
 def profile_of(base_profile, area):
     profile = copy.deepcopy(base_profile)
     profile.update(
         image_sha256=area['area_sha256'], capabilities={**base_profile['capabilities'], 'panel': True}, hardware_verified=False, family_validation={}, family_qualification={},
-        family_capabilities={'usb-cdc': FAMILIES + added_of(area)}, family_evidence_model='development-unqualified',
+        family_capabilities=families_of(area), family_evidence_model='development-unqualified',
         derived_from={'kind': 'source-build', 'builder': 'tools/build_hyperrig_mini_image.py',
                       'target_image_sha256': area['area_sha256'], 'record_sha256': area['record_sha256'],
                       'source_files': area['source_files'], 'reviewed': False,
@@ -777,16 +864,19 @@ def files_of(area, base=BASE):
         'schema': 1, 'kind': 'hyperrig-mini-development-editor-scope', 'revision': revision_of(area),
         'image_sha256': area['area_sha256'], 'transport': 'usb-cdc', 'enabled_families': FAMILIES + added_of(area),
         'hardware_verified': False, 'qualified_on_this_image': False, 'audio_tested': False,
-        'BLE_write_enabled': False, 'panel_enabled': True, 'panel_mapping_verified': False, 'blanket_write': False,
+        'BLE_write_enabled': bool(area.get('product')), 'enabled_families_bluetooth': families_of(area).get('ble-nus', []),
+        'panel_enabled': True, 'panel_mapping_verified': False, 'blanket_write': False,
         'device_binary_hash_attestation': False})
     out['editor/DERIVATION.txt'] = (
         'HyperRig for TANK-MINI, development editor.\n'
         'Derived from the v4 editor (revision mini-v4-usb-01), which stays unchanged.\n'
         'For builds from source on a development unit. Its commands are not qualified on this build:\n'
         'the nine USB families of the v4 editor and those of mini-dev-rules.js (amp, chain, stereo, tempo,\n'
-        + ('tuner, presets, scenes, footswitches, captures, cab IRs, the settings for every preset). Bluetooth writes, firmware\n' if area.get('product')
-           else 'tuner, presets, scenes, footswitches). Captures and IRs, calibration, Bluetooth writes, firmware\n') +
-        'update and authentication stay blocked.\n'
+        + ('tuner, presets, scenes, footswitches, captures, cab IRs, the settings for every preset), over USB and, from\n'
+           'a paired phone or a computer with the pedal\'s key, over Bluetooth, where measuring the volume of the presets\n'
+           'stays with the cable. Firmware update stays blocked.\n' if area.get('product')
+           else 'tuner, presets, scenes, footswitches). Captures and IRs, calibration, Bluetooth writes, firmware\n'
+                'update and authentication stay blocked.\n') +
         'It corrects faults of that editor: edits and Save were refused after a footswitch changed the preset\n'
         'and after the pedal refused a block, and Save did not go to the empty slot chosen for a new preset.\n'
         + (f"It is for HyperRig {area['product']['version']}, build {area['product']['build_id']}: the pedal names its build\n"
@@ -826,7 +916,7 @@ def check(output):
     require(profile['hardware_verified'] is False and profile['development']['commands_qualified_on_this_build'] is False
             and profile['capabilities']['write'] is False
             and profile['development'].get('product') == meta['area'].get('product')
-            and profile['family_capabilities'] == {'usb-cdc': FAMILIES + added_of(meta['area'])}, 'the profile claims more than it may')
+            and profile['family_capabilities'] == families_of(meta['area']), 'the profile claims more than it may')
     return {'result': 'pass', 'directory': str(output), 'revision': meta['revision'], 'files': len(meta['files']),
             'area_sha256': meta['area']['area_sha256'], 'families': FAMILIES + added_of(meta['area']), 'hardware_qualified': False,
             'device_io': False}

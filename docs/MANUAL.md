@@ -10,7 +10,7 @@
 | A+B | The bank before |
 | B+C | The next bank |
 | B+C held one second | Tuner; a tap closes it |
-| A+B held three seconds | Bluetooth on (there is no phone editor for this version yet) |
+| A+B held three seconds | Bluetooth on, and for one minute a computer may unlock editing over Bluetooth (the lights pulse blue) |
 | A+B held six seconds | Bluetooth off |
 | The wheel | Volume; in the editor it can be switched off |
 
@@ -139,6 +139,31 @@ Eight scenes always fit with up to eleven blocks; with more it depends on how ma
 and the editor says when there is no room. A preset that uses more than four scenes is for a
 HyperRig that has eight.
 
+## Bluetooth
+
+The program can edit the pedal over Bluetooth, without the cable, on a computer that has Bluetooth.
+Turn Bluetooth on at the pedal (A+B held three seconds) and keep the pedal near the computer. In the
+program, **Connect via Bluetooth** is on the screen shown when nothing is connected, and in the menu of
+the connection, which also has **Connect via USB** to go back to the cable. The pedal shows as
+**HyperRig** and four characters; when there are several, the program asks which one.
+
+Editing is locked until the pedal lets the computer in. A computer that was connected once with the
+cable is let in at once. Otherwise the editor says **Editing is locked** and only looks, with a bar
+across the top: hold A and B on the pedal for three seconds, let go, and within one minute press
+**Unlock editing**. The computer then stays unlocked; the pedal keeps up to four. Connecting within that
+minute unlocks it by itself. In the menu of the connection, **Let another device in** opens the same minute
+from a computer that is in, and **Forget phones and computers…** makes every phone pair again and every
+computer be let in again.
+
+Everything the editor does over the cable it does over Bluetooth, except **Level volumes** and updates of
+the firmware: they need the cable. The pedal ends a link when the editor disconnects, and a link on
+which nothing came for 90 seconds, so that a computer that keeps it after the program has closed does
+not hold the pedal. While it connects, the program says so, and how far it is: over Bluetooth it may
+take up to half a minute, and when a connection does not come at once the editor tries again by itself.
+When the link is lost, because the pedal was turned off or went out of reach, the editor reconnects by
+itself for three minutes. The program starts the way it was connected last: over Bluetooth, even with
+the cable in for power, and over the cable when the pedal is not found over Bluetooth.
+
 ## MIDI
 
 The pedal can be a MIDI device over the USB cable: a program, or another device through a computer or a USB MIDI host,
@@ -257,11 +282,11 @@ follows the reference of the tuner. Each voice uses more of the pedal.
 ## Limits
 
 - Windows only. The program is not signed.
-- **No Bluetooth audio and no USB sound card.** Nothing in this version connects over Bluetooth.
+- **No Bluetooth audio and no USB sound card.** Over Bluetooth only the program edits the pedal; there is no app
+  for phones and tablets yet. Editing over Bluetooth was tried on one Windows computer with its USB Bluetooth adapter.
 - Headphones, charging, very long sessions and a comparison with the original firmware by ear
   were not tried. In the original the pedal switches itself off three minutes after the
   battery is empty; HyperRig does not.
-- Changes over Bluetooth are not in the editor.
 - The global EQ has one channel: in stereo it is mono.
 - Of a chain of more than 10 blocks without the amp, the last ten are in stereo in the headphones;
   the first ones are mono. The editor says when a block becomes mono.

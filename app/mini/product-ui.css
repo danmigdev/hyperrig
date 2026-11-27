@@ -194,3 +194,14 @@ body:not(.ph) .top .rchips .rchip.drop { flex: none; }
 /* For which scenes the capture is, in the amp's panel. */
 .hrcap:empty { display: none; }
 .hrcap { margin: 0 0 10px; }
+
+/* Over Bluetooth without the pedal's key the page only looks: said across the window, not in small print. */
+#bleRoNote { max-width: none; margin: 0; padding: 10px 16px; background: #4f3400; color: #ffe7b8; font-size: 14px; font-weight: 600; border-bottom: 1px solid #a8741a; }
+#bleRoNote .btn { margin-left: 10px; font-weight: 600; }
+
+/* Connecting over Bluetooth: a turning mark beside the words of the screen shown while nothing is connected (product-ui.js,
+ * hrConnShow); a still one when the system asks for less motion. */
+.lockbox.hrconn #lockTxt::after { content: ""; display: inline-block; width: .7em; height: .7em; margin-left: .5em; vertical-align: -.05em;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: hrturn .9s linear infinite; }
+@keyframes hrturn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .lockbox.hrconn #lockTxt::after { animation: none; border-right-color: currentColor; opacity: .6; } }

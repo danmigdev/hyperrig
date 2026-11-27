@@ -11,7 +11,7 @@ preset_preflight_needs_conversion:
 .if MINI_PRODUCT
     r0 = 0
     rts
-.endif
+.else
     r1 = 1
     r2 = 1
     if (r0 != 24) {
@@ -22,6 +22,7 @@ preset_preflight_needs_conversion:
     }
     r0 = r1 | r2
     rts
+.endif
 
 ; preset_preflight_convert_effect: 0x0202a452..0x0202a50a, module preset-preflight (convert_effect)
 .type preset_preflight_convert_effect,@function
@@ -30,7 +31,7 @@ preset_preflight_convert_effect:
 ; HyperRig MINI, product option: the ids 6 and 24 stay what they are here too; a block is converted when it is added, whatever the function above says.
 .if MINI_PRODUCT
     goto L0202a508
-.endif
+.else
     if (r0 == 24) goto L0202a4f0
     if (r0 != 6) goto L0202a508
     r0 = 27
@@ -105,5 +106,6 @@ L0202a4f0:
     r2 = 0
 L0202a506:
     h[r1+12] = r2
+.endif
 L0202a508:
     {pc, r9-r4} = [sp++]

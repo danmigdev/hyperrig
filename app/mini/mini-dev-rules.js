@@ -115,6 +115,8 @@
     "LDBEGIN", "LDB", "LDEND", "CSAVE", "CLOAD", "CDEL", "CREAD", "CTRIM", "AUDIO", "GEQ", "HPF", "LIM", "SPILL", "GLIDE", "SPUR", "CALIB", "FXC", "MIDI", "SNAPCAP", "HRLV", "REC", "RECD", "INJBEGIN", "INJB"]);
   // PNAME by itself only says how it is used: the page asks it whether the firmware can rename.
   const queries = Object.freeze(["PNAME", "TUNER", "FSA", "FSMODE", "FSPRESS", "FSLED", "LEDCFG", "KNOB", "HRID", "HRST", "AMPK", "MIDI", "SNAPCAP"]);
+  // Over Bluetooth a product build takes what it takes over USB, less these, which its firmware keeps to the cable.
+  const cable = Object.freeze(["REC", "RECD", "INJBEGIN", "INJB"]);
 
   /* A product build (docs/MINI_PRODUCT.md) says which build it is. An editor made for one permits changes only to the
    * build it was made for: product is its {version, build_id}, or null for an editor of another build from source. */
@@ -126,6 +128,19 @@
   }
   const same = product => !!(product && answered && answered.version === product.version && answered.build_id === product.build_id);
   const forget = () => { answered = null; };
+
+  /* The link itself, on the build this editor was made for. The page asks the pedal for the key that this computer keeps:
+   * over USB the pedal gives it, over Bluetooth only for a minute after A and B were held on it for three seconds. Over
+   * Bluetooth the page then shows that it has the key: the pedal's question, then the key's number and the answer to the
+   * question, after which the pedal takes changes from it; and it says when it is about to disconnect, so that the pedal ends
+   * the link itself. Over either link it may open the pedal's minute for letting another device in (BLE pair), and make the
+   * pedal forget every phone and computer (BLE forget): over Bluetooth the pedal takes both only from one that is in. None of
+   * these changes a preset or a setting. */
+  function link(value, transport, product) {
+    if (!product || !same(product) || transport !== "usb-cdc" && transport !== "ble-nus") return false;
+    if (/^BLE (?:key|pair|forget)$/.test(value)) return true;
+    return transport === "ble-nus" && /^(?:AUTH \?|AUTH (?:0|[1-9]\d?) [0-9a-f]{32}|HRBYE)$/.test(value);
+  }
 
   /* true or false for a form above, null for any other command: the tested rules then decide. */
   function rule(value, state, product = null) {
@@ -228,5 +243,5 @@
     }
     return false;
   }
-  root.HyperRigDevRules = Object.freeze({rule, plan, observe, refused, build, forget, families, productFamilies, queries});
+  root.HyperRigDevRules = Object.freeze({rule, plan, observe, refused, build, forget, link, families, productFamilies, queries, cable});
 })(globalThis);

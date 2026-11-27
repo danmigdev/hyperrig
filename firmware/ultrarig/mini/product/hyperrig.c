@@ -28,6 +28,8 @@ int hyperrig_stage(const char *rest);
 int hyperrig_replace(const char *rest);
 int hyperrig_level(const char *rest);
 int hyperrig_scene_captures(const char *rest);
+void hyperrig_air_turn(uint32_t now);
+void hyperrig_air_bye(void);
 void hyperrig_level_turn(void);
 extern uint8_t hyperrig_tuner_asked;
 void hyperrig_cab_turn(void);
@@ -82,6 +84,11 @@ int hyperrig_console(const char *word, const char *rest)
         return hyperrig_level(rest);
     if (same(word, "SNAPCAP"))
         return hyperrig_scene_captures(rest);
+    if (same(word, "HRBYE")) {                            /* the editor before it disconnects over Bluetooth (air.c) */
+        hyperrig_air_bye();
+        bond_records_and_prints_print_b("HRBYE ok\n");
+        return 1;
+    }
     if (same(word, "HRID")) {
         bond_records_and_prints_print_b("HRID 1 %s %s banks=3\n", HYPERRIG_VERSION, HYPERRIG_BUILD);
         return 1;
@@ -163,6 +170,7 @@ static void read_battery(uint32_t now)
 void hyperrig_panel_turn(uint32_t now)
 {
     hyperrig_pairs_turn(now);
+    hyperrig_air_turn(now);
     hyperrig_parametric_turn();
     hyperrig_midi_turn(now);
     hyperrig_level_turn();

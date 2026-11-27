@@ -286,7 +286,7 @@ for(const lines of [['HRID 1 0.2.0-dev.1 0123456789abcdee banks=3'],['HRID 1 0.2
 assert.deepEqual(HyperRigMini.acceptBuild([right]),{known:true,same:true,version:'0.2.0-dev.1',build_id:'0123456789abcdef'});
 HyperRigMini.observeReply('LVL',['LVL in=-240 out=-253 g=0/0 b=1200 p=-1'],false,'usb-cdc');
 for(const c of changes) assert.equal(allowed(c),true,c);
-for(const c of ['KNOB 5','KNOB on off','UBOOT','BLE forget','AUTH x','CALIB sens 12','HRID x']) assert.equal(allowed(c),false,c);
+for(const c of ['KNOB 5','KNOB on off','UBOOT','BLE forget x','AUTH x','CALIB sens 12','HRID x']) assert.equal(allowed(c),false,c);
 assert.equal(allowed('BPM 1200','ble-nus'),false,'not over Bluetooth');
 HyperRigMini.acceptPong(input.pong,'usb-cdc');
 for(const c of changes) assert.equal(allowed(c),false,'after a new connection: '+c);
@@ -294,9 +294,79 @@ HyperRigMini.acceptBuild([right]); HyperRigMini.resetIdentity(); HyperRigMini.ac
 for(const c of changes) assert.equal(allowed(c),false,'after the identity was reset: '+c);
 ''', self.payload())
 
-    def test_no_bluetooth_from_a_computer_yet(self):
-        self.assertIn('  available() { return !!capBle(); },', self.page)
-        self.assertNotIn('navigator.bluetooth && navigator.bluetooth.requestDevice); },', self.page)
+    def test_over_bluetooth_what_goes_over_usb_but_what_the_firmware_keeps_to_the_cable(self):
+        node(HEAD + r'''
+const right=['HRID 1 0.2.0-dev.1 0123456789abcdef banks=3'], key='0123456789abcdef0123456789abcdef', air=c=>allowed(c,'ble-nus');
+const changes=['GAIN 0 0','BPM 1200','TUNER 0','AMP 0','STW 100','PNEW','GSAVE','KNOB off','FSDO a','FSMODE mode=live','MIDI on'];
+const link=['AUTH ?','AUTH 0 '+key,'AUTH 12 '+key,'HRBYE'];
+// The key, the minute for letting another device in, forgetting every phone and computer: the pedal's, over either link.
+const pedal=['BLE key','BLE pair','BLE forget'];
+// The key may be asked for over either link, on the build this editor is for (over Bluetooth the pedal gives it only after its
+// buttons were held); the words of the Bluetooth link are not for the cable.
+assert.equal(HyperRigMini.acceptPong(input.pong,'usb-cdc').ok,true);
+for(const c of pedal) assert.equal(allowed(c),false,'before HRID: '+c);
+HyperRigMini.acceptBuild(right);
+for(const c of pedal) assert.equal(allowed(c),true,c);
+for(const c of pedal) assert.equal(HyperRigMini.commandPolicy(c,'usb-cdc').capability,'link');
+for(const c of ['BLE key 1','BLE  key','BLE forget x','BLE pair 1','BLE pair x',...link]) assert.equal(allowed(c),false,'over USB: '+c);
+for(const c of [...pedal,...link,...changes]) assert.equal(air(c),false,'the link is USB: '+c);
+// Over Bluetooth: reads at once; the link's words and the changes on the build this editor is for.
+assert.equal(HyperRigMini.acceptPong(input.pong,'ble-nus').ok,true);
+for(const c of [...pedal,...link,...changes]) assert.equal(air(c),false,'before HRID: '+c);
+for(const c of ['PING','HRID','HRST','BLE','FXT','PLIST','KNOB','MIDI']) assert.equal(air(c),true,c);
+HyperRigMini.acceptBuild(right);
+HyperRigMini.observeReply('LVL',['LVL in=-240 out=-253 g=0/0 b=1200 p=-1'],false,'ble-nus');
+for(const c of [...pedal,...link,...changes]) assert.equal(air(c),true,c);
+for(const c of pedal) assert.equal(HyperRigMini.commandPolicy(c,'ble-nus').capability,'link');
+for(const c of ['BLE key 1','BLE  key','BLE forget x','BLE pair 1','AUTH','AUTH x','AUTH 0','AUTH 0 '+key.slice(1),'AUTH 0 '+key.toUpperCase(),'AUTH 100 '+key,'AUTH ? x','AUTH  ?',
+                'HRBYE now','HRBT','HRBT x 3','REC 4 184','RECD 0','INJBEGIN 1408','INJB 0 00','UBOOT'])
+  assert.equal(air(c),false,c);
+for(const c of changes) assert.equal(allowed(c),false,'the link is Bluetooth: '+c);
+HyperRigMini.acceptBuild(['HRID 1 0.2.0-dev.1 ffffffffffffffff banks=3']);
+for(const c of [...pedal,...link,...changes]) assert.equal(air(c),false,'another build: '+c);
+for(const c of ['PING','HRID','BLE']) assert.equal(air(c),true,c);
+''', self.payload())
+        # A computer without the key is told so where it cannot be missed, with the buttons of this pedal.
+        script = self.files['editor/web/product-ui.js'].decode('utf-8')
+        for text in ('async function hrAirKey()', 'title: "Editing is locked"', 'hold A and B together for 3 seconds', 'Or connect once with the USB cable'):
+            self.assertIn(text, script)
+        for text in ('typeof hrAirKey === "function" && await hrAirKey()) S.bt.auth = true;', 'setTimeout(() => hrAirLocked(true), 1200)',
+                     'const BLE_RO_NOTE = "Editing is locked. Hold A and B on the pedal for 3 seconds, then press Unlock editing.";'):
+            self.assertIn(text, self.page)
+        self.assertNotIn('Hold B+C 3 s', self.page)
+        # The other way to the pedal is in the menu of the connection while one is in use.
+        self.assertIn('if (hrOther) mItem(m, hrOther === BleTransport ? "Connect via Bluetooth" : "Connect via USB", hrSwitchVia);', self.page)
+        self.assertIn('async function hrSwitchVia()', script)
+        self.assertIn('#bleRoNote {', self.files['editor/web/product-ui.css'].decode('utf-8'))
+        families = self.profile['family_capabilities']
+        self.assertEqual(families['ble-nus'], [c for c in families['usb-cdc'] if c not in editor.CABLE])
+        self.assertEqual(editor.CABLE, ['REC', 'RECD', 'INJBEGIN', 'INJB'])
+        self.assertIn('if (!B && hrRx && typeof hrBye === "function") await hrBye(hrRx, this.q);', self.page)
+        self.assertIn('async function hrBye(rx, writing)', self.files['editor/web/product-ui.js'].decode('utf-8'))
+        self.assertNotIn('ble-nus', json.loads(editor.files_of({**AREA, 'product': None})['editor/profile.json'])['family_capabilities'])
+
+    def test_over_bluetooth_connecting_is_seen_a_lost_link_comes_back_and_a_start_goes_the_way_of_last_time(self):
+        script = self.files['editor/web/product-ui.js'].decode('utf-8')
+        for text in ('function hrConnecting(on)', 'function hrConnShow(shown)', '"Looking for the pedal over Bluetooth…"',
+                     '"Connecting via Bluetooth…"', '` Trying again (${hrConn.k} of 4)…`', '"Reconnecting via Bluetooth…"',
+                     'function hrAirBack(a)', 'until: 180000', 'function hrViaKeep()', 'async function hrBootAir()'):
+            self.assertIn(text, script)
+        for text in ('S.connecting = true; if (typeof hrConnecting === "function") hrConnecting(true);',
+                     'finally { S.connecting = false; if (typeof hrConnecting === "function") hrConnecting(false); }',
+                     '$("lockConn").style.display = term || noSerial || rec || hrBusy ? "none" : "";',
+                     '$("lockAlt").hidden = term || rec || !alt || hrBusy;', 'hrConnShow(locked && !term && !tab && !noSerial);',
+                     'if (this.dev.gatt) this.hrLast = this.dev;', '!capBle() && this.hrLast && this.hrLast.gatt ? this.hrLast : null',
+                     'if (typeof hrAirBack === "function") hrAirBack(autoRe);', 'if (typeof hrViaKeep === "function") hrViaKeep();',
+                     'if (via === "ble") { globalThis.hrBootAirWanted = true; Pedal.tr = BleTransport; setLock(); return "air"; }',
+                     'Tabs.init(); globalThis.hrBootPlan = bootOpen();'):
+            self.assertIn(text, self.page)
+        self.assertIn('.lockbox.hrconn #lockTxt::after', self.files['editor/web/product-ui.css'].decode('utf-8'))
+        # The two names the page and the program share.
+        self.assertIn('const HR_VIA = "hyperrig.mini.via";', script)
+        self.assertIn('localStorage.getItem("hyperrig.mini.via")', self.page)
+        main = (ROOT / 'app/desktop/main.js').read_text(encoding='utf-8')
+        self.assertIn('contents.executeJavaScript(\'void (typeof hrBootAir === "function" && hrBootAir())\', true)', main)
+        self.assertIn('if (!quiet && win && !win.isDestroyed()) dialog.showMessageBox(', main)
 
     def test_midi_settings_are_permitted_as_the_firmware_takes_them(self):
         node(HEAD + r'''

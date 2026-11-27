@@ -676,6 +676,9 @@ L020109bc:
     sp += 188
     {pc, r15-r4} = [sp++]
 
+; HyperRig MINI, product option: nothing refers to what follows
+.if MINI_PRODUCT
+.else
 ; fault_record_link_check: 0x02010a8c..0x02010aae, module fault-record (link_check)
 .type fault_record_link_check,@function
 fault_record_link_check:
@@ -689,6 +692,7 @@ fault_record_link_check:
     call boundary_hooks_record_pack
     call boundary_hooks_record_store
     pc = [sp++]
+.endif
 
 ; fault_record_fault_age: 0x02010aae..0x02010ade, module fault-record (fault_age)
 .type fault_record_fault_age,@function

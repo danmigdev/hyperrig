@@ -4,6 +4,21 @@ What is new in each release of HyperRig for the TANK-MINI. To update a pedal tha
 HyperRig, start the new program and connect the pedal: it offers **Update now**, and the presets
 stay ([installation guide](../INSTALLATION.md#update)).
 
+## 0.5.0
+
+- **Editing over Bluetooth.** The program connects to the pedal without the cable: **Connect via
+  Bluetooth**, also in the menu of the connection. A computer that was connected once with the cable
+  edits at once; another one is let in by holding A and B on the pedal for three seconds and pressing
+  **Unlock editing** within a minute. Level volumes and updates still need the cable
+  ([manual](MANUAL.md#bluetooth)).
+- The pedal ends a Bluetooth link on which nothing came for 90 seconds, and when the editor
+  disconnects, so that a computer that keeps the link does not hold the pedal.
+- The lights stop pulsing blue as soon as the device that came is let in.
+- While it connects over Bluetooth the program says so, with each new try; a lost link is reconnected
+  by itself; and the program starts the way it was connected last.
+- **Let another device in** and **Forget phones and computers…** in the menu of the connection reach
+  the pedal.
+
 ## 0.4.0
 
 - **A capture for each scene.** In the amp's panel, **Capture for** says **All scenes** or **This

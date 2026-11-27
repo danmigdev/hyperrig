@@ -3840,6 +3840,10 @@ L0201a73e:
     b[r14+136] = r7
     r0 = 2
     b[r14+6] = r0
+; HyperRig MINI, product option: a line came over Bluetooth (mini/product/air.c ends a link on which none comes any more).
+.if MINI_PRODUCT
+    call hyperrig_air_heard
+.endif
     r0 = 13049
     r3 = r15 + r0
     call console_helpers_key_window
@@ -3849,7 +3853,19 @@ L0201a73e:
     if (r0 != 0) goto L0201a778
     r0 = r15 + 2660
     call tuner_and_control_records_name_listed
+; HyperRig MINI, product option: a word that is in neither list may be one of HyperRig's own, which air.c sorts the same way:
+; not one of them (usb only), with the key only (r4 says whether the link has it), or always.
+.if MINI_PRODUCT
+    if (r0 != 0) goto L0201a778
+    r0 = r14 + 5188
+    call hyperrig_air
     if (r0 == 0) goto L0201a7c2
+    if (r0 == 2) goto L0201a790
+    if (r4 != 0) goto L0201a790
+    goto L0201a7c6
+.else
+    if (r0 == 0) goto L0201a7c2
+.endif
 L0201a778:
     if (r4 != 0) goto L0201a790
     r0 = 12468

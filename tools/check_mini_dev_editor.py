@@ -3229,13 +3229,22 @@ def run(bundle, output, page_class=Page):
             cdp.evaluate('__pedal.bank = 1')
         cdp.evaluate('typeof stageClose === "function" ? void stageClose() : document.body.classList.remove("staging")')
         time.sleep(0.5)
-        # What stays blocked never reaches the wire.
-        steps['blocked'] = cdp.evaluate('''(async () => { const out = {}; for (const c of ["CSAVE 15 A", "ISAVE 8 A", "UBOOT", "BLE key", "AUTH x", "CALIB 1", "CALIB sens 12.0", "GEQ 5 1", "LIM 1 -201 100", "HPF 81", "PDEL 9"])
-                                           out[c] = (await Pedal.cmd(c, c.split(" ")[0])).join(" "); return out; })()''')
+        # What stays blocked never reaches the wire. The editor of a product build asks the pedal for its Bluetooth key over USB
+        # (BLE key), on the build it was made for; one built from source does not.
+        held = ["CSAVE 15 A", "ISAVE 8 A", "UBOOT", "AUTH x", "CALIB 1", "CALIB sens 12.0", "GEQ 5 1", "LIM 1 -201 100", "HPF 81", "PDEL 9"] + ([] if product else ["BLE key"])
+        steps['blocked'] = cdp.evaluate('''(async () => { const out = {}; for (const c of %s)
+                                           out[c] = (await Pedal.cmd(c, c.split(" ")[0])).join(" "); return out; })()''' % json.dumps(held))
         require(all(v.startswith('ERR MINI_APP') for v in steps['blocked'].values()), 'a blocked command was sent')
         sent = cdp.evaluate('__pedal.sent')
         require(not [c for c in sent if c.split(' ')[0] in ('UBOOT', 'AUTH') + (() if product else ('ISAVE', 'CSAVE', 'CALIB')) or
-                     c in ('BLE key', 'PDEL 9', 'ISAVE 8 A', 'CSAVE 15 A', 'CALIB 1', 'CALIB sens 12.0', 'GEQ 5 1', 'LIM 1 -201 100', 'HPF 81')], 'a blocked command was sent')
+                     c in tuple(held)], 'a blocked command was sent')
+        if product:
+            # The key, the minute for letting another device in and forgetting every phone and computer (the menu of the connection).
+            steps['key_over_usb'] = cdp.evaluate('''(async () => { const out = {}; for (const c of ["BLE key", "BLE pair", "BLE forget"])
+                                                   out[c] = (await Pedal.cmd(c, "BLE")).join(" "); return out; })()''')
+            sent = cdp.evaluate('__pedal.sent')
+            require(not [c for c, v in steps['key_over_usb'].items() if v.startswith('ERR MINI_APP') or c not in sent],
+                    f"the key, the minute and forgetting over USB: {steps['key_over_usb']}")
         if product:
             steps['names'] = names(page, output)
             steps['save_line'] = save_line(page, output)

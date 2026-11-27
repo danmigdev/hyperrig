@@ -36,6 +36,12 @@ function isPedal(port) {
 }
 const pedals = list => (Array.isArray(list) ? list.filter(isPedal) : []);
 const portLabel = port => String((port && (port.displayName || port.portName)) || "TANK-MINI");
+/* A Bluetooth device as Chromium lists it for the page: the pedal with HyperRig says "HyperRig" and four digits of its address. */
+const isAirPedal = device => !!device && typeof device === "object" && typeof device.deviceId === "string" && device.deviceId !== "" &&
+  typeof device.deviceName === "string" && /^HyperRig [0-9A-F]{4}$/.test(device.deviceName);
+const airPedals = list => (Array.isArray(list) ? list.filter(isAirPedal) : []);
+/* The editor's own page: not the installer's, and nobody else's. */
+const isEditor = address => originOf(address) === ORIGIN && fileOf(address) !== null;
 
 /* The path of a file inside the bundle, or null: only the editor's own address and the installer's, no way out of their folders. */
 const PLACES = { editor: ["web/", "tank-mini.html"], installer: ["installer/", "index.html"] };
@@ -108,4 +114,4 @@ function logRows(text) {
   return Array.isArray(rows) ? rows.filter(r => r && typeof r === "object").map(r => JSON.stringify(r)) : [];
 }
 
-module.exports = { SCHEME, ORIGIN, START, INSTALLER, INSTALL, PEDAL, POLICY, INSTALLER_POLICY, STEPS, originOf, isInstaller, fits, zoomOf, zoomBy, zoomShown, isPedal, pedals, portLabel, fileOf, ownPage, mayLoad, mayOpen, mayVisit, maySave, saveName, mayUse, typeOf, placeOf, logRows };
+module.exports = { SCHEME, ORIGIN, START, INSTALLER, INSTALL, PEDAL, POLICY, INSTALLER_POLICY, STEPS, originOf, isInstaller, fits, zoomOf, zoomBy, zoomShown, isPedal, pedals, portLabel, isAirPedal, airPedals, isEditor, fileOf, ownPage, mayLoad, mayOpen, mayVisit, maySave, saveName, mayUse, typeOf, placeOf, logRows };

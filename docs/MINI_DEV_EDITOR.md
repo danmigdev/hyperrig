@@ -52,8 +52,13 @@ and no update is offered for it.
 
 `HRLV 02`, `PSAVE`, `SNAPSAVE`, `PNAME`, `PDEL`, `PCOLOR`, `SNAPNAME`, `SNAPDEL`, `CSAVE`, `CDEL`, `CTRIM` of a
 slot, `ISAVE`, `IDEL`, `FSDO` with `hold`, and `GSAVE` write the pedal's flash, in the records the
-firmware keeps for them; the others change memory. Changes over Bluetooth, firmware update,
-authentication, `CALIB sens`, `NOISE`, and `REC` and `INJ` beyond what the measure of loudness needs, stay blocked.
+firmware keeps for them; the others change memory. Over Bluetooth an editor of a product build allows
+what it allows over USB, less `REC`, `RECD`, `INJBEGIN` and `INJB`, which the firmware keeps to the cable;
+on the build it was made for it asks for the pedal's key over USB (`BLE key`), shows it over Bluetooth
+(`AUTH`) and says `HRBYE` before it disconnects; over either link it may open the pedal's minute for letting
+another device in (`BLE pair`) and make it forget every phone and computer (`BLE forget`), which over Bluetooth
+the pedal takes only from a device that has its key. Firmware update, `CALIB sens`, `NOISE`, and `REC` and `INJ`
+beyond what the measure of loudness needs, stay blocked.
 
 A chain without a capture is shown as one and uses both sections of the firmware, where a block sounds
 the same ([MINI_PRODUCT.md](MINI_PRODUCT.md)). The second one, which is the one in stereo, has the last

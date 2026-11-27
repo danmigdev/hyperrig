@@ -17,6 +17,18 @@ assert.deepEqual(rules.pedals([{ vendorId: "13908", portId: "a" }, { vendorId: "
 assert.deepEqual(rules.pedals(null), []);
 assert.equal(rules.portLabel({ portName: "COM7" }), "COM7");
 
+// Bluetooth: only a device that says the pedal's name, and only for the editor's page.
+for (const device of [{ deviceName: "HyperRig 68F0", deviceId: "F0:68:00:00:00:01" }, { deviceName: "HyperRig 0000", deviceId: "x" }])
+  assert.equal(rules.isAirPedal(device), true, JSON.stringify(device));
+for (const device of [null, undefined, "HyperRig 68F0", {}, { deviceName: "HyperRig 68F0" }, { deviceName: "HyperRig 68F0", deviceId: "" }, { deviceName: "HyperRig 68f0", deviceId: "a" },
+  { deviceName: "HyperRig", deviceId: "a" }, { deviceName: "HyperRig 68F01", deviceId: "a" }, { deviceName: " HyperRig 68F0", deviceId: "a" }, { deviceName: "TANK MINI_BLE", deviceId: "a" },
+  { deviceName: "Unknown or Unsupported Device (F0:68:00:00:00:01)", deviceId: "a" }, { deviceName: 5, deviceId: "a" }])
+  assert.equal(rules.isAirPedal(device), false, JSON.stringify(device));
+assert.deepEqual(rules.airPedals([{ deviceName: "Headphones", deviceId: "a" }, { deviceName: "HyperRig 68F0", deviceId: "b" }, { deviceName: "HyperRig 1234", deviceId: "c" }]).map(d => d.deviceId), ["b", "c"]);
+assert.deepEqual(rules.airPedals(undefined), []);
+for (const address of ["hyperrig://editor/tank-mini.html", "hyperrig://editor/tank-mini.html?first=1", "hyperrig://editor/"]) assert.equal(rules.isEditor(address), true, address);
+for (const address of ["hyperrig://installer/index.html", "https://example.com/tank-mini.html", "hyperrig://other/tank-mini.html", "about:blank", "", null]) assert.equal(rules.isEditor(address), false, String(address));
+
 // Files: the editor's own, nothing outside its folder.
 assert.equal(rules.fileOf("hyperrig://editor/"), "web/tank-mini.html");
 assert.equal(rules.fileOf("hyperrig://editor/tank-mini.html?x=1#demo"), "web/tank-mini.html");

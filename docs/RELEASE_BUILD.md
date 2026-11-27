@@ -69,6 +69,7 @@ python -B tools/check_mini_library.py build/release-parts/firmware
 python -B tools/check_mini_tuner.py build/release-parts/firmware
 python -B tools/check_mini_swap.py build/release-parts/firmware
 python -B tools/check_mini_scene_captures.py build/release-parts/firmware
+python -B tools/check_mini_air.py build/release-parts/firmware
 python -B tools/check_mini_cab.py build/release-parts/firmware
 python -B tools/check_mini_globals.py build/release-parts/firmware
 python -B tools/check_mini_effect_block.py build/release-parts/firmware
@@ -88,6 +89,14 @@ python -B -m pytest -q tests
 
 They run the built bytes in a simulator and the program with a simulated pedal. They are no test
 of a pedal, and say nothing of the sound.
+
+The picture of the editor in the README is made again from the release's editor, with the same
+simulated pedal, and put into `docs/images/` after a look; the installer's is `2-ready.png` of the
+installer's check:
+
+```
+python -B tools/make_screenshots.py --bundle build/release-parts/editor --output build/screenshots
+```
 
 ## On GitHub
 

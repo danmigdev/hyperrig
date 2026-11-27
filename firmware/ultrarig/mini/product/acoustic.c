@@ -376,7 +376,7 @@ static inline int held(int v, int lo, int hi)
     return v < lo ? lo : v > hi ? hi : v;
 }
 
-void hyperrig_acoustic_settings(struct settings *s, const int16_t *p)
+__attribute__((minsize)) void hyperrig_acoustic_settings(struct settings *s, const int16_t *p)
 {
     s->twelve = p[0] != 0;
     s->body = (float)held(p[1], 0, 100) * (1.0f / 70.0f);
@@ -388,7 +388,7 @@ void hyperrig_acoustic_settings(struct settings *s, const int16_t *p)
 }
 
 #ifndef HOST
-void hyperrig_acoustic_construct(uint8_t *object)
+__attribute__((minsize)) void hyperrig_acoustic_construct(uint8_t *object)
 {
     hyperrig_acoustic_settings((struct settings *)(object + STATE), (const int16_t *)(object + PARAMETERS));
 }

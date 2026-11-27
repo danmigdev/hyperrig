@@ -243,10 +243,17 @@ def changes(version, text=None):
     return found.group(1).strip()
 
 
+def linked(text, docs):
+    """The links of a section of docs/CHANGES.md, which are relative to docs/, made whole for the release's page, where a relative
+    link would lead nowhere: into the tree of the release's tag."""
+    text = re.sub(r'\]\(\.\./([^)\s]+)\)', lambda m: f']({docs}/{m.group(1)})', text)
+    return re.sub(r'\]\((?![a-z][a-z0-9+.-]*:|#|/|\.\./)([^)\s]+)\)', lambda m: f']({docs}/docs/{m.group(1)})', text)
+
+
 def notes(about):
     version, docs = about['version'], f"https://github.com/danmigdev/hyperrig/blob/v{about['version']}"
     return ('Firmware, editor and installer for the **M-VAVE TANK-MINI**.\n\n'
-            f'**New in {version}**\n\n{changes(version)}\n\n'
+            f'**New in {version}**\n\n{linked(changes(version), docs)}\n\n'
             f'**To install it** you need a TANK-MINI with the original firmware **011** and a Windows PC. Download `HyperRig-{version}-Windows-x64.zip`, extract the whole of it, '
             f'start `HyperRig.exe` and follow the [installation guide]({docs}/INSTALLATION.md). Then the [manual]({docs}/docs/MANUAL.md); what is not there and what was not tried is in '
             f'its [limits]({docs}/docs/MANUAL.md#limits).\n\n'

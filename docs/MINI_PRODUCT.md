@@ -174,6 +174,23 @@ HRST wheel=<0..1023> level=<0..124> volume=<0..65536> battery=<percent> raw=<0..
 
 The channels, levels and limits are facts about the pedal; none of the original application is here.
 
+## Bluetooth
+
+The application lets a line that came over Bluetooth by when its word is in one of its two lists: the
+words that only read, for anyone who is connected, and the words that change something, for a phone
+that is paired or a computer that showed the pedal's key (`AUTH`). Any other word is answered
+"usb only", and so were HyperRig's own words, `HRID` among them. `air.c`, at the gate of the console
+(`main_task`), sorts them as the application sorts its own: `HRID`, `HRST`, `HRBYE`, `AMPK`, `MIDI`,
+`KNOB`, `HRLV` and `SNAPCAP` by themselves, always; `MIDI`, `KNOB`, `HRLV`, `FXC` and `SNAPCAP` with something
+after them, with the key. `STAGE`, `REC`, `RECD`, `INJBEGIN` and `INJB` stay with the cable.
+
+A computer may keep the link after its program has closed; the pedal then does not advertise, and
+nothing can connect. In each turn of the control scan the pedal ends a link on which no line came for
+90 seconds, and at once after `HRBYE`, which the editor says before it disconnects (it says `PING`
+every 20 seconds while it has nothing to ask). After A+B held three seconds the pedal gives its key,
+or pairs, for one minute, with its lights pulsing blue; the minute ends as soon as the link that came is
+one the pedal takes changes from.
+
 ## MIDI
 
 Over USB-C in both directions, off until it is turned on: [MINI_MIDI.md](MINI_MIDI.md).
@@ -230,6 +247,7 @@ written into stored presets. `REC` and `INJ`, the diagnostic words, lend the mem
 | The tuner with little memory | `tools/check_mini_tuner.py` |
 | Another capture without a stop | `tools/check_mini_swap.py` |
 | A capture for each scene | `tools/check_mini_scene_captures.py` |
+| HyperRig's words over Bluetooth, the end of a silent link, the minute for letting a device in | `tools/check_mini_air.py` |
 | The cuts of the cab | `tools/check_mini_cab.py` |
 | The settings for every preset, what they do to the sound, how they are stored; the calibration of the input | `tools/check_mini_globals.py` |
 | The acoustic block | `tools/check_mini_effect_block.py` |
