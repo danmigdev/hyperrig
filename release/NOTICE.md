@@ -42,6 +42,7 @@ The other parts keep their own licences, which the terms above do not replace or
 | m-bootloader | HyperRig's loader, which the installer puts on the pedal; the descriptors of the firmware's MIDI port | Julius Vitkauskas, 2026; MIT | `m-bootloader.md` |
 | Big Shoulders Display, Public Sans | Editor and installer | SIL Open Font License 1.1 | `fonts.md` |
 | TONE3000's logos | Editor | TONE3000; used to identify it, as its API terms ask | `tone3000.md` |
+| Patchstorage's logo | Editor | Patchstorage; used only to name it, on the button to its presets | `patchstorage.md` |
 | Electron, Chromium and their parts | The desktop program | OpenJS Foundation, Electron contributors and others | `ELECTRON-LICENSE.txt`, `CHROMIUM-LICENSES.html` |
 
 ## Where numbers came from

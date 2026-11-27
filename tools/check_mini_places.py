@@ -30,9 +30,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT / 'tools')]
 import check_mini_panel as harness  # noqa: E402
+import effects_reference  # noqa: E402
 import check_mini_scenes as scenes  # noqa: E402
 
 HEAP, RATE, BLOCK = 0x01D00000, 48077, 128
+ALL = 39 + len(effects_reference.EFFECTS)                # the application's, and HyperRig's
 EFFECTS, CONTROL, STATE, SETTINGS, POOL = 'L01c2c220', 'L01c32db0', 'L01c26890', 'L01c1f180', 'L01c2fa38'
 INPUT, LEFT, RIGHT, STEREO, DEADLINE = 'L01c234a8', 'L01c224a8', 'L01c22ca8', 'L01c1f7f0', 'L01c34444'
 WAIT = 'L02040d34'                               # the audio task waits for samples
@@ -194,7 +196,7 @@ def each(build, stereo):
 def effects(build, row):
     all_of_them, refused = each(build, 0)
     wrong = [x for x in all_of_them if x[1:4] != (True, True, True) or x[4] or x[5]]
-    row('every effect, mono, before and after the AMP block that is not there: the same samples, state and cost', len(all_of_them) == 42 and not wrong,
+    row('every effect, mono, before and after the AMP block that is not there: the same samples, state and cost', len(all_of_them) == ALL and not wrong,
         {'effects': len(all_of_them), 'wrong': wrong, 'refused': refused})
 
 
@@ -203,7 +205,7 @@ def stereo(build, row):
     makes = {x[0] for x in all_of_them if x[6] == 1}
     row('in stereo a block before the AMP block is mono', not any(x[4] for x in all_of_them) and not refused[0] and not refused[1], [x[0] for x in all_of_them if x[4]])
     differ = {x[0] for x in all_of_them if not (x[1] and x[2])}
-    row('no effect is different but those that make two channels by the firmware\'s own table', len(all_of_them) == 42 and differ <= makes and any(x[5] for x in all_of_them),
+    row('no effect is different but those that make two channels by the firmware\'s own table', len(all_of_them) == ALL and differ <= makes and any(x[5] for x in all_of_them),
         {'make two channels': sorted(makes), 'differ in two blocks': sorted(differ), 'two channels in Q': sorted(x[0] for x in all_of_them if x[5])})
     a, b = together(build, 100, ['chorus'], ['comp'], 4), together(build, 100, [], ['chorus', 'comp'], 4)
     row('one that makes two channels with a mono one after it: the same in both, in stereo too', a[:2] == b[:2])

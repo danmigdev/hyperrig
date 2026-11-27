@@ -276,10 +276,10 @@
   async function playPreset(item) {
     const caps = pioLib(await careful("CLIST", PIO_LIBEND("CLIST"), 3000), true), irs = pioLib(await careful("ILIST", PIO_LIBEND("ILIST"), 3000), false);
     if (!caps.full || !irs.full) throw new Error("the slots could not be read");
-    const ctx = pioCtxOf(caps, irs), brought = pioAttsOf(item.pre, item.doc).map(x => ({ ...x, check: pioAttCheck(x.a) })), good = brought.filter(x => x.check.ok).map(x => ({ key: x.key, role: x.role, a: x.a, data: x.check.data }));
+    const ctx = { ...pioCtxOf(caps, irs), scap: false }, brought = pioAttsOf(item.pre, item.doc).map(x => ({ ...x, check: pioAttCheck(x.a) })), good = brought.filter(x => x.check.ok).map(x => ({ key: x.key, role: x.role, a: x.a, data: x.check.data }));
     ctx.att = {};
     if (good.length) for (const s of (await pioAttPlace(good, careful, ctx)).same) ctx.att[s.key] = s.slot;       // the same file is on the pedal already
-    const fresh = good.filter(x => !(x.key in ctx.att)), cap = fresh.find(x => x.role === "capture") || null, made = plain(item.pre, cap, fresh.filter(x => x.role === "ir")), plan = pioPlan(made.pre, ctx);
+    const fresh = good.filter(x => !(x.key in ctx.att)), cap = fresh.find(x => x.role === "capture" && x.key === (item.pre.sound.amp.capture || {}).attachment) || null, made = plain(item.pre, cap, fresh.filter(x => x.role === "ir")), plan = pioPlan(made.pre, ctx);
     const limit = Math.max(0, trial.base.live.gain[1]), outs = plan.cmds.filter(c => /^GAIN /.test(c.line)).map(c => c.line.split(" ").map(Number)), cut = Math.max(0, ...outs.map(g => g[2] - limit));
     trial.after = plan.cmds.filter(c => /^(?:SNAPNAME|PCOLOR) /.test(c.line)).map(c => c.line);
     plan.cmds = plan.cmds.filter(c => !/^(?:SNAPNAME|PCOLOR) /.test(c.line));
@@ -308,6 +308,7 @@
     trial.extra = fresh.filter(x => x.role === "ir" && x !== made.main);
     const said = w => T(w.k, { ...w, why: w.why ? T(w.why) : "" });
     trial.notes = [...(item.pre.left ? ["Parts of the file that this version does not understand are left out."] : []), ...(brought.length > good.length ? ["A file inside is damaged and is left out."] : []), ...(cut ? [`Its output is ${cut} dB louder than the limit and is lowered by that.`] : []),
+      ...(item.pre.sound.scenes.some(s => s.capture) ? ["Scenes of it have captures of their own: while you try they play the preset's. Import the file to have them."] : []),
       ...(trial.extra.length ? ["It brings more than one cab IR: while you try, one of them plays in all the cab blocks."] : []), ...[...plan.warn, ...res.warn].map(said)];
   }
   async function playCapture(item, file) {
@@ -489,7 +490,7 @@
     t.open = true;
     const r = reply(await Pedal.cmd(`${word} ${pick.slot} ${pick.name}`, word, 8000), word);
     if (!r.startsWith(word + " ok")) { toast("It was not kept: " + errText(r || "ERR no answer"), "err"); return; }
-    if (cap) { S.capSlot = pick.slot; setModel(pick.name); }
+    if (cap) { S.capSlot = pick.slot; setModel(pick.name); await hrCapCame(); }
     Log.act("try_kept", { kind: t.kind, slot: pick.slot });
     await risen();
     await line(pioSendLive, `GAIN ${t.base.live.gain[0]} ${t.base.live.gain[1]}`, "GAIN");                                  // the volume of the preset is the preset's

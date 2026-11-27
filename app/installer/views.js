@@ -35,9 +35,12 @@
   const working = (job, step, progress, title = null) => view("work", title || WORK[job][step], "", { over: { install: "Installing", restore: "Restoring", save: "Saving" }[job], step, progress });
   const saved = ({ came = true } = {}) => view("done", "Your pedal is saved", "The copy is whole and reads back from this computer. Open Details to see where it is." + (came ? "" : " The pedal did not come back by itself: switch it off and on."),
     { over: "Finished", actions: [{ id: "home", label: "Done" }] });
-  function done(job, version, { came = true } = {}) {
+  /* first: HyperRig did not start the job (the original firmware did, or the loader, for one that was finished later): the editor
+   * then adds the presets to start with, on a pedal that has no preset. */
+  function done(job, version, { came = true, first = false } = {}) {
     const hint = came ? "" : " It did not come back by itself: switch it off and on.";
-    if (job === "install") return view("done", "HyperRig is on your pedal", "Plug in your guitar and play." + hint, { over: "Finished", pedal: "HyperRig " + version, actions: [EDITOR, { id: "home", label: "Done", weight: "quiet" }] });
+    if (job === "install") return view("done", "HyperRig is on your pedal", (first ? "Open the editor: on a pedal with no presets it adds three to start with, Clean, Crunch and Lead. Then plug in your guitar and play." : "Plug in your guitar and play.") + hint,
+      { over: "Finished", pedal: "HyperRig " + version, actions: [first ? { ...EDITOR, id: "editor-first" } : EDITOR, { id: "home", label: "Done", weight: "quiet" }] });
     return view("done", "The original is back", "Your TANK-MINI is as it was, with its amp models." + hint, { over: "Finished", pedal: "Original " + version, actions: [{ id: "home", label: "Done" }] });
   }
   const resume = job => view("resume", "Let's finish the job", "The pedal was interrupted. Continue to " + (job === "restore" ? "finish restoring the original firmware." : "finish installing HyperRig."),

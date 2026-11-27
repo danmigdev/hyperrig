@@ -405,6 +405,8 @@ scene_application_apply:
 .if MINI_PRODUCT
     call hyperrig_scene_fill  ; @call.xl
     r0 = r5
+    call hyperrig_scene_capture  ; @call.xl
+    r0 = r5
 .endif
     call scene_application_inner
     r4 = r0

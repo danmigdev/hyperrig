@@ -51,7 +51,8 @@ TONE_KEY = ROOT / 'build/tone3000-key.txt'
 # The folder licenses, by its files in the tree: the notice says what each is for. UltraRig's own come with the editor.
 LICENSES = {'NOTICE.md': 'release/NOTICE.md', 'LICENSE.md': 'third_party/ultrarig/LICENSE.md', 'ac79-sdk-LICENSE.txt': 'third_party/ac79-sdk/LICENSE',
             'btstack-LICENSE.txt': 'third_party/btstack/LICENSE', 'm-bootloader.md': 'firmware/mini_stage/THIRD_PARTY.md',
-            'fonts.md': 'app/installer/page/fonts/LICENSES.md', 'tone3000.md': 'app/mini/tone3000/README.md'}
+            'fonts.md': 'app/installer/page/fonts/LICENSES.md', 'tone3000.md': 'app/mini/tone3000/README.md',
+            'patchstorage.md': 'app/mini/patchstorage/README.md'}
 ULTRARIG = ('NOTICE.md', 'THIRD_PARTY_LICENSES.md')
 # The fuses of Electron, by their place: run as Node, NODE_OPTIONS, --inspect, and the extra rights of file: pages are off.
 FUSE_WIRE, FUSES_OFF = b'dL7pKGdnNz796PbbjQWNKmHXBZaB9tsX', (0, 2, 3, 7)
@@ -245,6 +246,8 @@ def build(bundle, output, platform='win32-x64', make_zip=False, key=None, firmwa
     require(inner['LICENSE.md'].split() == (ROOT / LICENSES['LICENSE.md']).read_bytes().split(), "the editor's licence is not the one of the tree")
     for name, path in LICENSES.items():
         files['licenses/' + name] = (ROOT / path).read_bytes()
+    for path in sorted((ROOT / 'app/mini/factory').iterdir()):      # the presets to start with and HyperRig's cab, made by tools/make_factory_presets.py
+        files['presets/' + path.name] = path.read_bytes()
     for name in ULTRARIG:
         files['licenses/ultrarig/' + name] = inner[name]
     named = set(re.findall(r'`([\w./-]+\.(?:md|txt|html))`', files['licenses/NOTICE.md'].decode('utf-8')))
@@ -304,6 +307,9 @@ Patchstorage: then it talks to that service and to nobody else. What it writes d
 
 To remove it, delete this folder and %APPDATA%\\HyperRig.
 
+The folder presets has HyperRig's presets to start with, Clean, Crunch and Lead, and its own cab
+IR: Try from files... in the editor plays them.
+
 Questions and problems: https://github.com/danmigdev/hyperrig/issues
 Not affiliated with M-VAVE. Licences are in the folder licenses.
 '''
@@ -328,6 +334,9 @@ Patchstorage: then it talks to that service and to nobody else. What it writes d
 
 To remove it, delete this folder; delete %APPDATA%\\HyperRig only when you do not need those
 copies any more.
+
+The folder presets has HyperRig's presets to start with, Clean, Crunch and Lead, and its own cab
+IR: Try from files... in the editor plays them.
 
 Questions and problems: https://github.com/danmigdev/hyperrig/issues
 Not affiliated with M-VAVE. Licences are in the folder licenses.

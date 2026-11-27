@@ -45,6 +45,11 @@ slot, with its name: use it for a copy, or for a new preset that has no slot yet
 **Files:** the buttons above the list save one preset, or all of them, to a file, and load them
 back: all at once, each to the slot it came from, or one, which you then save where you want it.
 
+**Presets to start with:** after HyperRig's first install, on a pedal that has none, the editor puts
+three in 1A to 1C: **Clean**, **Crunch** and **Lead**, built-in blocks only. Their cab is HyperRig's
+own IR, made from filters (`tools/make_factory_presets.py`), in the first free cab slot. They are in
+the program's folder `presets` too, with the cab as a WAV file: **Try from files...** plays them.
+
 **Names:** the pencil beside the preset's name and the one beside the scenes; Enter keeps the new
 name, Esc leaves the old one. A preset has up to 23 letters, a scene up to 15, plain letters and
 digits. A new preset, or one from a file, can be named before it is saved.
@@ -81,7 +86,7 @@ play; each takes some 3 % of the CPU while it is on. An older HyperRig plays the
 | Presets from files | **Try from files...**, above the list of presets; several files at once, if you like |
 | Captures and cabs from files | **Try a file...**, in their library; several at once |
 | Captures and cabs of TONE3000 | **Try it**, where you choose the tone |
-| Presets of Patchstorage | **Browse Patchstorage**, above the list |
+| Presets of Patchstorage | The **Patchstorage** button (its logo), above the list |
 
 You hear it at once, and nothing is saved on the pedal. A bar at the top says what you are
 trying, whose it is and under which licence. **Previous** and **Next** go through the list.
@@ -120,7 +125,13 @@ A preset has up to eight: the same blocks, amp and cabinet, with other knobs and
 or off. **+ add** makes one, with the sound as it is at that moment. A scene comes at once,
 without a gap, and the knobs move smoothly; another preset takes a moment.
 
-Adding, replacing, moving or taking away a block, or another capture or IR, is for the whole preset. A block
+**A capture for each scene:** in the amp's panel, **Capture for** says **All scenes** or **This scene**. With
+**This scene** the capture you choose, load from a file or keep while trying is for the scene that is on, and
+the others keep theirs. A scene takes its capture from the library. Such a preset is for this HyperRig: an
+older one shows its place as empty. When a scene or a preset brings another capture, the amp fades out
+and in again: a short gap in the amp, while the cab, the delays and the reverbs ring on.
+
+Adding, replacing, moving or taking away a block, or another IR, is for the whole preset. A block
 you add is in every scene, as it stands when you choose another scene or save; from then on each
 scene has its own. For a block that only one scene shall have, switch it off in the others.
 
@@ -185,7 +196,7 @@ Put it in a chain without the amp, before delays and reverbs. With the amp on th
 The low strings of a 12-string are doubled an octave above, the thin ones in unison. On the
 lowest strings the octave takes a moment to be there in full.
 
-## Octaver, Swell, Reverse Delay
+## Octaver, Swell, Reverse Delay, Vintage Delay, Ensemble
 
 **Octaver** (in Pitch) plays one octave below, two below and one above beside your sound, for single
 notes: a chord has no single octave. Put it first, before drives and the amp. Octave +1 is
@@ -196,6 +207,12 @@ start again by themselves, turn Sensitivity down; if a note does not swell, turn
 
 **Reverse Delay** (in Delay) plays what you played backwards, in pieces as long as Time. Up to the
 middle of Mix it comes in beside your sound, from there your sound goes out.
+
+**Vintage Delay** (in Delay): repeats that grow darker and softer, with a slow waver (Depth), as of an old
+delay. While Time is turned the pitch bends. At a Feedback of 100 the repeats go on and slowly fade.
+
+**Ensemble** (in Modulation): three voices of your sound, each a little late and a little out of tune, as in
+the string machines of the seventies. It is about as loud at every Mix.
 
 ## Settings for every preset
 
@@ -254,7 +271,7 @@ follows the reference of the tuner. Each voice uses more of the pedal.
   the wheel.
 - The acoustic block is one sound in stereo. A preset with it is for a HyperRig that has it:
   an older one, and UltraRig, make a room reverb of it.
-- Octaver, Swell and Reverse Delay are one sound in stereo too. An older HyperRig leaves them out of a
+- Octaver, Swell, Reverse Delay, Vintage Delay and Ensemble are one sound in stereo too. An older HyperRig leaves them out of a
   preset and keeps the rest.
 - The harmonizer is one sound in stereo. A preset with it is for a
   HyperRig that has it: an older one, and UltraRig, make a pitch shifter of it. In a preset of an

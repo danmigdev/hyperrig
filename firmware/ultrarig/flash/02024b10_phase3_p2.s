@@ -31,6 +31,11 @@ L02024b4c:
     r0 = uextra(r0, p:19, l:4)  #
     b[r4+0] = r1
     b[r4+1] = r0
+; HyperRig MINI, product option: the crystal's values of the configuration file, as the SDK takes them (mini/product/crystal.c).
+.if MINI_PRODUCT
+    r0 = r4
+    call hyperrig_crystal  ; @call.xl
+.endif
     r0 = b[r5+57] (u)
     r0 |= 8
     b[r5+57] = r0

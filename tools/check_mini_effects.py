@@ -34,9 +34,9 @@ import effects_reference as reference  # noqa: E402
 FIRST, PARAMETERS, MEMORY, STATE, SAMPLES, HEAP = 40, 70, 84, 288, block.SAMPLES, block.HEAP
 CLOCK = ('L01c1f7f0', 20)
 NAMES = list(reference.EFFECTS)
-COSTS = {'octaver': 8000, 'swell': 4000, 'reverse': 6500}
-GROUPS = {'octaver': 'drive', 'swell': 'dynamics', 'reverse': 'delay'}
-LIGHTS = {'octaver': 3, 'swell': 8, 'reverse': 5}
+COSTS = {'octaver': 8000, 'swell': 4000, 'reverse': 6500, 'ensemble': 6000, 'vintage': 7200}
+GROUPS = {'octaver': 'drive', 'swell': 'dynamics', 'reverse': 'delay', 'ensemble': 'mod', 'vintage': 'delay'}
+LIGHTS = {'octaver': 3, 'swell': 8, 'reverse': 5, 'ensemble': 11, 'vintage': 5}
 FULL, LOUDEST = 8388607, reference.LIMIT
 sim, codec = harness.sim, harness.codec
 
@@ -105,16 +105,16 @@ def check(build, before=None):
         want = [f'FXT {FIRST + k} {name} cost={COSTS[name]} cat={GROUPS[name]} mem={need + 16}'] + [f'FXT  {j} {n} {a}..{b} ({d})' for j, (a, b, d, n) in enumerate(reference.EFFECTS[name].ROWS)]
         seen = lines[at[name]:at[name] + len(want)] if name in at else []
         row(f'{name}: how the console lists it', seen == want and (lines[at[name] + len(want)] + ' ').startswith(('FXT end', f'FXT {FIRST + k + 1} ')), seen)
-    row('the list ends with them, and has 42', len(at) == 39 + len(NAMES) and lines[-1] == 'FXT end' and [x.split()[1] for x in lines if re.match(r'FXT [0-9]+ ', x)][-len(NAMES) - 1:] ==
+    row(f'the list ends with them, and has {39 + len(NAMES)}', len(at) == 39 + len(NAMES) and lines[-1] == 'FXT end' and [x.split()[1] for x in lines if re.match(r'FXT [0-9]+ ', x)][-len(NAMES) - 1:] ==
         ['39'] + [str(FIRST + k) for k in range(len(NAMES))], len(at))
     numbers = []
     for word in (*NAMES, *(str(FIRST + k) for k in range(len(NAMES) + 1)), 'rotary', '39', '1', '0', '255', 'nothing'):
         p.mem.write(0x01C76400, word.encode() + b'\0')
         numbers.append(p.run('dispatch_helpers_effect_number', 0x01C76400))
-    row('names and numbers', numbers == [40, 41, 42, 40, 41, 42, 0, 39, 39, 1, 0, 0, 0], numbers)
-    beyond = [p.text(p.run('console_reports_type_name', k)) for k in (0, 43, 255)] + [p.text(p.run('slot_queries_type_name', 43))] + \
-             [p.run(f, 43, 0) for f in ('preset_application_metadata', 'slot_queries_type_cost', 'slot_queries_type_demand', 'effect_setup_demand_by_type')] + \
-             [p.run('preset_application_metadata', FIRST, 7), p.run('preset_application_metadata', FIRST + 1, 4), p.add(43), p.add(255)]
+    row('names and numbers', numbers == [FIRST + k for k in range(len(NAMES))] * 2 + [0, 39, 39, 1, 0, 0, 0], numbers)
+    beyond = [p.text(p.run('console_reports_type_name', k)) for k in (0, FIRST + len(NAMES), 255)] + [p.text(p.run('slot_queries_type_name', FIRST + len(NAMES)))] + \
+             [p.run(f, FIRST + len(NAMES), 0) for f in ('preset_application_metadata', 'slot_queries_type_cost', 'slot_queries_type_demand', 'effect_setup_demand_by_type')] + \
+             [p.run('preset_application_metadata', FIRST, 7), p.run('preset_application_metadata', FIRST + 1, 4), p.add(FIRST + len(NAMES)), p.add(255)]
     row('ids that nothing has', beyond == ['?', '?', '?', 'other', 0, 0, 0, 0, 0, 0, -1, -1], beyond)
     kept = []
     for function, first_kept in (('console_reports_type_name', 2), ('preset_application_metadata', 3), ('slot_queries_type_name', 3)):

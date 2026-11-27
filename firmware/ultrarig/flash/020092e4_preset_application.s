@@ -23,6 +23,10 @@ preset_application_apply:
     r8 = r2
     r14 = r1
     r4 = r0
+; HyperRig MINI, product option: the capture of the scene it starts with (mini/product/scenes.c).
+.if MINI_PRODUCT
+    call hyperrig_preset_capture  ; @call.xl
+.endif
     call preset_application_asset_mode
     if (r0 != 0) goto L02009314
     r0 = 0

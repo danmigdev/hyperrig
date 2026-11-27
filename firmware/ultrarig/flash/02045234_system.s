@@ -2820,14 +2820,14 @@ L0204702e:
 L02047030:
     .byte 0xf4,0x01,0xfa,0x00,0x96,0x00,0x64,0x00,0x4b,0x00,0x32,0x00,0x1e,0x00,0x14,0x00
 
-; 0x02047040..0x02047042: system layer code (not reversed), as instructions
+; 0x02047040..0x0204711c: data
+; The table of callbacks of a connection begins here, with a pointer to L02048de4. Written as bytes, it kept the address of the
+; original layout wherever the code had moved: with HyperRig's option a connection then called whatever was at that address,
+; and the pedal stopped as soon as a phone connected. As a pointer it follows the function.
+    .fill ((0 - (. - ultrarig_flash_start)) & 31), 1, 0  ; keeps the original address modulo 32
 L02047040:
-    goto L020473dc
-
-; 0x02047042..0x0204711c: data
-    .fill ((2 - (. - ultrarig_flash_start)) & 31), 1, 0  ; keeps the original address modulo 32
-L02047042:
-    .byte 0x04,0x02,0x00,0x00,0x00,0x00
+    .long L02048de4
+    .byte 0x00,0x00,0x00,0x00
     .long L02048fea
     .long L02049020
     .byte 0x00,0x00,0x00,0x00
@@ -5648,6 +5648,8 @@ L02048dda:
     r1 = 62
     call L0204772e
     pc = [sp++]
+; What a connection does with a packet that was received: the first entry of its table of callbacks (L02047040).
+L02048de4:
     [--sp] = {rets, r12-r4}
     r9 = r1  #
     r1 = h[r1+14] (u)

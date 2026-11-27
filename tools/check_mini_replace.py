@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT / 'tools')]
 import check_mini_effect_block as block  # noqa: E402
 import check_mini_panel as harness  # noqa: E402
+import effects_reference  # noqa: E402
 import check_mini_scenes as scenes  # noqa: E402
 
 sim, codec = scenes.sim, scenes.codec
@@ -34,6 +35,7 @@ BLOCKS, CHAIN, COSTS, METERS, GLIDES = 'L01c2c220', 'L01c32db0', 'L01c343d8', 'L
 PLENTY = 400_000
 ON, LANE, MODE, KNOBS, MEMORY = 1, 4, 6, 70, 84
 ONCE = ['pause', 'resume']
+ALL = 39 + len(effects_reference.EFFECTS)                # the application's, and HyperRig's
 
 
 class Board(scenes.Pedal):
@@ -573,7 +575,7 @@ def types(build, row):
                 out.append([now, wanted, answer, p.wrong])
                 break
             slot, now = made(answer, wanted), wanted
-    row(f'every type ({len(names)}) in the place of another, and another in its place', not out and len(names) == 42, out)
+    row(f'every type ({len(names)}) in the place of another, and another in its place', not out and len(names) == ALL, out)
     p.clear()
     row('the pool is empty afterwards', not p.taken and not p.wrong, [p.taken, p.wrong])
 

@@ -30,7 +30,8 @@ computer, not to a hub**, and switch it on.
 2. Press **Install HyperRig**. It first saves the whole pedal on your computer and checks the
    copy, then writes HyperRig and checks every byte.
 3. It takes about two minutes. **Leave the cable and the power alone.**
-4. **Open the editor**, and play.
+4. **Open the editor**, and play. On a pedal with no HyperRig presets yet, it first adds three to start
+   with, Clean, Crunch and Lead, in 1A to 1C, with HyperRig's own cab.
 
 HyperRig keeps its presets where the original firmware has its amp models, cabs and presets.
 They are in the copy and come back with the original.

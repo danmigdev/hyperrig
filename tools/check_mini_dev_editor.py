@@ -48,9 +48,18 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
     press(n) { if (!this.store[n]) return; this.load(n); this.changes++; this.events.push(n); },
     events: [],
     keep() { return JSON.parse(JSON.stringify({amp: this.amp, ampeq: this.ampeq, gain: this.gain, bpm: this.bpm, scenes: this.scenes,
-      scene: this.scene, names: this.names, stereo: this.stereo, chain: this.chain, ampx: this.ampx ?? 1, mix: this.mix, xo: this.xo, outs: this.outs})); },
+      scene: this.scene, names: this.names, stereo: this.stereo, chain: this.chain, ampx: this.ampx ?? 1, mix: this.mix, xo: this.xo, outs: this.outs,
+      ...(this.snapcap.some(v => v >= 0) ? {snapcap: this.snapcap, c_slot: this.alone() ? this.capOwn : this.cap_slot} : {})})); },
+    /* A capture for each scene, as the firmware has it (mini/product/scenes.c). */
+    snapcap: Array(8).fill(-1), capOver: 0, capOwn: -1,
+    alone() { if (this.cap_slot !== this.capOver - 1) this.capOver = 0; return this.capOver; },
+    sceneCapture(k) { if (this.scenes[k] !== "1") return; const own = this.alone() ? this.capOwn : this.cap_slot, want = this.snapcap[k] >= 0 ? this.snapcap[k] : own;
+      if (want < 0 || want !== this.cap_slot && !this.caps[want]) return;
+      if (want !== this.cap_slot) { this.cap = this.caps[want]; this.cap_slot = want; this.swaps = (this.swaps || 0) + 1; } this.capOwn = own; this.capOver = want === own ? 0 : want + 1; },
     outs: {}, at: "start",          // the output gains of scenes, where a check gave them some; what plays: a scene, or what a preset starts with
-    load(n) { Object.assign(this, JSON.parse(JSON.stringify(this.store[n]))); this.current = n; this.outs = this.outs || {}; this.at = "start"; }};
+    load(n) { const s = this.store[n]; this.snapcap = Array(8).fill(-1); this.capOver = 0; Object.assign(this, JSON.parse(JSON.stringify(s))); this.current = n; this.outs = this.outs || {}; this.at = "start";
+      if (s.snapcap) { const own = s.c_slot, over = this.scene >= 0 ? s.snapcap[this.scene] : -1, want = over >= 0 ? over : own;
+        if (this.caps[want]) { this.cap = this.caps[want]; this.cap_slot = want; } this.capOwn = own; this.capOver = over >= 0 && over !== own ? over + 1 : 0; } }};
   const types = {}; { let cur = null; for (const line of recorded["FXT"] || []) {
     let m = /^FXT (\d+) (\S+) cost=(\d+)(?:.* mem=(\d+))?/.exec(line); if (m) { cur = types[m[2]] = {id: +m[1], cost: +m[3], mem: +(m[4] || 0), p: [0, 0, 0, 0, 0, 0, 0]}; continue; }
     m = /^FXT\s+(\d+) (\S+) -?\d+\.\.-?\d+ \((-?\d+)\)$/.exec(line); if (m && cur) { cur.p[+m[1]] = +m[3]; if (m[2] === "os_n") cur.os = +m[1]; } } }
@@ -212,7 +221,7 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
       `FXS amp=${pedal.ampx ?? 1} on=${pedal.amp}`, "FXS cpu=738/21418 ticks (3%) mem_fx=0 B", "FXS c1=0 a=0 wait=0/0 jobs=0 to=0 seq=0 skip=0 laneB par=0",
       "FXS eng=0 posts=0 takes=0 canc=0 lat=0/0 run=0",
       "FXS lockq=0 locks=1 spinfull=0 spinmax_us=2443 heavy=0 hspinfull=0 hspinmax_us=0 hsettle=0", "FXS peak=4406 ticks skipped=0"];
-    if (word === "PNEW") { Object.assign(pedal, {chain: {P: [], Q: []}, current: -1, scenes: "0".repeat(__SCENES__), scene: -1, names: Array(__SCENES__).fill(""), amp: 1, ampx: 1, ampeq: [0, 0, 0, 0, 0, 0]}); return ["PNEW ok"]; }
+    if (word === "PNEW") { pedal.snapcap = Array(8).fill(-1); pedal.capOver = 0; Object.assign(pedal, {chain: {P: [], Q: []}, current: -1, scenes: "0".repeat(__SCENES__), scene: -1, names: Array(__SCENES__).fill(""), amp: 1, ampx: 1, ampeq: [0, 0, 0, 0, 0, 0]}); return ["PNEW ok"]; }
     if (word === "FXC") {              // as mini/product/replace.c: the preset and the block are compared first, and what does not fit changes nothing
       const at = find(+a[1]), all = [...pedal.chain.P, ...pedal.chain.Q], sum = k => all.reduce((n, x) => n + (x !== at[2] && (x.on || k === "mem") ? types[x.type][k] : 0), 0);
       if (a.length !== 4) return ["ERR FXC <preset> <id> <type> <new type>"];
@@ -301,13 +310,19 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
       pedal.load(+a[0]); pedal.changes++;
       return [`PLOAD ok ${a[0]} '${pedal.presets[a[0]]}' missing=${pedal.misses === +a[0] ? 1 : 0} capture=-1 ir=-1 ms=0`];
     }
-    if (/^SNAP \d$/.test(line)) { if (pedal.scenes[+a[0]] !== "1") return ["ERR SNAP empty"]; pedal.scene = +a[0]; pedal.at = +a[0];
+    if (/^SNAP \d$/.test(line)) { if (pedal.scenes[+a[0]] !== "1") return ["ERR SNAP empty"]; pedal.sceneCapture(+a[0]); pedal.scene = +a[0]; pedal.at = +a[0];
       if (pedal.outs[a[0]] !== undefined) pedal.gain = [pedal.gain[0], pedal.outs[a[0]]]; return [`SNAP ok ${a[0]} missing=0 ms=0`]; }
     if (["HRLV", "REC", "RECD", "INJBEGIN", "INJB"].includes(word)) return levelAnswer(word, a);
     if (line === "SNAPS") return [`SNAPS ${pedal.scenes} current=${pedal.scene}`];
+    if (word === "SNAPCAP" && (pedal.noSnapcap || !__IDENTITY__)) return ["ERR unknown command"];
+    if (word === "SNAPCAP") {
+      if (a.length) { const k = +a[0], v = +a[1]; if (a.length !== 2 || !(k >= 0 && k < 8) || !(v >= -1 && v < 15) || pedal.scenes[k] !== "1") return ["ERR SNAPCAP"];
+        pedal.snapcap[k] = v; if (pedal.scene === k) pedal.sceneCapture(k); }
+      return [`SNAPCAP ${pedal.snapcap.join(" ")} preset=${pedal.alone() ? pedal.capOwn : pedal.cap_slot}`];
+    }
     if (word === "SNAPSAVE" && pedal.noRoom) return ["ERR SNAPSAVE no room for these scenes: take a block or a scene away"];
     if (word === "SNAPSAVE") {
-      const s = pedal.scenes.split(""); s[+a[0]] = "1"; pedal.scenes = s.join(""); pedal.scene = +a[0];
+      const s = pedal.scenes.split(""); s[+a[0]] = "1"; pedal.scenes = s.join(""); pedal.snapcap[+a[0]] = pedal.alone() - 1; pedal.scene = +a[0];
       if (pedal.current >= 0) pedal.store[pedal.current] = pedal.keep();
       return [`SNAPSAVE ok ${a[0]} preset=${pedal.current}`];
     }
@@ -369,7 +384,9 @@ HARMONIZER = ['FXT 24 harmonizer cost=11000 cat=mod mem=12632', 'FXT  0 key 0..1
 CAB_CUTS = ['FXT  4 lowcut_hz 0..800 (0)', 'FXT  5 hicut_hz 0..18000 (0)']
 OWN_EFFECTS = {'octaver': (40, 8000, 'drive', 772, 'Octaver', 'Pitch', ['Octave -1', 'Octave -2', 'Octave +1', 'Fuzz', 'Tone', 'Clean', 'Level']),
                'swell': (41, 4000, 'dynamics', 1364, 'Swell', 'Dynamics', ['Attack', 'Sensitivity', 'Depth', 'Level']),
-               'reverse': (42, 6500, 'delay', 33384, 'Reverse Delay', 'Delay', ['Time', 'Feedback', 'Mix', 'Damping', 'Level'])}
+               'reverse': (42, 6500, 'delay', 33384, 'Reverse Delay', 'Delay', ['Time', 'Feedback', 'Mix', 'Damping', 'Level']),
+               'ensemble': (43, 6000, 'mod', 4580, 'Ensemble', 'Modulation', ['Rate', 'Depth', 'Tone', 'Mix', 'Level']),
+               'vintage': (44, 7200, 'delay', 33384, 'Vintage Delay', 'Delay', ['Time', 'Feedback', 'Mix', 'Damping', 'Depth', 'Level'])}
 OWN_LINES = [line for name, (ident, cost, group, memory, *_) in OWN_EFFECTS.items()
              for line in [f'FXT {ident} {name} cost={cost} cat={group} mem={memory}'] + [f'FXT  {k} {n} {a}..{b} ({d})' for k, (a, b, d, n) in enumerate(effects_reference.EFFECTS[name].ROWS)]]
 
@@ -742,6 +759,7 @@ def one_chain(page, output, types):
     require(out['ten']['chain'] == {'P': [], 'Q': want} and out['ten']['ampx'] == 0 and out['ten']['mix'] == out['ten']['xo'] == {b: [[0, 0]] * 3 for b in 'PQ'}, f"a chain of ten is stored as {out['ten']}")
     out['ten'] = [f'{len(want)} blocks after', out['ten']['ampx']]
     # up to sixteen, each at the end; the seventeenth is refused
+    page.wait('S.cpu[1] === 22718', 'the load that the levels say', 10)               # and not the one of the chain, from which one less may fit
     room = cdp.evaluate('document.getElementById("cpuFree").textContent')
     for k, name in enumerate(names[10:], 11):
         sent, said = edit(f'addFx("{name}")')
@@ -911,6 +929,7 @@ def full_chain(page, output):
         page.wait(f'S.chain.P.length === {p} && S.chain.Q.length === {q} && S.ampPresent === {amp} && ' + quiet, f'a chain of {p} and {q}', 20)
         time.sleep(0.3)
         require(cdp.evaluate('HyperRigMini.commandPolicy("FXE 0 1", "usb-cdc").allowed'), f'the rules do not know the chain of {p} and {q}')
+        page.wait('S.cpu[1] === 22718', 'the load that the levels say', 10)
         room[f'{p}+{q}' + (' amp' if amp else '')] = cdp.evaluate('document.getElementById("cpuFree").textContent')
 
     def said(what):
@@ -949,7 +968,7 @@ def full_chain(page, output):
     cdp.evaluate('void addFx("boost", {t: "serial", si: 10})')
     page.wait('S.chain.Q.length === 10 && ' + quiet, 'the tenth block', 15)
     chain(2, 10, 0)
-    require(room == {'2+10': '~4 more', '2+10 amp': '~4 more', '10+2 amp': '~4 more', '6+10 amp': 'full', '8+8': 'full', '0+9': '~7 more'}, f'the places that are left: {room}')
+    require(room == {'2+10': '~4 more', '2+10 amp': '~4 more', '10+2 amp': '~4 more', '6+10 amp': 'full', '8+8': 'full', '0+9': '~6 more'}, f'the places that are left: {room}')
     cdp.evaluate('void blockMenu({clientX: 500, clientY: 320}, S.chain.Q[0])')
     page.wait('!!document.getElementById("menu")', 'the menu of a block', 10)
     menu = cdp.evaluate('document.getElementById("menu").innerText')
@@ -1900,6 +1919,143 @@ def backup(page, output):
     # as it was before the check
     talk('pioImport(__files[0][1])', {'Restore this backup': {'Back up the pedal': False, 'Erase': True}}, 'the last restore')
     require(state() == before, 'the pedal after the last restore')
+    return out
+
+
+def scene_captures(page, output):
+    """A capture for each scene: for all scenes or for this one, what is chosen and uploaded then, the scenes and the preset that come and go, a file and back, a
+    backup, a capture that is not in the library, and a pedal that does not know the word."""
+    cdp, quiet = page.cdp, 'S.connected && !refreshing && !txn && !saveRun && !pioBusy && !hrBook.busy && !hrSaving && !Pedal.busy && !capJobs'
+    sent = lambda n, *words: [c for c in cdp.evaluate('__pedal.sent')[n:] if c.split(' ')[0] in words]
+    count = lambda: cdp.evaluate('__pedal.sent.length')
+    seg = '(document.getElementById("hrCapSeg")?.innerText || "").replace(/\\s+/g, " ").trim().toUpperCase()'
+    which = '[...document.querySelectorAll("#hrCapSeg button")].findIndex(b => b.classList.contains("on"))'
+    now = lambda: cdp.evaluate('[__pedal.cap_slot, S.capSlot, S.model, hrCapMine(), __pedal.snapcap.slice(0, 3), hrCap.own]')
+    out = {}
+
+    def panel():
+        cdp.evaluate('S.sel = "amp"; render(true)')
+        page.wait('document.getElementById("hrCapSeg") && ' + quiet, "the amp's panel", 15)
+
+    def press(i):
+        panel()
+        cdp.evaluate(f'document.querySelectorAll("#hrCapSeg button")[{i}].click()')
+        page.wait(which + f' === {i} && ' + quiet, 'the choice for which scenes', 15)
+
+    page.wait(quiet, 'a quiet page', 30)
+    kept = cdp.evaluate('JSON.stringify([Object.keys(__pedal.caps), __pedal.cap_slot])')
+    cdp.evaluate("""(() => { const p = __pedal, nam = k => { const d = new Uint8Array(4892); d.set([65, 50, 76, 49]); for (let i = 4; i < d.length; i++) d[i] = (i * k) & 255; return d; };
+        window.__asideCaps = [p.caps, p.cap, p.cap_slot, JSON.parse(JSON.stringify([p.store, p.presets]))];
+        p.caps = {0: {data: nam(3), trim: 0, name: "Clean amp"}, 1: {data: nam(5), trim: 0, name: "Crunch amp"}, 2: {data: nam(7), trim: -2, name: "Lead amp"}}; p.cap = p.caps[0]; p.cap_slot = 0; p.capOver = 0;
+        const s = JSON.parse(JSON.stringify(p.store[Object.keys(p.store)[0]])); Object.assign(s, {scenes: "11100000", scene: 0, names: ["Verse", "Chorus", "Solo", "", "", "", "", ""], ampx: 1}); delete s.snapcap; delete s.c_slot;
+        p.store = {3: s}; p.presets = {3: "Three amps"}; p.load(3); window.__put = false; void loadPresets().then(() => loadPreset(3)).then(() => { window.__put = true; }); })()""")
+    page.wait('window.__put === true && curPreset === 3 && S.snap === 0 && ' + quiet, 'a preset with three scenes', 25)
+    panel()
+    require(cdp.evaluate(seg) == 'CAPTURE FOR ALL SCENES THIS SCENE' and cdp.evaluate(which) == 0, f'the choice: {cdp.evaluate(seg)}')
+    require(not cdp.evaluate('!!document.querySelector("#editor .ctsame")'), 'the page still says that it is the same in all scenes')
+    cdp.screenshot(output / 'scene-capture.png')
+    # all scenes: a choice is the preset's, as ever
+    n = count()
+    cdp.evaluate('void useSlot(true, 1, "Crunch amp")')
+    page.wait('__pedal.cap_slot === 1 && ' + quiet, 'a capture for all scenes', 15)
+    require(sent(n, 'CLOAD', 'SNAPCAP') == ['CLOAD 1'], f"for all scenes: {sent(n, 'CLOAD', 'SNAPCAP')}")
+    cdp.evaluate('void useSlot(true, 0, "Clean amp")')
+    page.wait('__pedal.cap_slot === 0 && ' + quiet, 'the first again', 15)
+    cdp.evaluate('void loadPreset(3)')
+    page.wait('curPreset === 3 && edCount() === 0 && ' + quiet, 'the preset again', 20)
+    # this scene
+    cdp.evaluate('void goSnap(2)')
+    page.wait('S.snap === 2 && ' + quiet, 'the third scene', 15)
+    n = count()
+    press(1)
+    require(sent(n, 'SNAPCAP')[:1] == ['SNAPCAP 2 0'], f"this scene: {sent(n, 'SNAPCAP')}")
+    n = count()
+    cdp.evaluate('void useSlot(true, 2, "Lead amp")')
+    page.wait('__pedal.cap_slot === 2 && S.capSlot === 2 && ' + quiet, 'a capture for this scene', 15)
+    require(sent(n, 'CLOAD', 'SNAPCAP')[:1] == ['SNAPCAP 2 2'] and not sent(n, 'CLOAD'), f"for this scene: {sent(n, 'CLOAD', 'SNAPCAP')}")
+    text = cdp.evaluate('document.getElementById("saveTxt").innerText')
+    require(text.endswith('changes in 2A') and 'Not saved' in text, f'what is said of the change: {text}')
+    out['changed'] = text
+    n = count()
+    cdp.evaluate('void hrSave()')
+    page.wait('edCount() === 0 && ' + quiet, 'the saved scene', 20)
+    require(sent(n, 'SNAPSAVE', 'PSAVE') == ['SNAPSAVE 2'] and cdp.evaluate('JSON.stringify(__pedal.store[3].snapcap)') == '[-1,-1,2,-1,-1,-1,-1,-1]' and cdp.evaluate('__pedal.store[3].c_slot') == 0,
+            f"saved: {sent(n, 'SNAPSAVE', 'PSAVE')}, {cdp.evaluate('[__pedal.store[3].snapcap, __pedal.store[3].c_slot]')}")
+    # the scenes and the preset come and go
+    seen = []
+    for k, slot, name in ((0, 0, 'Clean amp'), (2, 2, 'Lead amp'), (1, 0, 'Clean amp')):
+        cdp.evaluate(f'void goSnap({k})')
+        page.wait(f'S.snap === {k} && S.capSlot === {slot} && S.model === "{name}" && ' + quiet, f'scene {k + 1} with its capture', 15)
+        panel()
+        seen.append([k, cdp.evaluate(which), cdp.evaluate('document.querySelector("#editor .ed-head .t").textContent')])
+    require(seen == [[0, 0, 'Clean amp'], [2, 1, 'Lead amp'], [1, 0, 'Clean amp']], f'the panel of each scene: {seen}')
+    cdp.evaluate('__pedal.press(3)')                      # chosen on the pedal: it starts with the scene it was saved with
+    page.wait('S.snap === 2 && S.capSlot === 2 && S.model === "Lead amp" && ' + quiet, 'the preset, chosen on the pedal', 25)
+    # a file that is uploaded is for this scene too, and the preset keeps its own
+    n = count()
+    cdp.evaluate('void uploadCaptures([new File([(() => { const d = new Uint8Array(4892); d.set([65, 50, 76, 49]); d.fill(9, 4); return d; })()], "New lead.a2l")], 5)')
+    page.wait('__pedal.caps[5] && __pedal.snapcap[2] === 5 && __pedal.cap_slot === 5 && ' + quiet, 'an upload for this scene', 40)
+    require(now()[5] == 0 and sent(n, 'SNAPCAP')[-1:] == ['SNAPCAP 2 5'], f'after the upload: {now()}')
+    cdp.evaluate('void loadPreset(3)')
+    page.wait('curPreset === 3 && S.capSlot === 2 && edCount() === 0 && ' + quiet, 'the preset again', 20)
+    # what is not in the library cannot be a scene's
+    cdp.evaluate('void goSnap(1)')
+    page.wait('S.snap === 1 && ' + quiet, 'the second scene', 15)
+    cdp.evaluate('S.capSlot = -1; window.__said = []; if (!window.__toast) { window.__toast = toast; toast = (m, ...more) => { __said.push(String(m)); return __toast(m, ...more); }; }')
+    n = count()
+    cdp.evaluate('void hrCapScope(true)')
+    page.wait('__said.some(x => /library first/.test(x))', 'what is said of a capture without a place', 10)
+    require(not sent(n, 'SNAPCAP'), 'it was sent')
+    cdp.evaluate('S.capSlot = 0')
+    # to a file and back, with both captures in it
+    cdp.evaluate('void loadPreset(3)')
+    page.wait('curPreset === 3 && edCount() === 0 && ' + quiet, 'the preset again', 20)
+    cdp.evaluate('window.__files = []; pioSaveFile = async (name, text) => { __files.push([name, text]); return "file"; }; void pioExport(false)')
+    deadline = time.monotonic() + 60
+    while not cdp.evaluate('__files.length'):
+        require(time.monotonic() < deadline, 'the export does not end')
+        cdp.evaluate('document.querySelectorAll(".mdlg .mdlg-chk input").forEach(c => { c.checked = true; }); document.querySelector(".mdlg .mdlg-ok")?.click()')
+        time.sleep(0.3)
+    page.wait(quiet, 'the end of the export', 20)
+    doc = json.loads(cdp.evaluate('__files[0][1]'))
+    sound = doc['presets'][0]['sound']
+    require(sound['amp']['capture']['name'] == 'Clean amp' and [s.get('capture', {}).get('name') for s in sound['scenes']] == [None, None, 'Lead amp'] and len(doc['attachments']) == 2 and
+            sorted(x['name'] for x in doc['presets'][0]['compat']['needs']['captures']) == ['Clean amp', 'Lead amp'], f"the file: {sound['amp']}, {[s.get('capture') for s in sound['scenes']]}, {list(doc['attachments'])}")
+    require(cdp.evaluate('[__pedal.cap_slot, S.snap]') == [2, 2], 'another scene is on after the export')
+    cdp.evaluate('(() => { const p = __pedal; p.caps = {4: {...p.caps[1]}}; p.cap = p.caps[4]; p.cap_slot = 4; p.capOver = 0; window.__imported = undefined; void pioImport(__files[0][1]).then(v => { window.__imported = v; }); })()')
+    deadline = time.monotonic() + 60
+    while cdp.evaluate('window.__imported === undefined || !!document.querySelector(".mdlg")'):
+        require(time.monotonic() < deadline, 'the import does not end')
+        cdp.evaluate('document.querySelector(".mdlg .mdlg-ok")?.click()')
+        time.sleep(0.3)
+    page.wait(quiet, 'the end of the import', 20)
+    got = cdp.evaluate('[__pedal.snapcap.slice(0, 3), __pedal.alone() ? __pedal.capOwn : __pedal.cap_slot, Object.fromEntries(Object.entries(__pedal.caps).map(([k, x]) => [x.name, +k])), __pedal.cap_slot]')
+    require(got[0] == [-1, -1, got[2]['Lead amp']] and got[1] == got[2]['Clean amp'] and got[3] == got[2]['Lead amp'], f'the imported preset: {got}')
+    # strictly read: a scene's capture is a name and what goes with it
+    cleaned = cdp.evaluate('(() => { const d = JSON.parse(__files[0][1]); d.presets[0].sound.scenes[0].capture = {name: "a\\nCDEL 0", bytes: "x", attachment: "../x"}; d.presets[0].sound.scenes[1].capture = 5; '
+                           'const r = HyperRigPresetFile.clean(JSON.stringify(d)); return r.presets[0].sound.scenes.map(s => s.capture ? {...s.capture} : null); })()')
+    require(cleaned[0] == {'name': 'a CDEL 0'} and cleaned[1] is None and cleaned[2]['name'] == 'Lead amp', f'read strictly: {cleaned}')
+    # back to all scenes
+    n = count()
+    press(0)
+    require(sent(n, 'SNAPCAP')[:1] == ['SNAPCAP 2 -1'] and cdp.evaluate('__pedal.cap_slot') == got[2]['Clean amp'], f"all scenes again: {sent(n, 'SNAPCAP')}, {now()}")
+    # an older HyperRig: no choice, and the page's own words
+    cdp.evaluate('__pedal.noSnapcap = true; void loadSnaps()')
+    page.wait('hrCap.of === null && ' + quiet, 'a pedal that does not know it', 10)
+    cdp.evaluate('S.sel = "amp"; render(true)')
+    page.wait('!!document.querySelector("#editor .ctsame")', "the page's own words", 10)
+    require(cdp.evaluate(seg) == '', 'a choice for a pedal without it')
+    n = count()
+    cdp.evaluate(f'void useSlot(true, {got[2]["Lead amp"]}, "Lead amp")')
+    page.wait(quiet, 'a capture on an older one', 15)
+    require(sent(n, 'CLOAD') == [f'CLOAD {got[2]["Lead amp"]}'], f"on an older one: {sent(n, 'CLOAD', 'SNAPCAP')}")
+    for bad in ('SNAPCAP 8 0', 'SNAPCAP 0 15', 'SNAPCAP 7 0', 'SNAPCAP 0 -2', 'SNAPCAP x'):
+        answer = cdp.evaluate(f'Pedal.cmd({json.dumps(bad)}, "SNAPCAP")')[0]
+        require(answer.startswith('ERR MINI_APP'), f'{bad} was sent: {answer}')
+    cdp.evaluate('''(() => { const p = __pedal; delete p.noSnapcap; [p.caps, p.cap, p.cap_slot] = __asideCaps; [p.store, p.presets] = __asideCaps[3]; p.load(Number(Object.keys(p.store)[0])); [p.caps, p.cap, p.cap_slot] = __asideCaps; p.snapcap = Array(8).fill(-1); p.capOver = 0; window.__put = false;
+        void loadPresets().then(() => loadPreset(Number(Object.keys(p.store)[0]))).then(() => { window.__put = true; }); })()''')
+    page.wait('window.__put === true && ' + quiet, 'as it was before', 25)
+    require(cdp.evaluate('JSON.stringify([Object.keys(__pedal.caps), __pedal.cap_slot])') == kept, 'the captures as they were')
     return out
 
 
@@ -3087,6 +3243,7 @@ def run(bundle, output, page_class=Page):
             steps['preset_files'] = preset_files(page)
             steps['import_all'] = import_all(page, output)
             steps['backup'] = backup(page, output)
+            steps['scene_captures'] = scene_captures(page, output)
             steps['long_delay'] = long_delay(page)
             steps['same_volume'] = same_volume(page, output)
         steps['page_errors'] = cdp.evaluate('__errors')

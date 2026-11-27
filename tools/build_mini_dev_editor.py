@@ -39,23 +39,26 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 BASE = ROOT / 'build/hyperrig-mini-installer-v4-fast-01/editor'
-KIND, REVISION, PRODUCT_REVISION = 'hyperrig-mini-development-editor', 'mini-dev-05', 'mini-product-33'
+KIND, REVISION, PRODUCT_REVISION = 'hyperrig-mini-development-editor', 'mini-dev-05', 'mini-product-36'
 PAGE_FILE = 'tank-mini.html'      # of the v4 package: tankmini.html, a pinned input
 FAMILIES = ['GAIN', 'PLOAD', 'PSAVE', 'SNAPSAVE', 'FXA', 'FXP', 'FXE', 'FXR', 'SNAP']    # of mini-v4-usb-01
 ADDED = ['BPM', 'TUNER', 'AMP', 'AMPX', 'AMPEQ', 'STW', 'FXM', 'FXL', 'FXOS', 'FXMIX', 'FXXO', 'PNEW', 'PNAME', 'PDEL', 'PCOLOR',
          'SNAPNAME', 'SNAPDEL', 'FSA', 'FSMODE', 'FSPRESS', 'FSLED', 'LEDCFG', 'FSDO', 'GSAVE']    # of app/mini/mini-dev-rules.js
 PRODUCT_ADDED = ['KNOB', 'IRBEGIN', 'IRB', 'IREND', 'ISAVE', 'ILOAD', 'IDEL', 'IREAD', 'FXIR',
-                 'LDBEGIN', 'LDB', 'LDEND', 'CSAVE', 'CLOAD', 'CDEL', 'CREAD', 'CTRIM', 'AUDIO', 'GEQ', 'HPF', 'LIM', 'SPILL', 'GLIDE', 'SPUR', 'CALIB', 'FXC', 'MIDI', 'HRLV', 'REC', 'RECD', 'INJBEGIN', 'INJB']
+                 'LDBEGIN', 'LDB', 'LDEND', 'CSAVE', 'CLOAD', 'CDEL', 'CREAD', 'CTRIM', 'AUDIO', 'GEQ', 'HPF', 'LIM', 'SPILL', 'GLIDE', 'SPUR', 'CALIB', 'FXC', 'MIDI', 'SNAPCAP', 'HRLV', 'REC', 'RECD', 'INJBEGIN', 'INJB']
 RULES = ROOT / 'app/mini/mini-dev-rules.js'
 PRODUCT_FILES = ['product-ui.css', 'product-ui.js',      # of app/mini: the sizes of the controls, and the size of everything;
                  'product-try.css', 'product-presetfile.js', 'product-try.js', 'product-share.js',      # trying without saving; Patchstorage in the desktop program
                  'product-parametric.js', 'product-amp-knobs.js',    # NAM captures that keep knobs: their conversion, and the amp's panel
                  'product-midi.js',      # MIDI, in the settings
+                 'product-scenecap.js',      # a capture for each scene
                  'product-backup.js',      # everything the pedal keeps in one file, and back
                  'product-tone3000.css', 'product-tone3000.js',      # TONE3000 in the desktop program, with its official logos
                  'product-globals.css', 'product-globals.js',      # the settings for every preset, and the calibration of the input
                  'product-loudness.css', 'product-loudness.js', 'product-loudness-ui.js',      # the same volume for every preset
-                 'tone3000/tone3000-logo.svg', 'tone3000/t3k-mark.svg']
+                 'tone3000/tone3000-logo.svg', 'tone3000/t3k-mark.svg',
+                 'patchstorage/patchstorage-logo.png',      # Patchstorage's logo, on its button
+                 'factory/HyperRig-Factory.hyperrig.json']      # the presets to start with, after a first install
 INPUTS = {
     'web/index.html': '4090b0510aefb6a32faf548b37ea94f8092d7361860de6cc18ded567d1c978bc',
     'web/mini-fx-ui.js': 'e11c95735bb57ef6d694844dd1163574b86c21c58a9f1b1984a68ec02b2d0b20',
@@ -277,6 +280,33 @@ PRODUCT_PAGE += [
      '      let r = DEMO ? "FXP ok " + nv : reply(await Pedal.cmd(`FXP ${it.id} ${p.idx} ${nv}`, "FXP"), "FXP");\n'
      '      if (turn && isMemErr(r)) r = await hrLongest(it.id, nv, r, turn);\n'),
 ]
+# A capture for each scene (app/mini/product-scenecap.js): where a capture is chosen, read, uploaded and shown, and in the files of presets.
+PRODUCT_PAGE += [
+    ('<script src="product-ui.js"></script>', '<script src="product-scenecap.js"></script>\n<script src="product-ui.js"></script>'),
+    ('Log.act(cap ? "capture_use" : "ir_use", { slot: i, name, from: "menu" });\n  busy(true, "Loading…", .5);\n  let x; const q = edQ();\n  try { x = DEMO ? "ok" : reply(await Pedal.cmd(`${cap ? "CLOAD" : "ILOAD"} ${i}`, cap ? "CLOAD" : "ILOAD", 8000), cap ? "CLOAD" : "ILOAD"); }',
+     'Log.act(cap ? "capture_use" : "ir_use", { slot: i, name, from: "menu" });\n  busy(true, "Loading…", .5);\n  let x; const q = edQ();\n  try { x = DEMO ? "ok" : cap ? await hrCapUse(i) : reply(await Pedal.cmd(`ILOAD ${i}`, "ILOAD", 8000), "ILOAD"); }'),
+    ('Log.act(cap ? "capture_use" : "ir_use", { slot: i, name: r[1] });\n      let x; const q = edQ();\n      try { x = DEMO ? "ok" : reply(await Pedal.cmd(`${cap ? "CLOAD" : "ILOAD"} ${i}`, cap ? "CLOAD" : "ILOAD", 8000), cap ? "CLOAD" : "ILOAD"); }',
+     'Log.act(cap ? "capture_use" : "ir_use", { slot: i, name: r[1] });\n      let x; const q = edQ();\n      try { x = DEMO ? "ok" : cap ? await hrCapUse(i) : reply(await Pedal.cmd(`ILOAD ${i}`, "ILOAD", 8000), "ILOAD"); }'),
+    ('S.snap = k; renderPerf(); S.sel = S.sel; document.querySelector("#editor").dataset.id = ""; await loadChain();',
+     'S.snap = k; renderPerf(); S.sel = S.sel; document.querySelector("#editor").dataset.id = ""; await loadChain(); if (hrCapAny()) await hrCapShown();'),
+    ('  S.snaps[k] = 1; S.snap = k; renderPerf();\n', '  S.snaps[k] = 1; S.snap = k; renderPerf(); await hrCapRead();\n'),
+    ('  await loadSnapNames();\n  renderPerf();\n}', '  await loadSnapNames();\n  await hrCapRead();\n  renderPerf();\n}'),
+    ('setModel(backName); S.capSlot = back; restored = true; } } catch (e) {                       }\n  }\n  if (!restored && jobs.some(j => j.st === "ok")) edMark("other", null, qc);', 'setModel(backName); S.capSlot = back; restored = true; } } catch (e) {                       }\n  }\n  if (!restored && jobs.some(j => j.st === "ok")) { if (!DEMO && S.connected) await hrCapCame(); edMark("other", null, qc); }'),
+    ('    try { x = reply(await Pedal.cmd(`CLOAD ${slot}`, "CLOAD", 8000), "CLOAD"); }', '    try { x = await hrCapUse(slot); }'),
+    ('const ampSig = () => `${S.amp}|${S.aeqOk}|${!!S.cinOk}|${ctHasScenes() ? 1 : 0}`;', 'const ampSig = () => `${S.amp}|${S.aeqOk}|${!!S.cinOk}|${ctHasScenes() ? 1 : 0}|${hrCapSig()}`;'),
+    ('<h3>NAM Capture ${ctBadge()}</h3>', '<h3>NAM Capture ${hrCapCan() ? "" : ctBadge()}</h3><div class="hrcap" id="hrCapSeg"></div>'),
+    ('  $("ampCal").onclick = () => openCalib(S.capSlot);', '  $("ampCal").onclick = () => openCalib(S.capSlot);\n  hrCapPanel();'),
+    ('  $("libCt").innerHTML = ctHasScenes()', '  $("libCt").innerHTML = cap && hrCapLib() ? hrCapLib() : ctHasScenes()'),
+    ('function ctSceneNote(cap) { if (', 'function ctSceneNote(cap) { if (cap && hrCap.of) return; if ('),
+    ('  st.caps = pioLib(await send("CLIST", PIO_LIBEND("CLIST"), 3000), true);\n', '  st.caps = pioLib(await send("CLIST", PIO_LIBEND("CLIST"), 3000), true);\n  st.scap = await hrCapOf(send);\n  if (st.scap) st.caps.cur = st.scap.own;\n'),
+    ('scenes.push({ index: k, name: (st.names && st.names[k]) || "",', 'scenes.push({ index: k, name: (st.names && st.names[k]) || "", ...(st.scap && st.scap.of[k] >= 0 && pioRef(st.caps, st.scap.of[k], att.cap) ? { capture: pioRef(st.caps, st.scap.of[k], att.cap) } : {}),'),
+    ('captures: amp.present && capRef ? [capRef] : []', 'captures: amp.present ? [capRef, ...scenes.map(s => s.capture)].filter((r, i, all) => r && all.findIndex(x => x && x.name === r.name && x.bytes === r.bytes) === i) : []'),
+    ('    if (u.cap >= 0) capS.set(u.cap, x.st.caps.list.find(e => e.slot === u.cap));\n', '    if (u.cap >= 0) capS.set(u.cap, x.st.caps.list.find(e => e.slot === u.cap));\n    for (const c of hrCapUsed(x.st)) capS.set(c, x.st.caps.list.find(e => e.slot === c));\n'),
+    ('  walk(snd.chain);\n  return out;\n}', '  walk(snd.chain);\n  if (amp.present !== false) for (const s of pioArr(snd.scenes)) if (pioObj(s)) add(s.capture, "capture");\n  return out;\n}'),
+    ('    scenes.push(st);\n', '    if (pioObj(s.capture) && present && ctx.scap) { const m = match(s.capture, ctx.caps); if (m) st.cap = m.slot; else W.warn.push({ k: "The capture \\"{name}\\" of scene {n} isn\'t on this pedal: the scene has the preset\'s.", name: pioText(s.capture.name, 40), n: k + 1 }); }\n    scenes.push(st);\n'),
+    ('  apply(base, -1);\n', '  for (const s of scenes) if (s.cap != null) cmd(`SNAPCAP ${s.k} ${s.cap}`, "SNAPCAP", { tmo: 8000 });\n  apply(base, -1);\n'),
+    ('const pioCtxOf = (caps, irs) => ({ types: S.types, caps, irs,', 'const pioCtxOf = (caps, irs) => ({ types: S.types, caps, irs, scap: !DEMO && !!hrCap.of,'),
+]
 # Everything the pedal keeps in one file (app/mini/product-backup.js): a file that has it all is offered as that, wherever it is opened.
 PRODUCT_PAGE += [
     ('<script src="product-try.js"></script>', '<script src="product-try.js"></script>\n<script src="product-backup.js"></script>'),
@@ -497,8 +527,10 @@ PRODUCT_PAGE += [
      'if (!it) continue; const b = blocks[keyOf[id]] = { on: !!it.on, params: pioParamsOut(it, types[it.type]) }, v = hrIrSlot(it, types); if (v !== hrCabs.get(id)) { b.ir = v > 0 ? pioRef(st.irs, v - 1, att.ir) : null; irNeed(b.ir || cabRef); } }'),
     ('  for (const it of [...(L.chain.P || []), ...(L.chain.Q || [])]) {\n    if (it.type !== "ir") continue;\n',
      '  for (const it of [L, ...pioArr(st.scenes).filter(Boolean)].flatMap(x => [...(x.chain.P || []), ...(x.chain.Q || [])])) {\n    if (it.type !== "ir") continue;\n'),
-    ('  walk(snd.chain);\n  return out;\n}\n',
-     '  walk(snd.chain);\n  for (const s of pioArr(snd.scenes)) for (const b of pioObj(s) && pioObj(s.blocks) ? Object.values(s.blocks) : []) if (pioObj(b) && pioObj(b.ir)) add(b.ir, "ir");\n  return out;\n}\n'),
+    # after the scenes' captures (above): the scenes' cabs
+    ('  if (amp.present !== false) for (const s of pioArr(snd.scenes)) if (pioObj(s)) add(s.capture, "capture");\n  return out;\n}\n',
+     '  if (amp.present !== false) for (const s of pioArr(snd.scenes)) if (pioObj(s)) add(s.capture, "capture");\n'
+     '  for (const s of pioArr(snd.scenes)) for (const b of pioObj(s) && pioObj(s.blocks) ? Object.values(s.blocks) : []) if (pioObj(b) && pioObj(b.ir)) add(b.ir, "ir");\n  return out;\n}\n'),
     ('st.p[i] = pioObj(e) ? params(b.type, types[b.type], e.params, base.p[i], "scene") : base.p[i].slice(); });',
      'st.p[i] = pioObj(e) ? params(b.type, types[b.type], e.params, base.p[i], "scene") : base.p[i].slice(); st.ir[i] = b.type === "ir" && pioObj(e) && e.ir !== undefined ? hrCab(e.ir) : b.ir; });'),
     ('st = { k, name: pioAscii(s.name, 15), on: [], p: [],', 'st = { k, name: pioAscii(s.name, 15), on: [], p: [], ir: [],'),
@@ -559,6 +591,15 @@ PRODUCT_PAGE += [
     ('<script src="product-tone3000.js"></script>', '<script src="product-tone3000.js"></script>\n<script src="product-loudness.js"></script>\n<script src="product-loudness-ui.js"></script>'),
     ('<link rel="stylesheet" href="product-tone3000.css">', '<link rel="stylesheet" href="product-tone3000.css">\n<link rel="stylesheet" href="product-loudness.css">'),
     ('QUIET = /^(LVL|FXS|TUNE|EVT|LDB|IRB)\\b/;', 'QUIET = /^(LVL|FXS|TUNE|EVT|LDB|IRB|RECD|INJB|HRLV$)\\b/;'),
+]
+# The presets to start with (product-ui.js, hrStartersSoon): asked for once the first connection is made, after a first install.
+PRODUCT_PAGE += [
+    ('  logCrash();\n', '  logCrash();\n  if (typeof hrStartersSoon === "function") hrStartersSoon();\n'),
+]
+# Bluetooth from a computer comes with 0.5.0: until then the page offers no Bluetooth connection (Connect via Bluetooth hidden).
+PRODUCT_PAGE += [
+    ('  available() { return !!capBle() || !!(typeof navigator !== "undefined" && navigator.bluetooth && navigator.bluetooth.requestDevice); },',
+     '  available() { return !!capBle(); },'),
 ]
 PRODUCT_POLICY = [
     ('/^SNAPS ([01]{4}) (?:current|actual)=(-?\\d+)$/', '/^SNAPS ([01]{8}) (?:current|actual)=(-?\\d+)$/'),

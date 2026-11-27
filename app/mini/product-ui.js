@@ -253,7 +253,7 @@ let hrKnown = false, hrSaving = false;
 function hrState() {
   const fresh = curPreset < 0, slot = !fresh ? slotTxt(curPreset) : hrSlot >= 0 ? slotTxt(hrSlot) : "";
   if (fresh) return { kind: "new", text: "<b>Not saved</b> · " + (slot ? `new preset for ${slot}` : "new preset, without a slot yet"), go: slot ? `Save to ${slot}` : "Save to…", as: slot ? "Other slot…" : "" };
-  if (edCount()) return { kind: "changed", text: `<b>Not saved</b> · changes in ${S.snap >= 0 && !ED.other ? `scene ${S.snap + 1} of ` : ""}${slot}${ED.other ? ", for all its scenes" : ""}`, go: `Save to ${slot}`, as: "Save as…", undo: true };
+  if (edCount()) return { kind: "changed", text: `<b>Not saved</b> · changes in ${S.snap >= 0 && !ED.other ? `scene ${S.snap + 1} of ` : ""}${slot}${ED.other && !hrCap.touched ? ", for all its scenes" : ""}`, go: `Save to ${slot}`, as: "Save as…", undo: true };
   return { kind: "saved", text: hrKnown ? `<b>Saved</b> in ${slot}` : `<b>No changes</b> in ${slot}`, as: "Save as…" };
 }
 function hrSaveBar() {
@@ -264,6 +264,7 @@ function hrSaveBar() {
     return false;
   }
   if (!S.connected) hrKnown = false;
+  if (!edCount()) hrCap.touched = false;
   const on = !!S.connected && !hrOther.kind && !(globalThis.hrTry && hrTry.on), s = hrState(), set = (b, label) => { b.hidden = !label; if (label && b.textContent !== label) b.textContent = label; };
   bar.hidden = !on;
   document.body.classList.toggle("dirty", on && s.kind !== "saved");
@@ -506,6 +507,10 @@ async function hrImportAll(r) {
   const load = files.size > 0 && await uiConfirm({ title: "Load the presets' files?", okLabel: "Load them", cancelLabel: "Not now",
     body: [...files.values()].map(a => (a.role === "ir" ? "Cab IR: " : "Amp capture: ") + pioText(a.a.name, 40)).join("\n") });
   Log.act("preset_import_all", { n: go.length, over: over.length, files: files.size, load });
+  return hrPutAll(r, go, load);
+}
+/* The presets of a file [{ pre, n }] into their slots, with their files when load; nothing is asked. said: what is told when all went in. */
+async function hrPutAll(r, go, load, said) {
   const notes = [];
   let done = 0, tun = null, err = "";
   pioBusy = true; txn++; edClear();
@@ -544,9 +549,30 @@ async function hrImportAll(r) {
   Log.act("preset_import_all_done", { done, of: go.length, err: err || undefined, notes: notes.length });
   if (done && S.connected) await loadPreset(go[0].n).catch(() => {});
   if (err) toast(`${done} of ${go.length} presets were imported, then it stopped: ${errText(err)}. Import the file again.`, "err");
-  else toast(`${done} presets imported.`, "ok");
+  else toast(said || `${done} presets imported.`, "ok");
   if (notes.length) await uiAlert({ title: "Imported, with some changes", body: [...new Set(notes)].join("\n") });
   return !err;
+}
+
+/* After HyperRig was installed on a pedal for the first time (the installer opens the editor with ?first=1): three presets to start
+ * with, Clean, Crunch and Lead, into 1A, 1B and 1C, with HyperRig's own cab (app/mini/factory, made by tools/make_factory_presets.py).
+ * Only on a pedal that has no preset at all, once; nothing is replaced. */
+let hrStartersAsked = !/[?&]first=1(?:&|$)/.test(location.search);
+function hrStartersSoon() {
+  if (hrStartersAsked) return;
+  hrStartersAsked = true;
+  try { history.replaceState(null, "", location.pathname); } catch (e) { /* the address keeps it; asked is enough */ }
+  setTimeout(() => { hrStarters().catch(e => Log.act("factory_presets", { ok: false, err: String(e && e.message || e) })); }, 300);
+}
+async function hrStarters() {
+  if (pioBusy || !S.connected || bleRo()) return;
+  const p = await readPlist();
+  if (!p.ok || p.list.length) { Log.act("factory_presets", { ok: false, why: p.ok ? "the pedal has presets" : "no list" }); return; }
+  const r = pioParse(await (await fetch("HyperRig-Factory.hyperrig.json", { cache: "no-store" })).text());
+  if (!r.ok) { Log.act("factory_presets", { ok: false, why: r.err }); return; }
+  const go = hrPlaces(r.presets, new Map()).filter(x => x.n >= 0);
+  Log.act("factory_presets", { n: go.length });
+  await hrPutAll(r, go, true, `${go.length} presets to start with are on your pedal: ${go.map(x => slotTxt(x.n) + " " + pioText(x.pre.meta.name, 40)).join(", ")}, with HyperRig's own cab.`);
 }
 
 /* The pedal has another HyperRig than the one this page is for: the page reads it and changes nothing. Says so in plain words, with

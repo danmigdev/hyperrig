@@ -135,7 +135,7 @@
           if (s.what === "loader" && !wanted) wanted = (await this.inLoader(s.id, loader => this.noteOf(loader))).note?.job || "install";
           if (!wanted) throw new Trouble("unplugged", "nothing is connected");
           const result = await this.perform(wanted, s);
-          this.show(wanted === "save" ? V.saved({ came: result.came }) : V.done(wanted, result.version, { came: result.came }));
+          this.show(wanted === "save" ? V.saved({ came: result.came }) : V.done(wanted, result.version, { came: result.came, first: s.what !== "hyperrig" }));
         }
       } catch (e) {
         const kind = kindOf(e);

@@ -30,6 +30,9 @@ body.ph #hrTryPreset, body.ph #hrTryFile { min-height: 40px; }
 .hrtwords .hrtlack { color: var(--amber); }
 
 /* Presets on Patchstorage, in the desktop program (product-share.js): a window like the one of TONE3000. */
+/* The way in shows Patchstorage's own logo (app/mini/patchstorage), white on the dark button; its name is the button's label. */
+.hrshgo-way { display: inline-flex; align-items: center; justify-content: center; }
+.hrshgo-way .hrshlogo { display: block; height: 15px; width: auto; pointer-events: none; }
 .hrsh .hrshq { display: flex; gap: 8px; margin: 0; }
 .hrsh .hrshq input { flex: 1 1 auto; min-width: 0; min-height: 40px; padding: 0 12px; font-size: 15px; border: 1px solid var(--line2); border-radius: 3px; background: var(--panel2); color: var(--text); }
 .hrsh .hrshl { display: flex; flex-direction: column; gap: 6px; max-height: 44vh; overflow: auto; padding: 2px; }

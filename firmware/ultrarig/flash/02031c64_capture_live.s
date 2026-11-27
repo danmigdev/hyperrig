@@ -33,6 +33,12 @@ capture_live_parse:
     r0 = r2 + r3
     r7 = r0 + -4
     r13 = sp + 364
+; HyperRig MINI, product option: it was checked a moment ago (mini/product/swap.c).
+.if MINI_PRODUCT
+    r0 = hyperrig_capture_unstopped
+    r0 = b[r0+0] (u)
+    if (r0 != 0) goto hyperrig_parse_checked
+.endif
     if (r8 == 0) goto L02031d2e
     r1 = -1
     r6 = 3988292384
@@ -93,6 +99,9 @@ L02031d2e:
     r2 = b[r7+3] (u)
     r0 <= insert(r2, p:24, l:8)
     if (r1 != r0) goto L02032916
+.if MINI_PRODUCT
+hyperrig_parse_checked:
+.endif
     if (r8 >= 4) goto L02031d5c
     [r13+12] = 0x1
     r11 = -2

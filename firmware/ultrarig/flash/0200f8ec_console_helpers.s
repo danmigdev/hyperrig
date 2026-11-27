@@ -47,6 +47,15 @@ console_helpers_ble_address:
     r0 = r4 & 0xFC  #
     b[r2+5] = r0
     b[r2+0] = r0
+; HyperRig MINI, product option: the first byte of the address on the air is the last one here. Its group and local bits are
+; cleared and its two top bits set, so that it is the address of one device, read as public or as static random (Bluetooth Core,
+; Vol 6, Part B, 1.3). The base cleared those bits of byte 0, which is sent last.
+.if MINI_PRODUCT
+    r0 = b[r2+5] (u)
+    r0 = r0 & 0xFC
+    r0 = r0 | 0xC0
+    b[r2+5] = r0
+.endif
     r0 = 1
     b[r6+r5] = r0
 L0200f956:

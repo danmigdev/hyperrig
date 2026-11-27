@@ -9,16 +9,25 @@
  * It is padded over the 1490 bytes that an older HyperRig accepts, which then takes its place as empty instead of reading it wrong.
  * In the worst case 11 effects fit with eight scenes, 12 with seven, 14 with six and 16 with five.
  *
+ * A scene may have a capture of its own, in place of the preset's: a number of the library, put in by capture_loader_load as a preset's is
+ * (swap.c: without a stop, when both are of the same shape). A preset with such a scene is stored in version 7, which is 6 and those
+ * numbers; every other one as before. What the preset's own capture is, is remembered while that of a scene plays.
+ *
  * HyperRig code; the names of the application are those of firmware/ultrarig. No hardware test of this code has been made. */
 #include <stdint.h>
 
 enum { OLD = 4, SCENES = 8, RECORD = 260, NAME = 16, EFFECTS = 16, PARAMETERS = 7, VALUES = 6 };
-enum { WORKING = 1490, LIMIT = 1880, PADDED = 1492, VERSION_PACKED = 6, NO_ROOM = -90, DAMAGED = -4, REFUSED = -1 };
+enum { WORKING = 1490, LIMIT = 1880, PADDED = 1492, VERSION_PACKED = 6, VERSION_CAPTURES = 7, NO_ROOM = -90, DAMAGED = -4, REFUSED = -1 };
 enum { AT_COUNT = 1, AT_MASK = 7, AT_EFFECTS = 12, EFFECT = 18, AT_FLAG_A = 1345, AT_TAIL = 1340, TAIL = WORKING - AT_TAIL };
-enum { REC_THERE = 0, REC_FLAG_A = 1, REC_MASK = 2, REC_LEVELS = 4, REC_ON = 6, REC_PARAMETERS = 22, REC_VALUES = 246, REC_FLAG_B = 258 };
+enum { REC_THERE = 0, REC_FLAG_A = 1, REC_MASK = 2, REC_LEVELS = 4, REC_ON = 6, REC_PARAMETERS = 22, REC_VALUES = 246, REC_FLAG_B = 258, REC_CAPTURE = 259 };
+enum { AT_CAPTURE = 2, AT_SCENE = 6, CAPTURES = 15 };
+enum { SET_CAPTURE = 9, SET_SCENE = 88, STATE_LENT = 416 };      /* of the application's settings, and of its state */
 enum { ONLY_ON = 0x80 };                          /* in REC_ON of a block that is not in the mask: the scene knows its switch, and no knob */
 
 extern uint8_t L01c24790[];                       /* the working preset */
+extern uint8_t L01c1f180[], L01c26890[];          /* the settings and the state of the application */
+extern int capture_loader_load(unsigned slot);
+extern void bond_records_and_prints_print_b(const char *format, ...);
 extern uint8_t hyperrig_scenes[], hyperrig_scene_names[];
 extern void scene_import_clean_name(uint8_t *to, const uint8_t *from);
 extern void link_and_print_print(const char *format, ...);
@@ -34,7 +43,12 @@ static struct {
     uint8_t name[SCENES - OLD][NAME];
     uint8_t values[SCENES - OLD][2 * VALUES];
     uint8_t flag_b;
+    uint8_t capture[SCENES];                      /* of all scenes: 0 that of the preset, or a number of the library and 1 */
 } more;
+/* While the capture of a scene plays: it and 1, and the preset's own. over 0: none. */
+static struct {
+    uint8_t over, own;
+} alone;
 static uint8_t kept[RECORD], kept_name[NAME];     /* of a scene that is tried for room */
 static int packed_length;                         /* of hyperrig_packed, 0 when the working preset is stored as it is, NO_ROOM */
 uint8_t hyperrig_packed[LIMIT] __attribute__((aligned(4)));
@@ -127,10 +141,112 @@ void hyperrig_scene_replace(unsigned from, unsigned to)
     }
 }
 
+static int setting(unsigned at)
+{
+    return *(const volatile int *)(const void *)(L01c1f180 + at);
+}
+
+/* The capture of a scene that plays, and 1; 0 when the preset's does, or another that was loaded since. */
+static unsigned alone_now(void)
+{
+    return L01c1f180[SET_CAPTURE] == alone.over - 1 ? alone.over : 0;
+}
+
+/* And from now on, whatever is loaded next: when a scene is chosen or kept, and when the preset is stored. */
+static unsigned playing_alone(void)
+{
+    return alone.over = alone_now();
+}
+
+/* A new preset, without scenes. */
+void hyperrig_scene_new(void)
+{
+    alone.over = 0;
+}
+
+/* A scene that was kept has the capture that plays. At the end of the application's effect_snapshot. */
+void hyperrig_scene_kept(uint8_t *record)
+{
+    record[REC_CAPTURE] = playing_alone();
+}
+
+/* Before a scene is applied: its capture, if it is another than the one that plays. What cannot be loaded is left. */
+void hyperrig_scene_capture(unsigned scene)
+{
+    const uint8_t *record = hyperrig_scenes + RECORD * scene;
+    unsigned now = L01c1f180[SET_CAPTURE], own, want;
+    if (scene >= SCENES || !record[REC_THERE] || *(volatile uint32_t *)(void *)(L01c26890 + STATE_LENT))
+        return;
+    own = playing_alone() ? alone.own : now;
+    want = record[REC_CAPTURE] ? record[REC_CAPTURE] - 1u : own;
+    if (want >= CAPTURES || (want != now && capture_loader_load(want)))
+        return;
+    alone.own = own;
+    alone.over = want == own ? 0 : want + 1;
+}
+
+/* A preset was read, and is applied next: with the capture of the scene it starts with. */
+void hyperrig_preset_capture(void)
+{
+    unsigned scene = L01c24790[AT_SCENE], over = scene < SCENES && L01c24790[AT_MASK] >> scene & 1 ? more.capture[scene] : 0;
+    alone.own = L01c24790[AT_CAPTURE];
+    alone.over = over == alone.own + 1u ? 0 : over;
+    if (alone.over)
+        L01c24790[AT_CAPTURE] = over - 1;
+}
+
+/* A number of two digits at most, or -1, and what is behind it; -2 when there is none. */
+static int number(const char **text)
+{
+    const char *s = *text;
+    int minus, v = -2;
+    while (*s == ' ')
+        ++s;
+    minus = *s == '-';
+    s += minus;
+    if (*s >= '0' && *s <= '9') {
+        v = *s++ - '0';
+        if (*s >= '0' && *s <= '9')
+            v = 10 * v + *s++ - '0';
+        if (*s && *s != ' ')
+            v = -2;
+        else if (minus)
+            v = v == 1 ? -1 : -2;
+    }
+    *text = s;
+    return v;
+}
+
+/* SNAPCAP: the captures of the scenes, and the preset's own; SNAPCAP scene capture, -1 for the preset's. */
+int hyperrig_scene_captures(const char *rest)
+{
+    while (*rest == ' ')
+        ++rest;
+    if (*rest) {
+        int scene = number(&rest), capture = number(&rest);
+        if (scene < 0 || scene >= SCENES || capture < -1 || capture >= CAPTURES || *rest || !hyperrig_scenes[RECORD * scene]) {
+            bond_records_and_prints_print_b("ERR SNAPCAP\n");
+            return 1;
+        }
+        hyperrig_scenes[RECORD * scene + REC_CAPTURE] = capture + 1;
+        if (setting(SET_SCENE) == scene)
+            hyperrig_scene_capture(scene);
+    }
+    {
+        const uint8_t *r = hyperrig_scenes + REC_CAPTURE;
+        bond_records_and_prints_print_b("SNAPCAP %d %d %d %d %d %d %d %d preset=%d\n", r[0] - 1, r[RECORD] - 1, r[2 * RECORD] - 1, r[3 * RECORD] - 1,
+                                        r[4 * RECORD] - 1, r[5 * RECORD] - 1, r[6 * RECORD] - 1, r[7 * RECORD] - 1,
+                                        (int8_t)(alone_now() ? alone.own : L01c1f180[SET_CAPTURE]));
+    }
+    return 1;
+}
+
 /* From the working preset to the records of scenes 4 to 7 and their names; map: the slot of each effect, or negative. */
 void hyperrig_import_more(const int8_t *map)
 {
     unsigned n = effects(), scene, i;
+    for (scene = 0; scene < SCENES; ++scene)
+        hyperrig_scenes[RECORD * scene + REC_CAPTURE] = more.capture[scene];
     for (scene = OLD; scene < SCENES; ++scene) {
         uint8_t *record = hyperrig_scenes + RECORD * scene, text[NAME + 1];
         const uint8_t *from = hyperrig_scene_block(scene);
@@ -160,10 +276,15 @@ void hyperrig_snapshot_more(const uint8_t *map)
 {
     unsigned n = effects(), scene, i;
     clear(&more, sizeof more);
-    for (scene = OLD; scene < SCENES; ++scene) {
+    if (playing_alone())
+        L01c24790[AT_CAPTURE] = alone.own;
+    for (scene = 0; scene < SCENES; ++scene) {
         const uint8_t *record = hyperrig_scenes + RECORD * scene;
         uint8_t *to = hyperrig_scene_block(scene);
         if (!record[REC_THERE])
+            continue;
+        more.capture[scene] = record[REC_CAPTURE];
+        if (scene < OLD)
             continue;
         L01c24790[AT_MASK] |= 1 << scene;
         if (!record[REC_FLAG_A])
@@ -191,9 +312,12 @@ void hyperrig_names_more(void)
     copy(more.name, hyperrig_scene_names + NAME * OLD, sizeof more.name);
 }
 
-static int uses_more(void)
+static int has_captures(void)
 {
-    return L01c24790[AT_MASK] >> OLD != 0;
+    unsigned scene, any = 0;
+    for (scene = 0; scene < SCENES; ++scene)
+        any |= more.capture[scene];
+    return any != 0;
 }
 
 /* The working preset into hyperrig_packed; the length, or NO_ROOM. */
@@ -201,9 +325,10 @@ static int pack(void)
 {
     uint8_t *p = hyperrig_packed, *end = hyperrig_packed + LIMIT;
     unsigned n = effects(), scene, i, k;
-    unsigned fixed = AT_EFFECTS + EFFECT * n + TAIL + 1 + sizeof more.name + sizeof more.values;
+    unsigned own = has_captures() ? SCENES : 0;
+    unsigned fixed = AT_EFFECTS + EFFECT * n + TAIL + 1 + sizeof more.name + sizeof more.values + own;
     copy(p, L01c24790, AT_EFFECTS + EFFECT * n);
-    p[0] = VERSION_PACKED;
+    p[0] = own ? VERSION_CAPTURES : VERSION_PACKED;
     p[AT_COUNT] = n;
     p += AT_EFFECTS + EFFECT * n;
     copy(p, L01c24790 + AT_TAIL, TAIL);
@@ -212,6 +337,7 @@ static int pack(void)
     copy(p, more.name, sizeof more.name);
     p += sizeof more.name;
     copy(p, more.values, sizeof more.values);
+    copy(p + sizeof more.values, more.capture, own);
     p = hyperrig_packed + fixed;
     for (scene = 0; scene < SCENES; ++scene) {
         const uint8_t *from = hyperrig_scene_block(scene);
@@ -245,7 +371,7 @@ static int pack(void)
 /* Before the header of a record is made: the length of what is stored when it is the packed form, 0 when it is the working preset. */
 int hyperrig_pack(void)
 {
-    packed_length = uses_more() ? pack() : 0;
+    packed_length = L01c24790[AT_MASK] >> OLD || has_captures() ? pack() : 0;
     return packed_length;
 }
 
@@ -261,7 +387,8 @@ static int unpack(unsigned length)
 {
     const uint8_t *p = hyperrig_packed, *end = hyperrig_packed + length;
     unsigned n = p[AT_COUNT], scene, i, k;
-    unsigned fixed = AT_EFFECTS + EFFECT * n + TAIL + 1 + sizeof more.name + sizeof more.values;
+    unsigned own = p[0] == VERSION_CAPTURES ? SCENES : 0;
+    unsigned fixed = AT_EFFECTS + EFFECT * n + TAIL + 1 + sizeof more.name + sizeof more.values + own;
     if (n > EFFECTS || length > LIMIT || fixed > length)
         return DAMAGED;
     copy(L01c24790, p, AT_EFFECTS + EFFECT * n);
@@ -274,6 +401,8 @@ static int unpack(unsigned length)
     p += sizeof more.name;
     copy(more.values, p, sizeof more.values);
     p += sizeof more.values;
+    copy(more.capture, p, own);
+    p += own;
     for (scene = 0; scene < SCENES; ++scene) {
         uint8_t *to = hyperrig_scene_block(scene);
         if (!(L01c24790[AT_MASK] >> scene & 1))
@@ -308,7 +437,7 @@ int hyperrig_unpack(uint32_t *header)
 {
     unsigned length = header[1];
     clear(&more, sizeof more);
-    if (length && hyperrig_packed[0] == VERSION_PACKED) {
+    if (length && (hyperrig_packed[0] == VERSION_PACKED || hyperrig_packed[0] == VERSION_CAPTURES)) {
         int result = unpack(length);
         header[1] = WORKING;
         return result;

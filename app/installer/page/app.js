@@ -8,7 +8,7 @@
 
   /* ---- the screen ---- */
   function act(name) {
-    if (name === "editor") { location.href = EDITOR; return; }
+    if (name === "editor" || name === "editor-first") { location.href = EDITOR + (name === "editor-first" ? "?first=1" : ""); return; }    // first: the presets to start with
     if (installer) installer.act(name).catch(e => log("act: " + (e && e.stack || e)));
   }
   function button(a, first) {

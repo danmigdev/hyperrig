@@ -159,9 +159,17 @@ L0200283c:
     r7 = r8 + r5
     r11 = r10 + r5
     r4 = r6
+; HyperRig MINI, product option: larger pieces while the sound is paused (mini/product/swap.c).
+.if MINI_PRODUCT
+    call hyperrig_flash_piece  ; @call.xl
+    if (r6 < r0) goto Lhr_piece_kept
+    r4 = r0
+Lhr_piece_kept:
+.else
     if (r6 >= 256) {  ; @if.ge.ri.s12
     r4 = 256
     }
+.endif
     call storage_control_poll
     r0 = r7
     r1 = r11
@@ -169,8 +177,13 @@ L0200283c:
     call storage_control_raw_read
     r0 = r0 >>> 31
     r7 = r0 & 0xFFFFFFFE
+.if MINI_PRODUCT
+    r6 = r6 - r4
+    r5 = r5 + r4
+.else
     r6 = r6 + -256
     r5 = r5 + 256
+.endif
 L0200286a:
     if (r7 == 0) goto L0200283c
 L0200286c:

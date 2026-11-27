@@ -403,7 +403,7 @@ if (ENGINE && assets) {
     const run = await installed(computer, pedal);
     assert.deepEqual(run.screens(), ["ready", "work", "done"], run.lines.join("\n"));
     assert.equal(run.last().pedal, "HyperRig 0.2.0-test");
-    assert.deepEqual(run.last().actions.map(a => a.id), ["editor", "home"]);
+    assert.deepEqual(run.last().actions.map(a => a.id), ["editor-first", "home"], "after a first install the editor puts the presets to start with");
     assert.ok(!/switch it off/.test(run.last().text), "it came back by itself");
     const progress = run.views.filter(v => v.screen === "work").map(v => v.progress);
     assert.ok(progress.every((p, i) => !i || p >= progress[i - 1] - 1e-9) && progress.length > 60, "the progress only grows");

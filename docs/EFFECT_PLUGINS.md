@@ -15,10 +15,13 @@ played on a pedal.
 | 40 | `octaver` | One and two octaves below and one above, with a fuzz; for single notes | 8,000 | 0.8 KB |
 | 41 | `swell` | Every note grows out of nothing, as with a volume knob turned up after the pick | 4,000 | 1.4 KB |
 | 42 | `reverse` | A delay that plays each piece of the sound backwards | 6,500 | 33.4 KB |
+| 43 | `ensemble` | Three voices, each a little late and a little out of tune | 6,000 | 4.6 KB |
+| 44 | `vintage` | A delay whose repeats grow darker and softer, with a slow waver | 7,200 | 33.4 KB |
 
 Ticks are of the 154,950 of a block of 128 samples, as the firmware counts them; beside the A2 amp
 some 22,700 are left. The compiled code takes 21,242, 10,926 and 17,209 instructions at most, some
-7,400, 3,800 and 6,000 ticks at the 2.1 cycles an instruction that the application's own costs have.
+7,400, 3,800 and 6,000 ticks at the 2.1 cycles an instruction that the application's own costs have; that of the
+other two is in the check.
 Each is of one channel: in stereo it has one sound. In live mode no footswitch takes one; in Stomp
 it has the light of its group.
 
@@ -36,7 +39,17 @@ into each other started anew, and held notes and chords started once.
 **Reverse.** One sample of three is kept, as 16 bits (some 6 kHz); pieces of 60 to 500 ms, one over into the next
 within 8 ms; feedback and damping.
 
-All three are written here from published methods and own derivation. No code, table or recording of
+**Ensemble.** One line is read at three places, a third of a cycle apart: each wavers slowly and widely (4 ms either
+way at most) and eight times as fast an eighth of it, and goes from one place to the next on a straight line within 32 samples. The three are added up
+at the level of one, and rounded by a low-pass. A chord is as loud at every mix within 1.1 dB.
+
+**Vintage.** What is kept is as in the reverse delay, and the code is shared (`thirds.c`). The line is read between two
+samples at a place that wavers (0.8 Hz, 1 ms either way at most) and follows a new time over some 60 ms, so the
+pitch bends on the way. Two low-passes are in the loop: each repeat is darker, and 4 dB softer at a feedback of 70. A
+knee over three quarters of the full level keeps many repeats in bounds; at a feedback of 100 a note was 2.6 dB
+softer after 16 s.
+
+All of them are written here from published methods and own derivation. No code, table or recording of
 others is in them, so they add nothing to [the notice](../release/NOTICE.md).
 
 ## How one is added
@@ -71,7 +84,7 @@ takes a byte for each further one.
 
 | | Now | For each more |
 | --- | --- | --- |
-| Flash, of 516,096 bytes | 12,722 free in this build, 3,726 less than in 0.2.0: the frame with its hooks 1,034, octaver 1,174, swell 604, reverse 914 | 0.6 to 1.2 KB: some ten, if nothing else takes it |
+| Flash, of 516,096 bytes | 12,722 free in the build of the first three, 3,726 less than in 0.2.0: the frame with its hooks 1,034, octaver 1,174, swell 604, reverse 914; ensemble and vintage 1,374 together | 0.6 to 1.2 KB: some ten, if nothing else takes it |
 | RAM | 2.7 KB less heap, of 283 KB | 0.4 to 0.9 KB |
 | Names, rows, groups, lights | In the effect's own file | Nothing |
 

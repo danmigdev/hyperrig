@@ -9,6 +9,16 @@
 capture_async_run:
     [--sp] = {rets, r15-r4}
     sp += -32
+; HyperRig MINI, product option: while another capture is put in, the capture is left alone and silent (mini/product/swap.c).
+.if MINI_PRODUCT
+    r5 = r0
+    r6 = r1
+    r0 = r1
+    call hyperrig_swap_gate
+    if (r0 != 0) goto Lhr_swap_out
+    r0 = r5
+    r1 = r6
+.endif
     r13 = L01c2bff0
     r2 = h[r13+84] (u)
     r6 = r1
@@ -370,5 +380,11 @@ L01c05074:
     [r0+64] = r4
     [r0+68] = r4
 L01c05114:
+; HyperRig MINI, product option: the fade out before another capture is put in, and the fade in after it (mini/product/swap.c).
+.if MINI_PRODUCT
+    r0 = r6
+    call hyperrig_swap_ramp
+Lhr_swap_out:
+.endif
     sp += 32
     {pc, r15-r4} = [sp++]

@@ -27,6 +27,7 @@ extern void phase3_p5_gpio_set_pull_down(unsigned pin, unsigned value);
 int hyperrig_stage(const char *rest);
 int hyperrig_replace(const char *rest);
 int hyperrig_level(const char *rest);
+int hyperrig_scene_captures(const char *rest);
 void hyperrig_level_turn(void);
 extern uint8_t hyperrig_tuner_asked;
 void hyperrig_cab_turn(void);
@@ -79,6 +80,8 @@ int hyperrig_console(const char *word, const char *rest)
         return hyperrig_midi_console(rest);
     if (same(word, "HRLV"))
         return hyperrig_level(rest);
+    if (same(word, "SNAPCAP"))
+        return hyperrig_scene_captures(rest);
     if (same(word, "HRID")) {
         bond_records_and_prints_print_b("HRID 1 %s %s banks=3\n", HYPERRIG_VERSION, HYPERRIG_BUILD);
         return 1;

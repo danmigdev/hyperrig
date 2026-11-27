@@ -318,8 +318,8 @@ function stockFlash(unit) {
       if (w > 640) await run.layout(`${w} by ${h}`);
       await run.picture(`8-${w}`);
     }
-    await run.press("editor");
-    await run.until("location.href.startsWith('hyperrig://editor/')", "the editor");
+    await run.press("editor-first");      // finished from the loader: the editor is asked for the presets to start with
+    await run.until("location.href.startsWith('hyperrig://editor/tank-mini.html?first=1')", "the editor, after a first install");
     await run.until("!!document.getElementById('hrFirmware') && !!document.querySelector('#miniPortStatus .hrinst')", "the ways back to the installer");
     /* the way in the settings; the bar has no button for it */
     await run.until("!!document.getElementById('hrFirmware') && !document.getElementById('hrFwBtn')", "the Firmware part of the settings");

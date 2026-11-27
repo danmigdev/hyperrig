@@ -49,7 +49,7 @@ The logos in `app/mini/tone3000` are TONE3000's, from its own page, unchanged.
 
 ## Patchstorage
 
-*Browse Patchstorage* shows the presets that other players share on
+*Browse Patchstorage* (the button with Patchstorage's logo, `app/mini/patchstorage`) shows the presets that other players share on
 [Patchstorage](https://patchstorage.com): a list, a search, one preset with its creator and its
 licence. *Try it* plays it on the pedal without saving; *Save the file* keeps it with its creator,
 licence and address inside. They also stay beside a preset that is kept, on this computer.

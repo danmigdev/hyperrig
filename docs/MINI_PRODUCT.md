@@ -81,6 +81,46 @@ each (`scene_memory.S`, `scenes.c`), and the application's code finds them there
 - **Choosing a scene** keeps the blocks: no pause, the knobs glide (42 ms by default), and delays and
   reverbs that are switched off ring out.
 
+## Another capture, and a capture for each scene
+
+The application stops the engine to load a capture, and starts it again; and its pause of the sound
+waits until the output has run dry, a tick of 10 ms at a time. Every A2-Lite has the same shape: the same
+layers at the same places of the engine's memory, with other numbers. So (`swap.c`) a capture of the shape
+of the one that plays is read and checked while that one plays. Then the sound task is asked, at a gate in
+`capture_async_run`, to leave the capture alone: at the end of its block it fades the capture out, and
+from then on the capture is silent while the rest of the chain, the cab and the reverbs, plays on. When
+the second core and the IR unit are done with it, the application's own loader writes the numbers. What it
+clears and checks a second time is left out, because the network is settled next (`audio_task_warmup`),
+which fills it; the next block fades the new capture in. A sound task that does not answer within 20 ms
+(no amp in the chain) is paused as the application pauses it. Anything else goes the application's way:
+another shape, an engine that does not run, its memory lent to the effects.
+
+In the simulator the memory is byte by byte what a stop leaves, and the capture is left alone for some
+118,000 instructions, about 0.7 ms. On the pedal, with a trial build that played a tone into the input
+and measured every block at the end of the chain (inside the pedal, not the sound that leaves it): the
+pause of before kept the sound off some 25 ms for 0.9 ms of loading; at the gate, the capture is back
+some 6 ms after it was asked, and about 10 ms of blocks are quieter.
+
+The flash is read 256 bytes at a time, and each piece holds the other core for a moment. A cab block with
+an IR of its own reads it, 8 KB, while the sound is paused for another preset: some 120 ms. While the
+sound is paused, and only then, `storage_control_read` reads 4 KB at a time (`hyperrig_flash_piece`):
+some 45 ms, most of it the transfer itself, about 4 microseconds a byte.
+
+A scene may have a capture of its own (`scenes.c`):
+
+```
+SNAPCAP <scene> <capture>     0 to 14, or -1 for the preset's; the scene that is on is heard at once
+SNAPCAP                       SNAPCAP <eight of them> preset=<the preset's own, or -1>
+```
+
+- Choosing a scene puts its capture in, before its knobs, when it is another than the one that plays. A
+  capture that is gone, and a chain without a capture, leave what plays.
+- While the capture of a scene plays the preset's own is remembered, and that is what is stored. A capture
+  that is loaded by hand is the preset's from then on. A scene that is kept has the capture that plays.
+- A preset starts with the capture of the scene it starts with, loaded once.
+- **Stored:** a preset with such a scene in version 7, which is version 6 and eight numbers; an older
+  HyperRig takes its place as empty. Every other preset is stored as before, byte for byte.
+
 ## Sixteen blocks
 
 The application holds ten blocks before the AMP block (P) and ten after it (Q), sixteen in all. When
@@ -188,6 +228,8 @@ written into stored presets. `REC` and `INJ`, the diagnostic words, lend the mem
 | Captures and cab IRs, power cut at each erase and program; an uploaded cab that is heard at once | `tools/check_mini_library.py` |
 | A block in the place of another | `tools/check_mini_replace.py` |
 | The tuner with little memory | `tools/check_mini_tuner.py` |
+| Another capture without a stop | `tools/check_mini_swap.py` |
+| A capture for each scene | `tools/check_mini_scene_captures.py` |
 | The cuts of the cab | `tools/check_mini_cab.py` |
 | The settings for every preset, what they do to the sound, how they are stored; the calibration of the input | `tools/check_mini_globals.py` |
 | The acoustic block | `tools/check_mini_effect_block.py` |

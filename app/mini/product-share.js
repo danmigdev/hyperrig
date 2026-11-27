@@ -136,7 +136,8 @@
       if (/^https:\/\/patchstorage\.com\//.test(s.upload)) upload = s.upload;
     } catch (e) { return; }
     const ways = document.getElementById("hrWays");
-    if (ways) ways.append(el("button", { type: "button", class: "btn mini", id: "hrShare", text: "Browse Patchstorage", title: "Presets that other players share", onclick: browse }));
+    if (ways) ways.append(el("button", { type: "button", class: "btn mini hrshgo-way", id: "hrShare", "aria-label": "Browse Patchstorage", title: "Browse Patchstorage: presets that other players share", onclick: browse },
+      el("img", { src: "patchstorage-logo.png", alt: "", class: "hrshlogo", draggable: "false" })));
     mark();
   })();
 })();

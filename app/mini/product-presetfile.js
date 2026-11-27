@@ -95,6 +95,7 @@
       seen.add(index);
       const made = put(put(bare(), "index", index), "name", text(own(s, "name"), 15)), all = own(s, "blocks");
       if (obj(own(s, "gain_db"))) made.gain_db = gainOf(own(s, "gain_db"));
+      put(made, "capture", refOf(own(s, "capture")));
       put(made, "amp_on", flag(own(s, "amp_on")));
       put(made, "amp_tone", toneOf(own(s, "amp_tone")));
       made.blocks = bare();
@@ -271,6 +272,7 @@
     for (const s of pre.sound.scenes || []) for (const id of Object.keys(s.blocks)) { const ref = s.blocks[id].ir; if (ref && !have.ir(ref)) add(out.irs, ref.name); }
     const cap = pre.sound.amp.present ? pre.sound.amp.capture : null;
     if (cap && !have.capture(cap)) add(out.captures, cap.name);
+    if (pre.sound.amp.present) for (const s of pre.sound.scenes) if (s.capture && !have.capture(s.capture)) add(out.captures, s.capture.name);
     return out;
   }
   root.HyperRigPresetFile = Object.freeze({ MAX, clean, needs, originOf, isBackup, backup, settingsOf, lines });

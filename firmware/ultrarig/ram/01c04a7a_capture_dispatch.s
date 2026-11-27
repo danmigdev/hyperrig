@@ -75,7 +75,15 @@ capture_dispatch_load:
     [r7+64] = r4
     [r7+68] = r4
     r0 = r6
+.if MINI_PRODUCT
+    r1 = hyperrig_capture_unstopped
+    r1 = b[r1+0] (u)
+    if (r1 != 0) goto hyperrig_load_unstopped
+.endif
     call capture_live_reset
+.if MINI_PRODUCT
+hyperrig_load_unstopped:
+.endif
 L01c04b2e:
     r0 = r4
     sp += 4

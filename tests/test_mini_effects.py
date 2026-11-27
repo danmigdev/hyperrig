@@ -167,6 +167,36 @@ class Sounds(unittest.TestCase):
             best = max(best, abs(dot) / math.sqrt(sum(p * p for p in a) * sum(q * q for q in b)))
         self.assertGreater(best, 0.95)
 
+    def test_the_ensemble_keeps_the_level_and_goes_out_of_tune(self):
+        """A chord through it is as loud as before, at every mix; a tone is spread around its pitch, and without depth it is not."""
+        x = [a + b + c for a, b, c in zip(sine(196, 40000, 0.1), sine(247, 40000, 0.1), sine(294, 40000, 0.1))]
+        power = lambda y: math.sqrt(sum(v * v for v in y[8000:]) / len(y[8000:]))
+        for mix in (0, 25, 50, 75, 100):
+            out = reference.Block('ensemble', mezcla_pct=mix).run(list(x))
+            self.assertLess(abs(20 * math.log10(power(out) / power(x))), 2.5, mix)
+        self.assertEqual(reference.Block('ensemble', mezcla_pct=0).run(list(x)), x)
+        still = reference.Block('ensemble', mezcla_pct=100, prof_pct=0, tono_pct=100).run(sine(440, 40000))[16000:]
+        deep = reference.Block('ensemble', mezcla_pct=100, prof_pct=100, tono_pct=100).run(sine(440, 40000))[16000:]
+        self.assertGreater(level(still, 440), 0.3)
+        self.assertLess(level(deep, 440), level(still, 440) / 2)
+
+    def test_the_repeats_of_the_vintage_delay(self):
+        """They come at their time, each softer and darker than the one before, go out of tune with the waver, and full feedback stays within."""
+        ms, at = 200, FS * 200 // 1000
+        x = [int(8388607 * 0.2 * (math.sin(2 * math.pi * 400 * i / FS) + math.sin(2 * math.pi * 2000 * i / FS)) * math.sin(math.pi * i / 2400) ** 2) if i < 2400 else 0 for i in range(50000)]
+        out = reference.Block('vintage', tiempo_ms=ms, realim_pct=80, mezcla_pct=100, amort_pct=50, prof_pct=0).run(list(x))
+        peaks = [max(abs(v) for v in out[k * at - 200:k * at + 2600]) for k in range(1, 5)]
+        self.assertFalse(any(abs(v) > 2000 for v in out[:at - 300]))
+        self.assertTrue(all(b < a for a, b in zip(peaks, peaks[1:])) and peaks[3] > 8388607 * 0.01, peaks)
+        bright = lambda k: level(out[k * at - 200:k * at + 2600], 2000) / level(out[k * at - 200:k * at + 2600], 400)
+        self.assertLess(bright(3), bright(2) / 1.5)
+        self.assertLess(bright(2), bright(1) / 1.5)
+        x = sine(330, 24000) + [0] * 72000
+        out = reference.Block('vintage', tiempo_ms=150, realim_pct=100, mezcla_pct=100, amort_pct=0, prof_pct=100).run(x)
+        self.assertLess(max(abs(v) for v in out[60000:]), 8388607 * 1.2)
+        wet = reference.Block('vintage', mezcla_pct=0).run(sine(330, 4000))
+        self.assertEqual(wet, sine(330, 4000))
+
     def test_silence_stays_silence_and_the_loudest_stays_within(self):
         for name in NAMES:
             self.assertFalse(any(reference.Block(name).run([0] * 512)))

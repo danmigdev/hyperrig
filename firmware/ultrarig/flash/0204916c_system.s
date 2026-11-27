@@ -392,6 +392,12 @@ L02049592:
     r5 = r0
     r10 = r2  #
     r0 = b[r5+10] (u)
+; HyperRig MINI, product option: an advertisement that was heard and is shorter than its own address (6 bytes) is not
+; reported. Its checksum below runs over "length - 6" bytes, which for such a packet is some four billion: the core stayed
+; there until the watchdog stopped the pedal.
+.if MINI_PRODUCT
+    if (r0 < 6) goto L02049654
+.endif
     r8 = r1
     r11 = r5 + 26
     r1 = r0 + -6

@@ -77,6 +77,10 @@ L0200a308:
     r4 += 1  ; @add.ri.u5
 L0200a30c:
     if (r4 != 16) goto L0200a2c8
+.if MINI_PRODUCT
+    r0 = r11
+    call hyperrig_scene_kept  ; @call.xl
+.endif
     {pc, r11-r4} = [sp++]
 
 ; command_services_save_slot: 0x0200a312..0x0200a37e, module command-services (save_slot)

@@ -191,3 +191,6 @@ body:not(.ph) .top .meter { flex: 0 1 auto; min-width: 64px; }
 body:not(.ph) .top .rchips .rchip.res { flex: 0 1 auto; min-width: 94px; }
 body:not(.ph) .top .rchips .rchip.drop { flex: none; }
 @media (max-width: 1400px) { body:not(.ph) .top { gap: 10px; } body:not(.ph) .top .rchips, body:not(.ph) .top .meters { gap: 8px; } body:not(.ph) .rchip.drop span { display: none; } body:not(.ph) .rchip.drop b::before { content: "! "; } }
+/* For which scenes the capture is, in the amp's panel. */
+.hrcap:empty { display: none; }
+.hrcap { margin: 0 0 10px; }

@@ -546,6 +546,9 @@ L0200bdec:
     r2 = 64
 .endif
     call effect_enable_memset  ; @call.xl
+.if MINI_PRODUCT
+    call hyperrig_scene_new  ; @call.xl
+.endif
     r0 = -1
     [r13+88] = r0
     [r13+92] = r0

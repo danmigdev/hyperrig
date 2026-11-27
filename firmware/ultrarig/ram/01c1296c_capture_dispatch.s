@@ -42,7 +42,16 @@ capture_dispatch_load_context:
     r0 = r6  #
     [r0+8] = r4
     b[r6+136] = r4
+; HyperRig MINI, product option: audio_task_warmup comes next, and fills what this clears (mini/product/swap.c).
+.if MINI_PRODUCT
+    r1 = hyperrig_capture_unstopped
+    r1 = b[r1+0] (u)
+    if (r1 != 0) goto hyperrig_context_unstopped
+.endif
     call capture_live_reset
+.if MINI_PRODUCT
+hyperrig_context_unstopped:
+.endif
 ; HyperRig MINI, product option: a capture is in the engine (mini/product/parametric.c).
 .if MINI_PRODUCT
     call hyperrig_capture_loaded  ; @call.xl

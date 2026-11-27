@@ -294,6 +294,10 @@ HyperRigMini.acceptBuild([right]); HyperRigMini.resetIdentity(); HyperRigMini.ac
 for(const c of changes) assert.equal(allowed(c),false,'after the identity was reset: '+c);
 ''', self.payload())
 
+    def test_no_bluetooth_from_a_computer_yet(self):
+        self.assertIn('  available() { return !!capBle(); },', self.page)
+        self.assertNotIn('navigator.bluetooth && navigator.bluetooth.requestDevice); },', self.page)
+
     def test_midi_settings_are_permitted_as_the_firmware_takes_them(self):
         node(HEAD + r'''
 HyperRigMini.acceptPong(input.pong,'usb-cdc');

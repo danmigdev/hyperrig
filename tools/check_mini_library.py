@@ -108,8 +108,24 @@ class Pedal:
                               self.where['storage_control_device_program']: self.program,
                               self.where['command_services_console_send']: self.send,
                               self.where['link_and_print_send_line']: self.send})
+        if 'hyperrig_swap_wait' in self.where:
+            self.services[self.where['hyperrig_swap_wait']] = self.sound_turn
         if self.fast:
             self.shortcuts()
+
+    deaf = False
+
+    def sound_turn(self, a):
+        """The sound task at the end of a block of the capture, as the task that waits at the gate of mini/product/swap.c sees it: asked,
+        it leaves the capture alone. Unless it is deaf: then the waiting task goes the application's way. What the gate says then."""
+        gate = self.where['hyperrig_gate']
+        if not self.deaf and self.cpu.mem.read(gate, 1) == b'\x01':
+            self.cpu.mem.write(gate, b'\x02')
+            self.answered()
+        return self.cpu.mem.read(gate, 1)[0]
+
+    def answered(self):
+        pass
 
     def nothing(self, a):
         return 0

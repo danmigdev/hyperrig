@@ -48,6 +48,7 @@
     [form("PNAME ID (.+)"), (m, s) => !!s.presets && Object.hasOwn(s.presets, m[1]) && name(m[2])],
     [form("PDEL ID"), (m, s) => !!s.presets && Object.hasOwn(s.presets, m[1])],
     [/^PCOLOR (?:[0-9a-f]{6}|none)$/, () => true],
+    [/^SNAPCAP ([0-7]) (?:-1|[0-9]|1[0-4])$/, (m, s, p) => !!p && !!s.snaps && s.snaps.present[+m[1]] === "1"],
     [/^SNAPNAME ([0-7])(?: (.*))?$/, (m, s) => !!s.snaps && s.snaps.present[+m[1]] === "1" && (!m[2] || name(m[2]))],
     [/^SNAPDEL ([0-7])$/, (m, s) => !!s.snaps && s.snaps.present[+m[1]] === "1"],
     // A scene of a preset that is loaded goes to the pedal's storage. With none loaded (an import, before it is saved) the firmware keeps
@@ -111,9 +112,9 @@
   const families = Object.freeze(["BPM", "TUNER", "AMP", "AMPX", "AMPEQ", "STW", "FXM", "FXL", "FXOS", "FXMIX", "FXXO", "PNEW", "PNAME",
     "PDEL", "PCOLOR", "SNAPNAME", "SNAPDEL", "FSA", "FSMODE", "FSPRESS", "FSLED", "LEDCFG", "FSDO", "GSAVE"]);
   const productFamilies = Object.freeze(["KNOB", "IRBEGIN", "IRB", "IREND", "ISAVE", "ILOAD", "IDEL", "IREAD", "FXIR",
-    "LDBEGIN", "LDB", "LDEND", "CSAVE", "CLOAD", "CDEL", "CREAD", "CTRIM", "AUDIO", "GEQ", "HPF", "LIM", "SPILL", "GLIDE", "SPUR", "CALIB", "FXC", "MIDI", "HRLV", "REC", "RECD", "INJBEGIN", "INJB"]);
+    "LDBEGIN", "LDB", "LDEND", "CSAVE", "CLOAD", "CDEL", "CREAD", "CTRIM", "AUDIO", "GEQ", "HPF", "LIM", "SPILL", "GLIDE", "SPUR", "CALIB", "FXC", "MIDI", "SNAPCAP", "HRLV", "REC", "RECD", "INJBEGIN", "INJB"]);
   // PNAME by itself only says how it is used: the page asks it whether the firmware can rename.
-  const queries = Object.freeze(["PNAME", "TUNER", "FSA", "FSMODE", "FSPRESS", "FSLED", "LEDCFG", "KNOB", "HRID", "HRST", "AMPK", "MIDI"]);
+  const queries = Object.freeze(["PNAME", "TUNER", "FSA", "FSMODE", "FSPRESS", "FSLED", "LEDCFG", "KNOB", "HRID", "HRST", "AMPK", "MIDI", "SNAPCAP"]);
 
   /* A product build (docs/MINI_PRODUCT.md) says which build it is. An editor made for one permits changes only to the
    * build it was made for: product is its {version, build_id}, or null for an editor of another build from source. */

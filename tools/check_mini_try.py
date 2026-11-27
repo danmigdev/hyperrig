@@ -732,6 +732,43 @@ def ways_in(s):
     return seen
 
 
+def factory(s):
+    """After a first install (the installer opens the editor with ?first=1): the presets to start with, Clean, Crunch and Lead, go to 1A,
+    1B and 1C with HyperRig's own cab, once, on a pedal with no preset; on a pedal with presets nothing is written."""
+    ask = 'hrStartersAsked = false; history.replaceState(null, "", location.pathname + "?first=1"); hrStartersSoon()'
+    s.idle()
+    since = s.ev('__pedal.sent.length')
+    s.ev(ask)
+    time.sleep(2)
+    s.idle('a first install on a pedal with presets')
+    words = {'PSAVE', 'PNEW', 'FXA', 'ISAVE', 'IRBEGIN', 'PDEL', 'IDEL', 'PNAME'}
+    written = [c for c in s.ev('__pedal.sent')[since:] if c.split(' ')[0] in words]
+    require(not written and s.ev('location.search') == '', f'a pedal with presets: {written}, {s.ev("location.search")}')
+    # a pedal as HyperRig finds it after its first install: no preset, no cab IR (the simulated pedal is emptied, not the editor's work)
+    s.ev('window.__empty = null; __pedal.presets = {}; __pedal.store = {}; __pedal.irs = {}; __pedal.ir = null; __pedal.ir_slot = -1; __pedal.current = -1; '
+         'void (async () => { try { await loadPresets(); window.__empty = true; } catch (e) { window.__empty = String(e && e.message || e); } })()')
+    s.wait('window.__empty !== null', 'a pedal emptied')
+    require(s.ev('window.__empty') is True and not s.ev('Object.keys(__pedal.presets).length'), f"a pedal with no preset: {s.ev('window.__empty')}, {s.ev('__pedal.presets')}, {s.ev('__pedal.sent.slice(-8)')}")
+    s.idle('a pedal with no preset')
+    s.clear()
+    s.ev(ask)
+    s.wait('Object.keys(__pedal.presets).length === 3 && ' + QUIET, 'the presets to start with', 120)
+    names, cabs = s.ev('__pedal.presets'), s.ev('Object.entries(__pedal.irs).map(([k, x]) => [+k, x.name, x.data.length])')
+    kept = s.ev('[0, 1, 2].map(k => __pedal.store[k] && [__pedal.store[k].i_slot, [...__pedal.store[k].chain.P, ...__pedal.store[k].chain.Q].map(b => b.type)])')
+    want = {'0': 'HyperRig Clean', '1': 'HyperRig Crunch', '2': 'HyperRig Lead'}
+    require(names == want, f'the presets to start with: {names}')
+    require(len(cabs) == 1 and cabs[0][1] == 'HyperRig Cab' and cabs[0][2] == 2018, f"HyperRig's cab, once: {cabs}")
+    require([k[0] for k in kept] == [cabs[0][0]] * 3, f'each with that cab: {kept}')
+    require([k[1] for k in kept] == [['comp', 'amp_clean', 'ir', 'plate'], ['amp_brit', 'ir', 'reverb2'], ['sgate', 'ts9', 'amp_hi', 'ir', 'delay', 'plate']], f'their blocks: {kept}')
+    s.told('presets to start with are on your pedal')
+    require(s.ev('location.search') == '', 'the mark of a first install is kept')
+    since = s.ev('__pedal.sent.length')
+    s.ev('hrStartersSoon()')
+    time.sleep(1)
+    require(not [c for c in s.ev('__pedal.sent')[since:] if c.split(' ')[0] in words], 'asked twice on one page')
+    return {'names': names, 'cab': cabs[0], 'kept': kept}
+
+
 def run(bundle, output, page_class, steps=None):
     product = json.loads((Path(bundle) / 'editor/profile.json').read_bytes())['development']['product']
     page = page_class(bundle, output, f"HRID 1 {product['version']} {product['build_id']} banks=3")
@@ -746,7 +783,7 @@ def run(bundle, output, page_class, steps=None):
         time.sleep(1.5)
         s.ev('document.querySelector(".ccall .tskip")?.click()')
         s.ready()
-        for step in (ways_in, presets, keep_preset, losses, captures, irs, trouble):
+        for step in (ways_in, presets, keep_preset, losses, captures, irs, trouble, factory):
             if steps is None or step.__name__ in steps or step is presets:
                 out[step.__name__] = step(s)
         errors = s.ev('__errors')

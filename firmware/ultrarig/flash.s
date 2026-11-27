@@ -22,6 +22,7 @@ ultrarig_flash_start:
 .global L0201d3d4
 .global L0201d94c
 .global L0201dbe2
+.global L02024a78
 .global L02025626
 .global L02035340
 .global L0203a343

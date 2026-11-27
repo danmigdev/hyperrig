@@ -170,11 +170,8 @@ class Swell:
             self.at += 1
 
 
-class Reverse:
-    """A delay that plays each piece of the sound backwards. One sample of three is kept, as sixteen bits."""
-    NAME, ROWS = 'reverse', [(60, 500, 350, 'tiempo_ms'), (0, 90, 20, 'realim_pct'), (0, 100, 50, 'mezcla_pct'), (0, 100, 30, 'amort_pct'), (-12, 12, 0, 'nivel_db')]
-    LENGTH, FEED, DAMP = range(OWN, OWN + 3)
-    GLIDED = (1 << FEED) | (1 << DAMP)
+class Thirds:
+    """One sample of three is kept, as sixteen bits: the low-pass before and the way back after (thirds.c)."""
     LINE, TAIL = 16384, 8
 
     def __init__(self):
@@ -184,8 +181,34 @@ class Reverse:
     def start(self):
         self.history = [0] * tables.TAPS
         self.wet = [0] * self.TAIL
-        self.turn = self.written = self.known = self.damped = self.origin = self.at = self.valid = self.length = 0
-        self.origin2 = self.valid2 = self.length2 = 0
+        self.turn = self.written = self.known = 0
+
+    def keep(self, v):
+        self.line[self.written & (self.LINE - 1)] = held((v + 256) >> 9, -32768, 32767)
+        self.written += 1
+        if self.known < self.LINE:
+            self.known += 1
+
+    def run(self, s, x):
+        for i, v in enumerate(x):
+            self.history = self.history[1:] + [v]
+            if self.turn == tables.KEEP - 1:
+                total = sum(c * (self.history[k] + self.history[tables.TAPS - 1 - k]) for k, c in enumerate(tables.FIR[:tables.TAPS // 2]))
+                self.wet = self.wet[1:] + [self.kept(total >> 15, s)]
+            row = tables.BACK[(self.turn + 1) % tables.KEEP]
+            x[i] = sum(c * self.wet[self.TAIL - 1 - k] for k, c in enumerate(row)) >> 15
+            self.turn = (self.turn + 1) % tables.KEEP
+
+
+class Reverse(Thirds):
+    """A delay that plays each piece of the sound backwards."""
+    NAME, ROWS = 'reverse', [(60, 500, 350, 'tiempo_ms'), (0, 90, 20, 'realim_pct'), (0, 100, 50, 'mezcla_pct'), (0, 100, 30, 'amort_pct'), (-12, 12, 0, 'nivel_db')]
+    LENGTH, FEED, DAMP = range(OWN, OWN + 3)
+    GLIDED = (1 << FEED) | (1 << DAMP)
+
+    def start(self):
+        super().start()
+        self.damped = self.origin = self.at = self.valid = self.length = self.origin2 = self.valid2 = self.length2 = 0
 
     def set(self, p):
         s, level = [0] * SETTINGS, decibels(p[4])
@@ -201,11 +224,7 @@ class Reverse:
 
     def kept(self, v, s):
         """One kept sample in, one out."""
-        feed = (self.damped * s[self.FEED]) >> 16
-        self.line[self.written & (self.LINE - 1)] = held((v + feed + 256) >> 9, -32768, 32767)
-        self.written += 1
-        if self.known < self.LINE:
-            self.known += 1
+        self.keep(v + ((self.damped * s[self.FEED]) >> 16))
         if not self.length:
             self.origin, self.valid, self.length, self.at = self.written, self.known, s[self.LENGTH], 0
         out, left = self.piece(self.origin, self.valid, self.at), self.length - self.at
@@ -220,18 +239,112 @@ class Reverse:
         self.damped += (((out << 9) - self.damped) * s[self.DAMP]) >> 16
         return self.damped
 
+
+def signed16(phase):
+    v = (phase >> 16) & 0xFFFF
+    return v - 65536 if v >> 15 else v
+
+
+def sine(phase):
+    """A sine, nearly: 32768 either way, over a whole turn of 2 ^ 32."""
+    t = signed16(phase)
+    return (t * (32768 - abs(t))) >> 13
+
+
+class Ensemble:
+    """Three voices of the sound, a third of a cycle apart, each a little late and a little out of tune."""
+    NAME, ROWS = 'ensemble', [(10, 200, 60, 'vel_chz'), (0, 100, 60, 'prof_pct'), (0, 100, 80, 'tono_pct'), (0, 100, 50, 'mezcla_pct'), (-12, 12, 0, 'nivel_db')]
+    RATE, DEPTH, TONE = range(OWN, OWN + 3)
+    GLIDED = (1 << RATE) | (1 << DEPTH) | (1 << TONE)
+    LINE, THIRD, BASE, SHARE = 1024, 1431655765, 420 << 8, 37837
+
+    def __init__(self):
+        self.start()
+
+    def start(self):
+        self.line = [0] * self.LINE
+        self.phase = self.fast = self.at = self.soft = 0
+        self.place = [0] * 3
+
+    def set(self, p):
+        s, level = [0] * SETTINGS, decibels(p[4])
+        s[DRY] = level * (250 - 2 * p[3] if p[3] <= 50 else 3 * (100 - p[3])) // 250
+        s[WET] = level * (3 * p[3] if p[3] <= 50 else 2 * p[3] + 50) // 250
+        s[self.RATE] = p[0] * 893              # 2 ^ 32 / 48077 / 100
+        s[self.DEPTH] = p[1] * 492             # 192 samples in 1/256
+        s[self.TONE] = knob(tables.UP_TONE, p[2])
+        return s
+
     def run(self, s, x):
+        rate, depth, tone = s[self.RATE:self.TONE + 1]
+        self.phase = (self.phase + rate * len(x)) & 0xFFFFFFFF
+        self.fast = (self.fast + 8 * rate * len(x)) & 0xFFFFFFFF
+        step = []
+        for voice in range(3):                 # to where each is after these samples, on a straight line
+            p, q = (self.phase + voice * self.THIRD) & 0xFFFFFFFF, (self.fast + voice * self.THIRD) & 0xFFFFFFFF
+            goal = (self.BASE + (((sine(p) + (sine(q) >> 3)) * depth) >> 15)) * 256
+            self.place[voice] = self.place[voice] or goal
+            step.append(toward(goal - self.place[voice], len(x)))
         for i, v in enumerate(x):
-            self.history = self.history[1:] + [v]
-            if self.turn == tables.KEEP - 1:
-                total = sum(c * (self.history[k] + self.history[tables.TAPS - 1 - k]) for k, c in enumerate(tables.FIR[:tables.TAPS // 2]))
-                self.wet = self.wet[1:] + [self.kept(total >> 15, s)]
-            row = tables.BACK[(self.turn + 1) % tables.KEEP]
-            x[i] = sum(c * self.wet[self.TAIL - 1 - k] for k, c in enumerate(row)) >> 15
-            self.turn = (self.turn + 1) % tables.KEEP
+            self.line[self.at & (self.LINE - 1)] = v
+            total = 0
+            for voice in range(3):
+                self.place[voice] += step[voice]
+                place = self.place[voice]
+                a, b = self.line[(self.at - (place >> 16)) & (self.LINE - 1)] >> 2, self.line[(self.at - (place >> 16) - 1) & (self.LINE - 1)] >> 2
+                total += a + (((b - a) * (place & 65535)) >> 16)
+            total = (total * self.SHARE) >> 14
+            self.soft += ((total - self.soft) * tone) >> 16
+            x[i] = self.soft
+            self.at += 1
 
 
-EFFECTS = {e.NAME: e for e in (Octaver, Swell, Reverse)}
+class Vintage(Thirds):
+    """A delay whose repeats grow darker and softer, with a slow waver."""
+    NAME, ROWS = 'vintage', [(40, 1000, 380, 'tiempo_ms'), (0, 100, 35, 'realim_pct'), (0, 100, 35, 'mezcla_pct'), (0, 100, 40, 'amort_pct'), (0, 100, 20, 'prof_pct'),
+                             (-12, 12, 0, 'nivel_db')]
+    TIME, FEED, DAMP, WAVER = range(OWN, OWN + 4)
+    GLIDED = (1 << FEED) | (1 << DAMP) | (1 << WAVER)
+    KNEE, SLOWLY, STEP = 3 << 21, 10, 214400
+
+    def start(self):
+        super().start()
+        self.phase = self.time = self.dark = self.darker = 0
+
+    def set(self, p):
+        s, level = [0] * SETTINGS, decibels(p[5])
+        s[DRY] = level if p[2] <= 50 else level * (100 - p[2]) // 50
+        s[WET] = level if p[2] >= 50 else level * p[2] // 50
+        s[self.TIME] = p[0] * 16026 // 1000
+        s[self.FEED] = p[1] * UNITY // 100
+        s[self.DAMP] = knob(tables.DAMPING, 100 - p[3])
+        s[self.WAVER] = p[4] * 10
+        return s
+
+    def read(self, back):
+        return self.line[(self.written - 1 - back) & (self.LINE - 1)] if back < self.known else 0
+
+    def kept(self, v, s):
+        """One kept sample in, one out."""
+        self.phase = (self.phase + self.STEP) & 0xFFFFFFFF
+        way = s[self.TIME] << 16
+        self.time = self.time + ((way - self.time) >> self.SLOWLY) if self.time else way
+        place = self.time + ((sine(self.phase) * s[self.WAVER]) >> 5)
+        whole = place >> 16
+        out = self.read(whole)
+        out = (out << 9) + (((self.read(whole + 1) - out) * ((place >> 9) & 127)) << 2)
+        self.dark += ((out - self.dark) * s[self.DAMP]) >> 16
+        self.darker += ((self.dark - self.darker) * s[self.DAMP]) >> 16
+        v += (self.darker * s[self.FEED]) >> 16
+        a = abs(v)
+        if a > self.KNEE:
+            a = self.KNEE + ((a - self.KNEE) >> 2)
+            v = -a if v < 0 else a
+        self.keep(v)
+        return self.darker
+
+
+EFFECTS = {e.NAME: e for e in (Octaver, Swell, Reverse, Ensemble, Vintage)}
 
 
 class Block:

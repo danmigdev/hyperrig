@@ -42,8 +42,20 @@ L020085ca:
     call storage_control_activity
     r0 = 1
     call storage_coordination_gate
+; HyperRig MINI, product option: a capture of the same shape is read first, and then only paused for (mini/product/swap.c).
+.if MINI_PRODUCT
+    r0 = r11
+    if (r4 == 0) {  ; @if.eq.ri.s12
+    r0 = r12
+    }
+    r1 = r5
+    r2 = r4
+    r3 = r7
+    call hyperrig_capture_stop  ; @call.xl
+.else
     r0 = 0
     call mode_and_settings_mode_service
+.endif
     call L02040850  ; @call.xl
     r9 = r0
     if (r0 <= 26) {  ; @if.le.ri.s12
@@ -54,9 +66,13 @@ L020085ca:
     r10 = 0
     call storage_control_activity
     if (r4 == 0) goto L0200861e
+.if MINI_PRODUCT
+    call hyperrig_capture_read  ; @call.xl
+.else
     r0 = r11
     r1 = r7
     call r4
+.endif
     r6 = r0
     r12 = r11
     if (r6 != 0) goto L020086a4
@@ -92,7 +108,11 @@ L02008646:
 L0200867c:
     r0 = r12
     r1 = r5
+.if MINI_PRODUCT
+    call hyperrig_capture_probe  ; @call.xl
+.else
     call capture_dispatch_probe  ; @call.xl
+.endif
     r10 = r0
     if (r0 == 0) goto L0200869c
     r0 = [r13+416]
@@ -159,7 +179,11 @@ L020086f4:
     }
     if (r8 == 0) goto L02008740
     r0 = r8
+.if MINI_PRODUCT
+    call hyperrig_capture_start  ; @call.xl
+.else
     call mode_and_settings_mode_service
+.endif
     r2 = r0
     if (r2 == 0) goto L02008740
     r0 = 29

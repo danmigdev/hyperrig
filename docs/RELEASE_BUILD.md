@@ -67,6 +67,8 @@ python -B tools/check_mini_midi.py build/release-parts/firmware
 python -B tools/check_mini_usb.py build/release-parts/firmware
 python -B tools/check_mini_library.py build/release-parts/firmware
 python -B tools/check_mini_tuner.py build/release-parts/firmware
+python -B tools/check_mini_swap.py build/release-parts/firmware
+python -B tools/check_mini_scene_captures.py build/release-parts/firmware
 python -B tools/check_mini_cab.py build/release-parts/firmware
 python -B tools/check_mini_globals.py build/release-parts/firmware
 python -B tools/check_mini_effect_block.py build/release-parts/firmware
