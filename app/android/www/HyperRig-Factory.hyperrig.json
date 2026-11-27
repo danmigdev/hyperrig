@@ -1,0 +1,394 @@
+{
+ "format": "hyperrig-preset",
+ "version": 1,
+ "min_reader": 1,
+ "kind": "bank",
+ "exported": "2026-11-26T00:00:00Z",
+ "app": "HyperRig",
+ "presets": [
+  {
+   "meta": {
+    "name": "HyperRig Clean",
+    "description": "A glassy clean for chords and arpeggios. A light compressor evens out the picking, the Clean Amp sits just below break-up, and a short plate adds space without washing it out. Turn the amp's gain up a little for an edge-of-break-up sound. Built-in blocks only, no capture; its cab is HyperRig's own IR, which comes with it.",
+    "tags": [
+     "clean",
+     "plate",
+     "compressor"
+    ],
+    "genre": "",
+    "author": "HyperRig",
+    "created": "2026-11-26T00:00:00Z",
+    "modified": "2026-11-26T00:00:00Z",
+    "id": "",
+    "slot": "1A"
+   },
+   "compat": {
+    "source": {},
+    "needs": {
+     "effects": [
+      "amp_clean",
+      "comp",
+      "ir",
+      "plate"
+     ],
+     "captures": [],
+     "irs": [
+      {
+       "name": "HyperRig Cab",
+       "bytes": 2018,
+       "rate_khz": 48,
+       "sha256": "8d096b2b6308df27192c6d9d7f795463ae1f57171221a2b7e7257b19bd6cf8c3",
+       "attachment": "cab"
+      }
+     ]
+    }
+   },
+   "sound": {
+    "chain": [
+     {
+      "amp": true
+     },
+     {
+      "id": "b1",
+      "type": "comp",
+      "on": true,
+      "params": {
+       "umbral_db": -28,
+       "ratio_x10": 25,
+       "ataque_ms": 12,
+       "release_ms": 150,
+       "nivel_db": 3,
+       "mezcla_pct": 70
+      }
+     },
+     {
+      "id": "b2",
+      "type": "amp_clean",
+      "on": true,
+      "params": {
+       "ganancia_pct": 35,
+       "graves_pct": 55,
+       "medios_pct": 45,
+       "agudos_pct": 60,
+       "presencia_pct": 45,
+       "nivel_db": -6,
+       "os_n": 1
+      }
+     },
+     {
+      "id": "b3",
+      "type": "ir",
+      "on": true,
+      "params": {
+       "mezcla_pct": 100,
+       "nivel_db": 0,
+       "ir_slot": 0,
+       "largo_ms": 21,
+       "lowcut_hz": 70,
+       "hicut_hz": 10000
+      },
+      "ir": null
+     },
+     {
+      "id": "b4",
+      "type": "plate",
+      "on": true,
+      "params": {
+       "tamano_pct": 55,
+       "decay_pct": 45,
+       "amort_pct": 30,
+       "predelay_ms": 15,
+       "mezcla_pct": 22,
+       "nivel_db": 0,
+       "mod_pct": 30
+      }
+     }
+    ],
+    "amp": {
+     "present": false,
+     "on": true,
+     "capture": null
+    },
+    "cab_ir": {
+     "name": "HyperRig Cab",
+     "bytes": 2018,
+     "rate_khz": 48,
+     "sha256": "8d096b2b6308df27192c6d9d7f795463ae1f57171221a2b7e7257b19bd6cf8c3",
+     "attachment": "cab"
+    },
+    "gain_db": {
+     "in": 0,
+     "out": 0
+    },
+    "tempo_bpm_x10": 1200,
+    "color": "#4aa3c7",
+    "scenes": [],
+    "active_scene": null
+   }
+  },
+  {
+   "meta": {
+    "name": "HyperRig Crunch",
+    "description": "A British amp just breaking up: chords stay clear, harder picking bites. A short hall reverb, kept small, adds a little air. Roll back your guitar's volume and it cleans up. Built-in blocks only, no capture; its cab is HyperRig's own IR, which comes with it.",
+    "tags": [
+     "crunch",
+     "british",
+     "rock"
+    ],
+    "genre": "",
+    "author": "HyperRig",
+    "created": "2026-11-26T00:00:00Z",
+    "modified": "2026-11-26T00:00:00Z",
+    "id": "",
+    "slot": "1B"
+   },
+   "compat": {
+    "source": {},
+    "needs": {
+     "effects": [
+      "amp_brit",
+      "ir",
+      "reverb2"
+     ],
+     "captures": [],
+     "irs": [
+      {
+       "name": "HyperRig Cab",
+       "bytes": 2018,
+       "rate_khz": 48,
+       "sha256": "8d096b2b6308df27192c6d9d7f795463ae1f57171221a2b7e7257b19bd6cf8c3",
+       "attachment": "cab"
+      }
+     ]
+    }
+   },
+   "sound": {
+    "chain": [
+     {
+      "amp": true
+     },
+     {
+      "id": "b1",
+      "type": "amp_brit",
+      "on": true,
+      "params": {
+       "ganancia_pct": 55,
+       "graves_pct": 50,
+       "medios_pct": 65,
+       "agudos_pct": 55,
+       "presencia_pct": 50,
+       "nivel_db": -6,
+       "os_n": 1
+      }
+     },
+     {
+      "id": "b2",
+      "type": "ir",
+      "on": true,
+      "params": {
+       "mezcla_pct": 100,
+       "nivel_db": 0,
+       "ir_slot": 0,
+       "largo_ms": 21,
+       "lowcut_hz": 90,
+       "hicut_hz": 8500
+      },
+      "ir": null
+     },
+     {
+      "id": "b3",
+      "type": "reverb2",
+      "on": true,
+      "params": {
+       "tamano_pct": 35,
+       "decay_pct": 30,
+       "amort_pct": 45,
+       "predelay_ms": 10,
+       "mezcla_pct": 15,
+       "nivel_db": 0,
+       "mod_pct": 20
+      }
+     }
+    ],
+    "amp": {
+     "present": false,
+     "on": true,
+     "capture": null
+    },
+    "cab_ir": {
+     "name": "HyperRig Cab",
+     "bytes": 2018,
+     "rate_khz": 48,
+     "sha256": "8d096b2b6308df27192c6d9d7f795463ae1f57171221a2b7e7257b19bd6cf8c3",
+     "attachment": "cab"
+    },
+    "gain_db": {
+     "in": 0,
+     "out": 0
+    },
+    "tempo_bpm_x10": 1200,
+    "color": "#d9a441",
+    "scenes": [],
+    "active_scene": null
+   }
+  },
+  {
+   "meta": {
+    "name": "HyperRig Lead",
+    "description": "A singing high-gain lead. A gate keeps it quiet between phrases, a Tube Screamer tightens the low end into the Hi-Gain Amp, then a 420 ms delay and a light plate. Built-in blocks only, no capture; its cab is HyperRig's own IR, which comes with it.",
+    "tags": [
+     "lead",
+     "high gain",
+     "solo"
+    ],
+    "genre": "",
+    "author": "HyperRig",
+    "created": "2026-11-26T00:00:00Z",
+    "modified": "2026-11-26T00:00:00Z",
+    "id": "",
+    "slot": "1C"
+   },
+   "compat": {
+    "source": {},
+    "needs": {
+     "effects": [
+      "amp_hi",
+      "delay",
+      "ir",
+      "plate",
+      "sgate",
+      "ts9"
+     ],
+     "captures": [],
+     "irs": [
+      {
+       "name": "HyperRig Cab",
+       "bytes": 2018,
+       "rate_khz": 48,
+       "sha256": "8d096b2b6308df27192c6d9d7f795463ae1f57171221a2b7e7257b19bd6cf8c3",
+       "attachment": "cab"
+      }
+     ]
+    }
+   },
+   "sound": {
+    "chain": [
+     {
+      "amp": true
+     },
+     {
+      "id": "b1",
+      "type": "sgate",
+      "on": true,
+      "params": {
+       "umbral_db": -56,
+       "rango_att": 60,
+       "release_ms": 200,
+       "hush_pct": 40
+      }
+     },
+     {
+      "id": "b2",
+      "type": "ts9",
+      "on": true,
+      "params": {
+       "drive_pct": 20,
+       "tono_pct": 55,
+       "nivel_db": -2,
+       "os_n": 1,
+       "limpio_pct": 0
+      }
+     },
+     {
+      "id": "b3",
+      "type": "amp_hi",
+      "on": true,
+      "params": {
+       "ganancia_pct": 65,
+       "graves_pct": 50,
+       "medios_pct": 55,
+       "agudos_pct": 55,
+       "presencia_pct": 50,
+       "nivel_db": -8,
+       "os_n": 3
+      }
+     },
+     {
+      "id": "b4",
+      "type": "ir",
+      "on": true,
+      "params": {
+       "mezcla_pct": 100,
+       "nivel_db": 0,
+       "ir_slot": 0,
+       "largo_ms": 21,
+       "lowcut_hz": 100,
+       "hicut_hz": 7500
+      },
+      "ir": null
+     },
+     {
+      "id": "b5",
+      "type": "delay",
+      "on": true,
+      "params": {
+       "tiempo_ms": 420,
+       "realim_pct": 30,
+       "mezcla_pct": 22,
+       "amort_pct": 40,
+       "sync": 0,
+       "lowcut_hz": 150,
+       "mono": 1
+      }
+     },
+     {
+      "id": "b6",
+      "type": "plate",
+      "on": true,
+      "params": {
+       "tamano_pct": 60,
+       "decay_pct": 50,
+       "amort_pct": 30,
+       "predelay_ms": 20,
+       "mezcla_pct": 18,
+       "nivel_db": 0,
+       "mod_pct": 40
+      }
+     }
+    ],
+    "amp": {
+     "present": false,
+     "on": true,
+     "capture": null
+    },
+    "cab_ir": {
+     "name": "HyperRig Cab",
+     "bytes": 2018,
+     "rate_khz": 48,
+     "sha256": "8d096b2b6308df27192c6d9d7f795463ae1f57171221a2b7e7257b19bd6cf8c3",
+     "attachment": "cab"
+    },
+    "gain_db": {
+     "in": 0,
+     "out": 0
+    },
+    "tempo_bpm_x10": 1200,
+    "color": "#c4452f",
+    "scenes": [],
+    "active_scene": null
+   }
+  }
+ ],
+ "attachments": {
+  "cab": {
+   "kind": "ir",
+   "format": "tkgj",
+   "name": "HyperRig Cab",
+   "bytes": 2018,
+   "rate_khz": 48,
+   "gain_mdb": -6242,
+   "sha256": "8d096b2b6308df27192c6d9d7f795463ae1f57171221a2b7e7257b19bd6cf8c3",
+   "data": "awMlFbw7JGj/fwN3a1WWLKkKBfWN6SLjs90W2KXTodKV1nHfkOti+FoDrgqwDc0MNglnBL3/KfwV+nT55fnp+gz8Af2p/Q/+VP6e/gj/lv88AN4AXAGcAZIBPgGxAAQAT/+t/iv+0v2h/Y79kf2e/av9tP22/bH9p/2a/Yz9ff1t/V39TP05/ST9D/37/On82fzM/ML8uvy0/K/8qfyj/Jv8kvyH/Hv8b/xj/Ff8S/xA/Db8LPwj/Bv8FPwN/Af8Avz++/r79/v1+/P78fvw++/77/vv+/D78fvy+/T79/v6+/37AfwF/An8DvwS/Bf8Hfwi/Cj8Lvw0/Dr8QPxH/E78Vfxc/GP8avxy/Hn8gfyJ/JH8mfyh/Kn8sfy6/ML8y/zT/Nz85fzu/Pf8//wI/RH9Gv0j/Sz9Nv0//Uj9Uf1a/WP9bP12/X/9iP2R/Zr9pP2t/bb9v/3I/dL92/3k/e399v3//Qn+Ev4b/iT+Lf42/j/+SP5R/lr+Y/5s/nX+fv6H/pD+mf6i/qv+tP69/sb+z/7X/uD+6f7y/vv+A/8M/xX/Hf8m/y7/N/8//0j/UP9Z/2H/av9y/3r/g/+L/5P/m/+j/6v/s/+7/8P/y//T/9v/4//r//L/+v8BAAkAEQAYAB8AJwAuADUAPABEAEsAUgBZAF8AZgBtAHQAegCBAIgAjgCUAJsAoQCnAK0AswC5AL8AxQDLANEA1gDcAOEA5wDsAPEA9wD8AAEBBgELARABFAEZAR4BIgEnASsBLwE0ATgBPAFAAUQBSAFLAU8BUwFWAVoBXQFgAWMBZwFqAW0BcAFyAXUBeAF6AX0BfwGCAYQBhgGJAYsBjQGPAZABkgGUAZUBlwGZAZoBmwGdAZ4BnwGgAaEBogGjAaMBpAGlAaUBpgGmAacBpwGnAacBpwGnAacBpwGnAacBpwGmAaYBpgGlAaQBpAGjAaIBogGhAaABnwGeAZ0BnAGaAZkBmAGWAZUBlAGSAZEBjwGNAYwBigGIAYYBhAGDAYEBfwF9AXoBeAF2AXQBcgFvAW0BawFoAWYBZAFhAV8BXAFZAVcBVAFRAU8BTAFJAUYBRAFBAT4BOwE4ATUBMgEvASwBKQEmASMBIAEdARoBFwEUARABDQEKAQcBBAEAAf0A+gD2APMA8ADtAOkA5gDjAN8A3ADZANUA0gDPAMsAyADEAMEAvgC6ALcAtACwAK0AqgCmAKMAnwCcAJkAlQCSAI8AiwCIAIUAgQB+AHsAeAB0AHEAbgBrAGcAZABhAF4AWwBXAFQAUQBOAEsASABFAEIAPwA8ADkANgAzADAALQAqACcAJAAhAB4AGwAZABYAEwAQAA0ACwAIAAUAAwAAAP7/+//4//b/8//x/+7/7P/q/+f/5f/i/+D/3v/c/9n/1//V/9P/0f/P/8z/yv/I/8b/xP/C/8D/v/+9/7v/uf+3/7X/tP+y/7D/r/+t/6v/qv+o/6f/pf+k/6L/of+f/57/nf+b/5r/mf+X/5b/lf+U/5P/kv+R/4//jv+N/4z/i/+L/4r/if+I/4f/hv+G/4X/hP+D/4P/gv+B/4H/gP+A/3//f/9+/37/ff99/3z/fP98/3v/e/97/3v/ev96/3r/ev96/3r/ef95/3n/ef95/3n/ef95/3n/ef96/3r/ev96/3r/ev97/3v/e/97/3z/fP98/3z/ff99/37/fv9+/3//f/+A/4D/gf+B/4L/gv+D/4P/hP+E/4X/hv+G/4f/iP+I/4n/iv+K/4v/jP+M/43/jv+P/4//kP+R/5L/k/+T/5T/lf+W/5f/mP+Y/5n/mv+b/5z/nf+e/5//oP+h/6H/ov+j/6T/pf+m/6f/qP+p/6r/q/+s/63/rv+v/7D/sf+y/7P/tP+1/7b/t/+4/7n/uv+7/7z/vf++/7//wP/B/8L/w//E/8X/xv/H/8j/yf/K/8v/zP/N/87/z//Q/9H/0v/T/9T/1f/W/9f/2P/Z/9r/2//c/93/3v/f/9//4P/h/+L/4//k/+X/5v/n/+j/6f/p/+r/6//s/+3/7v/v//D/8P/x//L/8//0//X/9f/2//f/+P/5//n/+v/7//z//P/9//7//////wAAAQABAAIAAwADAAQABQAFAAYABwAHAAgACQAJAAoACgALAAwADAANAA0ADgAPAA8AEAAQABEAEQASABIAEwATABQAFAAVABUAFQAWABYAFwAXABgAGAAYABkAGQAZABoAGgAbABsAGwAcABwAHAAcAB0AHQAdAB4AHgAeAB4AHwAfAB8AHwAgACAAIAAgACAAIQAhACEAIQAhACEAIgAiACIAIgAiACIAIgAiACMAIwAjACMAIwAjACMAIwAjACMAIwAjACMAIwAjACMAIwAjACMAIwAjACMAIwAjACMAIwAjACMAIwAiACIAIgAiACIAIQAhACEAIQAgACAAIAAfAB8AHwAeAB4AHgAdAB0AHAAcABwAGwAbABoAGgAaABkAGQAYABgAFwAXABYAFgAVABUAFAAUABMAEwATABIAEgARABEAEAAQAA8ADwAOAA4ADQANAA0ADAAMAAsACwAKAAoACgAJAAkACQAIAAgABwAHAAcABgAGAAYABgAFAAUABQAEAAQABAAEAAMAAwADAAMAAwACAAIAAgACAAIAAgABAAEAAQABAAEAAQABAAEAAQA="
+  }
+ }
+}

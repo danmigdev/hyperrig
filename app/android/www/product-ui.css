@@ -1,0 +1,207 @@
+/* HyperRig for TANK-MINI, product builds: one size for every control, one scale for the text (docs/MINI_DEV_EDITOR.md).
+ * The page it is added to has controls of ten heights, from 25 to 50 pixels. The phone layout (body.ph) is left as it is. */
+:root { --hr-ctl: 40px; --hr-bar: 44px; --hr-f: 15px; --hr-fs: 14px; --hr-fl: 13px; --hr-r: 3px; }
+
+/* Buttons, fields and lists: 40 pixels, 15 pixel text; a button with a picture only is a square. */
+body:not(.ph) .btn, body:not(.ph) .btn.mini, body:not(.ph) .mini:is(button) { min-height: var(--hr-ctl); padding-top: 0; padding-bottom: 0; padding-left: 16px; padding-right: 16px;
+  font-size: var(--hr-f); line-height: 1.15; border-radius: var(--hr-r); }
+body:not(.ph) .btn.ico, body:not(.ph) .btn.mini.ico { min-width: var(--hr-ctl); width: var(--hr-ctl); height: var(--hr-ctl); padding: 0; line-height: 1; }
+body:not(.ph) .btn.ico:not([hidden]):not([style*="none"]) { display: inline-flex; align-items: center; justify-content: center; }
+body:not(.ph) .btn.ico svg, body:not(.ph) .btn.mini.ico svg { width: 20px; height: 20px; }
+body:not(.ph) :is(input[type=text], input[type=number], input[type=search], input[type=password], select, textarea):not(.knobin) { min-height: var(--hr-ctl); font-size: var(--hr-f); border-radius: var(--hr-r); }
+body:not(.ph) :is(select, input[type=text], input[type=number]):not(.bpm):not(.knobin) { padding-top: 0; padding-bottom: 0; padding-left: 10px; padding-right: 10px; }
+body:not(.ph) input[type=checkbox], body:not(.ph) input[type=radio] { width: 20px; height: 20px; flex: none; accent-color: var(--rig); margin: 0 8px 0 0; vertical-align: -4px; }
+body:not(.ph) label:has(> input[type=checkbox]), body:not(.ph) .spill { min-height: 32px; display: flex; align-items: center; gap: 6px; font-size: var(--hr-f); }
+body:not(.ph) label:has(> input[type=checkbox])[hidden], body:not(.ph) .spill[hidden] { display: none; }
+body:not(.ph) input[type=range] { min-height: 28px; }
+
+body:not(.ph) select, body:not(.ph) input:is([type=text], [type=number], [type=search]):not(.bpm):not(.knobin) { border: 1px solid var(--line2) !important; outline-offset: 1px; }
+
+/* Choices side by side. */
+body:not(.ph) .pathsel { border-radius: var(--hr-r); }
+body:not(.ph) .pathsel button, body:not(.ph) .stout .pathsel button, body:not(.ph) .segsel .pathsel button { min-height: calc(var(--hr-ctl) - 2px); min-width: var(--hr-ctl); padding: 0 14px; font-size: var(--hr-f); font-weight: 600; }
+body:not(.ph) :is(.fsqs, .fseg, .fstabs, .fspre, .fspick, .libtabs) button { min-height: var(--hr-ctl); font-size: var(--hr-f); padding: 0 14px; border-radius: var(--hr-r); }
+
+/* The row with the preset and its scenes. */
+body:not(.ph) .bhead { gap: 6px; align-items: flex-end; }
+body:not(.ph) .bhead .presetbtn { min-height: var(--hr-bar); padding: 0 6px 0 2px; display: inline-flex; align-items: center; gap: 4px; }
+body:not(.ph) .bhead .fmchip { min-height: var(--hr-bar); padding: 0 14px; border-radius: var(--hr-r); border: 0; background: var(--bg2); color: var(--dim); font-size: var(--hr-fl); font-weight: 700; letter-spacing: .06em; }
+body:not(.ph) .bhead .fmchip:hover { color: var(--text); }
+body:not(.ph) .bhead .fmchip.live { background: var(--bg2); color: var(--gold2); }
+body:not(.ph) .bhead .snaps { gap: 6px; }
+body:not(.ph) .bhead .snaps button.snap, body:not(.ph) .bhead .snaps button.snap.on, body:not(.ph) .bhead .snaps button.snap[aria-pressed="true"] { height: var(--hr-bar); width: 118px; padding: 0 14px; border-radius: var(--hr-r) var(--hr-r) 0 0; }
+body:not(.ph) .bhead .snaps button.snap .snl { font-size: 18px; }
+body:not(.ph) .bhead .snaps button.snap.named .snl, body:not(.ph) .bhead .snaps button.snap.vacio .snl { font: 700 12px/1 var(--ft); letter-spacing: .06em; }
+body:not(.ph) .bhead .snaps button.snap small, body:not(.ph) .bhead .snaps button.snap.vacio small { font-size: 12px !important; letter-spacing: .04em !important; }
+
+/* The row under the chain. */
+body:not(.ph) .perf { gap: 10px; }
+body:not(.ph) .perf :is(.tap, .tunerBtn, .fswBtn, .stageBtn, .stsw) { height: var(--hr-bar); min-height: var(--hr-bar); border-radius: var(--hr-r); font-size: 16px !important; letter-spacing: .04em !important; }
+body:not(.ph) .perf .stageBtn { width: auto; min-width: var(--hr-bar); padding: 0 14px; }
+body:not(.ph) .perf .tap { width: 84px; font-weight: 800; }
+body:not(.ph) .perf .bpm { height: var(--hr-bar); min-height: var(--hr-bar); width: 84px; font-size: 17px; font-weight: 600; }
+body:not(.ph) .perf .lbl { font-size: var(--hr-fl); letter-spacing: .08em; }
+
+/* Saving: one line under the preset's name, always there. The disks of the page, beside the scenes and on each row, are not needed. */
+body:not(.ph) .bhead #snapSave, body:not(.ph) #pList .pslot .acts .btn[data-a="s"] { display: none !important; }
+body:not(.ph) .savebar { position: sticky; left: 0; min-height: 50px; margin: -6px 0 16px; padding: 4px 5px 4px 14px; font-size: var(--hr-f); border-radius: var(--hr-r); }
+body:not(.ph) .savebar.hrsaved { background: var(--bg2); border-color: transparent; }
+body:not(.ph) .savebar.hrsaved .sbdot { background: var(--rig); box-shadow: none; }
+body:not(.ph) .savebar .btn[hidden] { display: none; }
+body.ph #hrSaveAs { display: none; }
+.pslot.hrchg .k { position: relative; }
+.pslot.hrchg .k::after { content: ""; position: absolute; left: 1px; top: calc(100% + 3px); width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+.pslot.pend .n { font-style: italic; }
+.mdlg .hrnote { min-height: 1.4em; margin: 10px 0 0; color: var(--amber); }
+
+/* Up to eight scenes: as many as there are, and one to add; with more than three the word gives way to the number and the name. */
+body:not(.ph) .bhead .snaps { flex: 0 1 auto; min-width: 0; }
+body:not(.ph) .bhead .snaps button.snap, body:not(.ph) .bhead .snaps button.snap.on, body:not(.ph) .bhead .snaps button.snap[aria-pressed="true"] { flex: 0 1 118px; min-width: 52px; overflow: hidden; }
+body:not(.ph) .bhead .snaps.many button.snap, body:not(.ph) .bhead .snaps.many button.snap.on { flex-basis: 98px; padding: 0 8px; }
+body:not(.ph) .bhead .snaps.many button.snap .snl { flex: none; overflow: visible; }
+body:not(.ph) .bhead .presetbtn { flex: 0 0 auto; max-width: min(300px, 34%); }
+body:not(.ph) .bhead .snaps.many .snw { display: none; }
+body:not(.ph) .bhead .snaps.many button.snap small { display: block; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* What the footswitches do: one choice in their window. */
+#fsQuick { display: block; }
+#fsQuick .hrq { margin: 0 0 8px; font-size: 16px; }
+#fsQuick .fseg button { min-width: 112px; }
+#fsQuick .hrsay { margin: 10px 0 0; color: var(--dim); font-size: var(--hr-f); line-height: 1.45; }
+/* The menu of a block is named as the blocks of the chain are, and took their size. */
+body:not(.ph) #fsCols select.arg.blk { width: 100%; height: 38px; min-height: 38px; margin-top: 6px; padding: 0 10px; border-radius: 0; box-shadow: inset 0 -3px 0 var(--c, transparent) !important; cursor: pointer; transform: none; }
+body:not(.ph) #fsPedal svg { max-height: 150px; }
+
+/* The presets. */
+/* Beside the board wherever there is room for both; a drawer below that (the page's own from 1001 to 1440 pixels). */
+@media (min-width: 1201px) {
+  body:not(.ph) main { grid-template-columns: 300px minmax(0, 1fr); }
+  body:not(.ph) .side, body:not(.ph) .side.open { position: static; width: auto; padding: 0; z-index: auto; transform: none; visibility: visible; transition: none; }
+  body:not(.ph) .side .side-card { box-shadow: none !important; }
+  body:not(.ph) .presetbtn svg { display: none; }
+}
+@media (max-width: 1200px) and (min-width: 1001px) { body:not(.ph) .side { width: 324px; } }
+body:not(.ph) .phd { flex-wrap: wrap; row-gap: 10px; }
+body:not(.ph) .pio { gap: 6px; }
+body:not(.ph) .side .banks { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin: 2px 0 12px; }
+body:not(.ph) .side .banks button { min-width: 0; min-height: var(--hr-ctl); padding: 0; font-size: var(--hr-f); font-weight: 700; border-radius: var(--hr-r); }
+body:not(.ph) .side .pslot { grid-template-columns: 34px minmax(0, 1fr) auto; min-height: 56px; padding: 7px 8px 7px 10px; font-size: var(--hr-f); border-radius: var(--hr-r); }
+body:not(.ph) .side .pslot .k { font-size: 17px; }
+body:not(.ph) .side .pslot .acts { gap: 6px; }
+body:not(.ph) .side .pmeta { font-size: 12px; }
+
+/* Header. */
+body:not(.ph) .top .btn { min-height: var(--hr-bar); }
+body:not(.ph) .top .btn.ico { width: var(--hr-bar); height: var(--hr-bar); }
+body:not(.ph) #setBtn.setb { display: inline-flex; align-items: center; justify-content: center; width: var(--hr-bar); height: var(--hr-bar); padding: 0; flex: none; }
+#setBtn.setb svg { width: 20px; height: 20px; flex: none; }
+body:not(.ph) .rchip .free { font-size: 12px; line-height: 15px; height: 15px; }
+body:not(.ph) .top .brand { align-items: center; }
+.top .brand .rel { display: inline-flex !important; flex-direction: column; align-items: flex-start; gap: 3px; margin: 0 0 0 10px !important; vertical-align: middle; }
+.top .brand .rel span.alpha, .top .brand .rel span.relno { position: static !important; display: block !important; transform: none !important; margin: 0 !important; padding: 2px 6px !important; border-radius: 2px; line-height: 1.05 !important; white-space: nowrap; }
+.top .brand .rel span.alpha { font-size: 13px !important; }
+.top .brand .rel span.relno { font-size: 12px !important; background: none !important; color: var(--dim) !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; }
+
+/* The block that is selected, and windows. */
+body:not(.ph) #editor .ed-head { gap: 10px; row-gap: 10px; align-items: center; }
+body:not(.ph) #editor :is(p, .hint, .note, .edhint) { font-size: var(--hr-fs); }
+body:not(.ph) .knob .lb, body:not(.ph) .knob .nm { font-size: var(--hr-fl); }
+body:not(.ph) .modal .box, body:not(.ph) .drawer .dbox { font-size: var(--hr-f); }
+body:not(.ph) .drawer section { padding-top: 12px; padding-bottom: 12px; }
+body:not(.ph) .drawer .row.wrap { gap: 10px; }
+body:not(.ph) .menu button, body:not(.ph) .menu .mi { min-height: var(--hr-ctl); font-size: var(--hr-f); }
+body:not(.ph) .tst-x { width: var(--hr-ctl); height: var(--hr-ctl); }
+body:not(.ph) .tutools :is(button, input), body:not(.ph) #tuRef { min-height: var(--hr-ctl); }
+body:not(.ph) .tskip { min-height: var(--hr-ctl); font-size: var(--hr-f); }
+body:not(.ph) .ccall .btn { min-height: var(--hr-ctl); }
+body:not(.ph) .qhelp { width: 22px; height: 22px; line-height: 22px; font-size: var(--hr-fl); }
+body.staging .stbtn { min-height: var(--hr-bar); }
+
+/* The bar under the header: what this version is, until a pedal is connected. */
+#miniPortStatus { font-size: var(--hr-fs) !important; }
+#miniPortStatus[hidden] { display: none; }
+
+/* The size of everything, in the desktop program. */
+.hrzoom { display: inline-flex; align-items: stretch; height: var(--hr-bar); border-radius: var(--hr-r); overflow: hidden; background: var(--panel2); flex: none; }
+.hrzoom button { border: 0; background: none; color: var(--text); font: 700 18px/1 var(--ft); min-width: 38px; padding: 0; cursor: pointer; }
+.hrzoom button.hrz { min-width: 62px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.hrzoom button.hrz.auto { color: var(--rig); }
+.hrzoom button:hover { background: color-mix(in srgb, var(--panel2) 70%, #fff 8%); }
+.hrzoom button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.hrzoom button:disabled { opacity: .35; cursor: default; }
+body.ph .hrzoom { height: 40px; }
+body.hrdesk #fuB { display: none; }
+
+/* Footswitches and lights. */
+body:not(.ph) .pvbtn { width: var(--hr-ctl); min-width: var(--hr-ctl); height: var(--hr-ctl); font-size: var(--hr-fs); }
+body:not(.ph) .fslay :is(input[type=color]) { width: 48px; height: var(--hr-ctl); padding: 3px; }
+body:not(.ph) .fslay .sw { width: 28px; height: 28px; }
+body:not(.ph) :is(.fslay, .lib, .calm, .drawer) :is(small, .hint, .fshint, .spill small) { font-size: var(--hr-fl); }
+body:not(.ph) .drawer a, body:not(.ph) .fslay a { font-size: var(--hr-fs); }
+body:not(.ph) .drawer summary { min-height: 32px; font-size: var(--hr-fs); }
+
+/* Small ones of their own: the joint of two paths, and the trim of a capture in the library. */
+body:not(.ph) .mergebtn { width: 36px; height: 36px; }
+body:not(.ph) .mergebtn svg { width: 22px; height: 22px; }
+body:not(.ph) button.chip { min-height: var(--hr-ctl); min-width: 64px; padding: 0 12px; font-size: var(--hr-f); }
+
+/* The way to the installer, beside the line that asks for a pedal. */
+#miniPortStatus .hrinst { margin-left: 10px; min-height: 32px; }
+
+/* The pedal has another HyperRig: the page only reads. */
+#hrOther { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 14px; padding: 8px 18px; background: #5a3d00; color: #fff1cf; border-bottom: 1px solid #45636b; font-size: 15px; }
+#hrOther[hidden] { display: none; }
+
+/* The pencils of the names. */
+body:not(.ph) .bhead .hrname { width: var(--hr-bar); height: var(--hr-bar); min-width: var(--hr-bar); color: var(--dim); }
+body:not(.ph) .bhead .hrname:hover { color: var(--gold2); }
+body:not(.ph) .bhead .hrname[hidden] { display: none; }
+body.ph .hrname { display: none; }
+
+/* A preset is a whole row to press: its name covers the row, and the buttons of the row stay above it. */
+.pslot .n::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.pslot .acts { position: relative; z-index: 1; }
+/* a choice of many names for a block */
+body:not(.ph) .hrlist .irsel { min-width: 104px; padding: 0 10px; }
+
+/* MIDI: the section of the settings, and the window of what the messages do (product-midi.js). */
+#hrMidi .hrmport { align-items: center; gap: 14px; }
+#hrMidi .fseg button { min-width: 72px; }
+#hrMidi label.spill > span:first-child, #hrMidi #hrMidiPortL { min-width: 88px; }
+#hrMidi select { min-width: 146px; }
+#hrMidi .hrmsay { margin: 8px 0 6px; color: var(--dim); font-size: var(--hr-fs); line-height: 1.45; }
+.mdlg.hrmmap { width: min(760px, 100%); }
+.mdlg.hrmmap h3 { margin: 18px 0 8px; font-size: 15px; }
+.mdlg .hrmrows { display: grid; grid-template-columns: max-content max-content minmax(0, 1fr); gap: 8px 16px; align-items: center; margin-top: 14px; }
+.mdlg .hrmrows .hrmfld { display: inline-flex; align-items: center; gap: 8px; color: var(--dim); }
+.mdlg .hrmrows .hrmfix { color: var(--dim); }
+.mdlg .hrmrows small { color: var(--dim); font-size: 13px; line-height: 1.35; }
+.mdlg .hrmrows input { width: 84px; }
+.mdlg .hrmknobs { display: grid; grid-template-columns: 84px minmax(0, 1.2fr) minmax(0, 1fr) 76px 76px; gap: 8px; align-items: center; }
+.mdlg .hrmknobs > b { font-size: 13px; font-weight: 600; color: var(--dim); }
+.mdlg .hrmknobs :is(input, select) { width: 100%; min-width: 0; box-sizing: border-box; }
+@media (max-width: 640px) { .mdlg .hrmrows { grid-template-columns: 1fr max-content; } .mdlg .hrmrows small { grid-column: 1 / -1; } .mdlg .hrmknobs { grid-template-columns: 1fr 1fr; } }
+/* Backup, in Settings. */
+.hrbook { display: flex; flex-wrap: wrap; gap: 8px; }
+/* The top bar gives way: its meters become narrower before the page becomes wider than the window. */
+body:not(.ph) .top > *, body:not(.ph) .top .clip { flex: none; }
+body:not(.ph) .top > .grow { flex: 1 1 0; min-width: 0; }
+body:not(.ph) .top > .meters, body:not(.ph) .top > .rchips { flex: 0 1 auto; min-width: 0; }
+body:not(.ph) .top .meter { flex: 0 1 auto; min-width: 64px; }
+body:not(.ph) .top .rchips .rchip.res { flex: 0 1 auto; min-width: 94px; }
+body:not(.ph) .top .rchips .rchip.drop { flex: none; }
+@media (max-width: 1400px) { body:not(.ph) .top { gap: 10px; } body:not(.ph) .top .rchips, body:not(.ph) .top .meters { gap: 8px; } body:not(.ph) .rchip.drop span { display: none; } body:not(.ph) .rchip.drop b::before { content: "! "; } }
+/* For which scenes the capture is, in the amp's panel. */
+.hrcap:empty { display: none; }
+.hrcap { margin: 0 0 10px; }
+
+/* Over Bluetooth without the pedal's key the page only looks: said across the window, not in small print. */
+#bleRoNote { max-width: none; margin: 0; padding: 10px 16px; background: #4f3400; color: #ffe7b8; font-size: 14px; font-weight: 600; border-bottom: 1px solid #a8741a; }
+#bleRoNote .btn { margin-left: 10px; font-weight: 600; }
+
+/* Connecting over Bluetooth: a turning mark beside the words of the screen shown while nothing is connected (product-ui.js,
+ * hrConnShow); a still one when the system asks for less motion. */
+.lockbox.hrconn #lockTxt::after { content: ""; display: inline-block; width: .7em; height: .7em; margin-left: .5em; vertical-align: -.05em;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: hrturn .9s linear infinite; }
+@keyframes hrturn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .lockbox.hrconn #lockTxt::after { animation: none; border-right-color: currentColor; opacity: .6; } }
