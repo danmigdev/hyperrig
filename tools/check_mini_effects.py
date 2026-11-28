@@ -34,9 +34,9 @@ import effects_reference as reference  # noqa: E402
 FIRST, PARAMETERS, MEMORY, STATE, SAMPLES, HEAP = 40, 70, 84, 288, block.SAMPLES, block.HEAP
 CLOCK = ('L01c1f7f0', 20)
 NAMES = list(reference.EFFECTS)
-COSTS = {'octaver': 8000, 'swell': 4000, 'reverse': 6500, 'ensemble': 6000, 'vintage': 7200}
-GROUPS = {'octaver': 'drive', 'swell': 'dynamics', 'reverse': 'delay', 'ensemble': 'mod', 'vintage': 'delay'}
-LIGHTS = {'octaver': 3, 'swell': 8, 'reverse': 5, 'ensemble': 11, 'vintage': 5}
+COSTS = {'octaver': 8000, 'swell': 4000, 'reverse': 6500, 'ensemble': 6000, 'vintage': 7200, 'glide': 12000}
+GROUPS = {'octaver': 'drive', 'swell': 'dynamics', 'reverse': 'delay', 'ensemble': 'mod', 'vintage': 'delay', 'glide': 'mod'}
+LIGHTS = {'octaver': 3, 'swell': 8, 'reverse': 5, 'ensemble': 11, 'vintage': 5, 'glide': 11}
 FULL, LOUDEST = 8388607, reference.LIMIT
 sim, codec = harness.sim, harness.codec
 

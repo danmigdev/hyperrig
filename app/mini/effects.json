@@ -1,5 +1,5 @@
 {
-  "labels": { "down1": "Octave -1", "down2": "Octave -2", "up": "Octave +1" },
+  "labels": { "down1": "Octave -1", "down2": "Octave -2", "up": "Octave +1", "bend": "Bend" },
   "effects": {
     "octaver": {
       "name": "Octaver",
@@ -57,6 +57,17 @@
         "mezcla_pct": "Mix: up to 50 the repeats come in, from there the guitar goes out.",
         "amort_pct": "Damping: how dark the repeats are, and how much darker each is than the one before.",
         "prof_pct": "Depth: a slow waver of the repeats, as of an old tape."
+      }
+    },
+    "glide": {
+      "name": "Pitch Glide",
+      "group": "pitch",
+      "colour": "#a8d454",
+      "icon": "<path d=\"M3 18.5c7.500 0 9-12.500 17-12.500\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.200\" stroke-linecap=\"round\"/><path d=\"M15.600 3.800 20.400 6l-2.300 4.700\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>",
+      "tips": {
+        "interval": "Interval: where the voice goes at full bend, up to two octaves up or down.",
+        "bend_pct": "Bend: how far along the way the voice is, 0 being the note that is played. A footswitch's ramp or a MIDI controller moves it.",
+        "mezcla_pct": "Mix: 100 is the voice alone, so the bend is all that is heard. Lower, the guitar plays beside it, and at rest only the guitar is heard."
       }
     }
   }

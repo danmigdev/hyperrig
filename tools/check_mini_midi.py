@@ -704,8 +704,10 @@ def check(build, before=None):
     answer = k.say('GSAVE')
     first = lights(k)
     n, crc = struct.unpack_from('<II', first[0], 4) if first else (0, 0)
-    row('GSAVE: the record of the lights, 64 bytes, whole, with the settings behind them', answer and answer[0].startswith('GSAVE ok') and len(first) == 1 and n == 64 and
-        zlib.crc32(first[0][40:104]) == crc and first[0][72:104] == b'M\0' + AS_IT_COMES, [answer, [x[:12].hex() for x in used(k)]])
+    # 64 bytes with MIDI's item; 88 in a build that keeps the ramps behind it (mini/product/ramp.c): 'R' and 18 bytes, none set here
+    row('GSAVE: the record of the lights, whole, with the settings behind them', answer and answer[0].startswith('GSAVE ok') and len(first) == 1 and n in (64, 88) and
+        zlib.crc32(first[0][40:40 + n]) == crc and first[0][72:104] == b'M\0' + AS_IT_COMES and (n == 64 or first[0][104:128] == b'R' + bytes(23)),
+        [answer, [x[:12].hex() for x in used(k)]])
     k.say('GSAVE')
     row('saved again: no second record', len(lights(k)) == 1, len(used(k)))
     k.told('MIDI =' + good.hex())

@@ -104,6 +104,7 @@ The words are UltraRig's; the rules permit exactly what the firmware takes as it
 | `LIM on ceiling release` | 0 or 1; -200 to 0, tenths of dB; 10 to 2000 ms | `LIM on= thr= rel= lat=48 samples=` | On, -0.3 dB, 100 ms |
 | `SPILL 0/1`, `SPUR 0/1` | Tails that ring out; the pedal's own whine | `SPILL n tails=`, `SPUR n learned=...` | On |
 | `GLIDE ms 0/1` | 0 to 170; the knobs of a scene glide | `GLIDE ms= blocks= snap=` | 42, on |
+| `RAMP =<36 hex digits>` | The ramps of A, B and C, six bytes each: the kind of block, the knob from 0, the target (two bytes, the low first), rise and fall in steps of 50 ms. Used by `FSA f 1 11 0 255`, the hold of a switch, let through for the long press only, and by `FSA f 0 12 0 255`, the same ramp on and off, for the tap only | `RAMP <36 hex digits> <the ramps that move, a bit each>` | None |
 | `CALIB start`, `stop` | | `CALIB running= win= ... suggest= trim= slot=`, and a line every 3 s | |
 
 - **Where they are.** Input, high-pass, whine, input gain, blocks, amp, blocks, EQ, limiter, output

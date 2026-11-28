@@ -12,7 +12,8 @@ runs their instructions:
 3. The bootloader with that flash: started for an update, after a loss of power with the application's header erased, with an
    older record above, with a damaged or missing one. It unpacks the loader, which is compared with the one that was built.
 4. An installation by the loader's own engine, cut at each flash operation: after each cut the bootloader is run on what is
-   left in the flash. It must start the application or the HyperRig loader, never anything else.
+   left in the flash. It must start the application or the HyperRig loader, never anything else. On 011 a second one with
+   the application's window widened to the pedal's VM (0x95000, as its own directory says), which writes past 0x82000.
 
 Replaced are the calls that touch hardware: reading, erasing and programming the flash, the checksum unit, locks and delays.
 Nothing of this is a test of a pedal.
@@ -329,10 +330,11 @@ class Engine:
         reply = self.talk(b'M', head + struct.pack('<I', zlib.crc32(head)))
         return (reply[8], reply[9], reply[10:-4]) if reply else (None, None, b'')
 
-    def install(self, now, want):
+    def install(self, now, want, end=0x82000):
         crc = lambda b: zlib.crc32(bytes(b))
-        order = [a for a in range(0x5000, 0xFF000, SECTOR) if (a < 0x82000 or a >= 0xBF000) and now[a:a + SECTOR] != want[a:a + SECTOR]] + [0x4000]
-        for op, body in [(0x10, struct.pack('<IIHBI', crc(now), crc(want), len(order), 3, 0x214D5241)), (0x13, struct.pack('<I', crc(now[0x4000:0x5000])))]:
+        order = [a for a in range(0x5000, 0xFF000, SECTOR) if (a < end or a >= 0xBF000) and now[a:a + SECTOR] != want[a:a + SECTOR]] + [0x4000]
+        begin = struct.pack('<IIHBI', crc(now), crc(want), len(order), 3, 0x214D5241) + (struct.pack('<I', end) if end != 0x82000 else b'')
+        for op, body in [(0x10, begin), (0x13, struct.pack('<I', crc(now[0x4000:0x5000])))]:
             status = self.ask(op, body)[0]
             if status != 0:
                 return status
@@ -434,33 +436,38 @@ def main(argv=None):
         steps['bootloader'] = cases
     if not args.no_cuts:
         version, ready, request, place, record = last
-        want = bytearray(ready)
-        for a in (0x4000, 0x4010, 0x5123, 0x40000, 0x81FFF, 0xC0010):
-            want[a] ^= 0x5A
-        want[0x4000:0x4020] = ready[0x4000:0x4020]
-        want[0x4020] ^= 0x33
         engine = Engine(args.build.resolve() / 'host')
-        outcomes, cut = {}, 0
         try:
-            while True:
-                engine.talk(b'F', bytes(ready))
-                engine.talk(b'X', struct.pack('<I', cut + 1))
-                engine.talk(b'P', b'\1')
-                status = engine.install(ready, want)
-                left = engine.talk(b'G')
-                got = Spl(bytearray(left)).run()
-                outcomes[got] = outcomes.get(got, 0) + 1
-                header = left[0x4000:0x5000]
-                whole = header == bytes(want[0x4000:0x5000]) and left == bytes(want) or header == bytes(ready[0x4000:0x5000]) and left == bytes(ready)
-                require(got == 'loader' or got == 'application' and (whole or left[0x4000:0x4020] == bytes(want[0x4000:0x4020]) and left[0x5000:] == bytes(want[0x5000:])),
-                        f'operation {cut + 1}: {got} with a flash that is not whole')
-                if status == 0:
-                    break
-                cut += 1
+            for name, end, changes in (('power cut', 0x82000, (0x4000, 0x4010, 0x5123, 0x40000, 0x81FFF, 0xC0010)),
+                                       ('power cut, the window widened to the VM', VERSIONS[version]['vm_start'], (0x4000, 0x5123, 0x81FFF, 0x82000, 0x8C123, 0x94FFF, 0xC0010))):
+                if end == 0x82000 and name != 'power cut':
+                    continue                                   # a VM that starts at 0x82000 (009): nothing to widen
+                want = bytearray(ready)
+                for a in changes:
+                    want[a] ^= 0x5A
+                want[0x4000:0x4020] = ready[0x4000:0x4020]
+                want[0x4020] ^= 0x33
+                outcomes, cut = {}, 0
+                while True:
+                    engine.talk(b'F', bytes(ready))
+                    engine.talk(b'X', struct.pack('<I', cut + 1))
+                    engine.talk(b'P', b'\1')
+                    status = engine.install(ready, want, end)
+                    left = engine.talk(b'G')
+                    got = Spl(bytearray(left)).run()
+                    outcomes[got] = outcomes.get(got, 0) + 1
+                    header = left[0x4000:0x5000]
+                    whole = header == bytes(want[0x4000:0x5000]) and left == bytes(want) or header == bytes(ready[0x4000:0x5000]) and left == bytes(ready)
+                    require(got == 'loader' or got == 'application' and (whole or left[0x4000:0x4020] == bytes(want[0x4000:0x4020]) and left[0x5000:] == bytes(want[0x5000:])),
+                            f'{name}, operation {cut + 1}: {got} with a flash that is not whole')
+                    if status == 0:
+                        break
+                    require(status is None or status >= 9 or cut == 0, f'{name}: the loader refused ({status})')
+                    cut += 1
+                require(cut > 80 and bytes(engine.talk(b'G')) == bytes(want), f'{name}: too few operations, or not written')
+                report[name] = {'operations': cut, 'the bootloader then started': outcomes, 'application up to': hex(end)}
         finally:
             engine.close()
-        require(cut > 80, 'too few operations')
-        report['power cut'] = {'operations': cut, 'the bootloader then started': outcomes}
     report['held'] = True
     print(json.dumps(report, indent=1))
     return 0

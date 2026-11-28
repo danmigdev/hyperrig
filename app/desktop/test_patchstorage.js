@@ -39,6 +39,15 @@ const refuses = async (what, code) => { try { await what; } catch (e) { assert.o
   await api.search("", "x");
   assert.strictEqual(new URL(s.asked[1][0]).searchParams.get("page"), "1");
   assert.strictEqual(new URL(s.asked[1][0]).searchParams.has("search"), false);
+  // the order: the newest first unless the most downloaded or the most liked are asked for; nothing else reaches the service
+  const orders = [];
+  for (const order of [undefined, "new", "downloads", "likes", "title", "toString", "__proto__", "download_count", 3]) {
+    await api.search("lead", 1, order);
+    const p = new URL(s.asked.at(-1)[0]).searchParams;
+    orders.push(p.get("orderby") + " " + p.get("order"));
+  }
+  assert.deepStrictEqual(orders, ["date desc", "date desc", "download_count desc", "like_count desc", "date desc", "date desc", "date desc", "date desc", "date desc"]);
+  assert.deepStrictEqual(url.searchParams.get("orderby") + " " + url.searchParams.get("order"), "date desc");
 
   // a patch and its file: only of the one that was looked at, only presets, and the address is made here
   s = service({ "/api/beta/patches/7": reply(record(7)), "/api/beta/patches/8": reply(record(8, { license: null })), "/api/beta/patches/9": reply(record(1)), "/api/beta/patches/10": reply(record(10, { platform: { id: 4 } })),

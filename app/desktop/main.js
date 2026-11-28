@@ -197,7 +197,7 @@ async function shareAnswer(what, request) {
   if (what === "status") return json({ available: !!shares, upload: share.UPLOAD });
   if (!shares || request.method !== "POST") return new Response("", { status: 404 });
   try {
-    if (what === "search") return json(await shares.search(q.get("q"), q.get("page")));
+    if (what === "search") return json(await shares.search(q.get("q"), q.get("page"), q.get("order")));
     if (what === "patch") return json(await shares.patch(q.get("id")));
     if (what === "file") return new Response(await shares.file(q.get("id"), q.get("file")), { headers: { "content-type": "application/octet-stream", "cache-control": "no-store", "x-content-type-options": "nosniff" } });
   } catch (e) {

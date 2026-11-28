@@ -197,6 +197,21 @@ class Sounds(unittest.TestCase):
         wet = reference.Block('vintage', mezcla_pct=0).run(sine(330, 4000))
         self.assertEqual(wet, sine(330, 4000))
 
+    def test_the_glide_moves_the_pitch_by_its_bend(self):
+        """At full bend a note comes out at the interval, half way at half of it in semitones, a power chord as a whole; at rest, with the guitar
+        beside it, only the guitar is heard."""
+        for interval, bend, wanted in ((12, 100, 440), (-12, 100, 110), (24, 100, 880), (-24, 100, 55), (12, 50, 311.13), (7, 100, 329.63), (12, 0, 220)):
+            out = reference.Block('glide', interval=interval, bend_pct=bend).run(sine(220, 24000))[9600:]
+            self.assertGreater(level(out, wanted), 0.25, (interval, bend))
+            if bend:
+                self.assertLess(level(out, 220), 0.01, (interval, bend))
+        x = sine(220, 4800)
+        self.assertEqual(reference.Block('glide', mezcla_pct=50).run(list(x)), x)
+        chord = [a + b for a, b in zip(sine(110, 24000, 0.2), sine(165, 24000, 0.2))]
+        out = reference.Block('glide', bend_pct=100).run(chord)[9600:]
+        self.assertGreater(min(level(out, 220), level(out, 330)), 0.15)
+        self.assertLess(max(level(out, 110), level(out, 165)), 0.01)
+
     def test_silence_stays_silence_and_the_loudest_stays_within(self):
         for name in NAMES:
             self.assertFalse(any(reference.Block(name).run([0] * 512)))

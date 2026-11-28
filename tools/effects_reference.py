@@ -17,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import make_effect_tables as tables  # noqa: E402
+import harmonizer_model as model  # noqa: E402
 
 CHUNK, GLIDE, LIMIT = 32, 256, (1 << 27) - 1
 DRY, WET, OWN, SETTINGS = 0, 1, 2, 10
@@ -344,7 +345,77 @@ class Vintage(Thirds):
         return self.darker
 
 
-EFFECTS = {e.NAME: e for e in (Octaver, Swell, Reverse, Ensemble, Vintage)}
+class Glide:
+    """One voice whose interval goes where its bend is turned, on the harmonizer's engine (harmonizer.c, hyperrig_glide_run), which
+    tools/harmonizer_model.py is: the listening, the line and a voice that steps by whole periods. The voice never jumps to a new
+    note; faster than twice, it steps back by as many periods more as a fade needs. 32 samples are gathered and come out 32 later."""
+    NAME = 'glide'
+    ROWS = [(-24, 24, 12, 'interval'), (0, 100, 0, 'bend_pct'), (0, 100, 100, 'mezcla_pct'), (-12, 12, 0, 'nivel_db')]
+    INTERVAL, ALONE = OWN, OWN + 1
+    GLIDED = 1 << INTERVAL
+    LOUDEST_IN, STARTING = (1 << 23) - 1, 16
+
+    def __init__(self):
+        self.h = model.Harmonizer()                      # the memory, cleared when the block is made
+        self.h.settings.notes, self.h.settings.steps = set(range(12)), [[0] * 12, [0] * 12]
+        self.fill = self.gain = self.quiet = 0
+        self.ins, self.outs = [0] * CHUNK, [0] * CHUNK
+
+    def start(self):
+        """After a pause only this is new: the rest of the memory is as it was."""
+        h, v = self.h, self.h.voices[0]
+        h.started = 1
+        h.listen_anew()
+        h.jump = 288 << 16
+        v.a.step, v.jump, v.left = model.ONE, 1, 0
+        self.fill = self.gain = 0
+        self.quiet = self.STARTING
+        self.outs = [0] * CHUNK
+
+    def set(self, p):
+        s = [0] * SETTINGS
+        level = decibels(p[3])
+        s[DRY], s[WET] = level * min(100 - p[2], 50) // 50, level * min(p[2], 50) // 50
+        s[self.INTERVAL] = toward(p[0] * 256 * p[1], 100)
+        s[self.ALONE] = int(p[2] == 100)
+        return s
+
+    def chunk(self, s):
+        h, v = self.h, self.h.voices[0]
+        h.take([held(a, -self.LOUDEST_IN, self.LOUDEST_IN) for a in self.ins])
+        h.turn += 1
+        if h.turn == 4:
+            jump = v.jump
+            h.listen()
+            v.jump, h.turn = jump, 0
+        v.interval = s[self.INTERVAL]
+        v.step = model.speed_of(v.interval)
+        drift, apart = v.step - model.ONE, h.jump
+        need = (drift << (7 if h.note else 8)) + (CHUNK << 16) if drift > 0 else 0
+        while apart > 0 and h.jump < need:
+            h.jump += apart
+        out = h.sing(v)
+        h.jump = apart
+        far = abs(v.interval)
+        goal = 0 if self.quiet else UNITY if s[self.ALONE] or far >= 256 else far << 8
+        slope = toward(goal - self.gain, CHUNK)
+        self.quiet -= self.quiet > 0
+        self.outs = [(o * (self.gain + slope * i)) >> 16 for i, o in enumerate(out)]
+        self.gain = goal
+        h.now = (h.now + (CHUNK << 16)) & model.MASK
+        h.at = (h.at + CHUNK) & (model.RING - 1)
+
+    def run(self, s, x):
+        for i, a in enumerate(x):
+            x[i] = self.outs[self.fill]
+            self.ins[self.fill] = a
+            self.fill += 1
+            if self.fill == CHUNK:
+                self.fill = 0
+                self.chunk(s)
+
+
+EFFECTS = {e.NAME: e for e in (Octaver, Swell, Reverse, Ensemble, Vintage, Glide)}
 
 
 class Block:

@@ -6,6 +6,7 @@ static struct {
     hrs_nor nor;
     hrs_unit unit;
     uint32_t full_crc, target_crc, sectors, done, frame_crc, reply_length, retiring;
+    uint32_t app_end, loader_at;              /* the application's window ends here; where the last record looked at leads */
     unsigned phase, error, windows, leaving, touched, have_last;
     uint8_t sr1, sr2;
     uint8_t sector[HRS_SECTOR] __attribute__((aligned(4)));    /* what the host sends */
@@ -37,10 +38,10 @@ uint32_t hrs_crc32(const uint8_t *p, unsigned n) { return ~update(UINT32_MAX, p,
 static int inside(uint32_t a, uint32_t n, uint32_t from, uint32_t to) { return a >= from && a < to && n && n <= to - a; }
 int hrs_writable(uint32_t a, uint32_t n)
 {
-    return inside(a, n, HRS_APP, HRS_APP_END) || inside(a, n, HRS_USER, HRS_USER_END);
+    return inside(a, n, HRS_APP, s.app_end) || inside(a, n, HRS_USER, HRS_USER_END);
 }
 int hrs_permits(uint32_t a, uint32_t n) { return hrs_writable(a, n) || (s.retiring && a == s.retiring && n == HRS_PAGE); }
-static int is_app(uint32_t a) { return inside(a, HRS_SECTOR, HRS_APP, HRS_APP_END); }
+static int is_app(uint32_t a) { return inside(a, HRS_SECTOR, HRS_APP, s.app_end); }
 
 static unsigned fail(unsigned error) { s.error = error; s.phase = HRS_FAILED; return error; }
 
@@ -134,6 +135,7 @@ static unsigned leads_here(int *ours)
 {
     uint32_t a = get32(s.work + 72);
     *ours = 0;
+    s.loader_at = a;
     if (!get16(s.work) || !get16(s.work + 2) || !inside(a, 64, HRS_APP_END, HRS_USER)) return HRS_OK;
     if (s.nor.read(s.nor.user, a, s.work, 64)) return fail(HRS_E_IO);
     *ours = get32(s.work + 4) == a && get32(s.work + 8) > 64 && inside(a, get32(s.work + 8), HRS_APP_END, HRS_USER) &&
@@ -169,16 +171,60 @@ static unsigned retire(const uint8_t *b, unsigned n)
     if (e || (e = look_back(&at, &ours))) return e;
     return at == next && ours ? HRS_OK : fail(HRS_E_READBACK);
 }
+/* The pedal's own partitions, in the directory at the head of its application (JieLi's encoding with the chip's key, the
+ * records' own CRC-16): a VM record must start at end and reach HRS_VM_END, a PRCT record must run from 0 to end. A header
+ * whose first page holds no record (blank, or an installation cut while it was erased) says nothing: then the bounds and the
+ * way back decide. Without the chip's key nothing can be read, and an unread header is not taken for an empty one. */
+static unsigned partitions(uint32_t end)
+{
+    uint32_t o, key;
+    unsigned e, i, said = 1;
+    uint8_t *r;
+    if ((e = load(HRS_APP))) return e;
+    for (i = 0; i < HRS_PAGE && s.work[i] == 0xff; ++i)
+        ;
+    if (i == HRS_PAGE) return HRS_OK;
+    if (!s.unit.key) return HRS_E_RANGE;
+    for (o = 0; o < HRS_PAGE; o += 32)
+        for (key = s.unit.key ^ (o >> 2), i = 0; i < 32; ++i) {
+            s.work[o + i] ^= (uint8_t)key;
+            key = (key << 1 ^ (key & 0x8000 ? 0x1021 : 0)) & 0xffff;
+        }
+    for (o = 0; o < HRS_PAGE; o += 32) {
+        r = s.work + o;
+        if (crc16(r + 2, 30) != get16(r)) continue;
+        if (r[16] == 'V' && r[17] == 'M' && !r[18]) said &= get32(r + 4) == end && get32(r + 8) == HRS_VM_END - end;
+        if (r[16] == 'P' && r[17] == 'R' && r[18] == 'C' && r[19] == 'T' && !r[20]) said &= !get32(r + 4) && get32(r + 8) == end;
+    }
+    return said ? HRS_OK : HRS_E_RANGE;
+}
+/* BEGIN may widen the application's window, up to where the pedal's VM begins: only to whole sectors between HRS_APP_END and
+ * HRS_APP_END_MAX, only as the pedal's directory says, and only with the way back above it, the record that the bootloader
+ * finds first and the HyperRig loader it leads to. */
+static unsigned widen(uint32_t end)
+{
+    uint32_t at;
+    unsigned e;
+    int ours;
+    if ((end & (HRS_SECTOR - 1)) || end < HRS_APP_END || end > HRS_APP_END_MAX) return HRS_E_RANGE;
+    if (end == HRS_APP_END) return HRS_OK;
+    if ((e = quiet()) || (e = look_back(&at, &ours))) return e;
+    if (!ours || at < end || s.loader_at < end) return HRS_E_NO_RETURN;
+    return partitions(end);
+}
 static unsigned begin(const uint8_t *b, unsigned n)
 {
-    uint32_t crc;
+    uint32_t crc, end;
     unsigned e, windows;
-    if (n != 15 || get32(b + 11) != HRS_MAGIC) return HRS_E_FRAME;
+    if ((n != 15 && n != 19) || get32(b + 11) != HRS_MAGIC) return HRS_E_FRAME;
+    end = n == 19 ? get32(b + 15) : HRS_APP_END;
     windows = b[10];
     if (s.phase != HRS_READY) return HRS_E_STATE;
     if (!windows || windows > 3 || !get16(b + 8) || get16(b + 8) > HRS_MAX_SECTORS) return HRS_E_RANGE;
+    if ((e = widen(end))) return e;
     if ((e = quiet()) || (e = whole_crc(0, HRS_CAPACITY, &crc))) return e;
     if (crc != get32(b)) return HRS_E_BACKUP;
+    s.app_end = end;
     s.full_crc = crc;
     s.target_crc = get32(b + 4);
     s.sectors = get16(b + 8);
@@ -289,7 +335,8 @@ static unsigned hello(uint8_t *o)
     for (i = 0; i < HRS_BUILD_TEXT; ++i) o[26 + i] = (uint8_t)s.unit.build[i];
     o[26 + HRS_BUILD_TEXT] = (uint8_t)ours;
     put32(o + 27 + HRS_BUILD_TEXT, at);
-    return 31 + HRS_BUILD_TEXT;
+    put32(o + 31 + HRS_BUILD_TEXT, s.app_end);        /* a loader that can widen its window says how wide it is now */
+    return 35 + HRS_BUILD_TEXT;
 }
 
 uint32_t hrs_message(const uint8_t *in, uint32_t length, uint8_t *out)
@@ -360,6 +407,7 @@ void hrs_start(const hrs_nor *nor, const hrs_unit *unit)
     for (i = 0; i < sizeof(s); ++i) ((uint8_t *)&s)[i] = 0;
     s.nor = n;
     s.unit = u;
+    s.app_end = HRS_APP_END;
     make_table();
     if (u.jedec != HRS_JEDEC) (void)fail(HRS_E_JEDEC);
 }

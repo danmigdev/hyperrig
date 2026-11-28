@@ -162,12 +162,13 @@
     }
     readAll(progress) { return this.readChecked(0, F.CAPACITY, progress); }
     async begin(plan) {
-      const b = new Uint8Array(15);
+      const wide = !!plan.end && plan.end !== F.APP_END, b = new Uint8Array(wide ? 19 : 15);
       W.put(b, 0, plan.now, 4);
       W.put(b, 4, plan.then, 4);
       W.put(b, 8, plan.order.length, 2);
       b[10] = plan.windows;
       b.set(W.ascii("ARM!"), 11);
+      if (wide) W.put(b, 15, plan.end, 4);         // up to the pedal's VM: a loader since 022
       await this.must(W.OPS.BEGIN, b, { slow: true });
     }
     async open(now) {

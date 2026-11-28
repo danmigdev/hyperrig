@@ -128,7 +128,8 @@
     const end = data.subarray(26, 42).indexOf(0);
     return { chunk: u16(data, 4), capacity: u32(data, 6), jedec: u32(data, 10), key: u16(data, 14), status1: data[16], status2: data[17], fast: data[18],
       application: !!data[19], whole: !!data[19] && !data[24], done: u16(data, 20), sectors: u16(data, 22), touched: !!data[24], windows: data[25],
-      build: String.fromCharCode(...data.subarray(26, 26 + (end < 0 ? 16 : end))), returns: !!data[42], record: u32(data, 43) };
+      build: String.fromCharCode(...data.subarray(26, 26 + (end < 0 ? 16 : end))), returns: !!data[42], record: u32(data, 43),
+      window: data.length >= 51 ? u32(data, 47) : null };         // a loader that can widen its window (022 on) says how wide it is
   }
   const PHASES = ["ready", "armed", "opened", "done", "failed"];
   const STATUS = ["ok", "message", "range", "order", "checksum", "backup", "preimage", "no application", "no way back", "flash", "another flash", "protected", "busy", "write enable", "too long", "read back"];

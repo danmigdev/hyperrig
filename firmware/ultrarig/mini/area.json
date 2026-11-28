@@ -4,9 +4,11 @@
     "Head, app.bin and cfg_tool.bin: fixed fields and raw 16-byte name fields; sizes, offsets and CRCs are",
     "computed. VM, PRCT, BTIF and USR: the stock TANK MINI_009 partition records, verbatim (their name",
     "fields keep the bytes after the NUL). The used part is SFC-encoded with key 0x980F; the partition is",
-    "516,096 bytes (physical flash 0x4000..0x82000), the rest 0xFF."
+    "516,096 bytes (physical flash 0x4000..0x82000), the rest 0xFF. A product build may fill 593,920 bytes (to 0x95000), the",
+    "application partition of M-VAVE's 011, which the installer puts into HyperRig's directory and loader 022 writes."
   ],
   "partition_bytes": 516096,
+  "product_partition_bytes": 593920,
   "app_offset": 288,
   "sfc_key": 38927,
   "records": [

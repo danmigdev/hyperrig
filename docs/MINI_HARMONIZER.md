@@ -135,6 +135,9 @@ tone of the note that is played, read faster or slower.
   application's own costs have. The time on the pedal is not measured. When there is no time the
   application lets the block go by.
 - It is a block for one channel: in stereo it has one sound.
+- The pitch glide, a block of HyperRig's frame (id 45), runs on this code with one voice, whose
+  interval is its own and never jumps to a new note ([EFFECT_PLUGINS.md](EFFECT_PLUGINS.md)).
+  The harmonizer's samples are as before.
 
 ## What is saved with it
 

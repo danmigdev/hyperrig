@@ -207,9 +207,11 @@ function stockFlash(unit) {
   const report = { kind: "desktop-installer-check", hardware_test: false, firmware: about.version + " " + about.build, loader: about.loader, steps: {} }, steps = report.steps;
   const engine = new Engine(ENGINE), hrid = `HRID 1 ${about.version} ${about.build} banks=3`;
   const profile = n => path.join(OUTPUT, "profile-" + n);
+  /* HyperRig's area reaches past APP_END when the image uses more (loader 022 writes it up to the pedal's VM); the rest stays. */
   const expected = (before, after) => {
-    assert.ok(W.same(after.subarray(F.APP, F.APP_END), F.areaFor(image, before.subarray(F.APP))), "HyperRig's area with this pedal's partitions");
-    assert.ok(W.same(after.subarray(0, 0x4000), before.subarray(0, 0x4000)) && W.same(after.subarray(0x82000, 0x95000), before.subarray(0x82000, 0x95000)) && W.same(after.subarray(0xbe000), before.subarray(0xbe000)));
+    const area = F.areaFor(image, before.subarray(F.APP)), end = F.APP + area.length;
+    assert.ok(W.same(after.subarray(F.APP, end), area), "HyperRig's area with this pedal's partitions");
+    assert.ok(W.same(after.subarray(0, 0x4000), before.subarray(0, 0x4000)) && W.same(after.subarray(end, 0x95000), before.subarray(end, 0x95000)) && W.same(after.subarray(0xbe000), before.subarray(0xbe000)));
     assert.deepEqual([F.describe(after).kind, F.describe(after).whole], ["hyperrig", true]);
   };
   try {

@@ -22,6 +22,8 @@ extern uint8_t L01c26888[];                       /* what the factory layout has
 extern void controls_transition(unsigned raw, unsigned level, unsigned tick, unsigned ms);
 extern void selection_preset_step(int step);
 int hyperrig_level_end(void);
+int hyperrig_ramp_transition(unsigned f, unsigned raw, unsigned level, unsigned tick, uint32_t ms);
+void hyperrig_pairs_transition(unsigned raw, unsigned level, unsigned tick, unsigned ms);
 
 static struct {
     uint32_t tick, ms;                  /* of the press that waits */
@@ -112,8 +114,18 @@ static void act(void)
     }
 }
 
-/* In place of controls_transition in the control scan. */
+/* In place of controls_transition in the control scan: a switch whose hold is a ramp first (ramp.c), then pairs. */
 void hyperrig_transition(unsigned raw, unsigned level, unsigned tick, unsigned ms)
+{
+    unsigned f;
+    for (f = 0; f < SWITCHES && raw_of(f) != raw; ++f)
+        ;
+    if (!hyperrig_ramp_transition(f, raw, level, tick, ms))
+        hyperrig_pairs_transition(raw, level, tick, ms);
+}
+
+/* Pairs, and what is not a pair to the application. */
+void hyperrig_pairs_transition(unsigned raw, unsigned level, unsigned tick, unsigned ms)
 {
     unsigned f;
     start();

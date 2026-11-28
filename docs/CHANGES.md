@@ -4,6 +4,22 @@ What is new in each release of HyperRig for the TANK-MINI. To update a pedal tha
 HyperRig, start the new program and connect the pedal: it offers **Update now**, and the presets
 stay ([installation guide](../INSTALLATION.md#update)).
 
+## 0.6.0
+
+- **Ramp while held.** The hold of a footswitch can move a knob of a block while it is held, and
+  back when it is let go, each in its own time: a tremolo that speeds up while you stand on the
+  switch, a delay that swells, a drive that grows. In Footswitches, the hold of A, B or C
+  ([manual](MANUAL.md#footswitches)).
+- **Pitch Glide**, a new block: one voice whose pitch slides to an interval, up to two octaves up
+  or down, and back, as its Bend moves; moved by a footswitch, by MIDI, or by hand
+  ([manual](MANUAL.md#pitch-glide)).
+- **Ramp on/off** for the tap of a footswitch: one press goes there, the next comes back. A ramp
+  while held starts at once when the switch's tap and double press do nothing.
+- **Patchstorage's list** can be sorted by the newest, the most downloaded or the most liked.
+- **More room for HyperRig on a pedal with 011.** The first update to 0.6.0 goes once through the
+  original firmware, by itself; the presets, captures and IRs stay
+  ([installer](INSTALLER.md#the-room-of-011-once-through-the-original)).
+
 ## 0.5.0
 
 - **Editing over Bluetooth.** The program connects to the pedal without the cable: **Connect via

@@ -10,6 +10,8 @@ const SERVICE = "https://patchstorage.com";
 const UPLOAD = SERVICE + "/upload-a-patch/";
 const LIMIT = { json: 2 * 1024 * 1024, file: 4 * 1024 * 1024 };
 const PAGE = 20, TEXT = 60;
+/* The orders of the list: the newest, the most downloaded, the most liked (Patchstorage has likes, no marks), each from the top. */
+const ORDERS = { new: "date", downloads: "download_count", likes: "like_count" };
 
 class ShareError extends Error { constructor(code, message) { super(message); this.code = code; } }
 const fail = (code, message) => { throw new ShareError(code, message); };
@@ -104,8 +106,9 @@ function connect({ platform, service = SERVICE, fetch, agent = "HyperRig" }) {
     try { return await f(); } finally { working = false; }
   }
 
-  const search = (words, page) => alone(async () => {
-    const at = Math.min(500, whole(page) || 1), q = new URLSearchParams({ "platforms[]": String(platform), per_page: String(PAGE), page: String(at) }), w = text(words, TEXT);
+  const search = (words, page, order) => alone(async () => {
+    const at = Math.min(500, whole(page) || 1), by = Object.hasOwn(ORDERS, order) ? ORDERS[order] : ORDERS.new, w = text(words, TEXT);
+    const q = new URLSearchParams({ "platforms[]": String(platform), per_page: String(PAGE), page: String(at), orderby: by, order: "desc" });
     if (w) q.set("search", w);
     const response = await get(`${service}/api/beta/patches?${q}`), list = await answer(response);
     if (!Array.isArray(list)) fail("answer", "Patchstorage answered with something else.");

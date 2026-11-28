@@ -1,5 +1,6 @@
 /* A TANK-MINI for the installer's tests and checks: the stock firmware's update service, the bootloader's decision, the loader
- * with its real engine (or its messages, when no engine is given), and HyperRig's console. Its cable can be pulled, its messages
+ * with its real engine (or its messages, when no engine is given), and HyperRig's console. set.old: the loader stored on it is
+ * one before 022 (every HyperRig before 0.6.0 has one), until the stock firmware's update service stores this program's. Its cable can be pulled, its messages
  * lost, doubled or damaged, and its power can go at a chosen flash operation. No device is opened. */
 "use strict";
 const { spawn } = require("node:child_process");
@@ -7,7 +8,8 @@ const path = require("node:path");
 const W = require("./wire.js"), F = require("./flash.js");
 const ROOT = path.resolve(__dirname, "../..");
 
-/* The engine behind a pipe (firmware/mini_stage/host_server.c). */
+/* The engine behind a pipe (firmware/mini_stage/host_server.c). One request at a time: a megabyte going in while one comes out
+ * can stall both directions of the pipe through WSL. */
 class Engine {
   constructor(binary) {
     const command = process.platform === "win32" ? ["wsl.exe", "--distribution", "Ubuntu", "--exec", binary] : [path.join(ROOT, binary)];
@@ -15,6 +17,7 @@ class Engine {
     this.have = [];
     this.size = 0;
     this.waiting = [];
+    this.turn = Promise.resolve();
     this.process.stdout.on("data", data => { this.have.push(data); this.size += data.length; this.deliver(); });
     this.process.on("exit", () => { for (const w of this.waiting.splice(0)) w.fail(new Error("the engine ended")); });
   }
@@ -32,16 +35,22 @@ class Engine {
     }
   }
   talk(kind, data = new Uint8Array(0)) {
-    return new Promise((done, fail) => {
+    const answer = this.turn.then(() => new Promise((done, fail) => {
       this.waiting.push({ done, fail });
       const head = Buffer.alloc(5);
       head.write(kind, 0, "latin1");
       head.writeUInt32LE(data.length, 1);
       this.process.stdin.write(Buffer.concat([head, Buffer.from(data.buffer, data.byteOffset, data.length)]));
-    });
+    }));
+    this.turn = answer.catch(() => {});
+    return answer;
   }
   close() { this.process.stdin.end(); }
 }
+
+/* What a pedal has once another one is started on its engine: no power. Whatever it still asks, as when it restarts after
+ * its test is over, is never answered, and never reaches the engine of the pedal that took its place. */
+const UNPOWERED = { talk: () => new Promise(() => {}) };
 
 const le = (v, n) => { const b = new Uint8Array(n); W.put(b, 0, v, n); return b; };
 
@@ -80,7 +89,14 @@ class SimulatedPedal {
     this.flash0 = flash;
     this.work = Promise.resolve();
   }
-  async start() { await this.engine.talk("F", this.flash0); await this.engine.talk("X", le(0, 4)); await this.power(); return this; }
+  async start() {
+    if (this.engine.pedal && this.engine.pedal !== this) this.engine.pedal.engine = UNPOWERED;
+    this.engine.pedal = this;
+    await this.engine.talk("F", this.flash0);
+    await this.engine.talk("X", le(0, 4));
+    await this.power();
+    return this;
+  }
   flash() { return this.engine.talk("G"); }
   async cutAt(n) { await this.engine.talk("X", le(n, 4)); }
 
@@ -99,7 +115,9 @@ class SimulatedPedal {
     } else if (outcome.outcome === "loader") {
       this.mode = "loader";
       this.code = code;
-      await this.engine.talk("P", Uint8Array.of(F.bootDecision(flash).outcome === "application" ? 1 : 0));
+      this.loaderStarts = (this.loaderStarts || 0) + 1;
+      if (this.set.cutIn) await this.engine.talk("X", le(this.loaderStarts === this.set.cutIn[0] ? this.set.cutIn[1] : 0, 4));     // [session, operation]
+      await this.engine.talk("P", Uint8Array.of(F.bootDecision(flash).outcome === "application" ? 1 : 0, this.set.old ? 1 : 0));
     } else this.mode = outcome.outcome === "download mode" ? "download" : "dead";
     this.log.push(this.mode);
   }
@@ -211,6 +229,7 @@ class SimulatedPedal {
       u.place = this.set.where.place || 0xb7000;
       stored(flash, W.join(new Uint8Array(32), body), { place: u.place, record: this.set.where.record || 0xbcf00, name: "ota-TANK MINI_" + this.version });
       await this.engine.talk("F", flash);
+      this.set.old = false;                         // the loader it holds now is this program's
       u.tries = 0;
       this.ask(link, [W.FINISHED, 8]);
     })();

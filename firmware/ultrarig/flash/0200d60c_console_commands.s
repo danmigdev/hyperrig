@@ -81,7 +81,13 @@ L0200d6e0:
     [sp] = r0
     call L0200b7c2
     r3 = [sp+160]
+; HyperRig MINI, product option: action 11 is a ramp while the switch is held, for the hold, and 12 the same ramp on and off, for
+; the tap (mini/product/ramp.c).
+.if MINI_PRODUCT
+    if (r3 > 12) goto L0200db46
+.else
     if (r3 > 10) goto L0200db46
+.endif
     r2 = [sp+164]
     if (r2 > 2) goto L0200db46
     ifs (r0 < 3) goto L0200db46

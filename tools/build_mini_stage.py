@@ -160,7 +160,7 @@ def main(argv=None):
     (out / 'stage-package.bin').write_bytes(package(stream))
     report = {'kind': 'hyperrig-mini-loader', 'build': build, **facts, 'stored_bytes': len(stream), 'stored_limit': STORED_MAX,
               'code_sha256': sha(code), 'padded_bytes': len(whole), 'padded_sha256': sha(whole), 'stored_sha256': sha(stream),
-              'package_sha256': sha(package(stream)), 'writable': [[0x4000, 0x82000], [0xBF000, 0xFF000]],
+              'package_sha256': sha(package(stream)), 'writable': [[0x4000, 0x82000], [0xBF000, 0xFF000]], 'application_widened_by_begin_up_to': 0xA0000,
               'host_tests': tests, 'source_sha256': hashes, 'device_access_performed': False, 'hardware_tested': False}
     (out / 'report.json').write_bytes((json.dumps(report, indent=2) + '\n').encode('utf-8'))
     print(json.dumps({k: v for k, v in report.items() if k != 'source_sha256'}, indent=2))

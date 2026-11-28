@@ -205,3 +205,9 @@ body:not(.ph) .top .rchips .rchip.drop { flex: none; }
   border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: hrturn .9s linear infinite; }
 @keyframes hrturn { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .lockbox.hrconn #lockTxt::after { animation: none; border-right-color: currentColor; opacity: .6; } }
+/* A ramp while a switch is held (product-ramp.js): its block and knob as the menus of a block; where it goes on a slider, with its value; the two times. */
+body:not(.ph) #fsCols select.arg.hrramp { width: 100%; height: 38px; min-height: 38px; margin-top: 6px; padding: 0 10px; }
+#fsCols .hrrampr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 8px; color: var(--dim); font-size: 14px; }
+#fsCols .hrrampr input[type=range] { flex: 1 1 120px; min-width: 0; accent-color: var(--rig); }
+#fsCols .hrrampv { min-width: 5.5em; color: var(--text); font-variant-numeric: tabular-nums; }
+#fsCols input.hrrampn { width: 4.8em; height: 34px; padding: 0 6px; border: 1px solid var(--line2); border-radius: 3px; background: var(--panel2); color: var(--text); font: inherit; }

@@ -10,6 +10,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const W = require("./wire.js"), F = require("./flash.js"), P = require("./pedal.js"), V = require("./views.js"), { Installer, order } = require("./flow.js");
 const { Engine, SimulatedPedal, stored } = require("./simulated_pedal.js");
+const { noteOk } = require("../desktop/store.js");
 
 const hex = text => Uint8Array.from(text.trim().split(/\s+/), v => parseInt(v, 16));
 const sha = b => crypto.createHash("sha256").update(b).digest("hex");
@@ -211,6 +212,9 @@ function stockFlash(version = "011", unit = 1) {
   return flash;
 }
 
+/* An image for the application partition of 011: what it uses reaches past APP_END. */
+const WIDE = area({ text: "HyperRig auth", size: 0x8a000, length: 0x91000 });
+
 /* ---- wire ---- */
 test("frames of the stock firmware, as they were recorded", () => {
   assert.equal(W.stockFrame(W.IDENTITY).length, 10);
@@ -356,7 +360,12 @@ class Computer {
         if (this.bad) this.files.get(unit + "/" + name).bytes[99] ^= 1;
         return name;
       },
-      load: async (unit, name) => this.files.get(unit + "/" + name).bytes.slice(), keep: async (unit, note) => { if (this.full) throw new Error("no space"); this.notes.set(unit, { ...note }); } };
+      /* the notes the program's own store takes (app/desktop/store.js), and no other */
+      load: async (unit, name) => this.files.get(unit + "/" + name).bytes.slice(), keep: async (unit, note) => {
+        if (this.full) throw new Error("no space");
+        if (!noteOk(JSON.parse(JSON.stringify(note)))) throw new Error("the store refuses this note: " + JSON.stringify(note));
+        this.notes.set(unit, { ...note });
+      } };
   }
   program(pedal, { own = assets, serial = true } = {}) {
     const views = [], lines = [];
@@ -381,6 +390,31 @@ const expected = (before, after) => {
   const is = F.describe(after);
   assert.deepEqual([is.kind, is.whole], ["hyperrig", true]);
 };
+
+test("an image for the application partition of 011: where it fits, how far the loader writes, and back", () => {
+  const eleven = stockFlash("011"), nine = stockFlash("009");
+  assert.ok(F.imageEnd(WIDE) > F.APP_END && F.imageEnd(WIDE) <= 0x95000 && F.imageEnd(HYPERRIG) <= F.APP_END);
+  assert.equal(F.areaFor(WIDE, eleven.subarray(F.APP)).length, Math.ceil((F.imageEnd(WIDE) - F.APP) / 4096) * 4096, "only what it uses past APP_END");
+  assert.throws(() => F.areaFor(WIDE, nine.subarray(F.APP)), { code: "size" }, "009's partition is smaller");
+  const long = area({ text: "HyperRig auth", length: 0x91000 });
+  assert.equal(F.areaFor(long, nine.subarray(F.APP)).length, 0x7e000, "a long image that uses less fits 009, cut");
+  assert.equal(F.areaFor(long, eleven.subarray(F.APP)).length, 0x7e000, "and installs as before on 011");
+  for (const length of [0x7d000, 0x9d000, 0x91800]) assert.throws(() => F.areaFor(area({ text: "HyperRig auth", length }), eleven.subarray(F.APP)), { code: "image" }, length.toString(16));
+  const target = F.installTarget(eleven, WIDE, eleven.subarray(F.APP));
+  assert.ok(F.reach(eleven, target) > F.APP_END && F.reach(eleven, target) <= 0x95000 && F.reach(eleven, eleven) === F.APP_END);
+  assert.throws(() => F.plan(eleven, target), { code: "outside" }, "an older loader cannot write it");
+  assert.throws(() => F.plan(eleven, target, F.reach(eleven, target) - 4096), { code: "outside" }, "a window that ends before what changes");
+  assert.equal(F.plan(eleven, target, F.reach(eleven, target)).order.length, F.plan(eleven, target, 0x95000).order.length);
+  const p = F.plan(eleven, target, 0x95000);
+  assert.ok(p.end === 0x95000 && p.order.some(a => a >= F.APP_END && a < 0x95000) && p.order.at(-1) === F.APP && p.windows === 1);
+  assert.deepEqual([F.describe(target).kind, F.describe(target).whole, F.describe(target).layout.vm], ["hyperrig", true, 0x95000]);
+  assert.ok(W.same(F.restoreTarget(target, eleven, 0x95000), eleven), "the original comes back up to its VM");
+  assert.throws(() => F.restoreTarget(target, eleven), { code: "outside" }, "not with a loader that cannot write past APP_END");
+  const hello = new Uint8Array(51);
+  hello.set(W.ascii("HRS1"));
+  W.put(hello, 47, 0x95000, 4);
+  assert.deepEqual([W.helloOf(hello).window, W.helloOf(hello.subarray(0, 47)).window], [0x95000, null]);
+});
 
 if (ENGINE && assets) {
   test("another original than 011 is not changed", async () => {
@@ -429,6 +463,136 @@ if (ENGINE && assets) {
     for (const [from, to] of [[0, 0x82000], [0x82000, version === "011" ? 0x95000 : 0x82000], [0xbe000, 0x100000]]) assert.ok(W.same(end.subarray(from, to), before.subarray(from, to)), `${from.toString(16)}`);
     assert.equal(pedal.mode, "stock");
     assert.deepEqual([...computer.files.values()].map(f => f.about.kind), ["stock", "hyperrig"]);
+  });
+
+  test("from the original to a HyperRig that uses more room, and back", async () => {
+    const before = stockFlash(), pedal = await pedalWith(before), computer = new Computer(), own = { ...assets, image: WIDE };
+    const run = await installed(computer, pedal, { own });
+    assert.equal(run.last().screen, "done", run.lines.join("\n"));
+    const after = await pedal.flash();
+    assert.ok(onPedal(after, WIDE, before) && run.lines.some(l => /application up to 95000/.test(l)));
+    assert.ok(W.same(after.subarray(0, F.APP), before.subarray(0, F.APP)) && W.same(after.subarray(0xbe000), before.subarray(0xbe000)));
+    assert.deepEqual([F.describe(after).kind, F.describe(after).whole], ["hyperrig", true]);
+    const again = computer.program(pedal, { own });
+    await again.installer.home();
+    await again.installer.act("restore");
+    assert.equal(again.last().title, "The original is back", again.lines.join("\n"));
+    const end = await pedal.flash();
+    assert.ok(W.same(end.subarray(0, 0x95000), before.subarray(0, 0x95000)) && W.same(end.subarray(0xbe000), before.subarray(0xbe000)), "the original, up to its VM");
+    assert.equal(pedal.mode, "stock");
+  });
+
+  /* HyperRig's area for this pedal at the head of its application, and the original's after it, up to its VM. */
+  const onPedal = (after, image, before) => {
+    const a = F.areaFor(image, before.subarray(F.APP));
+    return W.same(after.subarray(F.APP, F.APP + a.length), a) && W.same(after.subarray(F.APP + a.length, 0x95000), before.subarray(F.APP + a.length, 0x95000));
+  };
+  /* A pedal that has HyperRig with a loader before 022, its presets on it; this program's HyperRig needs more room. */
+  async function olderWithPresets(computer) {
+    const before = stockFlash(), pedal = await pedalWith(before);
+    await installed(computer, pedal);
+    pedal.set.old = true;
+    const played = await pedal.flash();
+    played.fill(0x77, 0xc0000, 0xce000);
+    played.fill(0x33, 0xfe000, 0xff000);
+    await engine.talk("F", played);
+    pedal.set.hrid = "HRID 1 0.5.0 0123456789abcdef banks=3";
+    return { before, pedal, played };
+  }
+  const WIDE_ASSETS = { image: WIDE, version: "0.6.0", build: "ffff456789abcdef" };
+  async function upgraded(pedal, before, played, computer, run) {
+    assert.equal(run.last().screen, "done", run.lines.slice(-6).join("\n"));
+    assert.equal(run.last().title, "HyperRig is on your pedal");
+    const after = await pedal.flash();
+    assert.ok(W.same(after.subarray(F.USER, F.USER_END), played.subarray(F.USER, F.USER_END)), "the presets, captures and IRs stay");
+    assert.ok(onPedal(after, WIDE, before));
+    assert.ok(W.same(after.subarray(0, F.APP), before.subarray(0, F.APP)) && W.same(after.subarray(0xbe000, F.USER), before.subarray(0xbe000, F.USER)) && W.same(after.subarray(F.USER_END), before.subarray(F.USER_END)));
+    assert.equal(pedal.set.old, false, "the pedal has the new loader");
+    const note = [...computer.notes.values()][0];
+    assert.deepEqual([note.job, note.state], ["upgrade", "written"]);
+  }
+
+  test("an update that needs the new loader goes through the original once; the presets stay", async () => {
+    const computer = new Computer(), { before, pedal, played } = await olderWithPresets(computer);
+    const run = computer.program(pedal, { own: { ...assets, ...WIDE_ASSETS } });
+    await run.installer.home();
+    assert.deepEqual([run.last().title, run.last().actions[0].label], ["An update is ready", "Update HyperRig"]);
+    assert.match(run.last().actions[0].ask.text, /original firmware comes back for a moment/);
+    pedal.set.hrid = "HRID 1 0.6.0 ffff456789abcdef banks=3";
+    await run.installer.act("install");
+    await upgraded(pedal, before, played, computer, run);
+    assert.ok(run.lines.some(l => /the original comes back for a moment/.test(l)) && pedal.log.includes("stock"), run.lines.join("\n"));
+    assert.ok(run.views.some(v => v.title === "Putting the original back for a moment") && run.views.some(v => v.over === "Updating"));
+    /* the next update is a plain one */
+    const next = computer.program(pedal, { own: { ...assets, ...WIDE_ASSETS, version: "0.6.1", build: "eeee456789abcdef" } });
+    await next.installer.home();
+    assert.doesNotMatch(next.last().actions[0].ask.text, /original/);
+  });
+
+  test("an update through the original that the original does not take: it says so, and Install goes on with the presets", async () => {
+    const computer = new Computer(), { before, pedal, played } = await olderWithPresets(computer);
+    const run = computer.program(pedal, { own: { ...assets, ...WIDE_ASSETS } });
+    await run.installer.home();
+    pedal.set.hrid = "HRID 1 0.6.0 ffff456789abcdef banks=3";
+    pedal.faults.refuse = true;                       // the original's update service does not take the new loader
+    await run.installer.act("install");
+    assert.deepEqual([run.last().screen, run.last().title], ["trouble", V.TROUBLE.refused[0]], run.lines.join("\n"));
+    assert.match(run.last().safe, /original firmware for the moment.*presets are in the copy on this computer/);
+    assert.equal(pedal.mode, "stock");
+    assert.deepEqual([[...computer.notes.values()][0].job, [...computer.notes.values()][0].state], ["upgrade", "original"]);
+    pedal.faults.refuse = false;
+    await run.installer.act("again");
+    assert.equal(run.last().title, "Ready for HyperRig");
+    await run.installer.act("install");
+    await upgraded(pedal, before, played, computer, run);
+    /* the same, with the program closed in between: another start of it goes on as well */
+    const second = new Computer(), older = await olderWithPresets(second), first = second.program(older.pedal, { own: { ...assets, ...WIDE_ASSETS } });
+    await first.installer.home();
+    older.pedal.set.hrid = "HRID 1 0.6.0 ffff456789abcdef banks=3";
+    older.pedal.faults.refuse = true;
+    await first.installer.act("install");
+    older.pedal.faults.refuse = false;
+    const later = second.program(older.pedal, { own: { ...assets, ...WIDE_ASSETS } });
+    await later.installer.home();
+    await later.installer.act("install");
+    await upgraded(older.pedal, older.before, older.played, second, later);
+  });
+
+  test("an update through the original without the copies on this computer: nothing is changed", async () => {
+    const computer = new Computer(), { pedal, played } = await olderWithPresets(computer);
+    for (const k of [...computer.files.keys()]) if (computer.files.get(k).about.kind === "stock") computer.files.delete(k);
+    const run = computer.program(pedal, { own: { ...assets, ...WIDE_ASSETS } });
+    await run.installer.home();
+    await run.installer.act("install");
+    assert.deepEqual([run.last().screen, run.last().title], ["trouble", V.TROUBLE.through[0]], run.lines.join("\n"));
+    assert.match(run.last().safe, /Nothing was changed/);
+    assert.ok(W.same(await pedal.flash(), played));
+  });
+
+  test("an update through the original, the power gone in either loader: it goes on, and the presets stay", async () => {
+    let cuts = 0;
+    for (const [session, at] of [[1, 1], [1, 1100], [1, 2250], [2, 1], [2, 1300], [2, 2550]]) {
+      const computer = new Computer(), { before, pedal, played } = await olderWithPresets(computer);
+      const run = computer.program(pedal, { own: { ...assets, ...WIDE_ASSETS } });
+      await run.installer.home();
+      pedal.set.hrid = "HRID 1 0.6.0 ffff456789abcdef banks=3";
+      pedal.set.cutIn = [pedal.loaderStarts + session, at];
+      pedal.cut = false;
+      await run.installer.act("install");
+      pedal.set.cutIn = null;
+      if (!pedal.cut) { await upgraded(pedal, before, played, computer, run); continue; }
+      assert.equal(run.last().screen, "trouble", `${session} ${at}`);
+      cuts++;
+      await pedal.powerCycle();
+      assert.equal(pedal.mode, "loader", `${session} ${at}: the pedal is ${pedal.mode}`);
+      const later = computer.program(pedal, { own: { ...assets, ...WIDE_ASSETS } });
+      await later.installer.home();
+      assert.deepEqual([later.last().screen, later.last().actions[0].id], ["resume", "continue"], `${session} ${at}`);
+      assert.match(later.last().text, /finish updating HyperRig/);
+      await later.installer.act("continue");
+      await upgraded(pedal, before, played, computer, later);
+    }
+    assert.equal(cuts, 6, "every one of them was cut");
   });
 
   test("a pedal with a newer HyperRig is not offered an older one", async () => {

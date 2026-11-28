@@ -17,6 +17,7 @@ played on a pedal.
 | 42 | `reverse` | A delay that plays each piece of the sound backwards | 6,500 | 33.4 KB |
 | 43 | `ensemble` | Three voices, each a little late and a little out of tune | 6,000 | 4.6 KB |
 | 44 | `vintage` | A delay whose repeats grow darker and softer, with a slow waver | 7,200 | 33.4 KB |
+| 45 | `glide` | One voice whose pitch slides to an interval and back as its bend moves | 12,000 | 12.9 KB |
 
 Ticks are of the 154,950 of a block of 128 samples, as the firmware counts them; beside the A2 amp
 some 22,700 are left. The compiled code takes 21,242, 10,926 and 17,209 instructions at most, some
@@ -48,6 +49,18 @@ samples at a place that wavers (0.8 Hz, 1 ms either way at most) and follows a n
 pitch bends on the way. Two low-passes are in the loop: each repeat is darker, and 4 dB softer at a feedback of 70. A
 knee over three quarters of the full level keeps many repeats in bounds; at a feedback of 100 a note was 2.6 dB
 softer after 16 s.
+
+**Glide.** The harmonizer's engine ([MINI_HARMONIZER.md](MINI_HARMONIZER.md)), with one voice: the period of what is played
+is heard every 128 samples, and the voice reads the line of the last 2048 samples faster or slower, stepping back or on by
+whole periods before it runs out. Its interval is the block's own, in 1/256 of a semitone, glided by the frame, and it never
+jumps to a new note. Faster than twice (more than an octave up) a step back of some periods would be used up within the fade
+to it, so it steps as many periods more as the fade needs. The frame gives 32 samples or fewer; the glide gathers 32 and gives
+them back 32 later (0.67 ms), so a block in parts sounds the same. What the voice reads is held within the full level, where the
+engine's crossing of two places has room. After a pause the voice is silent for 16 chunks (11 ms), until what it reads is new.
+With the dry sound beside it, the voice comes in over the first semitone of the way, so at rest only the dry sound is heard.
+Its code is in `harmonizer.c` beside what it shares, and nothing of the sound is in the flash twice: 886 bytes of flash and 544
+of RAM in all. On computed tones, at every interval from two octaves down to two up, the pitch was right to 0.1 Hz with no step
+larger than the tone's own; a power chord moved as a whole.
 
 All of them are written here from published methods and own derivation. No code, table or recording of
 others is in them, so they add nothing to [the notice](../release/NOTICE.md).
