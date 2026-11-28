@@ -12,3 +12,5 @@ gradlew assembleDebug
 ```
 
 The debug APK is at `android/app/build/outputs/apk/debug/app-debug.apk`. Enable Bluetooth and hold A and B on the pedal for three seconds to allow pairing.
+
+Run `node test-sync.cjs` and `node test-scene-names.cjs` to check state polling and scene-name refresh.

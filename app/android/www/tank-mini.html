@@ -6998,9 +6998,8 @@ async function loadSnapNames() {
   const lines = await Pedal.cmd("SNAPNAME", doneBy("SNAPNAME end"), 1500);
   if (lines.some(l => l.startsWith("ERR"))) { S.snapNameOk = false; S.snapNames = ["", "", "", ""]; return; }
   const nn = S.snaps.map(() => "");
-  let any = false;
-  for (const l of lines) { const mm = l.match(/^SNAPNAME ([0-7]) '(.*)'$/); if (mm) { nn[+mm[1]] = mm[2]; any = true; } }
-  if (any) { S.snapNameOk = true; S.snapNames = nn; }
+  for (const l of lines) { const mm = l.match(/^SNAPNAME ([0-7]) '(.*)'$/); if (mm) nn[+mm[1]] = mm[2]; }
+  if (lines.some(l => /^SNAPNAME (?:end|fin)\b/.test(l))) { S.snapNameOk = true; S.snapNames = nn; }
 }
 const snapLabel = k => (S.snaps[k] && S.snapNames[k]) || `Scene ${k + 1}`;
                                                                                     
@@ -8778,8 +8777,8 @@ async function lvlTick() {
     if (S.lvlPend && !drag && !tuOpen) { const p = S.lvlPend; S.lvlPend = null; applyMeters(p); }
     if (S.gainRe && !ED.gainN && Date.now() - (S.gainT || 0) > 1000) { S.gainRe = false; S.lvlFull = true; }                                         
     if (S.lvlFull && !drag && !tuOpen) { S.lvlFull = false; await pollLvl(); return; }                             
-    if (S.lvlSub && Date.now() - (S.lvlPushT || 0) < LVL_PUSH_STALE) return;                       
-    if (S.lvlSub && Date.now() - (S.lvlArmT || 0) > LVL_REARM_MS) { Log.ev("lvlsub", { stale: Date.now() - (S.lvlPushT || 0) }); await lvlSubSet(true); }                                      
+    if (S.lvlSub && Date.now() - (S.lvlPushT || 0) < LVL_PUSH_STALE && Date.now() - (S.lvlFullT || 0) < 2000) return;
+    if (S.lvlSub && Date.now() - (S.lvlPushT || 0) >= LVL_PUSH_STALE && Date.now() - (S.lvlArmT || 0) > LVL_REARM_MS) { Log.ev("lvlsub", { stale: Date.now() - (S.lvlPushT || 0) }); await lvlSubSet(true); }
     await pollLvl();                                                                                              
   } finally { lvlTicking = false; }
 }
