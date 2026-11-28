@@ -72,6 +72,7 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
   pedal.reading = (peak, rms) => calibWindow(pedal.globals, pedal.live(), peak, rms);
   pedal.midi = {wanted: 0, port: 0, takes: 2, set: "010001141516171807" + "66" + "ff00000064".repeat(4),
     get(i) { return parseInt(this.set.slice(2 * i, 2 * i + 2), 16); }, knob(k) { return [0, 1, 2, 3, 4].map(i => this.get(10 + 5 * k + i)).join(); }};
+  pedal.ramps = "00".repeat(18);           // the ramps of A, B and C (mini/product/ramp.c)
   /* MIDI as the firmware answers it (mini/product/midi.c); takes: what becomes of the port when it is turned on. */
   function midiAnswer(a) {
     const m = pedal.midi, word = a[0] || "";
@@ -287,6 +288,7 @@ __GLOBALS__  const pedal = {amp: 1, ampeq: [0, 0, 0, 0, 0, 0], gain: [0, 0], bpm
     if (word === "FXOS") { const at = find(+a[0]), i = at && types[at[2].type].os; if (!at || i === undefined) return ["ERR FXOS bad argument"];
       at[2].p[i] = +a[1]; pedal.changes++; return [`FXOS ok ${a[0]} ${at[2].type} os=${a[1]}`]; }
     if (word === "MIDI") return midiAnswer(a);
+    if (word === "RAMP") { if (/^=[0-9a-f]{36}$/.test(a[0] || "")) pedal.ramps = a[0].slice(1); return [`RAMP ${pedal.ramps} 0`]; }
     if (word === "STW") { if (a.length) pedal.stereo = +a[0]; return [`STW w=${pedal.stereo} cur=${pedal.stereo} live=0 cpu=0/21391 deg=0`]; }
     if (word === "SNAPNAME" && a.length) { pedal.names[+a[0]] = a.slice(1).join(" "); if (pedal.current >= 0 && pedal.store[pedal.current]) pedal.store[pedal.current].names = pedal.names.slice(); return [`SNAPNAME ok ${a[0]} '${pedal.names[+a[0]]}' preset=${pedal.current}`]; }
     if (word === "SNAPNAME") return [...pedal.names.map((x, k) => `SNAPNAME ${k} '${x}'`), "SNAPNAME end"];
@@ -1480,6 +1482,57 @@ def setups(page, output):
     return out
 
 
+def ramps(page, output):
+    """A ramp of a switch (app/mini/product-ramp.js): while held, offered for a long press only, its block, knob, target and times, as the pedal is
+    told them, its words in the summary, in a backup, and what the rules refuse; on and off, offered for the tap only, with the same pickers."""
+    cdp, quiet = page.cdp, 'S.connected && !refreshing && !txn && !saveRun && !pioBusy && !fsQuickBusy && !Pedal.busy'
+    cdp.evaluate('void fsOpen()')
+    page.wait('document.getElementById("fsm").classList.contains("on") && !!document.querySelector("#fsQuick .fseg button")', "the footswitches' window", 15)
+    cdp.evaluate('(() => { const b = [...document.querySelectorAll("#fsQuick .fseg button")].find(e => e.innerText === "Stomp"); if (b && !b.classList.contains("on")) b.click(); })()')
+    page.wait('__pedal.layout === "custom" && !!document.getElementById("fsA01") && ' + quiet, 'Stomp', 20)
+    offered = cdp.evaluate('[0, 1, 2].map(g => [...document.getElementById("fsA0" + g).options].some(o => o.value === "11"))')
+    require(offered == [False, True, False], f'the ramp is offered for {offered}')
+    cdp.evaluate('(() => { const s = document.getElementById("fsA01"); s.value = "11"; s.onchange(); })()')
+    page.wait('String(__pedal.fsa[0][1]).startsWith("11,") && !!document.getElementById("hrRampK0") && ' + quiet, 'a ramp for A', 20)
+    kind = cdp.evaluate('(() => { const k = S.types.tremolo || Object.values(S.types).find(t => t.params.length); const s = document.getElementById("hrRampK0"); '
+                        's.value = String(k.id); s.onchange(); return [k.id, k.params[0].idx, k.params[0].min, k.params[0].max]; })()')
+    hexes = lambda target, rise, fall: ''.join(f'{v:02x}' for v in (kind[0], kind[1], target & 255, (target >> 8) & 255, rise, fall)) + '00' * 12
+    page.wait(f'__pedal.ramps === "{hexes(kind[3], 0, 0)}" && !!document.getElementById("hrRampT0") && ' + quiet, 'its block', 20)
+    mid = (kind[2] + kind[3]) // 2
+    cdp.evaluate(f'(() => {{ const t = document.getElementById("hrRampT0"); t.value = "{mid}"; t.onchange(); }})()')
+    page.wait(f'__pedal.ramps === "{hexes(mid, 0, 0)}" && ' + quiet, 'its target', 20)
+    cdp.evaluate('(() => { const r = document.getElementById("hrRampR0"); r.value = "1.5"; r.onchange(); })()')
+    page.wait(f'__pedal.ramps === "{hexes(mid, 30, 0)}" && ' + quiet, 'its rise', 20)
+    cdp.evaluate('(() => { const r = document.getElementById("hrRampF0"); r.value = "20"; r.onchange(); })()')
+    page.wait(f'__pedal.ramps === "{hexes(mid, 30, 255)}" && ' + quiet, 'its fall, 12.75 s at most', 20)
+    summary = cdp.evaluate('fsSummary(0)')
+    require('Ramp:' in summary, f'the summary of A: {summary}')
+    cdp.screenshot(output / 'setup-ramp.png')
+    lines = cdp.evaluate('gdLinesG()')
+    require(f'RAMP ={hexes(mid, 30, 255)}' in lines, f'a backup of the settings has no ramps: {lines}')
+    blocked = {c: cdp.evaluate(f'Pedal.cmd({json.dumps(c)}, "FSA end")')[0] for c in ('FSA 0 0 11 0 255', 'FSA 0 2 11 0 255', 'FSA 0 1 12 0 255', 'FSA 0 2 12 0 255')}
+    blocked.update({c: cdp.evaluate(f'Pedal.cmd({json.dumps(c)}, "RAMP")')[0] for c in ('RAMP =00', 'RAMP =' + '0' * 35, 'RAMP maybe')})
+    require(all(v.startswith('ERR MINI_APP') for v in blocked.values()), f'not blocked: {blocked}')
+    cdp.evaluate('(() => { const s = document.getElementById("fsA01"); s.value = "0"; s.onchange(); })()')
+    page.wait('String(__pedal.fsa[0][1]).startsWith("0,") && !document.getElementById("hrRampK0") && ' + quiet, 'no ramp on A again', 20)
+    latch = cdp.evaluate('[0, 1, 2].map(g => [...document.getElementById("fsA0" + g).options].some(o => o.value === "12"))')
+    require(latch == [True, False, False], f'the ramp on and off is offered for {latch}')
+    cdp.evaluate('(() => { const s = document.getElementById("fsA00"); s.value = "12"; s.onchange(); })()')
+    page.wait('String(__pedal.fsa[0][0]).startsWith("12,") && !!document.getElementById("hrRampK0") && document.querySelectorAll("#hrRampK0").length === 1 && ' + quiet,
+              'a ramp on and off for A', 20)
+    on_off = cdp.evaluate('fsSummary(0)')
+    require('Ramp on/off:' in on_off, f'the summary of A with its tap on and off: {on_off}')
+    cdp.screenshot(output / 'setup-ramp-on-off.png')
+    cdp.evaluate('(() => { const b = [...document.querySelectorAll("#fsQuick .fseg button")].find(e => e.innerText === "Stomp"); if (b) b.click(); })()')
+    page.wait('/Use Stomp/i.test(document.querySelector(".mdlg")?.innerText || "")', 'own actions are replaced: asked', 10)
+    cdp.evaluate('[...document.querySelectorAll(".mdlg button")].find(e => e.innerText.trim() === "Use it").click()')
+    page.wait('!String(__pedal.fsa[0][0]).startsWith("12,") && !document.getElementById("hrRampK0") && ' + quiet, 'Stomp again', 20)
+    cdp.evaluate('(() => { const b = [...document.querySelectorAll("#fsQuick .fseg button")].find(e => e.innerText === "Presets"); if (b) b.click(); })()')
+    page.wait('__pedal.layout !== "custom" && document.querySelector("#fsQuick .fseg button.on")?.innerText === "Presets" && ' + quiet, 'Presets again', 20)
+    cdp.evaluate('fsClose()')
+    return {'offered': offered, 'kind': kind, 'summary': summary, 'on_off': on_off, 'blocked': blocked}
+
+
 def save_line(page, output):
     """The line of the saving, in each state: what it says, its buttons, and what each of them writes."""
     cdp, quiet = page.cdp, 'S.connected && !refreshing && !txn && !saveRun && !pioBusy && !hrSaving && !Pedal.busy'
@@ -2568,11 +2621,12 @@ def long_delay(page):
     footswitch pressed during an import would change is not sent."""
     cdp = page.cdp
     out = cdp.evaluate("""(async () => {
-      const real = Pedal.cmd, sent = [], said = []; let limit = 1230, held = 350, turnAt = -1;
+      const real = Pedal.cmd, sent = [], said = []; let limit = 1230, held = 350, turnAt = -1, steps = 0;
       const was = memToast;
-      Pedal.cmd = async line => { const v = +line.split(" ")[3]; sent.push(line);
+      /* the page asks LVL, EVT and HRST by itself meanwhile: the knob is turned at the search's own step */
+      Pedal.cmd = async line => { const v = +line.split(" ")[3], step = line.startsWith("FXP ") ? ++steps : 0; sent.push(line);
         await new Promise(r => setTimeout(r, 5));
-        if (sent.length === turnAt) hrTimeTurned();
+        if (step === turnAt) hrTimeTurned();
         if (v <= limit) { held = v; return [`FXP ok ${v}`]; }
         return [`ERR FXP out of memory; kept ${held}`]; };
       memToast = m => said.push(m);
@@ -2581,10 +2635,10 @@ def long_delay(page):
       r.first = [await ask(2000), held, sent.slice(), said.slice()];
       sent.length = said.length = 0;
       r.again = [await ask(2000), sent.slice(), said.slice()];
-      hrTime.last = null; sent.length = said.length = 0; turnAt = 2;
-      r.stopped = [await ask(1990), sent.length, said.slice()];
+      hrTime.last = null; sent.length = said.length = steps = 0; turnAt = 2;
+      r.stopped = [await ask(1990), sent.filter(c => c.startsWith("FXP ")).length, said.slice()];
       sent.length = said.length = 0; turnAt = -1;
-      r.none = [await hrLongest(7, 2000, "ERR FXP out of memory", hrTimeTurned()), sent.length];
+      r.none = [await hrLongest(7, 2000, "ERR FXP out of memory", hrTimeTurned()), sent.filter(c => c.startsWith("FXP ")).length];
       Pedal.cmd = real; memToast = was; hrTime.last = null;
       return r; })()""")
     answer, held, sent, said = out['first']
@@ -3168,6 +3222,7 @@ def run(bundle, output, page_class=Page):
         cdp.evaluate('Pedal.cmd("FSMODE", "FSMODE").then(r => fmApply(parseFsMode(r[0])))')
         if product:
             steps['setups'] = setups(page, output)
+            steps['ramps'] = ramps(page, output)
         else:
             page.wait('!document.getElementById("fmChip").hidden', 'the mode tab')
             for wanted in ('live', 'preset'):

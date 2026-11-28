@@ -32,6 +32,21 @@ delay, for example, or nothing in a preset without one. Any other action can be 
 hold or a double press; the choice is then called **Custom**, and has no pairs. **Save to pedal**
 keeps it. The editor shows the choice beside the preset's name when it is not Presets.
 
+**Ramp while held** is a choice for the hold of A, B or C, in Stomp, Scenes and Custom: while the
+switch is held, a knob of a block goes to where you set it, in the time you give it, and when you
+let go it goes back to where the preset has it, in its own time. A tremolo that speeds up while you
+stand on the switch, for example: choose the block (the first of its kind in the chain, in every
+preset that has one), the knob, where it goes, and the two times, up to 12.75 seconds each. A tap
+of the switch stays what it was, and acts when you let go; the ramp starts after a fifth of a
+second held, and the switch then does nothing else, also when it is let go. When the tap and the
+double press of that switch do nothing, the ramp starts at once (after 45 ms, the time a pair
+waits). Pressed together with another switch it is a pair as before. A preset or a scene that
+changes ends the ramp.
+
+**Ramp on/off** is the same for the tap: one press sends the knob to where you set it, where it
+stays, and the next brings it back, each in its time. The switch is then the ramp's alone. With
+the tuner on, a press of it closes the tuner.
+
 ## The editor
 
 It finds the pedal by itself. **Ctrl +** and **Ctrl -** make everything larger and smaller.
@@ -105,6 +120,9 @@ tried too; each comes at its own volume. A preset that is chosen with a switch o
 try. While one is loading, a switch only stops it. If the pedal is switched off, what you tried is
 gone, and the presets are as they were. A preset with more than one cab of its own plays with one of
 them until it is kept.
+
+**Patchstorage's list** can be sorted: the newest first, the most downloaded, or the most liked. It
+sorts what you searched for too.
 
 **Sharing yours:** export a preset to a file and give it to Patchstorage on its own page, in your
 browser, with your own account (**Share your own...**). The program sends nothing.
@@ -279,6 +297,28 @@ little softer: a power chord at the interval of its root, another one at that of
 clear one, or of the last note. For other chords choose a fixed scale and a fifth or an octave. It
 follows the reference of the tuner. Each voice uses more of the pedal.
 
+## Pitch Glide
+
+One voice of your sound whose pitch slides from where you play to an interval and back, as the
+**Bend** knob moves: a footswitch's ramp, a MIDI controller (an expression pedal through one), or
+your hand. Put it before the amp and before distortions, delays and reverbs.
+
+| Control | |
+|---|---|
+| Interval | Where the voice goes at full bend: up to two octaves up or down |
+| Bend | How far along the way it is: 0 is the note you play, 100 the interval |
+| Mix | 100 is the voice alone, so the bend is all you hear. Lower, your guitar plays beside it, and at rest only your guitar is heard |
+| Level | Loudness |
+
+To glide while a switch is held: in Footswitches, choose **Ramp while held** for its hold, the
+block Pitch Glide, the knob Bend, 100, and the times up and back. With nothing on the switch's
+tap and double press the glide starts at once. To glide up with one press and back with the next,
+choose **Ramp on/off** for its tap instead.
+
+It hears the note you play, as the harmonizer does, and is cleanest on single notes and power
+chords; full chords move as well, less cleanly. Its sound comes 0.7 ms after your guitar. It uses a
+little more of the pedal than the harmonizer with one voice.
+
 ## Limits
 
 - Windows only. The program is not signed.
@@ -296,8 +336,8 @@ follows the reference of the tuner. Each voice uses more of the pedal.
   the wheel.
 - The acoustic block is one sound in stereo. A preset with it is for a HyperRig that has it:
   an older one, and UltraRig, make a room reverb of it.
-- Octaver, Swell, Reverse Delay, Vintage Delay and Ensemble are one sound in stereo too. An older HyperRig leaves them out of a
-  preset and keeps the rest.
+- Octaver, Swell, Reverse Delay, Vintage Delay, Ensemble and Pitch Glide are one sound in stereo too. An older HyperRig leaves
+  them out of a preset and keeps the rest.
 - The harmonizer is one sound in stereo. A preset with it is for a
   HyperRig that has it: an older one, and UltraRig, make a pitch shifter of it. In a preset of an
   old UltraRig its first pitch shifter is a harmonizer.

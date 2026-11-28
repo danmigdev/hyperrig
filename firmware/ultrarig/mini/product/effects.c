@@ -8,7 +8,7 @@
 #include "effects.h"
 
 /* The list. A new effect goes to its end: the place is its id, and the id is in the presets that people have. */
-#define EFFECTS(X) X(octaver) X(swell) X(reverse) X(ensemble) X(vintage)
+#define EFFECTS(X) X(octaver) X(swell) X(reverse) X(ensemble) X(vintage) X(glide)
 
 enum { FIRST = 40, PARAMETERS = 70, MEMORY = 84, STATE = 288, ROWS = 7, GLIDE = 256, LIMIT = (1 << 27) - 1, CLOCK = 20 };
 enum { UP_A_DECIBEL = 73533, DOWN_A_DECIBEL = 58409 };

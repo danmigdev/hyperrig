@@ -34,6 +34,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / 'tools'), str(ROOT / 'upstream/pi32v2-isa'
 import sim  # noqa: E402
 from pi32v2isa import codec  # noqa: E402
 import build_mini_stage  # noqa: E402
+from hyperrig import jieli  # noqa: E402
 import flash_simulator as fast  # noqa: E402
 
 LOAD, CONTEXT, REQUEST, STATUS = 0x01C0A800, 0x01C05000, 0x01C7FD88, 0x01C7FD80
@@ -44,19 +45,21 @@ KEY = 0x980F
 
 
 class Nor(fast.Nor):
-    """The flash of flash_simulator, with the loader's two windows, and the one page RETIRE may reach."""
+    """The flash of flash_simulator, with the loader's two windows (the application's up to app_end), and the one page RETIRE
+    may reach."""
     retiring = None
+    app_end = APP_END
 
     def finish(self, baud):
         op = self.first
         if op == 0x20 and self.n == 4:
-            assert self.wel and self.addr % SECTOR == 0 and (APP <= self.addr < APP_END or USER <= self.addr < USER_END), hex(self.addr)
+            assert self.wel and self.addr % SECTOR == 0 and (APP <= self.addr < self.app_end or USER <= self.addr < USER_END), hex(self.addr)
             self.data[self.addr:self.addr + SECTOR] = b'\xff' * SECTOR
             self.wel, self.busy = False, 2
             self.erases.append(self.addr)
         elif op == 0x02 and self.n >= 5:
             assert self.wel and len(self.page) == 256 and self.addr % 256 == 0
-            assert APP <= self.addr < APP_END or USER <= self.addr < USER_END or self.addr == self.retiring, hex(self.addr)
+            assert APP <= self.addr < self.app_end or USER <= self.addr < USER_END or self.addr == self.retiring, hex(self.addr)
             for i, byte in enumerate(self.page):
                 self.data[self.addr + i] &= byte
             self.wel, self.busy = False, 1
@@ -400,11 +403,13 @@ class Loader(sim.CPU):
             assert self.take() is None
         assert not self.mem.usb.out_packets
 
-    def install(self, now, want, *, repeat=False):
-        order = [a for a in range(APP + SECTOR, USER_END, SECTOR) if (a < APP_END or a >= USER) and now[a:a + SECTOR] != want[a:a + SECTOR]] + [APP]
+    def install(self, now, want, *, repeat=False, end=None):
+        """With end, BEGIN widens the application's window up to it (a loader since 022)."""
+        order = [a for a in range(APP + SECTOR, USER_END, SECTOR) if (a < (end or APP_END) or a >= USER) and now[a:a + SECTOR] != want[a:a + SECTOR]] + [APP]
         crc = lambda b: zlib.crc32(bytes(b))
         windows = 1 | (2 if any(a >= USER for a in order) else 0)
-        results = [self.ask(0x10, struct.pack('<IIHBI', crc(now), crc(want), len(order), windows, 0x214D5241))[:2],
+        begin = struct.pack('<IIHBI', crc(now), crc(want), len(order), windows, 0x214D5241) + (struct.pack('<I', end) if end else b'')
+        results = [self.ask(0x10, begin)[:2],
                    self.ask(0x13, struct.pack('<I', crc(now[APP:APP + SECTOR])))[:2]]
         for a in order:
             for at in range(0, SECTOR, CHUNK):
@@ -417,6 +422,18 @@ class Loader(sim.CPU):
                 assert count == len(self.mem.nor.erases) * 1000 + len(self.mem.nor.programs)
         results.append(self.ask(0x14)[:2])
         return order, results
+
+
+def directory(flash, vm):
+    """The partitions of a TANK-MINI at the head of its application, as the installer leaves them: the application's up to vm
+    (PRCT), the VM from vm to 0xbe000. JieLi's encoding with the chip's key; each record with its own CRC-16."""
+    page = bytearray(b'\xff' * 256)
+    for k, (name, at, size) in enumerate((('app_area_head', 0x2000120, 0x1000), ('app.bin', 0x120, 0x1000), ('cfg_tool.bin', 0x240, 0x17f),
+                                          ('VM', vm, 0xBE000 - vm), ('PRCT', 0, vm), ('BTIF', 0xBE000, SECTOR), ('USR', USER, USER_END - USER))):
+        record = bytearray(struct.pack('<HHIIBBH16s', 0, 0xFFFF, at, size, 0x92, 0x81, 0, name.encode().ljust(16, b'\0')))
+        record[0:2] = struct.pack('<H', jieli.crc16(bytes(record[2:])))
+        page[32 * k:32 * k + 32] = record
+    flash[APP:APP + 256] = jieli.sfc(bytes(page), KEY)
 
 
 def images(build):
@@ -502,6 +519,29 @@ def main(argv=None):
             hello = loader.ask(0x01)[2]
             assert hello[42] == 1 and struct.unpack_from('<I', hello, 43)[0] == 0xBCF00 and hello[24] == 0
     steps['way_back'] = 'a whole application is opened only with one; an older record above ours can be made void'
+
+    # the window widened up to the pedal's VM, as its directory says (0x95000, a TANK-MINI with 011); and refused on one whose
+    # VM starts at 0x82000 (009), with nothing erased
+    wide_now, wide_want = bytearray(now), bytearray(now)
+    directory(wide_now, 0x95000)
+    wide_want[:] = wide_now
+    for a in (APP + 300, 0x82000, 0x88123, 0x94FFF, 0xBF010):
+        wide_want[a] ^= 0x5A
+    loader = Loader(args.build, wide_now)
+    loader.mem.nor.app_end = 0x95000
+    loader.enumerate()
+    hello = loader.ask(0x01)[2]
+    assert len(hello) == 51 and struct.unpack_from('<I', hello, 47)[0] == APP_END, 'a new loader says its window'
+    order, results = loader.install(wide_now, wide_want, end=0x95000)
+    assert all(r[0] == 0 for r in results) and results[-1][1] == 3 and bytes(loader.mem.nor.data) == bytes(wide_want), results
+    assert {0x82000, 0x88000, 0x94000} <= set(order) and struct.unpack_from('<I', loader.ask(0x01)[2], 47)[0] == 0x95000
+    other = bytearray(wide_now)
+    directory(other, 0x82000)
+    loader = Loader(args.build, other)
+    loader.enumerate()
+    begin = struct.pack('<IIHBII', zlib.crc32(bytes(other)), 2, 3, 1, 0x214D5241, 0x95000)
+    assert loader.ask(0x10, begin)[:2] == (2, 0) and not loader.mem.nor.erases and not loader.mem.nor.programs
+    steps['wide'] = {'sectors': len(order), 'up_to': '0x95000', 'refused_on_a_009_directory': True}
 
     # the bootloader found no application: the loader stays, and installs
     loader = Loader(args.build, now, app=False, request=False)

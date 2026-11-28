@@ -21,6 +21,9 @@
   const STOCK_NAME = /^TANK MINI_(\d{3})$/, UPDATER_NAME = /^ota-TANK MINI_/;
   const LOADER = Symbol("loader");
   const HRID = /^HRID 1 (\S+) ([0-9a-f]{16})\b/, STAGE = /^STAGE 1\b/;
+  /* The first HyperRig that came with loader 022, which writes the application up to the pedal's VM. A pedal with an older one
+   * gets it once through the original firmware, when this program's HyperRig needs that room. */
+  const WIDE_FROM = "0.6.0-dev.1";
   /* -1 when version a of HyperRig comes before b, 1 after, 0 the same, null when one of them is not a version. */
   function order(a, b) {
     const of = v => { const m = /^(\d+)\.(\d+)\.(\d+)(?:-(?:dev|beta)\.(\d+))?$/.exec(String(v)); return m && [+m[1], +m[2], +m[3], m[4] === undefined ? Infinity : +m[4]]; };
@@ -108,7 +111,8 @@
       if (s.what === "stock") return this.show(KNOWN_STOCK.includes(s.version) ? V.stock(s.version) : V.untried(s.version));
       if (s.what === "hyperrig") {
         const other = s.build !== this.assets.build, ahead = other && order(s.version, this.assets.version) === 1;
-        return this.show(V.hyperrig(s.version, { newer: other && !ahead ? this.assets.version : null, ahead: ahead ? this.assets.version : null, entry: s.entry }));
+        const through = F.imageEnd(this.assets.image) > F.APP_END && order(s.version, WIDE_FROM) === -1;
+        return this.show(V.hyperrig(s.version, { newer: other && !ahead ? this.assets.version : null, ahead: ahead ? this.assets.version : null, entry: s.entry, through }));
       }
       const found = await this.inLoader(s.id, async (loader, hello) => ({ hello, ...await this.noteOf(loader) }));
       if (!found.hello.whole) { this.show(V.resume(found.note && found.note.state === "writing" ? found.note.job : "install")); return; }
@@ -126,6 +130,7 @@
     async run(job) {
       this.busy = true;
       this.changed = false;
+      this.between = false;          // the original is on the pedal for a moment, on the way to a HyperRig that needs the new loader
       this.holding = true;
       let wanted = job;
       try {
@@ -140,7 +145,7 @@
       } catch (e) {
         const kind = kindOf(e);
         this.log(`stopped (${kind}): ${e && e.stack || e}`);
-        this.show(V.trouble(kind, { changed: this.changed, again: kind !== "layout" && kind !== "damaged" }));
+        this.show(V.trouble(kind, { changed: this.changed, between: this.between, again: kind !== "layout" && kind !== "damaged" }));
       } finally {
         this.busy = false;
         this.seen = job === "leave" ? null : await this.key().catch(() => null);
@@ -161,8 +166,16 @@
     async perform(job, situation) {
       const p = this.progress(job, "save", 0, 0.06, "Getting your pedal ready");
       p(0);
-      const id = await this.enter(situation, p);
-      return this.inLoader(id, (loader, hello) => this.work(job, loader, hello), { job });
+      let id = await this.enter(situation, p), result = await this.inLoader(id, (loader, hello) => this.work(job, loader, hello), { job });
+      if (result && result.through) {
+        /* the original is back for a moment: its update service gives the pedal the new loader, which installs HyperRig */
+        this.log("the original is back: it takes the new loader");
+        const s = await this.appears(x => x.what === "stock", this.times.back);
+        id = await this.enter(s, this.progress("upgrade", "install", 0.5, 0.56, "Giving your pedal a new loader"));
+        result = await this.inLoader(id, (loader, hello) => this.work("upgrade", loader, hello), { job: "upgrade" });
+        if (result && result.through) throw new Trouble("failed", "the pedal did not take the new loader");
+      }
+      return result;
     }
     /* Into the loader, from wherever the pedal is. */
     async enter(s, progress) {
@@ -273,6 +286,7 @@
       let now = await loader.readAll(this.progress(job, "save", 0.06, 0.4));
       const unit = await this.unitName(F.UNIT_PARTS.map(([a, n]) => now.subarray(a, a + n)));
       const is = F.describe(now), note = await this.env.store.note(unit), interrupted = note && note.state === "writing" ? note : null;
+      if (job === "install" && note && note.job === "upgrade" && note.state !== "written") job = "upgrade";        // it goes on
       this.log(`unit ${unit}: ${is.kind} ${is.version || ""}, whole ${is.whole}, VM at ${is.layout && is.layout.vm.toString(16)}, note ${note && note.state}`);
       if (is.kind === "other" || is.records && !is.layout) throw new Trouble("layout", "the application or the partitions are not known");
       if (hello.application !== (F.bootDecision(now).outcome === "application")) throw new Trouble("mismatch", "the bootloader and the flash say different things about the application");
@@ -287,9 +301,10 @@
         await loader.leave(1);
         return { version: is.version, came: await this.appears(x => x.what === "stock" || x.what === "hyperrig", this.times.back).then(() => true, () => false) };
       }
-      /* what the flash shall hold */
-      let target, version;
-      if (job === "install") {
+      /* what the flash shall hold; how far the loader writes the application */
+      const wide = hello.window !== null && hello.window !== undefined;
+      let target, version, end = F.APP_END;
+      if (job === "install" || job === "upgrade") {
         let head = is.layout ? now.subarray(F.APP, F.APP + F.SECTOR) : null;
         for (const b of head ? [] : [interrupted && interrupted.backup, ...backups.filter(x => x.kind === "stock" || x.kind === "hyperrig").map(x => x.name)].filter(Boolean)) {
           const old = await this.loadBackup(unit, b);
@@ -298,14 +313,51 @@
         if (!head) throw new Trouble("elsewhere", "no header and no backup to take the partitions from");
         target = F.installTarget(now, this.assets.image, head);
         version = this.assets.version;
+        if (wide) end = F.describe(target).layout.vm;
+        if (job === "upgrade" || F.reach(now, target) > end) {
+          if (!wide) return this.throughOriginal(unit, loader, now, is, kept, interrupted, note);
+          /* with the new loader, after the original: HyperRig's user area as the copy made before has it */
+          const copy = note && note.job === "upgrade" && note.backup ? await this.loadBackup(unit, note.backup) : null;
+          if (!copy) throw new Trouble("through", "the copy of HyperRig made before this update is not here");
+          target.set(copy.subarray(F.USER, F.USER_END), F.USER);
+          job = "upgrade";
+        }
       } else {
         const original = (await this.env.store.backups(unit)).filter(b => b.kind === "stock").sort((a, b) => a.time > b.time ? -1 : 1)[0], old = original && await this.loadBackup(unit, original.name);
         if (!old) throw new Trouble("backup", "no stock backup of this pedal");
-        target = F.restoreTarget(now, old);
+        if (wide) end = F.describe(old).layout.vm;
+        target = F.restoreTarget(now, old, end);
         version = F.describe(old).version;
       }
-      let plan = F.plan(now, target);
-      this.log(`${plan.order.length} sectors, windows ${plan.windows}`);
+      await this.writeAll(job, unit, loader, now, target, end, is, { backup: job === "upgrade" ? note.backup : kept || interrupted && interrupted.backup || null, version, loader: hello.build });
+      await this.env.store.keep(unit, { job, state: "written", version, time: new Date(this.env.now()).toISOString() }).catch(() => {});
+      this.changed = false;
+      this.progress(job, "check", 0.88, 1, "Starting your pedal")(0.7);
+      await loader.leave(1);
+      const came = await this.appears(x => job === "restore" ? x.what === "stock" : x.what === "hyperrig", this.times.back).then(() => true, () => false);
+      return { version, came };
+    }
+    /* An update that needs a loader since 022, on a pedal whose stored loader is older (every HyperRig before 0.6.0): once, through
+     * the original. The old loader puts the original back from this computer's copy (it never wrote past APP_END, so the rest of
+     * the original is still on the pedal); the original's own update service then stores the new loader (perform), which installs
+     * HyperRig with the user area of the copy of HyperRig made first: presets, captures and IRs stay. The note says where it is. */
+    async throughOriginal(unit, loader, now, is, kept, interrupted, note) {
+      const copy = note && note.job === "upgrade" && note.backup || interrupted && interrupted.backup || (is.kind === "hyperrig" ? kept : null);
+      const original = (await this.env.store.backups(unit)).filter(b => b.kind === "stock").sort((a, b) => a.time > b.time ? -1 : 1)[0], old = original && await this.loadBackup(unit, original.name);
+      if (!copy || !old) throw new Trouble("through", copy ? "no stock backup of this pedal" : "no copy of HyperRig to come back to");
+      const version = this.assets.version, target = F.restoreTarget(now, old, F.APP_END);
+      this.log("this update needs the new loader: the original comes back for a moment");
+      await this.writeAll("upgrade", unit, loader, now, target, F.APP_END, is, { backup: copy, version, loader: "for the original" }, "Putting the original back for a moment");
+      await this.env.store.keep(unit, { job: "upgrade", state: "original", backup: copy, version, time: new Date(this.env.now()).toISOString() }).catch(() => {});
+      this.changed = false;
+      this.between = true;
+      await loader.leave(1);
+      return { through: true };
+    }
+    /* From now to target, the header last, after the way back was found; the note says what is being written. */
+    async writeAll(job, unit, loader, now, target, end, is, about, title) {
+      let plan = F.plan(now, target, end);
+      this.log(`${plan.order.length} sectors, windows ${plan.windows}, application up to ${end.toString(16)}`);
       if (plan.order.length) {
         /* the way back */
         let way = F.wayBack(now, this.assets.code);
@@ -318,29 +370,24 @@
           target = target.slice();
           target.set(now.subarray(sector, sector + F.SECTOR), sector);
           way = F.wayBack(now, this.assets.code);
-          plan = F.plan(now, target);
+          plan = F.plan(now, target, end);
         }
         if (is.records && !way.ok) throw new Trouble("noway", `no way back: ${JSON.stringify(way)}`);
         if (is.records && !(await loader.hello()).returns) throw new Trouble("noway", "the loader sees no way back");
-        await this.env.store.keep(unit, { job, state: "writing", backup: kept || interrupted && interrupted.backup || null, version, loader: hello.build, time: new Date(this.env.now()).toISOString() })
+        await this.env.store.keep(unit, { job, state: "writing", ...about, time: new Date(this.env.now()).toISOString() })
           .catch(e => { throw new Trouble("disk", e.message); });
-        const p = this.progress(job, "install", 0.4, 0.88);
+        const p = this.progress(job, "install", 0.4, 0.88, title);
         p(0);
         this.changed = true;
+        this.between = false;
         await loader.write(now, target, plan, p);
         this.progress(job, "check", 0.88, 1)(0.1);
         await loader.finish();
         this.log("the chip holds exactly what was meant");
       }
-      await this.env.store.keep(unit, { job, state: "written", version, time: new Date(this.env.now()).toISOString() }).catch(() => {});
-      this.changed = false;
-      this.progress(job, "check", 0.88, 1, "Starting your pedal")(0.7);
-      await loader.leave(1);
-      const came = await this.appears(x => job === "install" ? x.what === "hyperrig" : x.what === "stock", this.times.back).then(() => true, () => false);
-      return { version, came };
     }
   }
 
-  const api = { Installer, Trouble, KNOWN_STOCK, kindOf, order };
+  const api = { Installer, Trouble, KNOWN_STOCK, WIDE_FROM, kindOf, order };
   if (node) module.exports = api; else root.HrFlow = api;
 })(typeof globalThis === "object" ? globalThis : this);

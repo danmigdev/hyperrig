@@ -24,7 +24,13 @@ went at any flash operation of an installation.
 ## What it can change
 
 Whole sectors of two windows of the flash: the application, 0x4000 to 0x82000,
-and the user area, 0xBF000 to 0xFF000. It never writes the boot area, the place it is stored
+and the user area, 0xBF000 to 0xFF000. Since 022, BEGIN may widen the application's
+window up to where the pedal's VM begins (0x95000 on a TANK-MINI with 011), never
+above 0xA0000: only as the pedal's own directory says (its VM and PRCT records, read
+with the chip's key and checked by their own CRC), and only with the way back above
+it, the first update record the bootloader finds and the loader it leads to. A header
+with no directory, as after an installation cut while it was erased, leaves that to the
+bounds and the way back. It never writes the boot area, the place it is stored
 in, its update record, the radio data, the last sector, or the flash's protection
 bits. `hrs_writable` in `engine.c` is the one place that says so, and both the engine
 and the flash driver ask it. The one exception is RETIRE: it clears the mark of an
@@ -65,10 +71,10 @@ The same message again gets the same reply and is not carried out twice.
 
 | op | body | reply data |
 |---|---|---|
-| 01 HELLO | | "HRS1", chunk u16, capacity u32, JEDEC u32, chip key u16, status 1, status 2, fast, application found, done u16, sectors u16, touched, windows, build[16], way back, record u32 |
+| 01 HELLO | | "HRS1", chunk u16, capacity u32, JEDEC u32, chip key u16, status 1, status 2, fast, application found, done u16, sectors u16, touched, windows, build[16], way back, record u32, since 022 the application's window end u32 |
 | 02 READ | address u32, length u16 | the bytes |
 | 03 CRC | address u32, length u32 | crc32 u32 |
-| 10 BEGIN | now crc32, then crc32, sectors u16, windows u8 (1 application, 2 user), "ARM!" | |
+| 10 BEGIN | now crc32, then crc32, sectors u16, windows u8 (1 application, 2 user), "ARM!", since 022 optionally the application's window end u32 | |
 | 13 OPEN | crc32 of the header sector | |
 | 11 DATA | offset u16, bytes | |
 | 12 WRITE | address u32, now crc32, then crc32 | |
@@ -96,8 +102,11 @@ The first builds it and runs the engine's tests with sanitizers. The second take
 rule at a time out of the engine: the tests must notice each time. The third runs the
 compiled loader in the pi32v2 simulator, with a simulated flash, USB controller and
 host. The fourth runs the stock update service and the bootloader. The fifth runs the
-installer (`app/installer`) against the engine, natively (`host_server.c`). None of
-them is a test of a pedal.
+installer (`app/installer`) against the engine, natively (`host_server.c`), which can
+also answer as a loader from before 022 did (its HELLO and its BEGIN), for the update
+that goes once through the original. None of them is a test of a pedal. Give the fourth
+both packages, 009 and 011: with 011 last it also cuts an installation whose window is
+widened to 011's VM.
 
 The flash driver is `firmware/mini_fast/nor.c`, unchanged; it ran on a TANK-MINI under
 the ROM's clocks. `stage.c` lets it run only under the clocks the bootloader sets.

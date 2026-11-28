@@ -213,7 +213,7 @@ def installer(firmware, loader, product):
     record = json.loads((Path(firmware) / 'build-manifest.json').read_bytes())
     image = (Path(firmware) / 'hyperrig-mini.app-area.bin').read_bytes()
     require(record.get('product') == product, 'the firmware is not the one the editor is made for')
-    require(sha(image) == record['area_sha256'] and len(image) == 0x7E000, 'the firmware image differs from its record')
+    require(sha(image) == record['area_sha256'] and 0x7E000 <= len(image) <= 0x9C000 and len(image) % 4096 == 0, 'the firmware image differs from its record')
     report = json.loads((Path(loader) / 'report.json').read_bytes())
     package, code, stream = ((Path(loader) / n).read_bytes() for n in ('stage-package.bin', 'stage-code.bin', 'stage-ota.bin'))
     require(sha(package) == report['package_sha256'] and sha(code) == report['padded_sha256'] and sha(stream) == report['stored_sha256'],

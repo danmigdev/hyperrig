@@ -4,7 +4,9 @@
  *
  *   F  1 MiB: the flash            G  the flash comes back
  *   X  u32: the power goes at this erase or program (0: never)
- *   P  u8: power on; 1 when the bootloader found an application. Clears the operations and the cut.
+ *   P  u8: power on; 1 when the bootloader found an application. Clears the operations and the cut. A second byte 1: the
+ *      stored loader is an older one, before 022, as far as its messages show: HELLO without the window, and a BEGIN that
+ *      would widen it taken for a malformed one (which is what that loader answers).
  *   M  a message; its reply comes back, nothing when there is none or the power is gone
  *   O  operations u32, cut u8, what LEAVE asked for u8, untouched u8 */
 #include "engine.h"
@@ -15,7 +17,7 @@
 static uint8_t flash[HRS_CAPACITY], in[HRS_CAPACITY], out[HRS_FRAME];
 static uint32_t operations, cut_at;
 static unsigned wel, busy;
-static int cut;
+static int cut, old;
 
 static int power(uint32_t a, unsigned n, const uint8_t *data)
 {
@@ -69,6 +71,25 @@ static void nothing(void *u) { (void)u; }
 static const hrs_nor nor = {0, nor_status, nor_read, nor_enable, nor_erase, nor_program, nothing, nothing, 50};
 
 static uint32_t get(const uint8_t *p) { return (uint32_t)p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24; }
+static void put(uint8_t *p, uint32_t v) { p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8); p[2] = (uint8_t)(v >> 16); p[3] = (uint8_t)(v >> 24); }
+/* A loader before 022: its BEGIN has 15 bytes only, its HELLO no window. */
+static uint32_t as_old(uint32_t n)
+{
+    uint32_t length;
+    if (n == HRS_HEAD + 19 + 4 && in[3] == HRS_BEGIN) {
+        in[6] = 16;
+        put(in + HRS_HEAD + 16, hrs_crc32(in, HRS_HEAD + 16));
+        n = HRS_HEAD + 16 + 4;
+    }
+    length = hrs_message(in, n, out);
+    if (length == HRS_HEAD + 2 + 51 + 4 && out[3] == (HRS_HELLO | HRS_REPLY)) {
+        out[6] = 2 + 47;
+        out[7] = 0;
+        put(out + HRS_HEAD + 2 + 47, hrs_crc32(out, HRS_HEAD + 2 + 47));
+        length = HRS_HEAD + 2 + 47 + 4;
+    }
+    return length;
+}
 static void answer(int kind, const uint8_t *data, uint32_t n)
 {
     uint8_t head[5] = {(uint8_t)(kind + 32), (uint8_t)n, (uint8_t)(n >> 8), (uint8_t)(n >> 16), (uint8_t)(n >> 24)};
@@ -83,14 +104,15 @@ int main(void)
         if (head[0] == 'F' && n == HRS_CAPACITY) { memcpy(flash, in, n); answer('F', 0, 0); }
         else if (head[0] == 'G') answer('G', flash, HRS_CAPACITY);
         else if (head[0] == 'X' && n == 4) { cut_at = get(in); answer('X', 0, 0); }
-        else if (head[0] == 'P' && n == 1) {
+        else if (head[0] == 'P' && (n == 1 || n == 2)) {
             hrs_unit unit = {HRS_JEDEC, 0x980f, 1, in[0], "HRS1-host-check"};
             operations = wel = busy = 0;
             cut = 0;
+            old = n == 2 && in[1];
             hrs_start(&nor, &unit);
             answer('P', 0, 0);
         } else if (head[0] == 'M') {
-            uint32_t length = cut ? 0 : hrs_message(in, n, out);
+            uint32_t length = cut ? 0 : old ? as_old(n) : hrs_message(in, n, out);
             answer('M', out, cut ? 0 : length);
         } else if (head[0] == 'O') {
             more[0] = (uint8_t)operations; more[1] = (uint8_t)(operations >> 8); more[2] = (uint8_t)(operations >> 16); more[3] = (uint8_t)(operations >> 24);

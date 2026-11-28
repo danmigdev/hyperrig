@@ -28,6 +28,7 @@
 #endif
 #define ONCE_ONLY __attribute__((noinline))              /* one copy is enough */
 #include "harmonizer_tables.h"
+#include "pitch.h"
 
 enum { FADE = 10, PARAMETERS = 70, MEMORY = 84, STATE = 288, CHUNK = 32, RING = 2048, BEFORE = 24, AFTER = 4,
        SHORTEST = 8, LONGEST = 168, WIDE = 84, LOOK = 32, BACK = 340, OCTAVE = 12 * 256, HALF = 128,
@@ -517,6 +518,19 @@ SOUND static void sing(struct memory *m, struct voice *v, int32_t *out)
     }
 }
 
+/* Between four samples, by the third power. */
+SOUND static ONCE_ONLY void make_between(struct memory *m)
+{
+    for (int p = 0; p < 64; ++p) {
+        int16_t *c = m->between[p];
+        int b = p + 64, d = p - 64, e = p - 128;
+        c[0] = (int16_t)(p * d * e / -96);
+        c[1] = (int16_t)(b * d * e / 32);
+        c[2] = (int16_t)(b * p * e / -32);
+        c[3] = (int16_t)(b * p * d / 96);
+    }
+}
+
 SOUND void hyperrig_harmonizer_run(struct memory *m, const struct settings *s, int32_t *samples, unsigned count)
 {
     if (!m->started) {
@@ -532,14 +546,7 @@ SOUND void hyperrig_harmonizer_run(struct memory *m, const struct settings *s, i
             v->interval = s->steps[k][(s->notes >> 16) % 12] * 256;                   /* until there is a note: that of the key */
             v->step = speed_of(v->interval);
         }
-        for (int p = 0; p < 64; ++p) {                         /* between four samples, by the third power */
-            int16_t *c = m->between[p];
-            int b = p + 64, d = p - 64, e = p - 128;
-            c[0] = (int16_t)(p * d * e / -96);
-            c[1] = (int16_t)(b * d * e / 32);
-            c[2] = (int16_t)(b * p * e / -32);
-            c[3] = (int16_t)(b * p * d / 96);
-        }
+        make_between(m);
     }
     for (; count >= CHUNK; count -= CHUNK, samples += CHUNK) {
         take(m, samples);
@@ -582,6 +589,90 @@ SOUND void hyperrig_harmonizer_run(struct memory *m, const struct settings *s, i
         }
         m->now += (uint32_t)CHUNK << 16;
         m->at = (m->at + CHUNK) & (RING - 1);
+    }
+}
+
+/* The pitch glide (fx_glide.c), a block of HyperRig's frame: one voice, whose interval is the block's own and goes where it is
+ * turned, never by a jump, which is for a new note of the harmonizer. The listening is the harmonizer's: the period of a note, or
+ * of a chord where it is like itself again, is how far the voice steps. The frame gives 32 samples or fewer; the glide gathers 32
+ * and gives them back 32 samples later, so a block in parts sounds the same. */
+struct glide {
+    struct memory m;                             /* its first word, started, is cleared again after a pause */
+    int32_t fill, gain, quiet;                   /* samples gathered; the voice's level, of ONE; chunks still silent */
+    int32_t in[CHUNK], out[CHUNK];
+};
+_Static_assert(sizeof(struct glide) == GLIDE_BYTES, "the memory fx_glide.c asks for");
+
+/* For the listening: every note is of the scale, and no voice has an interval of its own. */
+TABLE static const struct settings chromatic = { 0xFFF, 0, { 0, 0 }, { { 0 } } };
+
+/* What the voice reads is within the full level, where the harmonizer's crossing of two places has room. After a start the voice
+ * is silent until what it may read is new: what the line held before a pause is not played again. */
+enum { LOUDEST_IN = (1 << 23) - 1, STARTING = 16 };
+
+SOUND static ONCE_ONLY void glide_start(struct glide *g)
+{
+    struct memory *m = &g->m;
+    struct voice *v = m->voice;
+    m->started = 1;
+    listen_anew(m);
+    m->jump = 288 << 16;
+    v->a.step = ONE;
+    v->jump = 1;
+    v->left = 0;
+    g->fill = g->gain = 0;
+    g->quiet = STARTING;
+    for (int i = 0; i < CHUNK; ++i)
+        g->out[i] = 0;
+    make_between(m);
+}
+
+SOUND static void glide_chunk(struct glide *g, const int32_t *s)
+{
+    struct memory *m = &g->m;
+    struct voice *v = m->voice;
+    int32_t *x = g->in, *out = g->out;
+    for (int i = 0; i < CHUNK; ++i)
+        x[i] = x[i] > LOUDEST_IN ? LOUDEST_IN : x[i] < -LOUDEST_IN ? -LOUDEST_IN : x[i];
+    take(m, x);
+    if (++m->turn == 4) {
+        int32_t jump = v->jump;
+        listen(m, &chromatic);
+        v->jump = jump;
+        m->turn = 0;
+    }
+    v->interval = s[GLIDE_INTERVAL];
+    v->step = speed_of(v->interval);
+    /* Faster than twice, a step back of some periods would be used up within the fade to it: as many more periods as it needs. */
+    int32_t drift = v->step - ONE, apart = m->jump, need = drift > 0 ? (drift << (m->note ? 7 : 8)) + (CHUNK << 16) : 0;
+    while (apart > 0 && m->jump < need)
+        m->jump += apart;
+    sing(m, v, out);
+    m->jump = apart;
+    /* Beside what is played, the voice comes in over the first semitone of the way: at rest only what is played is heard. */
+    int32_t far = size_of(v->interval), goal = g->quiet ? 0 : s[GLIDE_ALONE] || far >= 256 ? ONE : far << 8;
+    int32_t gain = g->gain, slope = (goal - gain) / CHUNK;
+    g->quiet -= g->quiet > 0;
+    for (int i = 0; i < CHUNK; ++i, gain += slope)
+        out[i] = (int32_t)(((int64_t)out[i] * gain) >> 16);
+    g->gain = goal;
+    m->now += (uint32_t)CHUNK << 16;
+    m->at = (m->at + CHUNK) & (RING - 1);
+}
+
+SOUND void hyperrig_glide_run(void *memory, const int32_t *settings, int32_t *x, unsigned count)
+{
+    struct glide *g = memory;
+    if (!g->m.started)
+        glide_start(g);
+    for (unsigned i = 0; i < count; ++i) {
+        int32_t v = x[i];
+        x[i] = g->out[g->fill];
+        g->in[g->fill] = v;
+        if (++g->fill == CHUNK) {
+            g->fill = 0;
+            glide_chunk(g, settings);
+        }
     }
 }
 

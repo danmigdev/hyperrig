@@ -70,6 +70,7 @@ python -B tools/check_mini_tuner.py build/release-parts/firmware
 python -B tools/check_mini_swap.py build/release-parts/firmware
 python -B tools/check_mini_scene_captures.py build/release-parts/firmware
 python -B tools/check_mini_air.py build/release-parts/firmware
+python -B tools/check_mini_ramp.py build/release-parts/firmware
 python -B tools/check_mini_cab.py build/release-parts/firmware
 python -B tools/check_mini_globals.py build/release-parts/firmware
 python -B tools/check_mini_effect_block.py build/release-parts/firmware
@@ -80,6 +81,7 @@ python -B tools/check_mini_entry_guard.py build/release-parts/firmware
 python -B tools/check_mini_boot_guard.py build/release-parts/firmware
 python -B tools/check_mini_stage_target.py build/release-parts/loader
 python -B tools/check_installer.py build/release-parts/loader
+python -B tools/check_mini_boot.py build/release-parts/loader --package TANK-MINI-009.fwsc --package TANK-MINI-011.fwsc
 python -B tools/build_desktop_editor.py --bundle build/release-parts/editor --output build/program --firmware build/release-parts/firmware --loader build/release-parts/loader
 python -B tools/check_mini_dev_editor.py --bundle build/release-parts/editor --output build/CHECK-01
 python -B tools/check_desktop_editor.py --program build/program --output build/CHECK-02
@@ -88,7 +90,9 @@ python -B -m pytest -q tests
 ```
 
 They run the built bytes in a simulator and the program with a simulated pedal. They are no test
-of a pedal, and say nothing of the sound.
+of a pedal, and say nothing of the sound. `check_mini_boot.py` runs the stock firmware's update service and the
+bootloader from the person's own copies of M-VAVE's update packages for 009 and 011, which are
+not in the repository.
 
 The picture of the editor in the README is made again from the release's editor, with the same
 simulated pedal, and put into `docs/images/` after a look; the installer's is `2-ready.png` of the

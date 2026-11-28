@@ -22,7 +22,11 @@ def test_windows_are_the_application_and_the_user_area():
     assert (define('HRS_USER'), define('HRS_USER_END')) == (0xBF000, 0xFF000)
     assert define('HRS_JEDEC') == 0xEB6014 and define('HRS_CAPACITY') == 0x100000
     engine = (SOURCE / 'engine.c').read_text(encoding='utf-8')
-    assert 'inside(a, n, HRS_APP, HRS_APP_END) || inside(a, n, HRS_USER, HRS_USER_END)' in engine
+    assert 'inside(a, n, HRS_APP, s.app_end) || inside(a, n, HRS_USER, HRS_USER_END)' in engine
+    # the application's window is HRS_APP_END unless BEGIN widens it, never past HRS_APP_END_MAX, below the radio data and the user area
+    assert define('HRS_APP_END_MAX') == 0xA0000 and define('HRS_VM_END') == 0xBE000 and define('HRS_APP_END_MAX') < define('HRS_VM_END') <= define('HRS_USER')
+    assert 'if ((end & (HRS_SECTOR - 1)) || end < HRS_APP_END || end > HRS_APP_END_MAX) return HRS_E_RANGE;' in engine
+    assert engine.count('s.app_end = ') == 2 and 's.app_end = HRS_APP_END;' in engine and 's.app_end = end;' in engine
     # the flash driver asks the same rule
     assert 'int hyf_range(uint32_t a, uint32_t n) { return hrs_permits(a, n); }' in (SOURCE / 'stage.c').read_text(encoding='utf-8')
     assert 'return hrs_writable(a, n) || (s.retiring && a == s.retiring && n == HRS_PAGE); }' in engine

@@ -54,7 +54,9 @@
     if (open) return;
     const d = open = el("dialog", { class: "t3k hrsh", "aria-label": "Presets on Patchstorage" }), words = el("input", { type: "search", maxlength: "60", placeholder: "Search", "aria-label": "Search" }), say = el("p", { class: "tsay", role: "status" });
     const rows = el("div", { class: "hrshl" }), more = el("button", { class: "btn", type: "button", text: "More", hidden: true }), where = el("span", { class: "hrshn" });
-    let page = 0, asked = "", working = false;
+    const order = el("select", { "aria-label": "Sort", title: "Sort the list", onchange: () => void look(true) },
+      ...[["new", "Newest"], ["downloads", "Most downloaded"], ["likes", "Most liked"]].map(([value, text]) => el("option", { value, text })));
+    let page = 0, asked = "", sorted = "new", working = false;
     const close = () => { d.close(); d.remove(); open = null; };
     d.addEventListener("cancel", e => { e.preventDefault(); if (!d.querySelector(".hrshone")) close(); else back(); });
     const busyNow = on => { working = on; for (const b of d.querySelectorAll("button")) if (!b.dataset.out) b.disabled = on; };
@@ -63,19 +65,20 @@
     async function look(fresh) {
       if (working) return;
       busyNow(true); tell("Asking Patchstorage…");
-      if (fresh) { page = 0; asked = words.value.trim(); rows.replaceChildren(); where.textContent = ""; }
+      if (fresh) { page = 0; asked = words.value.trim(); sorted = order.value; rows.replaceChildren(); where.textContent = ""; }
       try {
-        const got = await (await ask(`search?q=${encodeURIComponent(asked)}&page=${page + 1}`)).json();
+        const got = await (await ask(`search?q=${encodeURIComponent(asked)}&page=${page + 1}&order=${encodeURIComponent(sorted)}`)).json();
         page = got.page;
-        for (const p of got.list) rows.append(el("button", { type: "button", class: "hrshrow", onclick: () => void show(p) }, el("b", { text: p.title }), el("span", { text: ["by " + p.creator, p.day, p.downloads === 1 ? "1 download" : p.downloads + " downloads"].filter(Boolean).join(" · ") }), p.about ? el("span", { text: p.about }) : null));
+        for (const p of got.list) rows.append(el("button", { type: "button", class: "hrshrow", onclick: () => void show(p) }, el("b", { text: p.title }), el("span", { text: ["by " + p.creator, p.day, p.downloads === 1 ? "1 download" : p.downloads + " downloads", p.likes === 1 ? "1 like" : p.likes + " likes"].filter(Boolean).join(" · ") }), p.about ? el("span", { text: p.about }) : null));
         tell(rows.children.length ? "" : asked ? "Nothing was found." : "There are no presets yet.");
         where.textContent = got.total !== null && rows.children.length ? `${rows.children.length} of ${got.total}` : "";
         more.hidden = !(got.page < got.pages);
       } catch (e) { tell(String(e.message || e), true); }
       busyNow(false);
+      if (order.value !== sorted) void look(true);       // chosen while Patchstorage was answering
     }
     const first = el("div", { class: "tin" }, el("h2", { text: "Presets on Patchstorage" }), el("p", { text: "Presets that other players share. You can hear one on the pedal without saving it, or save its file." }),
-      el("form", { class: "hrshq", onsubmit: e => { e.preventDefault(); void look(true); } }, words, el("button", { class: "btn", type: "submit", text: "Search" })), say, rows,
+      el("form", { class: "hrshq", onsubmit: e => { e.preventDefault(); void look(true); } }, words, order, el("button", { class: "btn", type: "submit", text: "Search" })), say, rows,
       el("div", { class: "tacts" }, where, more, el("button", { class: "btn", type: "button", text: "Share your own…", onclick: () => own() }), el("button", { class: "btn", type: "button", text: "Close", "data-out": "1", onclick: close })), el("div", { class: "tby" }, el("span", {}, "From ", link("https://patchstorage.com/", "Patchstorage"), ". Each preset is its creator's.")));
     more.onclick = () => void look(false);
     const back = () => { d.replaceChildren(first); tell(""); };

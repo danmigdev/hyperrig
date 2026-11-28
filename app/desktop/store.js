@@ -56,10 +56,16 @@ function store(folder, { now = () => new Date() } = {}) {
     keep(unit, text) {
       need(typeof text === "string" && text.length < 4096, "note");
       const value = JSON.parse(text);
-      need(value && ["install", "restore"].includes(value.job) && ["writing", "written"].includes(value.state), "note");
+      need(noteOk(value), "note");
       fs.mkdirSync(place(unit), { recursive: true });
       write(place(unit, "note.json"), JSON.stringify(value) + "\n");
     },
   };
 }
-module.exports = { store, StoreError, SIZE };
+/* A note the installer may keep: its job and how far it got. An update that goes once through the original (flow.js,
+ * throughOriginal) is "upgrade", and "original" while the original is on the pedal for a moment. */
+function noteOk(value) {
+  return !!value && typeof value === "object" && ["install", "restore", "upgrade"].includes(value.job) &&
+    (["writing", "written"].includes(value.state) || value.state === "original" && value.job === "upgrade");
+}
+module.exports = { store, noteOk, StoreError, SIZE };

@@ -71,7 +71,8 @@ static void nor_delay(void *u) { (void)u; }
 static void nor_idle(void *u) { (void)u; ++idles; }
 static const hrs_nor nor = {0, nor_status, nor_read, nor_enable, nor_erase, nor_program, nor_delay, nor_idle, 50};
 
-/* The host */
+/* The host; end is where it takes the application's window to end (HRS_APP_END: the old BEGIN, as old hosts send it). */
+static uint32_t end = HRS_APP_END;
 static uint16_t seq;
 static uint8_t reply[HRS_FRAME];
 static uint32_t reply_length;
@@ -100,16 +101,20 @@ static unsigned ask(unsigned op, const uint8_t *body, unsigned n)
     return reply[8];
 }
 static void le(uint8_t *p, uint32_t v, unsigned n) { while (n--) { *p++ = (uint8_t)v; v >>= 8; } }
-static unsigned begin(const uint8_t *now, const uint8_t *want, unsigned sectors, unsigned windows)
+static unsigned begin_to(const uint8_t *now, const uint8_t *want, unsigned sectors, unsigned windows, uint32_t to, int wide)
 {
-    uint8_t b[15];
+    uint8_t b[19];
     le(b, hrs_crc32(now, HRS_CAPACITY), 4);
     le(b + 4, hrs_crc32(want, HRS_CAPACITY), 4);
     le(b + 8, sectors, 2);
     b[10] = (uint8_t)windows;
     le(b + 11, HRS_MAGIC, 4);
-    return ask(HRS_BEGIN, b, 15);
+    le(b + 15, to, 4);
+    return ask(HRS_BEGIN, b, wide ? 19 : 15);
 }
+/* The old BEGIN of 15 bytes while the window is the old one; with its end when it is wider. */
+static unsigned begin(const uint8_t *now, const uint8_t *want, unsigned sectors, unsigned windows)
+{ return begin_to(now, want, sectors, windows, end, end != HRS_APP_END); }
 static unsigned open_app(const uint8_t *now) { uint8_t b[4]; le(b, hrs_crc32(now + HRS_APP, HRS_SECTOR), 4); return ask(HRS_OPEN, b, 4); }
 static unsigned send(const uint8_t *sector)
 {
@@ -152,16 +157,16 @@ static void fresh(void)
     erases = programs = 0;
     restart(1);
 }
-/* The sectors of want that differ from now in the windows, the header last. */
+/* The sectors of want that differ from now in the windows (the application's up to end), the header last. */
 static unsigned plan(const uint8_t *now, const uint8_t *want, uint32_t *list, unsigned *windows, int force_header)
 {
     uint32_t a;
     unsigned n = 0, app = 0;
     *windows = 0;
     for (a = HRS_APP + HRS_SECTOR; a < HRS_USER_END; a += HRS_SECTOR) {
-        if (!hrs_writable(a, HRS_SECTOR) || !memcmp(now + a, want + a, HRS_SECTOR)) continue;
+        if (!(a < end || (a >= HRS_USER && a < HRS_USER_END)) || !memcmp(now + a, want + a, HRS_SECTOR)) continue;
         list[n++] = a;
-        if (a < HRS_APP_END) app = 1; else *windows |= HRS_WINDOW_USER;
+        if (a < end) app = 1; else *windows |= HRS_WINDOW_USER;
     }
     if (app || force_header || memcmp(now + HRS_APP, want + HRS_APP, HRS_SECTOR)) { list[n++] = HRS_APP; *windows |= HRS_WINDOW_APP; }
     return n;
@@ -184,7 +189,7 @@ static int header_looks_valid(void) { return flash[HRS_APP] == 0x11 && !memcmp(f
 static int new_header(void) { return !memcmp(flash + HRS_APP, target + HRS_APP, 256); }
 static int outside_same(void)
 {
-    return !memcmp(flash, before, HRS_APP) && !memcmp(flash + HRS_APP_END, before + HRS_APP_END, HRS_USER - HRS_APP_END) &&
+    return !memcmp(flash, before, HRS_APP) && !memcmp(flash + end, before + end, HRS_USER - end) &&
         !memcmp(flash + HRS_USER_END, before + HRS_USER_END, HRS_CAPACITY - HRS_USER_END);
 }
 
@@ -217,6 +222,11 @@ static void plant(uint8_t *f, uint32_t record, uint32_t place, unsigned code_crc
 static unsigned returns(void) { CHECK(!hello()); return reply[10 + 42]; }
 static uint32_t first_record(void)
 { return (uint32_t)reply[53] | (uint32_t)reply[54] << 8 | (uint32_t)reply[55] << 16 | (uint32_t)reply[56] << 24; }
+static uint32_t window(void)
+{
+    CHECK(!hello() && reply_length == 14 + 51);
+    return (uint32_t)reply[57] | (uint32_t)reply[58] << 8 | (uint32_t)reply[59] << 16 | (uint32_t)reply[60] << 24;
+}
 
 static void images(void)
 {
@@ -588,6 +598,195 @@ static void way_back(void)
     images();
 }
 
+/* A directory at the head of the application, as a TANK-MINI with 011 has it: the VM at vm, vm_size long, PRCT from prct_from,
+ * prct long. JieLi's encoding with the chip's key, the records' own CRC-16. */
+static void records(uint8_t *f, uint32_t vm, uint32_t vm_size, uint32_t prct_from, uint32_t prct)
+{
+    static const char *const names[] = {"app_area_head", "app.bin", "cfg_tool.bin", "VM", "PRCT", "BTIF", "USR"};
+    uint8_t page[HRS_PAGE];
+    uint32_t o, key;
+    unsigned i, k;
+    memset(page, 0xff, sizeof(page));
+    for (k = 0; k < 7; ++k) {
+        uint8_t *r = page + 32 * k;
+        memset(r, 0, 16);
+        le(r + 2, 0xffff, 2);
+        le(r + 4, k == 3 ? vm : k == 4 ? prct_from : k == 5 ? HRS_VM_END : k == 6 ? HRS_USER : 0x120 * k, 4);
+        le(r + 8, k == 3 ? vm_size : k == 4 ? prct : k == 5 ? HRS_SECTOR : k == 6 ? HRS_USER_END - HRS_USER : 0x1000, 4);
+        r[12] = 0x92;
+        memset(r + 16, 0xff, 16);
+        memcpy(r + 16, names[k], strlen(names[k]) + 1);
+        seal(page, 32 * k, 32);
+    }
+    for (o = 0; o < HRS_PAGE; o += 32)
+        for (key = 0x980f ^ (o >> 2), i = 0; i < 32; ++i) {
+            f[HRS_APP + o + i] = (uint8_t)(page[o + i] ^ key);
+            key = (key << 1 ^ (key & 0x8000 ? 0x1021 : 0)) & 0xffff;
+        }
+}
+/* The application's partition up to vm (PRCT up to prct), the VM from vm to HRS_VM_END. */
+static void directory(uint8_t *f, uint32_t vm, uint32_t prct) { records(f, vm, HRS_VM_END - vm, 0, prct); }
+static unsigned wide_install(const uint8_t *want, uint32_t to) { uint32_t was = end; unsigned e; end = to; e = install(want); end = was; return e; }
+/* The window widened up to the pedal's VM (0x95000, as on a TANK-MINI with 011), and every way it is refused. */
+static void wide(void)
+{
+    unsigned total, k, e;
+    directory(before, 0x95000, 0x95000);
+    memcpy(target, before, sizeof(target));
+    target[HRS_APP + HRS_PAGE] ^= 0x22;                    /* the header changes past its directory */
+    target[HRS_APP_END] ^= 1;                              /* the first sector the old window did not have ... */
+    target[0x94000 + 77] ^= 0x40;                          /* ... and the last one of the wide window */
+    target[0x88000 + 5] ^= 0x10;
+    target[0x30000] ^= 2;
+    target[HRS_USER + 9] ^= 4;
+    /* an old loader's window, unless BEGIN says */
+    fresh();
+    CHECK(window() == HRS_APP_END && !hrs_writable(HRS_APP_END, HRS_SECTOR));
+    {
+        static uint8_t now[HRS_CAPACITY];
+        uint32_t list[HRS_MAX_SECTORS + 1];
+        unsigned windows, n;
+        memcpy(now, flash, sizeof(now));
+        end = 0x95000;
+        n = plan(now, target, list, &windows, 0);
+        end = HRS_APP_END;
+        CHECK(!begin_to(now, target, n, windows, HRS_APP_END, 0) && !open_app(now));      /* the old BEGIN: 0x82000 is not in it */
+        CHECK(write(HRS_APP_END, now, target) == HRS_E_RANGE && write(0x94000, now, target) == HRS_E_RANGE && erases == 1);
+    }
+    /* widened as the directory says: written, checked, reported */
+    fresh();
+    CHECK(!wide_install(target, 0x95000) && !memcmp(flash, target, sizeof(flash)) && window() == 0x95000);
+    CHECK(hrs_writable(0x94000, HRS_SECTOR) && !hrs_writable(0x95000, HRS_SECTOR) && !hrs_writable(0x94000, HRS_SECTOR + 1));
+    CHECK(!leave(HRS_START_APP));
+    restart(1);
+    CHECK(!wide_install(before, 0x95000) && !memcmp(flash, before, sizeof(flash)));          /* and back */
+    /* the application alone, the wide part with it: BEGIN names the application's window only */
+    {
+        static uint8_t app_only[HRS_CAPACITY];
+        memcpy(app_only, target, sizeof(app_only));
+        memcpy(app_only + HRS_USER, before + HRS_USER, HRS_USER_END - HRS_USER);
+        fresh();
+        CHECK(!wide_install(app_only, 0x95000) && !memcmp(flash, app_only, sizeof(flash)));
+    }
+    /* refused before anything is read or written: a BEGIN of another length, not whole sectors, too narrow, too wide, not what
+     * the directory says */
+    {
+        uint8_t m[24];
+        memset(m, 0, sizeof(m));
+        le(m + 11, HRS_MAGIC, 4);
+        le(m + 15, 0x95000, 4);
+        fresh();
+        for (k = 16; k <= 24; ++k) if (k != 19) CHECK(ask(HRS_BEGIN, m, k) == HRS_E_FRAME && phase() == HRS_READY);
+        le(m + 11, HRS_MAGIC ^ 1, 4);
+        CHECK(ask(HRS_BEGIN, m, 19) == HRS_E_FRAME);
+    }
+    {
+        static const uint32_t bad[] = {0x95001, 0x94fff, 0x81000, 0x4000, 0, 0xa1000, 0xbe000, 0xffffffffu};
+        static const uint32_t other[] = {0x96000, 0x94000, 0xa0000, 0x83000};
+        for (k = 0; k < sizeof(bad) / sizeof(*bad); ++k) {
+            fresh();
+            CHECK(begin_to(flash, target, 4, 3, bad[k], 1) == HRS_E_RANGE && phase() == HRS_READY && window() == HRS_APP_END);
+        }
+        for (k = 0; k < sizeof(other) / sizeof(*other); ++k) {
+            fresh();
+            CHECK(begin_to(flash, target, 4, 3, other[k], 1) == HRS_E_RANGE && phase() == HRS_READY && !erases && !programs);
+        }
+    }
+    /* a 009 pedal: its VM starts at 0x82000, widening would write into its settings; the old window is still fine */
+    fresh();
+    directory(flash, HRS_APP_END, HRS_APP_END);
+    CHECK(begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_RANGE && !begin_to(flash, flash, 1, 3, HRS_APP_END, 1));
+    /* a PRCT record that says otherwise; a VM record whose CRC is wrong is no record (PRCT still decides) */
+    fresh();
+    directory(flash, 0x95000, 0x96000);
+    CHECK(begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_RANGE);
+    fresh();
+    directory(flash, 0x96000, 0x95000);
+    flash[HRS_APP + 96 + 20] ^= 1;
+    CHECK(!begin_to(flash, target, 4, 3, 0x95000, 1));
+    fresh();
+    directory(flash, 0x96000, 0x95000);
+    CHECK(begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_RANGE);
+    fresh();
+    records(flash, 0x96000, HRS_VM_END - 0x95000, 0, 0x95000);          /* the VM's place says otherwise, its length does not */
+    CHECK(begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_RANGE);
+    fresh();
+    records(flash, 0x95000, HRS_VM_END - 0x96000, 0, 0x95000);          /* its length says otherwise */
+    CHECK(begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_RANGE);
+    fresh();
+    records(flash, 0x95000, HRS_VM_END - 0x95000, HRS_SECTOR, 0x95000); /* PRCT does not start at 0 */
+    CHECK(begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_RANGE);
+    /* without the chip's key the directory cannot be read: not widened */
+    {
+        hrs_unit u = {HRS_JEDEC, 0, 1, 1, "nokey"};
+        fresh();
+        hrs_start(&nor, &u);
+        CHECK(begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_RANGE && !begin_to(flash, target, 4, 3, HRS_APP_END, 1));
+        fresh();
+        memset(flash + HRS_APP, 0xff, HRS_SECTOR);
+        hrs_start(&nor, &u);
+        CHECK(!begin_to(flash, target, 4, 3, 0x95000, 1));                 /* a blank header needs no key */
+    }
+    /* a blank header says nothing: then the bounds alone decide */
+    {
+        static const uint32_t bad[] = {0x95001, 0x81000, 0xa1000, 0xbe000};
+        for (k = 0; k < sizeof(bad) / sizeof(*bad); ++k) {
+            fresh();
+            memset(flash + HRS_APP, 0xff, HRS_SECTOR);
+            restart(0);
+            CHECK(begin_to(flash, target, 4, 3, bad[k], 1) == HRS_E_RANGE && phase() == HRS_READY);
+        }
+        fresh();
+        memset(flash + HRS_APP, 0xff, HRS_SECTOR);
+        restart(0);
+        CHECK(!begin_to(flash, target, 4, 3, HRS_APP_END_MAX, 1));
+    }
+    /* the way back must lie above the window: the record the bootloader finds first, and the loader it leads to */
+    fresh();
+    memset(flash + PLACE, 0xff, 64);
+    plant(flash, RECORD, 0x90000, HRS_LOADER_CRC);
+    CHECK(returns() == 1 && begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_NO_RETURN && phase() == HRS_READY);
+    fresh();
+    memset(flash + RECORD, 0xff, 80);
+    CHECK(begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_NO_RETURN);
+    fresh();
+    plant(flash, 0xbdf00, 0xb9000, 0x1234);                                /* another loader's record, found first */
+    CHECK(returns() == 0 && begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_NO_RETURN);
+    fresh();
+    memset(flash + RECORD, 0xff, 80);
+    plant(flash, 0x93f00, PLACE, HRS_LOADER_CRC);
+    CHECK(returns() == 1 && first_record() == 0x93f00 && begin_to(flash, target, 4, 3, 0x95000, 1) == HRS_E_NO_RETURN);
+    /* a header with no directory (blank, or an installation cut while it was erased): the bounds and the way back decide */
+    fresh();
+    memset(flash + HRS_APP, 0xff, HRS_SECTOR);
+    restart(0);
+    CHECK(!wide_install(target, 0x95000) && !memcmp(flash, target, sizeof(flash)));
+    /* power gone at each operation of a wide installation; a new session with the same window finishes it, or goes back */
+    end = 0x95000;
+    fresh();
+    CHECK(!install(target));
+    total = operations;
+    for (k = 1; k <= total; ++k) {
+        fresh();
+        cut_at = k;
+        e = install(target);
+        CHECK(e && cut && outside_same());
+        clear_faults();
+        restart(0);
+        CHECK(returns() == 1 && leave(HRS_START_APP) == HRS_E_NO_APP);
+        CHECK(!install(target) && !memcmp(flash, target, sizeof(flash)) && window() == 0x95000 && !leave(HRS_START_APP));
+        fresh();
+        cut_at = k;
+        CHECK(install(target));
+        clear_faults();
+        restart(0);
+        CHECK(!install(before) && !memcmp(flash, before, sizeof(flash)) && !leave(HRS_START_APP));
+    }
+    end = HRS_APP_END;
+    printf("wide window: power cut at each of %u flash operations, forwards and back\n", total);
+    images();
+}
+
 int main(void)
 {
     images();
@@ -599,6 +798,7 @@ int main(void)
     repeats();
     power_cuts();
     faults();
+    wide();
     printf("engine tests passed\n");
     return 0;
 }

@@ -37,8 +37,9 @@ SysEx, other cables, what is torn.
 ## Where it is kept
 
 `GSAVE` writes it behind the 32 bytes of the lights in the record `TKGX` of the settings: the letter `M`, whether the
-port is on, and the thirty bytes of the settings; the record is 64 bytes then. An older HyperRig reads the 32 bytes,
-and drops the rest when it writes the lights. Presets are untouched.
+port is on, and the thirty bytes of the settings; the record is 64 bytes then. Since 0.6.0 the ramps of the
+footswitches follow (the letter `R` and eighteen bytes, see `RAMP` in MINI_DEV_EDITOR.md), and the record is 88 bytes. An
+older HyperRig reads the 32 bytes, and drops the rest when it writes the lights. Presets are untouched.
 
 ## The console
 

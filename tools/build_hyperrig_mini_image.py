@@ -416,6 +416,8 @@ def main():
     if not capture['intact']:
         raise SystemExit(f'the embedded capture is damaged: the audio engine would not start ({capture})')
     area = json.loads((source / 'mini/area.json').read_bytes())
+    if product:                    # the application partition of M-VAVE's 011, up to 0x95000 (installer, loader 022)
+        area['partition_bytes'] = area['product_partition_bytes']
     cfg = bytes.fromhex(''.join(line.strip() for line in (source / 'mini/cfg_tool.hex').read_text(encoding='ascii')
                                 .splitlines() if line.strip() and not line.startswith('#')))
     image, layout = package(full, cfg, area)

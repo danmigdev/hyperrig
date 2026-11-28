@@ -34,9 +34,24 @@ From HyperRig, the console word `STAGE GO` starts the loader that is still store
 ## How it writes
 
 The header sector of the application is erased first and written last. From the first erase to the
-last page the bootloader finds no application and starts the loader again. Only `0x4000` to `0x82000`
-and the user area change. Every sector is checked when it is erased and when it is written, and at the
-end the chip compares the whole flash with what was meant; only then does the application start.
+last page the bootloader finds no application and starts the loader again. Only the application and
+the user area change: the application from `0x4000` up to where the pedal's own VM begins (`0x95000`
+on a TANK-MINI with 011, whose application partition is that large), or up to `0x82000` with a loader
+from before HyperRig 0.6.0. Every sector is checked when it is erased and when it is written, and at
+the end the chip compares the whole flash with what was meant; only then does the application start.
+
+## The room of 011, once through the original
+
+From 0.6.0 HyperRig may use the whole application partition of 011, 76 KB more than before. The loader
+that came with an older HyperRig writes only up to `0x82000`, and a loader cannot replace itself. So an
+update that needs the room goes, once, through the original firmware: the old loader puts the original
+back from this computer's copy, the original's own update service takes the new loader, as for a first
+installation, and the new loader installs HyperRig with the presets, captures and IRs of the copy of
+HyperRig made just before. It needs both copies on this computer, which the computer HyperRig was
+installed with has. If the power or the cable goes on the way, the program goes on from where it
+stopped, in whichever loader the pedal is. If it stops while the original is on the pedal, as when the
+original does not take the new loader, the program says so: Install HyperRig, then or after starting the
+program again, goes on, and the presets come back with it. Later updates are plain ones.
 
 If the cable or the power goes, the program finds the pedal again by its own numbers and offers to
 finish. A note beside the copies says which job it was. This is so in the simulator; it was not tried

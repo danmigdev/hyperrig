@@ -383,8 +383,26 @@ assert.equal(allowed('MIDI on','ble-nus'),false,'not over Bluetooth');
 HyperRigMini.acceptBuild(['HRID 1 0.2.0-dev.1 ffffffffffffffff banks=3']);
 for(const c of right) assert.equal(allowed(c),false,'another build: '+c);
 ''', self.payload())
-        for text in ('<script src="product-midi.js"></script>', '/^(MIDI =|GEQ', 'hrMidiLines()', 'await hrMidiSay("")'):
+        for text in ('<script src="product-midi.js"></script>', '/^(MIDI =|RAMP =|GEQ', 'hrMidiLines()', 'await hrMidiSay("")'):
             self.assertIn(text, self.page)
+
+    def test_ramps_are_permitted_for_the_long_press_and_the_tap_of_this_build(self):
+        node(HEAD + r'''
+HyperRigMini.acceptPong(input.pong,'usb-cdc');
+assert.equal(allowed('RAMP'),true);
+const r='RAMP ='+'00'.repeat(18), fsa='FSA 0 1 11 0 255', right=[r,'RAMP ='+'1f'.repeat(18),fsa,'FSA 2 1 11 2 255','FSA 1 0 12 0 255'];
+for(const c of right) assert.equal(allowed(c),false,'before HRID: '+c);
+HyperRigMini.acceptBuild(['HRID 1 0.2.0-dev.1 0123456789abcdef banks=3']);
+for(const c of right) assert.equal(allowed(c),true,c);
+assert.equal(allowed('FSA 0 1 4 0 255'),true,'the other actions as before');
+for(const c of ['FSA 0 0 11 0 255','FSA 0 2 11 0 255','FSA 0 1 12 0 255','FSA 0 2 12 0 255','FSA 0 0 13 0 255','FSA 3 1 99 0 255','RAMP =00','RAMP ='+'0'.repeat(35),'RAMP ='+'00'.repeat(19),'RAMP ='+'AB'.repeat(18),'RAMP = '+'00'.repeat(18),'RAMP x']) assert.equal(allowed(c),false,c);
+HyperRigMini.acceptBuild(['HRID 1 0.2.0-dev.1 ffffffffffffffff banks=3']);
+for(const c of right) assert.equal(allowed(c),false,'another build: '+c);
+''', self.payload())
+        for text in ('<script src="product-ramp.js"></script>', '["Ramp while held…", 11]', '["Ramp on/off…", 12]', 'hrRampArgs(box, f, g)', 'hrRampLines()',
+                     'interval: ["Interval", "hrsemi"]'):
+            self.assertIn(text, self.page)
+        self.assertIn('RAMP', editor.families_of({'product': {'version': '0.6.0'}})['ble-nus'], 'over Bluetooth as well')
 
     def test_a_scene_without_a_preset_stays_in_the_pedals_memory(self):
         """An import saves its scenes before its preset has a slot: allowed when the pedal says that no preset is loaded, and only then."""

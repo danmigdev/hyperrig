@@ -10,7 +10,8 @@
  * taken. A preset or a scene that changes takes its blocks with it: they are not told one by one.
  *
  * The settings are kept by GSAVE, behind the 32 bytes of the lights in the record TKGX: a letter, the port, and the settings as they
- * are here. An older HyperRig reads the 32 bytes and leaves the rest.
+ * are here; behind them the ramps of the switches (ramp.c): a letter and theirs. An older HyperRig reads the 32 bytes and leaves the
+ * rest. The application reads 128 bytes of a record: 88 behind its head is all there is room for.
  *
  * HyperRig code; the names of the application are those of firmware/ultrarig. No hardware test of this code has been made. */
 #include <stdint.h>
@@ -22,7 +23,9 @@ enum { PLACES = 16, KNOBS = 4, SCENES = 8, PRESETS = 32, SLOTS = 16, OFF = 255, 
 enum { S_TUNER = 52, S_LAYOUT = 74, S_BYPASS = 77, S_ENGINE = 280, S_SCANNED = 776, S_KEPT = 780, S_ALL_OFF = 872, S_STEPS = 956 };
 enum { G_SCENE = 88, G_PRESET = 92 };
 enum { QUIET_MS = 300, BACK_MS = 500, STOPPED_MS = 500, A_TURN = 8 };
-enum { UNITY = 0x10000, LIGHTS = 32, HEAD = 40, ITEM = 'M', SETTINGS = 30, KEPT = LIGHTS + 2 + SETTINGS };
+enum { UNITY = 0x10000, LIGHTS = 32, HEAD = 40, ITEM = 'M', SETTINGS = 30, KEPT_MIDI = LIGHTS + 2 + SETTINGS };
+enum { RAMPS = 'R', RAMP_BYTES = 18, KEPT = KEPT_MIDI + 24 };                 /* the ramps' letter, theirs, and room to spare */
+_Static_assert(HEAD + KEPT <= 128 && KEPT_MIDI + 1 + RAMP_BYTES <= KEPT, "what the application reads of a record");
 enum { EVENT_ENABLE = 101, EVENT_PARAMETER = 112 };
 enum { EVENT_BYTES = 0x7affe7e0 };                        /* how many bytes the event of each code has, two bits each */
 
@@ -52,6 +55,8 @@ extern uint32_t capture_metadata_crc(const void *data, unsigned length);
 extern void record_helpers_copy_name(void *header, const char *name);
 extern int settings_store_record_store(const void *record, unsigned length);
 void hyperrig_settings_import(const uint8_t *page);
+void hyperrig_ramp_export(uint8_t *to);
+void hyperrig_ramp_import(const uint8_t *from);
 int hyperrig_settings_keep(void);
 void hyperrig_midi_turn(uint32_t ms);
 int hyperrig_midi_console(const char *rest);
@@ -407,10 +412,12 @@ uint32_t hyperrig_midi_volume(uint32_t gain)
 /* The page of the record TKGX as it was read at the start, whole and right. */
 void hyperrig_settings_import(const uint8_t *page)
 {
-    if (page[4] >= KEPT && page[HEAD + LIGHTS] == ITEM) {
+    if (page[4] >= KEPT_MIDI && page[HEAD + LIGHTS] == ITEM) {
         port.wanted = page[HEAD + LIGHTS + 1] & 1;
         copy(&set, page + HEAD + LIGHTS + 2, SETTINGS);
     }
+    if (page[4] >= KEPT && page[HEAD + KEPT_MIDI] == RAMPS)
+        hyperrig_ramp_import(page + HEAD + KEPT_MIDI + 1);
 }
 
 /* In place of the store of the record TKGX in GSAVE. 0, or the application's error. A trial of the port is not kept. */
@@ -418,11 +425,16 @@ int hyperrig_settings_keep(void)
 {
     uint32_t record[(HEAD + KEPT) / 4];
     uint8_t *item = (uint8_t *)record + HEAD + LIGHTS;
+    unsigned i;
     int result;
     mode_and_settings_block_export(record + HEAD / 4);
     item[0] = ITEM;
     item[1] = port.wanted > port.trial;
     copy(item + 2, &set, SETTINGS);
+    for (i = KEPT_MIDI - LIGHTS; i < KEPT - LIGHTS; ++i)
+        item[i] = 0;
+    item[KEPT_MIDI - LIGHTS] = RAMPS;
+    hyperrig_ramp_export(item + KEPT_MIDI - LIGHTS + 1);
     record[0] = 0x58474b54;                               /* TKGX */
     record[1] = KEPT;
     record[2] = capture_metadata_crc(record + HEAD / 4, KEPT);

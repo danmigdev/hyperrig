@@ -13,12 +13,14 @@ based on UltraRig.
 
 ## What it does
 
-- **Your own chain.** 39 kinds of blocks in series or in two paths, and a NAM amp capture
+- **Your own chain.** 45 kinds of blocks in series or in two paths, and a NAM amp capture
   between them.
 - **32 presets, eight scenes in each.** A scene changes knobs and switches blocks without a gap.
-- **Your footswitches.** Presets, Stomp or Scenes, or any action on each switch.
+- **Your footswitches.** Presets, Stomp or Scenes, or any action on each switch. A switch held
+  or pressed can move a knob, up and back, in the time you give it.
 - **Acoustic.** A block that makes an acoustic guitar of an electric one, with 6 or 12 strings.
-- **Harmonizer.** One or two voices that follow your notes in the key and the scale of the song.
+- **Harmonizer and Pitch Glide.** One or two voices that follow your notes in the key and the scale
+  of the song, or one that slides up to two octaves up or down while you stand on a switch.
 - **Captures and cabs.** 15 NAM captures and 8 cab IRs in the pedal, from files or straight from
   [TONE3000](https://www.tone3000.com). Powered by TONE3000.
 - **Presets of others.** From [Patchstorage](https://patchstorage.com/platform/hyperrig/), heard on

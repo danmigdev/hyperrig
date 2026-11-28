@@ -34,6 +34,7 @@ body.ph #hrTryPreset, body.ph #hrTryFile { min-height: 40px; }
 .hrshgo-way { display: inline-flex; align-items: center; justify-content: center; }
 .hrshgo-way .hrshlogo { display: block; height: 15px; width: auto; pointer-events: none; }
 .hrsh .hrshq { display: flex; gap: 8px; margin: 0; }
+.hrsh .hrshq select { flex: none; min-height: 40px; padding: 0 8px; font-size: 15px; border: 1px solid var(--line2); border-radius: 3px; background: var(--panel2); color: var(--text); }
 .hrsh .hrshq input { flex: 1 1 auto; min-width: 0; min-height: 40px; padding: 0 12px; font-size: 15px; border: 1px solid var(--line2); border-radius: 3px; background: var(--panel2); color: var(--text); }
 .hrsh .hrshl { display: flex; flex-direction: column; gap: 6px; max-height: 44vh; overflow: auto; padding: 2px; }
 .hrsh .hrshrow { flex: none; display: grid; gap: 3px; padding: 9px 12px; min-height: 44px; border: 0; border-radius: 3px; background: var(--panel2); color: var(--text); text-align: left; font: inherit; cursor: pointer; overflow-wrap: anywhere; }

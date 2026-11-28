@@ -55,7 +55,11 @@
     // it in its memory and answers preset=-1; PSAVE then writes it with the preset.
     [/^SNAPSAVE [0-7]$/, (m, s) => !!s.snaps && (s.current === -1 || !!s.presets && integer(s.current, 0, 31) && Object.hasOwn(s.presets, s.current))],
     // Footswitch actions and lights, kept by GSAVE in the firmware's own settings record.
-    [/^FSA [0-3] [0-2] (\d{1,2}) (\d{1,3}) (\d{1,3})$/, m => integer(+m[2], 0, 255) && integer(+m[3], 0, 255)],
+    // 11 is a ramp while the switch is held, 12 the same ramp on and off (mini/product/ramp.c): a product build's, for the long press and for the tap only.
+    [/^FSA [0-3] ([0-2]) (\d{1,2}) (\d{1,3}) (\d{1,3})$/, (m, s, p) => (+m[2] <= 10 || (+m[2] === 11 && m[1] === "1" || +m[2] === 12 && m[1] === "0") && !!p)
+      && integer(+m[3], 0, 255) && integer(+m[4], 0, 255)],
+    // The ramps of the three switches: kind, knob, target, rise and fall, six bytes each.
+    [/^RAMP =([0-9a-f]{36})$/, (m, s, p) => !!p],
     [/^FSMODE (?:layout=(?:factory|scenes|custom)|mode=[a-z]{2,12}|bank=[0-9]|bypass=[01])$/, () => true],
     [/^KNOB (?:on|off)$/, (m, s, p) => !!p],
     [/^FSPRESS [0-3] [01]$/, () => true],
@@ -112,9 +116,9 @@
   const families = Object.freeze(["BPM", "TUNER", "AMP", "AMPX", "AMPEQ", "STW", "FXM", "FXL", "FXOS", "FXMIX", "FXXO", "PNEW", "PNAME",
     "PDEL", "PCOLOR", "SNAPNAME", "SNAPDEL", "FSA", "FSMODE", "FSPRESS", "FSLED", "LEDCFG", "FSDO", "GSAVE"]);
   const productFamilies = Object.freeze(["KNOB", "IRBEGIN", "IRB", "IREND", "ISAVE", "ILOAD", "IDEL", "IREAD", "FXIR",
-    "LDBEGIN", "LDB", "LDEND", "CSAVE", "CLOAD", "CDEL", "CREAD", "CTRIM", "AUDIO", "GEQ", "HPF", "LIM", "SPILL", "GLIDE", "SPUR", "CALIB", "FXC", "MIDI", "SNAPCAP", "HRLV", "REC", "RECD", "INJBEGIN", "INJB"]);
+    "LDBEGIN", "LDB", "LDEND", "CSAVE", "CLOAD", "CDEL", "CREAD", "CTRIM", "AUDIO", "GEQ", "HPF", "LIM", "SPILL", "GLIDE", "SPUR", "CALIB", "FXC", "MIDI", "SNAPCAP", "HRLV", "REC", "RECD", "INJBEGIN", "INJB", "RAMP"]);
   // PNAME by itself only says how it is used: the page asks it whether the firmware can rename.
-  const queries = Object.freeze(["PNAME", "TUNER", "FSA", "FSMODE", "FSPRESS", "FSLED", "LEDCFG", "KNOB", "HRID", "HRST", "AMPK", "MIDI", "SNAPCAP"]);
+  const queries = Object.freeze(["PNAME", "TUNER", "FSA", "FSMODE", "FSPRESS", "FSLED", "LEDCFG", "KNOB", "HRID", "HRST", "AMPK", "MIDI", "SNAPCAP", "RAMP"]);
   // Over Bluetooth a product build takes what it takes over USB, less these, which its firmware keeps to the cable.
   const cable = Object.freeze(["REC", "RECD", "INJBEGIN", "INJB"]);
 

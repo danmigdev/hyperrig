@@ -41,19 +41,20 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 BASE = ROOT / 'build/hyperrig-mini-installer-v4-fast-01/editor'
-KIND, REVISION, PRODUCT_REVISION = 'hyperrig-mini-development-editor', 'mini-dev-05', 'mini-product-38'
+KIND, REVISION, PRODUCT_REVISION = 'hyperrig-mini-development-editor', 'mini-dev-05', 'mini-product-41'
 PAGE_FILE = 'tank-mini.html'      # of the v4 package: tankmini.html, a pinned input
 FAMILIES = ['GAIN', 'PLOAD', 'PSAVE', 'SNAPSAVE', 'FXA', 'FXP', 'FXE', 'FXR', 'SNAP']    # of mini-v4-usb-01
 ADDED = ['BPM', 'TUNER', 'AMP', 'AMPX', 'AMPEQ', 'STW', 'FXM', 'FXL', 'FXOS', 'FXMIX', 'FXXO', 'PNEW', 'PNAME', 'PDEL', 'PCOLOR',
          'SNAPNAME', 'SNAPDEL', 'FSA', 'FSMODE', 'FSPRESS', 'FSLED', 'LEDCFG', 'FSDO', 'GSAVE']    # of app/mini/mini-dev-rules.js
 PRODUCT_ADDED = ['KNOB', 'IRBEGIN', 'IRB', 'IREND', 'ISAVE', 'ILOAD', 'IDEL', 'IREAD', 'FXIR',
-                 'LDBEGIN', 'LDB', 'LDEND', 'CSAVE', 'CLOAD', 'CDEL', 'CREAD', 'CTRIM', 'AUDIO', 'GEQ', 'HPF', 'LIM', 'SPILL', 'GLIDE', 'SPUR', 'CALIB', 'FXC', 'MIDI', 'SNAPCAP', 'HRLV', 'REC', 'RECD', 'INJBEGIN', 'INJB']
+                 'LDBEGIN', 'LDB', 'LDEND', 'CSAVE', 'CLOAD', 'CDEL', 'CREAD', 'CTRIM', 'AUDIO', 'GEQ', 'HPF', 'LIM', 'SPILL', 'GLIDE', 'SPUR', 'CALIB', 'FXC', 'MIDI', 'SNAPCAP', 'HRLV', 'REC', 'RECD', 'INJBEGIN', 'INJB', 'RAMP']
 CABLE = ['REC', 'RECD', 'INJBEGIN', 'INJB']      # of a product build: not over Bluetooth, the firmware keeps them to the cable
 RULES = ROOT / 'app/mini/mini-dev-rules.js'
 PRODUCT_FILES = ['product-ui.css', 'product-ui.js',      # of app/mini: the sizes of the controls, and the size of everything;
                  'product-try.css', 'product-presetfile.js', 'product-try.js', 'product-share.js',      # trying without saving; Patchstorage in the desktop program
                  'product-parametric.js', 'product-amp-knobs.js',    # NAM captures that keep knobs: their conversion, and the amp's panel
                  'product-midi.js',      # MIDI, in the settings
+                 'product-ramp.js',      # a ramp while a switch is held, in Footswitches
                  'product-scenecap.js',      # a capture for each scene
                  'product-backup.js',      # everything the pedal keeps in one file, and back
                  'product-tone3000.css', 'product-tone3000.js',      # TONE3000 in the desktop program, with its official logos
@@ -154,7 +155,7 @@ PRODUCT_PAGE = [
     ('"source build"', '"__VERSION__"'),
     ('MINI source build', '__VERSION__'),
     ('</head>', '<link rel="stylesheet" href="product-ui.css">\n<link rel="stylesheet" href="product-try.css">\n<link rel="stylesheet" href="product-tone3000.css">\n</head>'),
-    ('<script src="mini-ui.js"></script>', '<script src="mini-ui.js"></script>\n<script src="product-parametric.js"></script>\n<script src="product-amp-knobs.js"></script>\n<script src="product-ui.js"></script>\n<script src="product-midi.js"></script>\n<script src="product-presetfile.js"></script>\n<script src="product-try.js"></script>\n<script src="product-share.js"></script>\n<script src="product-tone3000.js"></script>'),
+    ('<script src="mini-ui.js"></script>', '<script src="mini-ui.js"></script>\n<script src="product-parametric.js"></script>\n<script src="product-amp-knobs.js"></script>\n<script src="product-ui.js"></script>\n<script src="product-midi.js"></script>\n<script src="product-ramp.js"></script>\n<script src="product-presetfile.js"></script>\n<script src="product-try.js"></script>\n<script src="product-share.js"></script>\n<script src="product-tone3000.js"></script>'),
     ('<span class="alpha">MINI</span>', '<span class="alpha">TANK-MINI</span>'),
     # The acoustic block (mini/product/acoustic.c): its name and picture, a group of its own, 6 and 12 strings as two buttons, its tips.
     ('  doubler:   { name: "Doubler",', '  acoustic:  { name: "Acoustic",   c: "#c98f4e", ico: \'<path d="m14.6 9.4 5.2-5.2M18.300 2.700l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
@@ -181,7 +182,12 @@ PRODUCT_PAGE = [
      '    tip: "The scale of the song. Fixed: every note has the same interval, whatever the key." },\n'
      '  hrvoice: { first: -7, names: ["Octave below", "7th below", "6th below", "5th below", "4th below", "3rd below", "2nd below", "Off", "2nd above", "3rd above", "4th above", "5th above", "6th above", "7th above", "Octave above"],\n'
      '    tip: "What this voice sings to the note that is played. Each voice uses more of the pedal." } };\n'
-     'const HR_PARAM = { key: ["Key", "hrkey"], scale: ["Scale", "hrscale"], voice1: ["Voice 1", "hrvoice"], voice2: ["Voice 2", "hrvoice"] };\n'
+     '/* The pitch glide (mini/product/fx_glide.c): its interval by name, two octaves down to two up. */\n'
+     'HR_LIST.hrsemi = { first: -24, tip: "Where the voice goes at full bend.", names: (() => {\n'
+     '  const n = ["Unison", "Minor 2nd", "Major 2nd", "Minor 3rd", "Major 3rd", "4th", "Tritone", "5th", "Minor 6th", "Major 6th", "Minor 7th", "Major 7th", "Octave"];\n'
+     '  return Array.from({ length: 49 }, (_, i) => { const v = i - 24, a = Math.abs(v), w = a === 24 ? "Two octaves" : a > 12 ? "Octave and " + n[a - 12].toLowerCase() : n[a];\n'
+     '    return v ? w + (v > 0 ? " up" : " down") : w; }); })() };\n'
+     'const HR_PARAM = { key: ["Key", "hrkey"], scale: ["Scale", "hrscale"], voice1: ["Voice 1", "hrvoice"], voice2: ["Voice 2", "hrvoice"], interval: ["Interval", "hrsemi"] };\n'
      'const SYNC = ["free",'),
     ('function plabel0(n) { ', 'function plabel0(n) { if (HR_PARAM[n]) return { lab: HR_PARAM[n][0], unit: HR_PARAM[n][1] }; '),
     ('function fmtVal0(v, unit) {\n', 'function fmtVal0(v, unit) {\n  if (HR_LIST[unit]) return HR_LIST[unit].names[v - HR_LIST[unit].first] || v;\n'),
@@ -455,10 +461,21 @@ PRODUCT_PAGE += [
 ]
 # MIDI is a setting of the pedal as the others are (app/mini/product-midi.js): read with them, changed at once, kept by Save to pedal, put back when it is not.
 PRODUCT_PAGE += [
-    ('const GD_LIVE = /^(GEQ \\d|', 'const GD_LIVE = /^(MIDI =|GEQ \\d|'),
-    ('function gdLinesG() {\n  const L = [];', 'function gdLinesG() {\n  const L = typeof hrMidiLines === "function" ? hrMidiLines() : [];'),
+    ('const GD_LIVE = /^(GEQ \\d|', 'const GD_LIVE = /^(MIDI =|RAMP =|GEQ \\d|'),
+    ('function gdLinesG() {\n  const L = [];', 'function gdLinesG() {\n  const L = [...(typeof hrMidiLines === "function" ? hrMidiLines() : []), ...(typeof hrRampLines === "function" ? hrRampLines() : [])];'),
     ('  if (!keepSnap) gdSnap.g = gdLinesG();',
      '  if (typeof hrMidiSay === "function" && S.connected && !DEMO && !hrOther.kind) await hrMidiSay("").catch(() => null);\n  if (!keepSnap) gdSnap.g = gdLinesG();'),
+]
+# A ramp of a switch (app/mini/product-ramp.js, firmware mini/product/ramp.c): action 11 while it is held, for the long press only; 12 on and off, for the tap
+# only; both with the switch's own pickers.
+PRODUCT_PAGE += [
+    ('["Toggle block…", 8], ["Tuner", 9], ["Toggle amp", 10]];', '["Toggle block…", 8], ["Tuner", 9], ["Toggle amp", 10], ["Ramp while held…", 11], ["Ramp on/off…", 12]];'),
+    ('    for (const [lab, v] of FS_ACT) { const o = document.createElement("option"); o.value = v; o.textContent = lab; x.appendChild(o); }\n    x.value = fsTab[f][g][0];',
+     '    for (const [lab, v] of FS_ACT) { if (v >= 11 && (g !== (v === 11 ? 1 : 0) || typeof hrRampArgs !== "function")) continue; const o = document.createElement("option"); o.value = v; o.textContent = lab; x.appendChild(o); }\n    x.value = fsTab[f][g][0];'),
+    ('  box.querySelectorAll("select.arg").forEach(x => x.remove());\n',
+     '  box.querySelectorAll("select.arg").forEach(x => x.remove());\n  box.querySelectorAll(".hrramp, .hrrampv").forEach(x => x.remove());\n  if ((t === 11 || t === 12) && typeof hrRampArgs === "function") { hrRampArgs(box, f, g); return; }\n'),
+    ('  if (t === 8) return fsBlockLabel(x);\n  return (FS_ACT.find(',
+     '  if (t === 8) return fsBlockLabel(x);\n  if ((t === 11 || t === 12) && typeof hrRampName === "function") return hrRampName(fsTab ? fsTab.findIndex(r => r && r.includes(x)) : -1, t === 12);\n  return (FS_ACT.find('),
 ]
 # A chain without a capture uses both sections of the firmware, ten blocks each and sixteen in all: where they meet (hrView, hrArrange and the others, in
 # app/mini/product-ui.js) is found for each change, and not shown.

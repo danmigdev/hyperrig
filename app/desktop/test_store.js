@@ -36,6 +36,12 @@ try {
   assert.deepEqual(s.note(unit), { job: "install", state: "writing", backup: name });
   s.keep(unit, JSON.stringify({ job: "install", state: "written" }));
   assert.equal(s.note(unit).state, "written");
+  /* an update through the original: its notes, as flow.js writes them */
+  for (const state of ["writing", "original", "writing", "written"]) {
+    s.keep(unit, JSON.stringify({ job: "upgrade", state, backup: name, version: "0.6.0", loader: "for the original", time: "2026-11-28T09:34:05.783Z" }));
+    assert.deepEqual([s.note(unit).job, s.note(unit).state, s.note(unit).backup], ["upgrade", state, name]);
+  }
+  for (const bad of ['{"job":"install","state":"original"}', '{"job":"restore","state":"original"}', '{"job":"upgrade","state":"x"}']) assert.throws(() => s.keep(unit, bad), /note/, bad);
   for (const bad of ["", "null", "{}", '{"job":"format","state":"writing"}', '{"job":"install","state":"x"}', JSON.stringify({ job: "install", state: "writing", x: "y".repeat(5000) })]) assert.throws(() => s.keep(unit, bad), undefined, bad);
   assert.equal(s.note(unit).state, "written");
   /* a copy that was cut short, or lost its description, is not offered */

@@ -34,6 +34,8 @@ void hyperrig_level_turn(void);
 extern uint8_t hyperrig_tuner_asked;
 void hyperrig_cab_turn(void);
 void hyperrig_pairs_turn(uint32_t now);
+void hyperrig_ramp_turn(uint32_t now);
+int hyperrig_ramp_console(const char *rest);
 void hyperrig_parametric_turn(void);
 void hyperrig_amp_knobs(void);
 void hyperrig_midi_turn(uint32_t now);
@@ -80,6 +82,8 @@ int hyperrig_console(const char *word, const char *rest)
     }
     if (same(word, "MIDI"))
         return hyperrig_midi_console(rest);
+    if (same(word, "RAMP"))
+        return hyperrig_ramp_console(rest);
     if (same(word, "HRLV"))
         return hyperrig_level(rest);
     if (same(word, "SNAPCAP"))
@@ -170,6 +174,7 @@ static void read_battery(uint32_t now)
 void hyperrig_panel_turn(uint32_t now)
 {
     hyperrig_pairs_turn(now);
+    hyperrig_ramp_turn(now);
     hyperrig_air_turn(now);
     hyperrig_parametric_turn();
     hyperrig_midi_turn(now);

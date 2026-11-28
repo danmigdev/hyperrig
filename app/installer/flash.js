@@ -5,6 +5,9 @@
   const W = typeof module === "object" && module.exports ? require("./wire.js") : root.HrWire;
   const { crc16, crc32, enc, sfc, u16, u32, put, same } = W;
   const CAPACITY = 0x100000, SECTOR = 4096, APP = 0x4000, APP_END = 0x82000, USER = 0xbf000, USER_END = 0xff000, VM_END = 0xbe000;
+  /* A loader since 022 may write the application up to the pedal's VM (0x95000 with M-VAVE's 011), never above APP_END_MAX; an
+   * older one up to APP_END only. */
+  const APP_END_MAX = 0xa0000;
   const JEDEC = 0xeb6014, KEY = 0x980f, LOADER_AT = 0x01c0a800, LOADER_MAX = 0x5b1c, LOADER_CRC = 0x4852, RECORD_MARK = 0x5441;
   const PARTITIONS = ["VM", "PRCT", "BTIF", "USR"];
   const NAMES = ["app_area_head", "app.bin", "cfg_tool.bin", ...PARTITIONS];
@@ -35,7 +38,7 @@
   /* The partitions as every TANK-MINI has them: VM up to 0xbe000, the radio data, the user area. */
   function layoutOf(r) {
     const vm = r.VM, at = vm.offset;
-    const ok = at >= APP_END && at <= 0xa0000 && at % SECTOR === 0 && at + vm.size === VM_END && r.PRCT.offset === 0 && r.PRCT.size === at &&
+    const ok = at >= APP_END && at <= APP_END_MAX && at % SECTOR === 0 && at + vm.size === VM_END && r.PRCT.offset === 0 && r.PRCT.size === at &&
       r.BTIF.offset === VM_END && r.BTIF.size === SECTOR && r.USR.offset === USER && r.USR.size === USER_END - USER;
     return ok ? { vm: at } : null;
   }
@@ -139,55 +142,73 @@
   }
 
   /* HyperRig's application area for one pedal: its own partition records in HyperRig's directory, signed again. On a pedal whose
-   * records are those of the image, the image comes out as it is. */
+   * records are those of the image, the image comes out as it is. An image may be longer than APP_END (a build for the
+   * application partition of 011); what it uses, as its directory says, has to fit this pedal's partition. The area ends at
+   * APP_END, or past it where what it uses ends: an image that does not use the room installs as before, with any loader. */
   function areaFor(image, unitHead) {
-    need(image.length === APP_END - APP, "image", "the firmware image has another size");
-    const plain = sfc(image, KEY), own = records(plain), unit = records(sfc(unitHead.subarray(0, SECTOR), KEY));
-    need(own && u32(plain, 8) <= image.length && crc16(plain.subarray(32, u32(plain, 8))) === u16(plain, 2), "image", "the firmware image is damaged");
+    need(image.length >= APP_END - APP && image.length <= APP_END_MAX - APP && image.length % SECTOR === 0, "image", "the firmware image has another size");
+    const plain = sfc(image, KEY), own = records(plain), unit = records(sfc(unitHead.subarray(0, SECTOR), KEY)), used = u32(plain, 8);
+    need(own && used <= image.length && crc16(plain.subarray(32, used)) === u16(plain, 2), "image", "the firmware image is damaged");
     need(crc16(plain.subarray(0x120, 0x120 + own["app.bin"].size)) === own["app.bin"].crc, "image", "the firmware image is damaged");
-    need(unit && layoutOf(unit), "layout", "the pedal's partitions are not known");
+    const layout = unit && layoutOf(unit);
+    need(layout, "layout", "the pedal's partitions are not known");
+    need(used <= layout.vm - APP, "size", "this firmware does not fit this pedal's application partition");
+    const room = Math.min(image.length, Math.max(APP_END - APP, Math.ceil(used / SECTOR) * SECTOR));     // past APP_END only what it uses
     PARTITIONS.forEach((name, i) => plain.set(unit[name].raw, 32 * (3 + i)));
-    put(plain, 2, crc16(plain.subarray(32, u32(plain, 8))), 2);
+    put(plain, 2, crc16(plain.subarray(32, used)), 2);
     put(plain, 0, crc16(plain.subarray(2, 32)), 2);
-    const out = sfc(plain, KEY);
+    const out = sfc(plain, KEY).subarray(0, room);
     need(records(sfc(out.subarray(0, SECTOR), KEY)), "image", "the directory could not be made");
     return out;
+  }
+  /* Where the application of an image ends on the flash, as its directory says. */
+  function imageEnd(image) {
+    const plain = sfc(image.subarray(0, 32), KEY);
+    return crc16(plain.subarray(2, 32)) === u16(plain, 0) ? APP + u32(plain, 8) : APP + image.length;
   }
   function installTarget(now, image, unitHead) {
     const out = now.slice();
     out.set(areaFor(image, unitHead), APP);
     return out;
   }
-  /* The flash as it was: the application and the whole user area of the backup. What the loader cannot write must be as it was,
-   * from the application's end on in what the stock application still occupies. */
-  function restoreTarget(now, backup) {
+  /* The flash as it was: the application and the whole user area of the backup. The loader writes the application up to end (the
+   * pedal's VM with a loader since 022, APP_END with an older one); from there to the VM the original must still be on the pedal. */
+  function restoreTarget(now, backup, end = APP_END) {
     const was = describe(backup);
     need(was.kind === "stock" && was.whole && was.layout, "backup", "the backup does not hold a whole stock firmware");
-    need(same(now.subarray(0, APP), backup.subarray(0, APP)) && same(now.subarray(APP_END, was.layout.vm), backup.subarray(APP_END, was.layout.vm)),
+    const to = Math.min(end, was.layout.vm);
+    need(same(now.subarray(0, APP), backup.subarray(0, APP)) && same(now.subarray(to, was.layout.vm), backup.subarray(to, was.layout.vm)),
       "outside", "part of the original firmware is not on the pedal any more");
     const out = now.slice();
-    out.set(backup.subarray(APP, APP_END), APP);
+    out.set(backup.subarray(APP, to), APP);
     out.set(backup.subarray(USER, USER_END), USER);
     return out;
   }
-  const writable = a => a >= APP && a < APP_END || a >= USER && a < USER_END;
+  const writable = (a, end) => a >= APP && a < end || a >= USER && a < USER_END;
+  /* Where the application's sectors that change end: past APP_END only a loader since 022 writes them. */
+  function reach(now, target) {
+    let end = APP_END;
+    for (let a = APP_END; a < USER; a += SECTOR) if (!same(now.subarray(a, a + SECTOR), target.subarray(a, a + SECTOR))) end = a + SECTOR;
+    return end;
+  }
   /* The sectors to write, the header last; and that nothing else differs. The header is written whenever anything is, so that a
-   * pedal that was interrupted comes back to the loader and not to an application with half of its data. */
-  function plan(now, target) {
+   * pedal that was interrupted comes back to the loader and not to an application with half of its data. end: where the
+   * application's window ends, as the loader is told. */
+  function plan(now, target, end = APP_END) {
     const order = [];
     let user = false;
     for (let a = 0; a < CAPACITY; a += SECTOR) {
       if (same(now.subarray(a, a + SECTOR), target.subarray(a, a + SECTOR))) continue;
-      need(writable(a), "outside", "a sector outside the application and the user area would change");
+      need(writable(a, end), "outside", "a sector outside the application and the user area would change");
       if (a >= USER) user = true;
       order.push(a);
     }
     const last = order.filter(a => a !== APP);
     if (order.length) last.push(APP);
-    return { order: last, windows: last.length ? 1 | (user ? 2 : 0) : 0, now: crc32(now), then: crc32(target) };
+    return { order: last, windows: last.length ? 1 | (user ? 2 : 0) : 0, now: crc32(now), then: crc32(target), end };
   }
 
-  const api = { CAPACITY, SECTOR, APP, APP_END, USER, USER_END, VM_END, JEDEC, KEY, LOADER_CRC, NAMES, UNIT_PARTS, FlashError, records, layoutOf, describe, unitBytes, unblock, storedCode,
-    bootDecision, firstRecord, withoutApplication, wayBack, areaFor, installTarget, restoreTarget, plan, hex };
+  const api = { CAPACITY, SECTOR, APP, APP_END, APP_END_MAX, USER, USER_END, VM_END, JEDEC, KEY, LOADER_CRC, NAMES, UNIT_PARTS, FlashError, records, layoutOf, describe, unitBytes, unblock, storedCode,
+    bootDecision, firstRecord, withoutApplication, wayBack, areaFor, imageEnd, installTarget, restoreTarget, reach, plan, hex };
   if (typeof module === "object" && module.exports) module.exports = api; else root.HrFlash = api;
 })(typeof globalThis === "object" ? globalThis : this);
