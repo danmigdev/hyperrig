@@ -1,0 +1,17 @@
+{
+  "name": "hyperrig-android",
+  "version": "1.0.0",
+  "description": "",
+  "license": "SEE LICENSE IN ../../LICENSE.md",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor-community/bluetooth-le": "^8.4.0",
+    "@capacitor/android": "^8.6.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/core": "^8.6.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.3"
+  }
+}
