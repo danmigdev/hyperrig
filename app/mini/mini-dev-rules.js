@@ -47,7 +47,7 @@
     [/^PNEW$/, () => true],
     [form("PNAME ID (.+)"), (m, s) => !!s.presets && Object.hasOwn(s.presets, m[1]) && name(m[2])],
     [form("PDEL ID"), (m, s) => !!s.presets && Object.hasOwn(s.presets, m[1])],
-    [/^PCOLOR (?:[0-9a-f]{6}|none)( save)?$/, (m, s) => !m[1] || !!s.presets && integer(s.current, 0, 31) && Object.hasOwn(s.presets, s.current)],
+    [/^PCOLOR (?:[0-9a-f]{6}|none)$/, () => true],
     [/^SNAPCAP ([0-7]) (?:-1|[0-9]|1[0-4])$/, (m, s, p) => !!p && !!s.snaps && s.snaps.present[+m[1]] === "1"],
     [/^SNAPNAME ([0-7])(?: (.*))?$/, (m, s) => !!s.snaps && s.snaps.present[+m[1]] === "1" && (!m[2] || name(m[2]))],
     [/^SNAPDEL ([0-7])$/, (m, s) => !!s.snaps && s.snaps.present[+m[1]] === "1"],
